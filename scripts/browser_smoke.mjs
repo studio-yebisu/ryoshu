@@ -63,6 +63,7 @@ try{
   assert.equal(await page.locator('#start-import').isDisabled(),true);
   await snapshot('02-pdf-selection');
   await page.locator('[name="pdf-mode"][value="document"]').check();await page.locator('#start-import').click();
+  const pauseButton=await page.locator('[data-import-action="pause"]').elementHandle();await page.waitForFunction(async()=>(await(await fetch('/api/receipts')).json()).receipts.length>=3);assert.equal(await pauseButton.evaluate(node=>node===document.querySelector('[data-import-action="pause"]')),true);
   await page.locator('[data-import-action="pause"]').click();await page.waitForTimeout(400);
   const paused=(await api('receipts')).receipts.length;await page.waitForTimeout(400);assert.equal((await api('receipts')).receipts.length,paused);
   await snapshot('03-import-paused');await page.locator('[data-import-action="resume"]').click();
@@ -158,7 +159,7 @@ try{
 
 
   const folder=path.join(out,'folder-input'),nested=path.join(folder,'nested');await fs.mkdir(nested,{recursive:true});await fs.copyFile(root+'/samples/receipts-100-v2/thumbnails/V001.jpg',path.join(folder,'a.jpg'));await fs.copyFile(root+'/samples/receipts-100-v2/thumbnails/V002.jpg',path.join(nested,'b.jpg'));await fs.writeFile(path.join(folder,'対象外.txt'),'unsupported');
-  await page.locator('#upload-top').click();await page.locator('#folder-input').setInputFiles(folder);await waitImported(3);await waitComplete(202);assert.match(await page.locator('#import-progress').innerText(),/対象外1ファイル/);checks.push('folder selection includes nested files and explains unsupported formats');
+  await page.locator('#upload-top').click();await page.locator('#folder-input').setInputFiles(folder);await waitImported(3);await waitComplete(202);assert.match(await page.locator('#import-progress').innerText(),/未対応形式1ファイル/);checks.push('folder selection includes nested files and explains unsupported formats');
   await page.locator('[data-import-action="dismiss"]').click();
   const original=rows.find(r=>r.original_name==='V001.pdf');await page.evaluate(async id=>{const raw=await(await fetch('/api/receipts/'+id+'/original')).arrayBuffer();const dt=new DataTransfer();dt.items.add(new File([raw],'V001.pdf',{type:'application/pdf'}));document.dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true}));},original.id);
   await page.locator('#import-dialog').waitFor({state:'visible'});await page.locator('[name="pdf-mode"][value="document"]').check();await page.locator('#start-import').click();await waitImported(1);assert.match(await page.locator('#import-progress').innerText(),/重複1件/);checks.push('file drop asks PDF mode and skips the existing original');

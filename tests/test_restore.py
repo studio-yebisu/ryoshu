@@ -1,6 +1,10 @@
 import io
 import json
 import zipfile
+import subprocess
+import sys
+import os
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 import pytest
@@ -28,6 +32,16 @@ def test_restore_uses_new_directory_verifies_hashes_and_keeps_old_ledger(tmp_pat
     assert Store(tmp_path / "original").get(row["id"])["sha256"] == row["sha256"]
     with pytest.raises(ValueError, match="存在"):
         restore_backup(archive, destination)
+
+
+def test_restore_cli_preserves_japanese_paths_on_an_ascii_console(tmp_path):
+    archive, _ = backup(tmp_path)
+    destination = tmp_path / "日本語の復元先"
+    command = Path(__file__).resolve().parents[1] / "scripts/restore_backup.py"
+    result = subprocess.run([sys.executable, str(command), str(archive), str(destination)],
+                            capture_output=True, env={**os.environ, "PYTHONIOENCODING": "ascii"}, timeout=20)
+    assert result.returncode == 0, result.stderr.decode("ascii", errors="replace")
+    assert json.loads(result.stdout.decode("ascii"))["restored_data"] == str(destination / "data")
 
 
 def test_path_traversal_and_unknown_files_are_rejected_before_destination_creation(tmp_path):

@@ -365,6 +365,8 @@ class Store:
             self.check(current, version)
             if current["status"] in ["queued", "processing"]:
                 raise Conflict("読み取り中です。完了を待ってください")
+            if action == "restore" and current["status"] != "excluded":
+                raise Conflict("対象外の明細だけ確認待ちへ戻せます。確認済みを修正する場合は、変更を保存してください")
             if action == "retry":
                 if current["status"] == "confirmed":
                     raise Conflict("登録済みです。先に確認待ちへ戻してください")

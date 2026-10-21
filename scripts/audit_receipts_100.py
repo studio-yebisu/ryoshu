@@ -79,6 +79,10 @@ def main():
                 item=json.loads(line);completed[item['case_id']]=item
         meta.setdefault('resumes',[]).append({'at':now(),'completed':len(completed)})
     (output/'run.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
+    if args.resume and len(completed) == len(cases):
+        # A complete frozen run needs no new server, inference, or scoring.
+        print(json.dumps({'already_complete': True, 'completed': len(completed)}), flush=True)
+        return
     env=dict(os.environ);env['RECEIPT_LEDGER_DATA']=str(output/'data');env['RECEIPT_LEDGER_PORT']=str(args.port);env['PYTHONPATH']=str(snapshot);env['RECEIPT_LEDGER_ENV_LABEL']='検証用・架空の領収書データ'
     if args.reuse_ocr:env['RECEIPT_LEDGER_OCR_REUSE']=str(args.reuse_ocr)
     log=(output/'server.log').open('ab')

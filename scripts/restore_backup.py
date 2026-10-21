@@ -17,4 +17,4 @@ if __name__ == "__main__":
     except Exception as exc:
         print("バックアップを復元できませんでした：" + str(exc), file=sys.stderr)
         raise SystemExit(1)
-    print(json.dumps(result, ensure_ascii=False))
+    print(json.dumps(result, ensure_ascii=True))

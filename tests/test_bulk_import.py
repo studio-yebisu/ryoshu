@@ -175,3 +175,27 @@ def test_single_page_pdf_is_not_duplicated_when_import_mode_changes(tmp_path):
         assert first["id"] == second["id"] and second["duplicate"]
         assert client.get(f'/api/receipts/{first["id"]}/original').content == raw
         assert len(client.get("/api/receipts").json()["receipts"]) == 1
+
+
+def test_native_split_failure_keeps_saved_pages_and_imports_other_files(tmp_path, monkeypatch):
+    raw = pdf(3)
+    original_import = pdfium.PdfDocument.import_pages
+    def broken_page(document, source, pages, *args, **kwargs):
+        if pages == [1]:
+            raise pdfium.PdfiumError("injected native page failure")
+        return original_import(document, source, pages, *args, **kwargs)
+    monkeypatch.setattr(pdfium.PdfDocument, "import_pages", broken_page)
+    app = create_app(tmp_path, run_workers=False)
+    with TestClient(app) as client:
+        result = client.post("/api/receipts", headers=HEADERS,
+                             files=[("files", ("一部が壊れた.pdf", raw)), ("files", ("正常.png", png()))],
+                             data={"pdf_mode": "pages"})
+        result.raise_for_status()
+        body = result.json()
+        assert len(body["imported"]) == 2 and len(body["errors"]) == 1
+        assert "PDFの一部を分割できません" in body["errors"][0]["message"]
+        first = body["imported"][0]["id"]
+        assert client.get(f"/api/receipts/{first}/source").content == raw
+        retry = upload(client, raw).json()
+        assert retry["imported"][0]["id"] == first and retry["imported"][0]["duplicate"]
+        assert len(client.get("/api/receipts").json()["receipts"]) == 2

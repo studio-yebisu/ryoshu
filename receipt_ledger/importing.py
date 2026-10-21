@@ -66,46 +66,49 @@ class Importer:
                 document = pdfium.PdfDocument(raw)
             except Exception as exc:
                 raise ValueError("PDFを開けません。破損やパスワード設定を確認してください") from exc
-        with PDF_LOCK, document:
-            count = len(document)
-            if count == 0:
-                raise ValueError("PDFにページが見つかりません。空のPDFでないか確認し、パスワード付きの場合は解除してから取り込んでください")
-            if not 1 <= count <= config.MAX_SPLIT_PAGES:
-                raise ValueError(f"ページごとの取り込みは1〜{config.MAX_SPLIT_PAGES}ページのPDFに対応しています")
-            digest = hashlib.sha256(raw).hexdigest()
-            original = self.source_path(digest)
-            original.parent.mkdir(parents=True, exist_ok=True)
-            if original.exists():
-                if hashlib.sha256(original.read_bytes()).hexdigest() != digest:
-                    raise ValueError("保存済みの元PDFが変更されています。バックアップを確認してください")
-            else:
-                self._atomic_write(original, raw)
-            for index in range(count):
-                with self.store.connect() as db:
-                    existing = db.execute("SELECT receipt_id FROM receipt_import_sources WHERE source_sha256=? AND page=?", (digest, index + 1)).fetchone()
-                if existing:
-                    yield self.store.get(existing["receipt_id"]), True
-                    continue
-                page_file = original.parent / f"page-{index + 1:04d}.pdf"
-                if count == 1:
-                    # A one-page document is the same receipt in either import mode.
-                    page_raw = raw
-                elif not page_file.exists():
-                    with pdfium.PdfDocument.new() as page:
-                        page.import_pages(document, [index])
-                        output = io.BytesIO()
-                        page.save(output)
-                    self._atomic_write(page_file, output.getvalue())
-                if count > 1:
-                    # Cached page bytes keep SHA-based duplicate detection stable on retry.
-                    page_raw = page_file.read_bytes()
-                validate_file(page_raw)
-                label = f"{Path(name).stem[:170]} — {index + 1}ページ.pdf"
-                row, duplicate = self.store.add(label, ".pdf", page_raw)
-                with self.store.connect() as db:
-                    db.execute("INSERT OR IGNORE INTO receipt_import_sources VALUES(?,?,?,?,?)",
-                               (row["id"], digest, name, index + 1, count))
-                yield row, duplicate
+        try:
+            with PDF_LOCK, document:
+                count = len(document)
+                if count == 0:
+                    raise ValueError("PDFにページが見つかりません。空のPDFでないか確認し、パスワード付きの場合は解除してから取り込んでください")
+                if not 1 <= count <= config.MAX_SPLIT_PAGES:
+                    raise ValueError(f"ページごとの取り込みは1〜{config.MAX_SPLIT_PAGES}ページのPDFに対応しています")
+                digest = hashlib.sha256(raw).hexdigest()
+                original = self.source_path(digest)
+                original.parent.mkdir(parents=True, exist_ok=True)
+                if original.exists():
+                    if hashlib.sha256(original.read_bytes()).hexdigest() != digest:
+                        raise ValueError("保存済みの元PDFが変更されています。バックアップを確認してください")
+                else:
+                    self._atomic_write(original, raw)
+                for index in range(count):
+                    with self.store.connect() as db:
+                        existing = db.execute("SELECT receipt_id FROM receipt_import_sources WHERE source_sha256=? AND page=?", (digest, index + 1)).fetchone()
+                    if existing:
+                        yield self.store.get(existing["receipt_id"]), True
+                        continue
+                    page_file = original.parent / f"page-{index + 1:04d}.pdf"
+                    if count == 1:
+                        # A one-page document is the same receipt in either import mode.
+                        page_raw = raw
+                    elif not page_file.exists():
+                        with pdfium.PdfDocument.new() as page:
+                            page.import_pages(document, [index])
+                            output = io.BytesIO()
+                            page.save(output)
+                        self._atomic_write(page_file, output.getvalue())
+                    if count > 1:
+                        # Cached page bytes keep SHA-based duplicate detection stable on retry.
+                        page_raw = page_file.read_bytes()
+                    validate_file(page_raw)
+                    label = f"{Path(name).stem[:170]} — {index + 1}ページ.pdf"
+                    row, duplicate = self.store.add(label, ".pdf", page_raw)
+                    with self.store.connect() as db:
+                        db.execute("INSERT OR IGNORE INTO receipt_import_sources VALUES(?,?,?,?,?)",
+                                   (row["id"], digest, name, index + 1, count))
+                    yield row, duplicate
+        except pdfium.PdfiumError as exc:
+            raise ValueError("PDFの一部を分割できません。破損やパスワード設定を確認し、別のPDFとして保存し直してください。取り込み済みのページは保持しています。") from exc
 
     @staticmethod
     def _atomic_write(path, raw):

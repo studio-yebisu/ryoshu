@@ -27,17 +27,17 @@
   "errors": [],
   "receipt_count": 202,
   "render_stress": {
-    "milliseconds": 156.59999999403954,
+    "milliseconds": 112.7999999821186,
     "closedRows": 0
   },
   "source_sha256": {
     "web/app.js": "11f22a6c47ac3636e67d5633d6777dea089879f25772e06b988ca3d3543a8818",
-    "web/import.js": "b111dc3855d35ee2d88f3e505a7d98c5a147f6493176f1145b7390206fd57731",
+    "web/import.js": "84fac1f3aeb96adc801c17d2f36af7ecd7a971914e0747b2ecf29ceccadce517",
     "web/index.html": "dd0c593a6904aba8b7aa05395a8caa30f9d0645966a48e530f0a5735f72740b5",
     "web/style.css": "25f52d32900dad04888cbf6b06646848dfc10df3d76183e0de575257679611c5",
-    "receipt_ledger/server.py": "3b5693f13a5ce9256ffadf082f39db79b64c3004d673e87b956087e63e687688",
+    "receipt_ledger/server.py": "4ed53ed23d18caf5babb681cd9a284253b2b5643276905339eca06a4c28d7624",
     "scripts/serve_browser_qa.py": "cec46344b2770674ba86787a1c4114c07074b5d08d3c40deba352bf1428e68e7",
-    "scripts/browser_smoke.mjs": "c462d040934c2c4e3833b365d6c067b704070a3bb6a69f7a336049b23a9a5839"
+    "scripts/browser_smoke.mjs": "a1b2c20c3c246a63024a5c04ed67fe9735f40afa2f1bc89c536a102542bf26df"
   },
   "observed_at": "2026-10-22",
   "review_scope": "Browser/HTTP/SQLite/CSV replay plus controlled failure injection; not new OCR/AI inference or an OS IME test."

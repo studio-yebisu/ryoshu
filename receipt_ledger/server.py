@@ -117,7 +117,7 @@ def create_app(data_dir=None, run_workers=True):
         except Exception:
             installed = ollama = False
         return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": config.MODEL,
-                "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''),
+                "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''), "source_dir": str(Path(__file__).resolve().parents[1]),
                 "model_ready": installed, "ollama_ready": ollama, "compute": "CPU", "data_dir": str(store.root),
                 "schema_version":2,"account_count":len(store.accounts(False)),"policy_count":len(store.policies()),
                 "privacy": "loopback-only; local OCR and local model; offline OCR cache"}

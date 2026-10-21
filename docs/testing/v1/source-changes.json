@@ -2,10 +2,11 @@
   "receipt_ledger/store.py": {
     "baseline": "docs/testing/baseline/store.py",
     "before_sha256": "22f58470c1e97ba59aab8a9705833e4e508cf2ec2556dd9158982eabf4a229c4",
-    "after_sha256": "d0d778036db496e268933ed92f13af1604c69b018be065856433a4c4e6daf45f",
-    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。",
+    "after_sha256": "fbbcdc80564a01e182fef9080924724acd9f514a806e1aa48612c3112da74ae2",
+    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。 対象外以外の明細を復帰操作で未確認へ変えないよう制限。",
     "regression_tests": [
-      "tests/test_retained_evidence.py"
+      "tests/test_retained_evidence.py",
+      "tests/test_v1_quality.py"
     ]
   },
   "receipt_ledger/pipeline.py": {

@@ -218,3 +218,26 @@ def test_duplicate_warning_payload_is_bounded_for_a_large_identical_group():
     warnings = possible_duplicates(rows)
     assert len(warnings) == 2000
     assert all(0 < len(ids) <= 10 and receipt_id not in ids for receipt_id, ids in warnings.items())
+
+
+@pytest.mark.parametrize("size,accepted", [((4000, 3500), True), ((5200, 5000), False)])
+def test_real_pixel_limit_matches_the_25_megapixel_guidance(size, accepted):
+    buffer = io.BytesIO()
+    with Image.new("RGB", size, "white") as source:
+        source.save(buffer, "PNG")
+    if accepted:
+        assert validate_file(buffer.getvalue()) == ".png"
+    else:
+        with pytest.raises(ValueError, match="2500万画素"):
+            validate_file(buffer.getvalue())
+
+
+def test_single_restore_does_not_demote_a_confirmed_posting(tmp_path):
+    app = create_app(tmp_path, run_workers=False)
+    row = analyzed(app.state.store)
+    draft = Draft(**row["draft"]).model_copy(update={"purpose": "架空の制作業務", "payment": "owner", "business_percent": 100})
+    saved = app.state.store.save(row["id"], row["version"], draft, confirm=True)
+    with TestClient(app) as client:
+        response = client.post(f'/api/receipts/{row["id"]}/restore', headers=HEADERS, json={"version": saved["version"]})
+        assert response.status_code == 409
+        assert app.state.store.get(row["id"])["status"] == "confirmed"

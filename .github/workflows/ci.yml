@@ -29,7 +29,7 @@ jobs:
       - run: npm run test:browser
       - shell: powershell
         run: |
-          foreach ($target in @('setup.ps1','start.ps1','stop.ps1','restore.ps1')) {
+          foreach ($target in @('setup.ps1','start.ps1','stop.ps1','restore.ps1','scripts/launcher-process.ps1')) {
             $tokens = $null; $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $pwd $target),[ref]$tokens,[ref]$errors) | Out-Null
             if ($errors) { throw ($target + ': ' + ($errors.Message -join '; ')) }
