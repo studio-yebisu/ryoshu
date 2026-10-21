@@ -31,5 +31,7 @@ receipt_ledger/store.py -text
 data/account-catalog.json -text
 # The original 100-case baseline remains byte-identical to its archived hashes.
 docs/testing/baseline/*.py -text
+docs/testing/baseline/*.json -text
+data/catalog-history/2026-10-21.6.json -text
 # Archived generator bytes correspond to generator_sha256 in the manifest.
 samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace

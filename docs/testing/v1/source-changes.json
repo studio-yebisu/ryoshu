@@ -19,5 +19,24 @@
       "tests/test_bulk_import.py",
       "tests/test_v1_quality.py"
     ]
+  },
+  "receipt_ledger/exports.py": {
+    "baseline": "docs/testing/baseline/exports.py",
+    "before_sha256": "bb260d209d668c8ed75fd0f0d6a4feda84b377911a377bfe150ad3826fbf8a92",
+    "after_sha256": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f",
+    "scope": "混在税率のエラー案内を修正。未実装の品目分割入力を案内せず、汎用CSVと原本を用いた会計ソフト側の内訳処理へ案内する。CSV列・生成ロジックとOCR・AI分類は変更しない。 freeeの取引先タグ新規登録に関する警告を追記。",
+    "regression_tests": [
+      "tests/test_exports.py"
+    ]
+  },
+  "data/account-catalog.json": {
+    "baseline": "docs/testing/baseline/account-catalog.json",
+    "before_sha256": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+    "after_sha256": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
+    "scope": "実OCR・AI100件の再実行で、居住用家賃を0円の駐車場明細から旅費交通費と提案する誤りを確認。居住用家賃の明示を用途・按分確認まで保留する一般条件を追加。原本・元の期待値・当初の100件の点数は保持。",
+    "regression_tests": [
+      "tests/test_catalog.py",
+      "tests/test_residential_rent.py"
+    ]
   }
 }
