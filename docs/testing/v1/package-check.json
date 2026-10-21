@@ -1,0 +1,9 @@
+{
+  "zip_sha256": "392cf7c782a7aa3a59fc1070807d1ac9d6598c8b9f3ecc8b43325734bc427dba",
+  "bytes": 30934216,
+  "files": 389,
+  "source_commit": "1025426d5fe7afe262e64dd8bbe637ebada36d47",
+  "archive_publication_check": "passed",
+  "archive_python_tests": 119,
+  "archive_javascript_tests": 3
+}

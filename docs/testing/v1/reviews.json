@@ -1,5 +1,5 @@
 {
-  "scope": "Source reviews only. Private raw responses are retained and hash-recorded, not published. Some CLIs do not return a model identity field; requested model and terminal execution are recorded separately. No source review is an OCR, UI execution, or SaaS import test.",
+  "scope": "Source reviews only, not UI/OCR/AI or SaaS execution. Raw responses are retained privately and hash-recorded. Requested model is distinct from response identity: some CLIs return no model identity field. Final Gemini/Kimi/Opus delta reports found no new reproducible code blocker. Document counts in frozen review inputs were updated after the snapshots and verified by119 tests and current CI.",
   "records": [
     {
       "requested_model": "gemini-3.8-flash-medium",
@@ -35,6 +35,28 @@
       "frozen_source_manifest_sha256": "8c3b75bb28d63cd053cf6817c5b2dd553a900f84019f7d4cb0c87fec5125ff49"
     },
     {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T20:06:16.865882+00:00",
+      "finished_at": "2026-10-21T20:07:33.923991+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "a31697f03707daf8922610d31a1b30a0b49910a052c3f432220a1a52ff46d022",
+      "round": "gemini-delta1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "3d53376d2b018362b97df23cdaad12b66d149ef675d50a53dea53ec5182595fd"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T20:24:53.713545+00:00",
+      "finished_at": "2026-10-21T20:27:14.238086+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "d4f8780da06c14fde01ac36a9e0515a352422b4fcd9de78be333c0f681bf8dda",
+      "round": "gemini-delta2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "415ca95e14cea83f284a794b895588fe25fa6a34a03fa98d2a5ff8e9572682f5"
+    },
+    {
       "requested_model": "kimi-code/k3",
       "started_at": "2026-10-21T17:42:46.340773+00:00",
       "finished_at": "2026-10-21T17:49:48.603256+00:00",
@@ -66,6 +88,17 @@
       "status": "completed",
       "reported_models": [],
       "frozen_source_manifest_sha256": "44246e826e15a91ddfd3f1acd5e4f148db283c09a9052ae118b445ef4e42c250"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T20:24:33.549633+00:00",
+      "finished_at": "2026-10-21T20:30:31.242351+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "55bb872370b32d5ad763d908e4c52222fbf354e3cee2e371923cefccec1508c2",
+      "round": "kimi-delta1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "9532bd93dab8b09360c4e7df5fd46738a5ec3f971c56e5327aeb9cb2c49365c8"
     },
     {
       "requested_model": "claude-opus-5-5",
@@ -122,6 +155,34 @@
       ],
       "terminal_reason": "completed",
       "frozen_source_manifest_sha256": "59beefdc95290810b7b679a3bf2c7fc93e82fd169bd0fa7d675e43358e744019"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T20:06:26.910225+00:00",
+      "finished_at": "2026-10-21T20:08:09.366555+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "4179c4a2a2952994caced0f29f6d04d728e1743240cf5c459a5812dea77905fd",
+      "round": "opus-delta1",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "9fb8cca1b7b24625cd0208f1d82369048450a0a9f8b8aeca9362c965f9ebbe73"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T20:24:43.608017+00:00",
+      "finished_at": "2026-10-21T20:40:29.686674+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "2593155fb17950bc3a60e7ec8db058b99fb325d707969c21d37e4ec51e0c11dd",
+      "round": "opus-delta2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "9532bd93dab8b09360c4e7df5fd46738a5ec3f971c56e5327aeb9cb2c49365c8"
     }
   ]
 }
