@@ -2,14 +2,14 @@
 
 [README](../README.md) / [導入手順](INSTALL.md) / [検証結果](testing/README.md)
 
-この版はWindows向けのローカル試作です。以下は必要なソフトウェアと、2026-10-21に確認した範囲です。最低RAM・CPU性能・処理速度を保証する測定はまだ行っていません。
+Windows向けのローカルWebアプリです。以下は必要なソフトウェアと、2026-10-21に確認した範囲です。最低RAM・CPU性能・処理速度を保証する測定はまだ行っていません。
 
 ## 用意するもの
 
 | 項目 | 内容 |
 | --- | --- |
 | OS・CPU構成 | Windows 11の64bit環境で確認。Pythonも64bitを使用 |
-| Python | Python 3.12、またはPython 3.12を準備できるuv。uvがない場合はPATH上の`python`が3.12であることを確認 |
+| Python | Python 3.12、またはPython 3.12を準備できるuv。uvがない場合は`py -3.12`またはPATH上のPython 3.12・64bitを使用 |
 | PowerShell | Windows PowerShell 5.1以降。起動用cmdは`powershell`を呼び出す |
 | Ollama | Windows版Ollamaをインストールし、CLIの`ollama`をPATHから呼び出せること |
 | モデル | Indra OCRの重みと`qwen3:4b`。`setup.ps1`が取得。モデルはソースに同梱しない |

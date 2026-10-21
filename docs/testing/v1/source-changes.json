@@ -1,0 +1,22 @@
+{
+  "receipt_ledger/store.py": {
+    "baseline": "docs/testing/baseline/store.py",
+    "before_sha256": "22f58470c1e97ba59aab8a9705833e4e508cf2ec2556dd9158982eabf4a229c4",
+    "after_sha256": "d0d778036db496e268933ed92f13af1604c69b018be065856433a4c4e6daf45f",
+    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。",
+    "regression_tests": [
+      "tests/test_retained_evidence.py"
+    ]
+  },
+  "receipt_ledger/pipeline.py": {
+    "baseline": "docs/testing/baseline/pipeline.py",
+    "before_sha256": "ae4a7febd4c18b56b1d869d4b3f929ac37c4d16eec9bc9179341fe4ff56e98bb",
+    "after_sha256": "80ca6b7e041ea740b6aeef6a2358c01c0b19397068615cb345c82205474814f9",
+    "scope": "AI停止時もPDF文字層・補正前OCRを確認条件に使用。PDFiumのプロセス内排他、プレビューの安全な再生成、PDFページ数・画像画素数の案内を追加。抽出・科目モデルの判定アルゴリズムと元の100件の数値は変更しない。",
+    "regression_tests": [
+      "tests/test_retained_evidence.py",
+      "tests/test_bulk_import.py",
+      "tests/test_v1_quality.py"
+    ]
+  }
+}

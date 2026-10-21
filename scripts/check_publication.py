@@ -81,13 +81,25 @@ for item in meta['exports']:
 critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt_ledger/catalog.py',
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
+changes_path = ROOT / 'docs/testing/v1/source-changes.json'
+changes = json.loads(changes_path.read_text('utf-8')) if changes_path.is_file() else {}
 for name in critical:
-    require(sha(ROOT / name) == report['current_source_hashes'][name], f'Processing source changed since OCR/AI audit: {name}')
+    original_hash = report['current_source_hashes'][name]
+    current_hash = sha(ROOT / name)
+    if current_hash == original_hash:
+        continue
+    change = changes.get(name, {})
+    archive = (ROOT / change.get('baseline', 'missing-baseline')).resolve()
+    require(archive.is_relative_to(ROOT / 'docs/testing/baseline') and archive.is_file(), f'Missing original audit baseline: {name}')
+    if archive.is_file():
+        require(sha(archive) == original_hash == change.get('before_sha256'), f'Original baseline hash differs: {name}')
+    require(current_hash == change.get('after_sha256'), f'Unrecorded processing change: {name}')
+    require(bool(change.get('scope')) and bool(change.get('regression_tests')), f'Missing change scope/tests: {name}')
 
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
-skipped = {'.git','.venv','venv','__pycache__','.pytest_cache','.local','dist'}
-text_suffixes = {'.py','.md','.json','.js','.css','.html','.txt','.yml','.yaml','.ps1','.cmd','.svg'}
+skipped = {'.git','.venv','venv','__pycache__','.pytest_cache','.local','dist','node_modules'}
+text_suffixes = {'.py','.md','.json','.js','.mjs','.cjs','.css','.html','.txt','.yml','.yaml','.ps1','.cmd','.svg'}
 class Assets(HTMLParser):
     def __init__(self, path):
         super().__init__(); self.path = path

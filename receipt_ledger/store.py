@@ -337,7 +337,8 @@ class Store:
             if confirm:
                 from .schemas import confirmation_errors
                 errors=confirmation_errors(draft)
-                checked=apply_account_policies({**draft.model_dump(),"warnings":[]},(current["ocr"] or {}).get("text", ""),self.accounts(True,db),self.policies(db))
+                from .evidence import evidence_text
+                checked=apply_account_policies({**draft.model_dump(),"warnings":[]},evidence_text(current["ocr"]),self.accounts(True,db),self.policies(db))
                 if errors or checked["blocking_reasons"]:
                     raise ValueError("\n".join(errors+checked["blocking_reasons"]))
             status = "confirmed" if confirm else "review"

@@ -14,13 +14,13 @@ Indra重みのライセンスはコードと異なります。[利用条件](../
 
 1. [ソースZIP](https://github.com/studio-yebisu/ryoshu/archive/refs/heads/main.zip)を新しいフォルダーに展開するか、`git clone https://github.com/studio-yebisu/ryoshu.git`で取得します。
 2. [Ollama公式](https://ollama.com/download)からOllamaを導入します。
-3. このフォルダーでPowerShellを開いて実行します。
+3. フォルダー内の`初回セットアップ.cmd`をダブルクリックします。利用条件を確認して続行します。コマンドで行う場合は次を使えます。
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-`setup.ps1`はユーザープロファイル内に専用venvを作成し、`requirements.lock.txt`の固定版を導入します。uvがあればPython 3.12を使用し、なければPATH上のPythonを使用します。後者では先に`python --version`で3.12を確認してください。管理者権限で実行する必要はありません。
+`setup.ps1`はユーザープロファイル内に専用venvを作成し、`requirements.lock.txt`の固定版を導入します。uvがあればPython 3.12を準備し、なければWindowsの`py -3.12`、またはPATH上のPython 3.12・64bitを使います。版を検査し、条件が合わない場合は理由を表示して止めます。管理者権限で実行する必要はありません。
 
 Ollamaが起動していない場合はバックグラウンドで起動します。モデルは各配布元から取得し、有料OCRやクラウド推論へ切り替える機能はありません。ダウンロード先の更新により取得されるモデルrevisionやdigestは検証時と異なる可能性があります。検証時の識別子は[結果ページ](testing/README.md)に記録しています。
 
@@ -32,7 +32,7 @@ Ollamaが起動していない場合はバックグラウンドで起動しま�
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -NoBrowser
 ```
 
-終了はこのフォルダーで実行します。
+終了は`停止.cmd`をダブルクリックします。コマンドで行う場合は次を使えます。
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\stop.ps1
@@ -48,4 +48,11 @@ OllamaがPATHから見つかるか、`ollama list`に`qwen3:4b`があるか確�
 
 ## バックアップと復元
 
-アプリの「設定・保存」から原本とSQLiteのスナップショットをZIPに保存できます。[復元手順](GUIDE.md)では、新しい空のフォルダーに展開し、`RECEIPT_LEDGER_DATA`をその`data`フォルダーへ向けて起動します。通常の起動は既定の保存先に戻ります。モデルと専用venvはバックアップに含みません。
+アプリの「設定・保存」から原本・分割前PDF・SQLiteをZIPに保存できます。`バックアップから復元.cmd`でZIPを選ぶと、検証後に新しい保存先へ復元します。元の帳簿は上書きせず、切り替えるか選べます。切り替え後は次回の通常起動もその保存先を使います。[復元の詳細](GUIDE.md)も確認してください。モデルと専用venvはバックアップに含みません。
+
+
+## 実行環境の再作成
+
+Python環境が壊れた、または3.12以外になっている場合は、先に`停止.cmd`で終了します。`%USERPROFILE%\StudioYebisu\ReceiptLedger\venv`を削除せず別名へ移し、`初回セットアップ.cmd`を実行します。`data`、`restored`、`cache`は移動・削除しないでください。帳簿やモデルを消さず、実行環境を作り直します。
+
+復元済みの別の保存先へ切り替えて起動する場合は、`start.ps1 -DataDir <復元先のdata>`を使えます。すでに別の帳簿を開いている場合は、先に`停止.cmd`で終了してください。保存先の記録は`runtime/data-location.json`です。

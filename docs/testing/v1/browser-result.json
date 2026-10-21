@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "scope": "Real browser/HTTP/persistence/CSV; OCR and model observations replayed by QA test double, not new inference",
+  "checks": [
+    "100 PDFs selected once, explicit PDF mode, pause/resume, saved and read to ledger",
+    "accounting CSV explains why unreviewed rows cannot be exported",
+    "ledger search",
+    "explicit batch review acknowledgement, missing amount stays pending, only valid row posted",
+    "named batch failures persist after opening a receipt and can filter the remaining rows",
+    "freee CSV download and version-aware CSV creation history",
+    "CSV preview network failure disables save and explains recovery in Japanese",
+    "persistent individual import errors and exact duplicate skip",
+    "100-page PDF split, immutable source download, 100-row pagination",
+    "Japanese composition preserves the input node, focus, and rows until composition ends",
+    "confirm-and-next follows page1 to page2 within the same split PDF",
+    "bulk exclude and restore are reversible and retain originals",
+    "refund confirmation is disabled with the exact reason visible on the form",
+    "folder selection includes nested files and explains unsupported formats",
+    "file drop asks PDF mode and skips the existing original",
+    "375px mobile layout and import dialog",
+    "optional review-first setting automatically persists",
+    "missing date in a simulated legacy confirmed row does not crash summaries",
+    "a delayed old receipt response cannot overwrite a newer refresh",
+    "old backend compatibility guard guides a restart before allowing uploads",
+    "2000-file result rendering is lazy and paged to100; this is not a2000-document OCR test"
+  ],
+  "errors": [],
+  "receipt_count": 202,
+  "render_stress": {
+    "milliseconds": 156.59999999403954,
+    "closedRows": 0
+  },
+  "source_sha256": {
+    "web/app.js": "11f22a6c47ac3636e67d5633d6777dea089879f25772e06b988ca3d3543a8818",
+    "web/import.js": "b111dc3855d35ee2d88f3e505a7d98c5a147f6493176f1145b7390206fd57731",
+    "web/index.html": "dd0c593a6904aba8b7aa05395a8caa30f9d0645966a48e530f0a5735f72740b5",
+    "web/style.css": "25f52d32900dad04888cbf6b06646848dfc10df3d76183e0de575257679611c5",
+    "receipt_ledger/server.py": "3b5693f13a5ce9256ffadf082f39db79b64c3004d673e87b956087e63e687688",
+    "scripts/serve_browser_qa.py": "cec46344b2770674ba86787a1c4114c07074b5d08d3c40deba352bf1428e68e7",
+    "scripts/browser_smoke.mjs": "c462d040934c2c4e3833b365d6c067b704070a3bb6a69f7a336049b23a9a5839"
+  },
+  "observed_at": "2026-10-22",
+  "review_scope": "Browser/HTTP/SQLite/CSV replay plus controlled failure injection; not new OCR/AI inference or an OS IME test."
+}

@@ -4,6 +4,10 @@
 *.json text eol=lf
 *.html text eol=lf
 *.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
 *.css text eol=lf
 *.ps1 text eol=crlf
 *.cmd text eol=crlf
@@ -25,5 +29,7 @@ receipt_ledger/schemas.py -text
 receipt_ledger/semantic.py -text
 receipt_ledger/store.py -text
 data/account-catalog.json -text
+# The original 100-case baseline remains byte-identical to its archived hashes.
+docs/testing/baseline/*.py -text
 # Archived generator bytes correspond to generator_sha256 in the manifest.
 samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace
