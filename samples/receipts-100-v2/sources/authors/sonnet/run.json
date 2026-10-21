@@ -1,0 +1,32 @@
+{
+  "author": "sonnet",
+  "requested_model": "claude-sonnet-5-5",
+  "label": "Claude Sonnet 5.5",
+  "ids": "V081-V090",
+  "route": "Claude Code",
+  "prompt_sha256": "8f26970f8d70a35dd78cfbb759623af0cc500b61238348f0bc08454012476fae",
+  "started_utc": "2026-10-21T02:48:27Z",
+  "status": "authored",
+  "exit_code": 0,
+  "elapsed_s": 501.88,
+  "is_error": false,
+  "code_sha256": "30c84b17aae89df0582eefe3505f436a6f255aa060c82d00d6e941a60492e50f",
+  "code_chars": 44057,
+  "reported_models": [
+    "claude-sonnet-5-5"
+  ],
+  "generator_file_sha256": "a9f5c352deab47bfbca156f73c42301c28f10707abc7bfb9586f2de16c5b8bc1",
+  "raw_output_sha256": "e5897c79b069c9bfebdb194dd7631e145d26e2d1fa3c23630b0273f162daa46a",
+  "integration_adjustments": [
+    {
+      "case_id": "V082",
+      "by": "parent integration",
+      "change": "Replaced real vehicle model with fictional 架空バン; no layout change."
+    },
+    {
+      "case_id": "V090",
+      "by": "parent integration",
+      "change": "Expected paid total 99790; retain gross_fee110000 and withholding10210 as separate metadata/adjustment; matches printed transfer."
+    }
+  ]
+}

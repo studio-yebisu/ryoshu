@@ -1,0 +1,41 @@
+{
+  "author": "kimi",
+  "requested_model": "ollama-cloud/kimi-k3",
+  "label": "Kimi K3",
+  "ids": "V001-V020",
+  "route": "DeepSeek Harness headless",
+  "prompt_sha256": "9ee470112fc6dd49420cdc0ddad86493d41aac3921f421541303fb178ce1687c",
+  "started_utc": "2026-10-21T02:51:34Z",
+  "status": "authored",
+  "exit_code": 0,
+  "elapsed_s": 152.69,
+  "reported_models": [],
+  "code_parts": [
+    "original partial response",
+    "continuation response"
+  ],
+  "code_sha256": "b5c95cc3c04040f1da0cfdc8b382acb7864a09e818ecb62db24af465fc9507b6",
+  "generator_file_sha256": "0a8147ebf9c97dfdbbec462cc46ffafea29991d803463694ee811ea33732e92e",
+  "raw_output_sha256": "03893b2024b419c00117bb5bfb0153496977aaea71c1db8a64e8152e3c9775fa",
+  "continuation_output_sha256": "9619f3599d1b457d300e359de27d7b786146fec25603306ced4e2fd5a161969e",
+  "integration_adjustments": [
+    {
+      "case_id": "V007",
+      "by": "parent integration after GPT-6.1 Sol review",
+      "change": "Preserved Reiwa1 May7 date; corrected rate from10 to8 and included tax from402 to327. Gross item amounts and total4422 unchanged."
+    },
+    {
+      "case_id": "V018",
+      "by": "parent integration after GPT-6.1 Sol review",
+      "change": "Kept38 points and balance; clarified rounded1% of merchandise3774 rather than1% of cash3274."
+    }
+  ],
+  "captured_requests": [
+    {
+      "model": "kimi-k3",
+      "max_tokens": 48000,
+      "reasoning_effort": "none",
+      "messages": 4
+    }
+  ]
+}

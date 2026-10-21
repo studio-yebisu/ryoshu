@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ryoshu — テスト画像と100件の検証結果</title>
+  <meta name="description" content="架空領収書100件の原本画像、期待値、OCR・科目候補、残った差異と手動補正。">
+  <link rel="stylesheet" href="report.css">
+  <script defer src="results.js"></script>
+  <script defer src="report.js"></script>
+</head>
+<body>
+  <header><a class="wordmark" href="index.html">Ryoshu <span>TEST REPORT · 2026.10.21</span></a><nav><a href="#method">方法と限界</a><a href="../../samples/receipts-100-v2/gallery.html">画像一覧</a><a href="comparison-100.csv" download>比較CSV ↓</a><a href="results.json" download>結果JSON ↓</a></nav></header>
+  <main>
+    <section class="intro"><p class="eyebrow">架空の100件で、読取から科目候補まで</p><h1>原本と結果を、<br>一件ずつ確かめる。</h1><p class="lead">異なる100種類の帳票をIndra OCR 1.1.2とローカルQwen3 4Bへ通した記録です。期待値・自動読取・手動補正を並べて確認できます。</p><p class="scope">この100件は修正にも使用した回帰検査です。未知の実物領収書の正答率ではありません。全件が架空・未登録で、帳簿への計上は0件です。</p></section>
+    <section aria-label="主な検証結果" id="metrics" class="metrics"></section>
+    <section class="method" id="method"><h2>この数字の読み方</h2><p>金額の分母は円額95件と外貨で円額未確定の2件。負の返金3件は除外し、停止判定を別に評価しています。暫定科目は提案を期待する48件が対象です。期待値と安全な保留に判断差がある場合も、元の厳密採点を保持しています。</p><p>100件の通し実行後、変更の影響があるケースを再取込しました。公開準備での名称・サンプル配置変更前に記録したOCR・AIの結果です。<a href="README.md" download>全指標・実行条件・修正内容・限界の記録（Markdown）↓</a></p><details><summary>CSV出力は別の検査です</summary><p>架空の免税個人事業主として6件を手動確認し、汎用・freee・MF・弥生の4形式を生成して再読込しました。7仕訳行、借貸とも299,095円。実サービスへの取込は未実施です。</p><p><a href="csv/qa-exempt-generic-journal.csv">汎用</a> · <a href="csv/qa-exempt-freee-journal.csv">freee</a> · <a href="csv/qa-exempt-mf-journal.csv">MF</a> · <a href="csv/qa-exempt-yayoi-journal.csv">弥生</a></p></details></section>
+    <section class="cases"><div class="section-title"><div><p class="eyebrow">CASE GALLERY</p><h2>100件の画像と結果</h2></div><p id="count" aria-live="polite">読み込み中…</p></div><div class="toolbar"><label>検索<input id="search" type="search" placeholder="V070、消耗品費、回転…"></label><label>表示<select id="filter"><option value="all">すべて</option><option value="different">期待値との差異あり</option><option value="manual">手動補正あり</option><option value="block">停止判定</option></select></label></div><div id="cases" class="grid"></div><noscript><p>JavaScriptが無効です。<a href="gallery.md">画像一覧</a>と<a href="comparison-100.csv">比較CSV</a>を開いてください。</p></noscript></section>
+  </main><footer>Ryoshu · local receipt OCR and account suggestions <a href="../../samples/receipts-100-v2/manifest.json">元の期待値と原本ハッシュ</a></footer>
+</body>
+</html>

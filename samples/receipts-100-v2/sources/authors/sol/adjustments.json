@@ -1,0 +1,7 @@
+[
+  {
+    "case_id": "V028",
+    "by": "parent integration",
+    "change": "Removed private-use label from vendor-facing minibar line; private/business use stays in hidden context and hold expectation."
+  }
+]

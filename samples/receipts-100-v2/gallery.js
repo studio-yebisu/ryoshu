@@ -1,0 +1,1 @@
+const input=document.querySelector('input'),cards=[...document.querySelectorAll('article')];input.addEventListener('input',()=>{let n=0;for(const card of cards){const ok=card.dataset.search.toLowerCase().includes(input.value.toLowerCase());card.hidden=!ok;n+=ok}document.querySelector('#count').textContent=n+'件'});

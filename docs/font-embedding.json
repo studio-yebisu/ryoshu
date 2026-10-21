@@ -1,0 +1,50 @@
+[
+  {
+    "font_file_name": "YuGothB.ttc",
+    "embedding_fsType": [
+      8,
+      8,
+      8
+    ]
+  },
+  {
+    "font_file_name": "YuGothM.ttc",
+    "embedding_fsType": [
+      8,
+      8
+    ]
+  },
+  {
+    "font_file_name": "meiryo.ttc",
+    "embedding_fsType": [
+      8,
+      8,
+      8,
+      8
+    ]
+  },
+  {
+    "font_file_name": "meiryob.ttc",
+    "embedding_fsType": [
+      8,
+      8,
+      8,
+      8
+    ]
+  },
+  {
+    "font_file_name": "msgothic.ttc",
+    "embedding_fsType": [
+      8,
+      8,
+      8
+    ]
+  },
+  {
+    "font_file_name": "msmincho.ttc",
+    "embedding_fsType": [
+      8,
+      8
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+* text=auto whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.pdf binary
+*.jpg binary
+*.png binary
+*.zip binary
+*.csv -text
+# Fixture manifest bytes are immutable audit inputs.
+samples/receipts-100-v2/manifest.json -text
+# Preserve audited processing-source and catalog bytes, including original CRLF.
+receipt_ledger/accounting.py -text
+receipt_ledger/catalog.py -text
+receipt_ledger/extraction.py -text
+receipt_ledger/exports.py -text
+receipt_ledger/ocr_focus.py -text
+receipt_ledger/pipeline.py -text
+receipt_ledger/schemas.py -text
+receipt_ledger/semantic.py -text
+receipt_ledger/store.py -text
+data/account-catalog.json -text
+# Archived generator bytes correspond to generator_sha256 in the manifest.
+samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace

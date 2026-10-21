@@ -1,0 +1,99 @@
+{
+  "original_author_model": "deepseek-v4.1-flash",
+  "alias_verification": "FlashNext alias not verified; author folder is only a routing label",
+  "integration_model": "GPT-6.1 Sol",
+  "original_preserved": "generate.original.py",
+  "current_generator_sha256": "d7972b40fea42772348e06eb4a7679e6634f2789bbf7e72755a5bff327e58fd0",
+  "changes": [
+    {
+      "by": "parent",
+      "cases": "all",
+      "repair": "rect() now accepts pre-existing color and dash callers; preserved as parent integration fix."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V045,V046",
+      "repair": "LayoutGuard adds explicit contains_existing option only at group/tile parent containers; ordinary overlap and page-bound checks remain active."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V045",
+      "repair": "Moved total band down50pt to avoid real group/subtotal overlap; expanded group guard to actual header bounds; moved rotated sidebar origin inside page."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V041",
+      "repair": "Unified conflicting cell amount9884 and cell tax898 to total25968/tax2360; fitted remarks and tax column inside white page, moved header rule above glyphs, shortened recipient underline away from issuer date; unified reading date to May31/month-end."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V041",
+      "repair": "Manifest now invoice_unpaid/block with no expense accounts because June25 payment is scheduled and not evidenced."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V042",
+      "repair": "Reconciled net4034+tax403=paid4437 across title, table and manifest; changed item header from gross to net; moved numeric alignments into unit/amount cells. Allocated invoice tax into genuine gross items with one-yen rounding absorbed in first row."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V043",
+      "repair": "Removed extra +consumption-tax wording after components that already sum to gross1980/1430."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V044",
+      "repair": "Corrected B summary to7185 and combined paid amount13479=7185+7185-891; normalized manifest to two gross line totals and discount."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V045",
+      "repair": "Manifest transaction date now actual paid2024-04-08; issued2024-04-10 remains on page."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V046",
+      "repair": "Moved dark background from footer to intended header, restoring legibility; corrected manifest30162 and tax2742 to actual printed totals; converted net items to gross and removed separate tax item."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V048,V049",
+      "repair": "Converted manifest net items to gross and removed tax item; V048 holds for annual prepayment review."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V048,V049,V052,V056,V060",
+      "repair": "Removed privately supplied accounting/asset decision guidance from vendor page; retained ordinary product/payment terms. V049 asset checklist becomes product delivery checklist. V052 prints partial payment ratios rather than asserting business-use allocation."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V052",
+      "repair": "Manifest hold with empty accounts due partial payment/business allocation and separately receipted full rent needing reconciliation."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V053,V054",
+      "repair": "Premium headings explicitly non-taxable rather than gross-tax wording. V053 rotated sidebar moved inside page; receipt seal moved clear of issuer."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V055",
+      "repair": "Japanese labels now use embedded Gothic rather than Courier tofu; tax60 explicitly included in fee660; aggregate movement corrected250660 rather than250720; manifest contains only fee gross660."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V056",
+      "repair": "Removed double-counted payment83900 from principal+interest item list; hold with no whole-document expense account; transaction date text now actual June27 rather than issueJune25."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V057",
+      "repair": "Corrected stamp count10 to15; cash total7000 unchanged."
+    },
+    {
+      "by": "GPT-6.1 Sol",
+      "cases": "V059",
+      "repair": "Personal income-tax advance remains real payment but hold/no expense account, not automatic tax-expense proposal."
+    }
+  ]
+}

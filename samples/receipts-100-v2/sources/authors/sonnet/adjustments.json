@@ -1,0 +1,12 @@
+[
+  {
+    "case_id": "V082",
+    "by": "parent integration",
+    "change": "Replaced real vehicle model with fictional 架空バン; no layout change."
+  },
+  {
+    "case_id": "V090",
+    "by": "parent integration",
+    "change": "Expected paid total 99790; retain gross_fee110000 and withholding10210 as separate metadata/adjustment; matches printed transfer."
+  }
+]

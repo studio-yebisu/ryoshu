@@ -1,0 +1,12 @@
+[
+  {
+    "case_id": "V007",
+    "by": "parent integration after GPT-6.1 Sol review",
+    "change": "Preserved Reiwa1 May7 date; corrected rate from10 to8 and included tax from402 to327. Gross item amounts and total4422 unchanged."
+  },
+  {
+    "case_id": "V018",
+    "by": "parent integration after GPT-6.1 Sol review",
+    "change": "Kept38 points and balance; clarified rounded1% of merchandise3774 rather than1% of cash3274."
+  }
+]

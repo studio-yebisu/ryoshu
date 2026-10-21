@@ -1,0 +1,14 @@
+{
+  "author": "sol",
+  "requested_model": "gpt-6.1-sol",
+  "route": "Codex named-model subagent",
+  "status": "authored",
+  "generator_file_sha256": "99d49fb7ee569ca9e9c4839c76bff339f1ba92eb4117297c21c96f397e8e9e54",
+  "integration_adjustments": [
+    {
+      "case_id": "V028",
+      "by": "parent integration",
+      "change": "Removed private-use label from vendor-facing minibar line; private/business use stays in hidden context and hold expectation."
+    }
+  ]
+}

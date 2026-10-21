@@ -1,0 +1,7 @@
+[
+  {
+    "case_id": "V094",
+    "by": "parent integration",
+    "change": "Manifest items.gross normalized to tax-inclusive values; printed net columns and overall tax/total unchanged; removed double-counting tax pseudo-item."
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "case_id": "V070",
+    "field": "merchant",
+    "before": "かんぶパッケージ テスト店",
+    "after": "かんぷパッケージ テスト店",
+    "basis": "原本画像の半濁点を目視確認",
+    "at": "2026-10-21T09:40:41.599440+00:00",
+    "confirmed": false,
+    "original_model_suggestion_unchanged": true
+  },
+  {
+    "case_id": "V088",
+    "field": "merchant",
+    "before": "テスト市みらい食堂",
+    "after": "特定非営利活動法人 テスト市みらい食堂",
+    "basis": "原本画像の別行の法人種別と団体名を目視確認",
+    "at": "2026-10-21T09:40:41.614575+00:00",
+    "confirmed": false,
+    "original_model_suggestion_unchanged": true
+  },
+  {
+    "case_id": "V099",
+    "field": "merchant",
+    "before": "スーパー テス ストマート",
+    "after": "スーパーテストマート 架空町店",
+    "basis": "原本画像のロゴと支店名を目視確認",
+    "at": "2026-10-21T09:40:41.630882+00:00",
+    "confirmed": false,
+    "original_model_suggestion_unchanged": true
+  }
+]

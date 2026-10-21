@@ -1,0 +1,1113 @@
+{
+  "author": "flash1017",
+  "requested_model": "ollama-cloud/deepseek-v4.1-flash:1017",
+  "label": "DeepSeek V4.1 Flash 1017",
+  "ids": "V061-V080",
+  "route": "DeepSeek Harness headless",
+  "prompt_sha256": "604ce6b91c787de46df7dcd9989f745a6df1f61b2dc48908d6dc5d53df52b79d",
+  "started_utc": "2026-10-21T03:00:01Z",
+  "status": "authored",
+  "exit_code": 0,
+  "elapsed_s": 117.33,
+  "code_sha256": "73123ffd2c96bc0faffb89cdd1a27a7f916aa82d0e537a9149ca28fd1e63f82b",
+  "code_chars": 108495,
+  "reported_models": [],
+  "generator_file_sha256": "10688d6a1f09d32355016c17264e29bae0f74f7a7a234caebd8533b604e353eb",
+  "raw_output_sha256": "671ead86b5e3405380af0e44aaf19f7816f30f565ba55c823508cc662524cb07",
+  "integration_adjustments": {
+    "author": "flash1017",
+    "integration_reviewer": "Codex integration QA (not original model author)",
+    "original_design_author": "DeepSeek V4.1 Flash1017 via actual Harness",
+    "timestamp_utc": "2026-10-21T03:19:03.837933+00:00",
+    "original_generator": "generate.original.py",
+    "original_sha256": "3113c9b46e612ce6c92719cbcb13b16d0aa235234cfa20c28d66307ec72a5361",
+    "generator_sha256": "10688d6a1f09d32355016c17264e29bae0f74f7a7a234caebd8533b604e353eb",
+    "source_diff": "../../reviews/flash1017-source.diff",
+    "changes": [
+      {
+        "case_id": "V061",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Fix five physical table columns, row shading/receipt badge/footer collisions and false full-page collision claim. Reconcile pre-tax discount and 10% tax (173300-3000+17030=187330); normalize paid date.",
+        "manifest_changes": {
+          "layout_description": {
+            "before": "横向きA5相当の画面に左に縦書き帯、右上に大型タイトル、左に発行者・宛先・請求金額のブロック、中央に品目/仕様/数量/単価/金額/税区分の6列表、右下に小計・税・値引・合計の積み上げ、左下に角印。",
+            "after": "210×160mm横長。左の縦書き帯、右上の大型タイトル、左の発行者・宛先・入金確認、中央の品目/仕様・数量・単価・金額・税率5列表、右下の税抜値引と税額を含む積み上げ、左下の角印。"
+          },
+          "date": {
+            "before": "2026-01-16",
+            "after": "2026-02-03"
+          },
+          "date_printed": {
+            "before": "発行日 2026年1月16日（入金 2026-02-03）",
+            "after": "お支払済み（2026-02-03 着金）"
+          },
+          "total": {
+            "before": 187660,
+            "after": 187330
+          }
+        }
+      },
+      {
+        "case_id": "V062",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Fit table to B5 margins, align amount column, separate issuer and recipient; convert net items to gross (59000+5900=64900). Unpaid quotation remains block.",
+        "manifest_changes": {
+          "items": {
+            "before": [
+              {
+                "name": "名刺 片面フルカラー",
+                "gross": 39600,
+                "rate": "10"
+              },
+              {
+                "name": "名刺 両面フルカラー",
+                "gross": 13500,
+                "rate": "10"
+              },
+              {
+                "name": "箔押し加工（金）",
+                "gross": 3000,
+                "rate": "10"
+              },
+              {
+                "name": "データ校正費",
+                "gross": 2100,
+                "rate": "10"
+              },
+              {
+                "name": "送料",
+                "gross": 800,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "名刺 片面フルカラー",
+                "gross": 43560,
+                "rate": "10"
+              },
+              {
+                "name": "名刺 両面フルカラー",
+                "gross": 14850,
+                "rate": "10"
+              },
+              {
+                "name": "箔押し加工（金）",
+                "gross": 3300,
+                "rate": "10"
+              },
+              {
+                "name": "データ校正費",
+                "gross": 2310,
+                "rate": "10"
+              },
+              {
+                "name": "送料",
+                "gross": 880,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V063",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Print explicit cash receipt date to distinguish it from intake date; preserve total39380 and tender40000/change620.",
+        "manifest_changes": {
+          "date_printed": {
+            "before": "受付日 2025年11月4日 14:20 / 修理完了日 2025年11月11日",
+            "after": "領収日 2025/11/11　現金"
+          }
+        }
+      },
+      {
+        "case_id": "V064",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Separate specification, quantity and money columns; repair shaded header and duplicate subtotal. Replace printed benchmark/asset instructions and invented threshold with vendor warranty copy. Normalize gross items/total284130 and asset_review; replace real brand strings.",
+        "manifest_changes": {
+          "title": {
+            "before": "自作PCパーツ購入明細（資産評価用）",
+            "after": "自作PCパーツのカード領収明細（資産確認用）"
+          },
+          "layout_description": {
+            "before": "A4縦。左に紺色の縦ガター、上部に大きいタイトルと伝票番号、店名は細いストリップ。10行の部品表はカテゴリ・型番・数量・単価・金額・備考の6列で縞模様、下に黄色の資産判定メモ枠。",
+            "after": "A4縦。紺の縦ガター、上部の大見出しとカード支払情報、カテゴリ・仕様・数量・単価・金額・税率の6列10行、下部右の総額と黄色の保証枠。"
+          },
+          "document_kind": {
+            "before": "other",
+            "after": "invoice_receipt"
+          },
+          "total": {
+            "before": 306680,
+            "after": 284130
+          },
+          "acceptable_accounts": {
+            "before": [
+              "備品費",
+              "工具器具備品",
+              "消耗品費"
+            ],
+            "after": [
+              "工具器具備品",
+              "備品費"
+            ]
+          },
+          "human_context": {
+            "before": "自作PC一式の購入。1点3万円以上の機器（CPU、モニター等）が含まれ固定資産候補だが、本ページは購入明細のみで資産判定の結論はない。",
+            "after": "業務用の自作PC一式とモニターをカードで購入。構成単位、付随費用、資産計上の要否を確認する必要がある。金額だけで処理方法は確定しない。"
+          },
+          "features": {
+            "before": [
+              "A4縦",
+              "部品別明細",
+              "固定資産候補",
+              "資産判定メモ"
+            ],
+            "after": [
+              "A4縦",
+              "部品別明細",
+              "資産確認候補",
+              "保証・動作確認"
+            ]
+          },
+          "items": {
+            "before": [
+              {
+                "name": "CPU",
+                "gross": 62800,
+                "rate": "10"
+              },
+              {
+                "name": "マザーボード",
+                "gross": 34800,
+                "rate": "10"
+              },
+              {
+                "name": "メモリ",
+                "gross": 23600,
+                "rate": "10"
+              },
+              {
+                "name": "SSD",
+                "gross": 35800,
+                "rate": "10"
+              },
+              {
+                "name": "電源",
+                "gross": 16800,
+                "rate": "10"
+              },
+              {
+                "name": "CPUクーラー",
+                "gross": 8900,
+                "rate": "10"
+              },
+              {
+                "name": "ケース",
+                "gross": 12400,
+                "rate": "10"
+              },
+              {
+                "name": "ケースFAN",
+                "gross": 5400,
+                "rate": "10"
+              },
+              {
+                "name": "OS・セットアップ",
+                "gross": 18000,
+                "rate": "10"
+              },
+              {
+                "name": "モニター",
+                "gross": 39800,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "CPU",
+                "gross": 69080,
+                "rate": "10"
+              },
+              {
+                "name": "マザーボード",
+                "gross": 38280,
+                "rate": "10"
+              },
+              {
+                "name": "メモリ",
+                "gross": 25960,
+                "rate": "10"
+              },
+              {
+                "name": "SSD",
+                "gross": 39380,
+                "rate": "10"
+              },
+              {
+                "name": "電源",
+                "gross": 18480,
+                "rate": "10"
+              },
+              {
+                "name": "CPUクーラー",
+                "gross": 9790,
+                "rate": "10"
+              },
+              {
+                "name": "ケース",
+                "gross": 13640,
+                "rate": "10"
+              },
+              {
+                "name": "ケースFAN",
+                "gross": 5940,
+                "rate": "10"
+              },
+              {
+                "name": "OS・セットアップ",
+                "gross": 19800,
+                "rate": "10"
+              },
+              {
+                "name": "モニター",
+                "gross": 43780,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V065",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Move brown header behind its white text; correct manifest total273900 and classify valuable furniture as asset_review.",
+        "manifest_changes": {
+          "date_printed": {
+            "before": "2023/09/21（発行）/ お届け 2023年9月20日",
+            "after": "2023/09/21"
+          },
+          "total": {
+            "before": 283140,
+            "after": 273900
+          },
+          "acceptable_accounts": {
+            "before": [
+              "備品費",
+              "消耗品費",
+              "修繕費"
+            ],
+            "after": [
+              "工具器具備品",
+              "備品費"
+            ]
+          },
+          "expected_decision": {
+            "before": "propose",
+            "after": "asset_review"
+          },
+          "human_context": {
+            "before": "会議用テーブル・チェア等の家具を法人向けに納品・組立し、カード一括払い。組立費を含む請求を2023-09-21に領収。",
+            "after": "会議用テーブル・チェア等の家具を法人向けに納品・組立し、カードで273,900円を一括領収。複数家具と組立費を含むため、構成単位と資産計上の要否を確認する。"
+          }
+        }
+      },
+      {
+        "case_id": "V066",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Repair header fill colors, amount heading and stamp/tax collision; total73590 agrees with net66900/tax6690. Show deposit10000 plus settlement63590, explicit payment date, and correct 賃借料 typo.",
+        "manifest_changes": {
+          "date": {
+            "before": "2024-04-08",
+            "after": "2024-04-10"
+          },
+          "date_printed": {
+            "before": "令和6年4月8日（返却 4月10日 11:45）",
+            "after": "支払日 2024年4月10日 / 全額領収済"
+          },
+          "total": {
+            "before": 72270,
+            "after": 73590
+          },
+          "acceptable_accounts": {
+            "before": [
+              "外注費",
+              "貸借料",
+              "消耗品費"
+            ],
+            "after": [
+              "賃借料",
+              "レンタル料"
+            ]
+          },
+          "human_context": {
+            "before": "3日間の撮影用機材レンタル。予約金10,000円を返却時に充当済み、追加精算なし。法人の映像プロジェクト利用。",
+            "after": "法人の映像プロジェクト用に3日間の機材を借用。予約金10,000円と返却時精算63,590円を合わせ、2024-04-10に73,590円を全額領収済み。"
+          }
+        }
+      },
+      {
+        "case_id": "V067",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Separate amount heading and total band from tax line; add omitted HDD9680 gross; total291280 and actual paid date2022-12-20.",
+        "manifest_changes": {
+          "date": {
+            "before": "2022-12-05",
+            "after": "2022-12-20"
+          },
+          "date_printed": {
+            "before": "発行 2022.12.05 / 利用 2022年11月1日〜11月30日",
+            "after": "お支払方法：銀行振込（2022年12月20日 入金確認）"
+          },
+          "total": {
+            "before": 274340,
+            "after": 291280
+          },
+          "acceptable_accounts": {
+            "before": [
+              "外注費",
+              "会議費",
+              "消耗品費"
+            ],
+            "after": [
+              "賃借料",
+              "外注費"
+            ]
+          },
+          "items": {
+            "before": [
+              {
+                "name": "スタジオ利用 11月2日",
+                "gross": 46200,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月4日",
+                "gross": 24200,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月9日",
+                "gross": 55000,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月15日",
+                "gross": 69300,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月24日",
+                "gross": 49500,
+                "rate": "10"
+              },
+              {
+                "name": "ミックスダウン・エンジニア",
+                "gross": 30800,
+                "rate": "10"
+              },
+              {
+                "name": "外部マイクレンタル",
+                "gross": 6600,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "スタジオ利用 11月2日",
+                "gross": 46200,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月4日",
+                "gross": 24200,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月9日",
+                "gross": 55000,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月15日",
+                "gross": 69300,
+                "rate": "10"
+              },
+              {
+                "name": "スタジオ利用 11月24日",
+                "gross": 49500,
+                "rate": "10"
+              },
+              {
+                "name": "ミックスダウン・エンジニア",
+                "gross": 30800,
+                "rate": "10"
+              },
+              {
+                "name": "外部マイクレンタル",
+                "gross": 6600,
+                "rate": "10"
+              },
+              {
+                "name": "HDD持ち出し（2TB, 販売）",
+                "gross": 9680,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V068",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Fix 5-tuple access: spend share calculated from amount, tax from index4; printed total1342000 (net1220000+tax122000). Align tax heading and actual custom-page description.",
+        "manifest_changes": {
+          "layout_description": {
+            "before": "A4横。左上にオレンジの大見出しブロック、右に角丸の白パネルで合計金額を強調。中央の媒体別表には表示回数と支出、構成比のミニバー、右に緑の支払状況パネル。",
+            "after": "279×170mm横長。左上にオレンジの大見出しブロック、右に角丸の白パネルで合計金額を強調。中央の媒体別表には表示回数と支出、構成比のミニバー、右に緑の支払状況パネル。"
+          },
+          "date_printed": {
+            "before": "対象期間 2025年7月1日〜31日 / 支払日 2025-08-25",
+            "after": "支払日 2025-08-25"
+          }
+        }
+      },
+      {
+        "case_id": "V069",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Fix headline total230340, align amount heading, use non-food detergent set consistent with printed10% tax and normalize paid date2024-02-20.",
+        "manifest_changes": {
+          "date": {
+            "before": "2024-01-18",
+            "after": "2024-02-20"
+          },
+          "date_printed": {
+            "before": "令和6年1月18日",
+            "after": "入金：2024年2月20日 普通預金口座へ着金"
+          },
+          "items": {
+            "before": [
+              {
+                "name": "収納ボックス（中）",
+                "gross": 38016,
+                "rate": "10"
+              },
+              {
+                "name": "ステンレスボトル 500ml",
+                "gross": 41712,
+                "rate": "10"
+              },
+              {
+                "name": "タオルセット 3枚組",
+                "gross": 36432,
+                "rate": "10"
+              },
+              {
+                "name": "調味料セット A",
+                "gross": 46200,
+                "rate": "10"
+              },
+              {
+                "name": "LEDデスクライト",
+                "gross": 43560,
+                "rate": "10"
+              },
+              {
+                "name": "食品保存容器 4個組",
+                "gross": 24420,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "収納ボックス（中）",
+                "gross": 38016,
+                "rate": "10"
+              },
+              {
+                "name": "ステンレスボトル 500ml",
+                "gross": 41712,
+                "rate": "10"
+              },
+              {
+                "name": "タオルセット 3枚組",
+                "gross": 36432,
+                "rate": "10"
+              },
+              {
+                "name": "洗剤セット A",
+                "gross": 46200,
+                "rate": "10"
+              },
+              {
+                "name": "LEDデスクライト",
+                "gross": 43560,
+                "rate": "10"
+              },
+              {
+                "name": "食品保存容器 4個組",
+                "gross": 24420,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V070",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Remove accidental100-point fill rectangle that obscured all item names and tax labels.",
+        "manifest_changes": {}
+      },
+      {
+        "case_id": "V071",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Fix runtime table index/type failure; place name/model together, JAN/qty/unit/amount/class in correct columns. Repair model-line shading and header alignment; total587290/gross items. Block because delivery note is not payment proof; replace real brand string.",
+        "manifest_changes": {
+          "title": {
+            "before": "電子部品の納品書兼受領確認（長蛇の品目表）",
+            "after": "電子部品の納品書兼受領確認（高密度品目表）"
+          },
+          "total": {
+            "before": 580690,
+            "after": 587290
+          },
+          "acceptable_accounts": {
+            "before": [
+              "消耗品費",
+              "製造原価",
+              "材料費"
+            ],
+            "after": []
+          },
+          "expected_decision": {
+            "before": "propose",
+            "after": "block"
+          },
+          "items": {
+            "before": [
+              {
+                "name": "積層セラミックコンデンサ",
+                "gross": 15000,
+                "rate": "10"
+              },
+              {
+                "name": "抵抗器 1/4W 10kΩ",
+                "gross": 6000,
+                "rate": "10"
+              },
+              {
+                "name": "電解コンデンサ 470µF",
+                "gross": 24000,
+                "rate": "10"
+              },
+              {
+                "name": "LED 赤 3mm",
+                "gross": 12000,
+                "rate": "10"
+              },
+              {
+                "name": "コネクタ 40P",
+                "gross": 19000,
+                "rate": "10"
+              },
+              {
+                "name": "基板用スペーサー",
+                "gross": 16000,
+                "rate": "10"
+              },
+              {
+                "name": "スイッチ タクト",
+                "gross": 12000,
+                "rate": "10"
+              },
+              {
+                "name": "ジャンパーワイヤ",
+                "gross": 12000,
+                "rate": "10"
+              },
+              {
+                "name": "リレー 5V",
+                "gross": 114000,
+                "rate": "10"
+              },
+              {
+                "name": "ヒートシンク 小型",
+                "gross": 52000,
+                "rate": "10"
+              },
+              {
+                "name": "テープ 絶縁 Kapton",
+                "gross": 39200,
+                "rate": "10"
+              },
+              {
+                "name": "静電気防止袋 100枚",
+                "gross": 37200,
+                "rate": "10"
+              },
+              {
+                "name": "はんだ 鉛フリー",
+                "gross": 43500,
+                "rate": "10"
+              },
+              {
+                "name": "アクリルケース",
+                "gross": 132000,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "積層セラミックコンデンサ",
+                "gross": 16500,
+                "rate": "10"
+              },
+              {
+                "name": "抵抗器 1/4W 10kΩ",
+                "gross": 6600,
+                "rate": "10"
+              },
+              {
+                "name": "電解コンデンサ 470µF",
+                "gross": 26400,
+                "rate": "10"
+              },
+              {
+                "name": "LED 赤 3mm",
+                "gross": 13200,
+                "rate": "10"
+              },
+              {
+                "name": "コネクタ 40P",
+                "gross": 20900,
+                "rate": "10"
+              },
+              {
+                "name": "基板用スペーサー",
+                "gross": 17600,
+                "rate": "10"
+              },
+              {
+                "name": "スイッチ タクト",
+                "gross": 13200,
+                "rate": "10"
+              },
+              {
+                "name": "ジャンパーワイヤ",
+                "gross": 13200,
+                "rate": "10"
+              },
+              {
+                "name": "リレー 5V",
+                "gross": 125400,
+                "rate": "10"
+              },
+              {
+                "name": "ヒートシンク 小型",
+                "gross": 57200,
+                "rate": "10"
+              },
+              {
+                "name": "テープ 絶縁 耐熱",
+                "gross": 43120,
+                "rate": "10"
+              },
+              {
+                "name": "静電気防止袋 100枚",
+                "gross": 40920,
+                "rate": "10"
+              },
+              {
+                "name": "はんだ 鉛フリー",
+                "gross": 47850,
+                "rate": "10"
+              },
+              {
+                "name": "アクリルケース",
+                "gross": 145200,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V072",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Block prepayment internal calculation with unknown withholding; gross obligation440000 remains known. Represent gross services without double tax item; exact printed date/issuer.",
+        "manifest_changes": {
+          "merchant": {
+            "before": "架空製作 株式会社 出版部（発注者）",
+            "after": "架空製作 株式会社 出版部"
+          },
+          "date_printed": {
+            "before": "計算日 2025年12月18日（支払予定 12月25日）",
+            "after": "計算日：2025年12月18日"
+          },
+          "acceptable_accounts": {
+            "before": [
+              "外注費",
+              "委託料",
+              "印刷製本費"
+            ],
+            "after": []
+          },
+          "expected_decision": {
+            "before": "propose",
+            "after": "block"
+          },
+          "items": {
+            "before": [
+              {
+                "name": "技術文書 英→日 翻訳",
+                "gross": 294000,
+                "rate": "10"
+              },
+              {
+                "name": "校正・用語統一",
+                "gross": 80000,
+                "rate": "10"
+              },
+              {
+                "name": "専門用語データ整備",
+                "gross": 26000,
+                "rate": "10"
+              },
+              {
+                "name": "消費税",
+                "gross": 40000,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "技術文書 英→日 翻訳",
+                "gross": 323400,
+                "rate": "10"
+              },
+              {
+                "name": "校正・用語統一",
+                "gross": 88000,
+                "rate": "10"
+              },
+              {
+                "name": "専門用語データ整備",
+                "gross": 28600,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V073",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Use a single gross subscription item39600, narrow accounts to training, and replace real card brand.",
+        "manifest_changes": {
+          "acceptable_accounts": {
+            "before": [
+              "研修費",
+              "交際費・会議費",
+              "雑費"
+            ],
+            "after": [
+              "研修費",
+              "教育研修費"
+            ]
+          },
+          "items": {
+            "before": [
+              {
+                "name": "基本料金",
+                "gross": 36000,
+                "rate": "10"
+              },
+              {
+                "name": "消費税（10%）",
+                "gross": 3600,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "年間PROプラン 基本料金（税込）",
+                "gross": 39600,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V074",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Remove extra canvas parameter causing paragraph runtime failure; remove printed classification guidance, preserve missing date/hold and use unknown tax rate.",
+        "manifest_changes": {
+          "items": {
+            "before": [
+              {
+                "name": "正会員 年会費",
+                "gross": 18000,
+                "rate": "exempt"
+              }
+            ],
+            "after": [
+              {
+                "name": "正会員 年会費",
+                "gross": 18000,
+                "rate": "unknown"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V075",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Remove extra canvas paragraph parameter, replace hidden/private-accounting guidance with vendor donation copy, remove contradictory non-receipt line, and use unknown tax rate/hold.",
+        "manifest_changes": {
+          "items": {
+            "before": [
+              {
+                "name": "寄附金",
+                "gross": 30000,
+                "rate": "exempt"
+              }
+            ],
+            "after": [
+              {
+                "name": "寄附金",
+                "gross": 30000,
+                "rate": "unknown"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V076",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Declare printed items gross, correct10% group net7500/tax750, avoid double-added tax, total16650, gift/cash tender20000 and change3350; hold unknown gift purpose.",
+        "manifest_changes": {
+          "total": {
+            "before": 20801,
+            "after": 16650
+          },
+          "features": {
+            "before": [
+              "75mm縦極細",
+              "8%/10%混在",
+              "ギフトカード併用",
+              "お釣り"
+            ],
+            "after": [
+              "75mm縦極細",
+              "8%/10%混在",
+              "税込品目と内税",
+              "ギフトカード併用",
+              "現金釣銭3,350円"
+            ]
+          },
+          "items": {
+            "before": [
+              {
+                "name": "洋菓子詰合せ（ギフト）",
+                "gross": 3200,
+                "rate": "8"
+              },
+              {
+                "name": "和菓子詰合せ（ギフト）",
+                "gross": 2800,
+                "rate": "8"
+              },
+              {
+                "name": "スパークリングワイン",
+                "gross": 4180,
+                "rate": "10"
+              },
+              {
+                "name": "赤ワイン 750ml",
+                "gross": 3520,
+                "rate": "10"
+              },
+              {
+                "name": "チーズ詰合せ",
+                "gross": 2400,
+                "rate": "8"
+              },
+              {
+                "name": "ギフトラッピング",
+                "gross": 330,
+                "rate": "10"
+              },
+              {
+                "name": "のし・包装紙 手提げ",
+                "gross": 220,
+                "rate": "10"
+              },
+              {
+                "name": "消費税（8%相当）",
+                "gross": 622,
+                "rate": "8"
+              },
+              {
+                "name": "消費税（10%相当）",
+                "gross": 751,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "洋菓子詰合せ（ギフト）",
+                "gross": 3200,
+                "rate": "8"
+              },
+              {
+                "name": "和菓子詰合せ（ギフト）",
+                "gross": 2800,
+                "rate": "8"
+              },
+              {
+                "name": "スパークリングワイン",
+                "gross": 4180,
+                "rate": "10"
+              },
+              {
+                "name": "赤ワイン 750ml",
+                "gross": 3520,
+                "rate": "10"
+              },
+              {
+                "name": "チーズ詰合せ",
+                "gross": 2400,
+                "rate": "8"
+              },
+              {
+                "name": "ギフトラッピング",
+                "gross": 330,
+                "rate": "10"
+              },
+              {
+                "name": "のし・包装紙 手提げ",
+                "gross": 220,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V077",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Remove extra canvas paragraph argument; keep business/private conclusion in external context, use vendor setup note in PDF; print payment confirmation/date so mixed-purpose hold is meaningful.",
+        "manifest_changes": {
+          "layout_description": {
+            "before": "A4縦。上36mmを左オリーブ・右薄桃の2色帯、オードブル等の品名・数量・単価・金額の表、下部に橙の枠で利用内訳の確認事項、右に丸印。",
+            "after": "A4縦。上36mmを左オリーブ・右薄桃の2色帯、オードブル等の品名・数量・単価・金額の表、下部に橙の枠で配膳・撤収の案内、右に丸印。"
+          },
+          "date": {
+            "before": "2023-06-20",
+            "after": "2023-06-30"
+          },
+          "date_printed": {
+            "before": "納品日 2023年6月17日 / 請求日 2023年6月20日",
+            "after": "お支払：2023年6月30日 銀行振込 入金確認済"
+          },
+          "human_context": {
+            "before": "創立記念パーティ用ケータリング。参加者30名のうち社外のご家族10名分が私用と推測され、業務部分との按分根拠がない。",
+            "after": "創立記念パーティ用ケータリングを2023-06-30に全額振込。30名中に家族10名が含まれ、業務部分との按分根拠は未確認。私用分を含むか確認するまで候補を保留する。"
+          }
+        }
+      },
+      {
+        "case_id": "V078",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Widen content column and move shading below header; align notes heading. Missing transaction year remains empty and internal form remains hold.",
+        "manifest_changes": {}
+      },
+      {
+        "case_id": "V079",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Remove extra canvas paragraph argument; move past refund to after cancellation2023-08-29. Classify zero-charge notice as other/block, exclude prior96000 from current charge items.",
+        "manifest_changes": {
+          "document_kind": {
+            "before": "refund",
+            "after": "other"
+          },
+          "expected_decision": {
+            "before": "hold",
+            "after": "block"
+          },
+          "human_context": {
+            "before": "予約金額96,000円は2023-07-10に払戻済み。宿泊日19日前の取消でキャンセル料は0円。文書の合計はキャンセル料の0円で、96,000円は既払戻の元予約額。",
+            "after": "予約金96,000円は取消日の翌日2023-08-29に払戻済み。2023-08-30付の本書はキャンセル料0円と残高0円を通知する案内で、新たな支払いの証明ではない。元の返金は別取引として扱う。"
+          },
+          "items": {
+            "before": [
+              {
+                "name": "払戻済み予約額（元金額）",
+                "gross": 96000,
+                "rate": "unknown"
+              },
+              {
+                "name": "キャンセル料",
+                "gross": 0,
+                "rate": "unknown"
+              }
+            ],
+            "after": [
+              {
+                "name": "キャンセル料（今回の請求）",
+                "gross": 0,
+                "rate": "unknown"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "V080",
+        "attribution": "Codex integration QA; original design by actual DeepSeek V4.1 Flash1017 Harness author",
+        "reason": "Represent refund as a single gross negative item-14850, retain block and exact printed issue date.",
+        "manifest_changes": {
+          "date_printed": {
+            "before": "発行 2025-02-14 / 元購入 2025年1月28日",
+            "after": "発行 2025-02-14"
+          },
+          "items": {
+            "before": [
+              {
+                "name": "返金（商品代金税抜）",
+                "gross": -13500,
+                "rate": "10"
+              },
+              {
+                "name": "返金（消費税）",
+                "gross": -1350,
+                "rate": "10"
+              }
+            ],
+            "after": [
+              {
+                "name": "ワイヤレスイヤホン 全額返金（税込）",
+                "gross": -14850,
+                "rate": "10"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "scope": "Concrete runtime, PDF layout and manifest correctness fixes; independent authored structures retained; raw model evidence untouched."
+  },
+  "captured_requests": [
+    {
+      "model": "deepseek-v4.1-flash:1017",
+      "max_tokens": 48000,
+      "reasoning_effort": "none",
+      "messages": 4
+    }
+  ]
+}

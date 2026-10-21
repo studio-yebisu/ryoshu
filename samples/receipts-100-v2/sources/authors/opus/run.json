@@ -1,0 +1,27 @@
+{
+  "author": "opus",
+  "requested_model": "claude-opus-5-5",
+  "label": "Claude Opus 5.5",
+  "ids": "V091-V100",
+  "route": "Claude Code",
+  "prompt_sha256": "4cb584a45d35f428171c6e266ede7ae7fd75985f1d5d17d4ec2e62d5c66abdb6",
+  "started_utc": "2026-10-21T02:48:27Z",
+  "status": "authored",
+  "exit_code": 0,
+  "elapsed_s": 707.7,
+  "is_error": false,
+  "code_sha256": "3fe8d240a68298bd158246ededa34d6ae416f15746014372964e14dabef2975c",
+  "code_chars": 56559,
+  "reported_models": [
+    "claude-opus-5-5"
+  ],
+  "generator_file_sha256": "c138446728202ba96393957a5d87687be9ae314be37ac83b0b071cf2e5f4520a",
+  "raw_output_sha256": "6268e4c464ec2fafc097d8b1dc1f632ec942f2d95a7335c7a231b884b2407fdd",
+  "integration_adjustments": [
+    {
+      "case_id": "V094",
+      "by": "parent integration",
+      "change": "Manifest items.gross normalized to tax-inclusive values; printed net columns and overall tax/total unchanged; removed double-counting tax pseudo-item."
+    }
+  ]
+}
