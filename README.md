@@ -6,7 +6,7 @@
 
 現在は **v0.3.0の試作**です。Windows / Python 3.12 / CPUで確認しています。
 
-**[テスト画像と100件の検証結果](docs/testing/README.md)** · **[全100件の画像一覧](docs/testing/gallery.md)** · [使い方](docs/GUIDE.md) · [CSV仕様](docs/CSV-EXPORT.md)
+**[テスト画像と100件の検証結果](docs/testing/README.md)** · **[全100件の画像一覧](docs/testing/gallery.md)** · [動作要件](docs/REQUIREMENTS.md) · [使い方](docs/GUIDE.md) · [CSV仕様](docs/CSV-EXPORT.md)
 
 ![Ryoshuの確認画面](docs/images/ryoshu.png)
 
@@ -20,13 +20,25 @@
 
 OCR・AIは候補を作ります。業務用途、事業割合、支払元、税区分は本人が確認します。確認操作なしでの自動計上は行いません。売上、口座照合、減価償却、決算・申告書の作成、返金・外貨の仕訳は対象外です。詳細は[帳簿の範囲](docs/GUIDE.md)を参照してください。
 
-## 導入
+## 動作要件
 
-Windows、日本語フォント、Python 3.12（またはuv）、[Ollama](https://ollama.com/download)が必要です。専用GPUは使いません。初回準備にはネット接続と数GBのモデル保存領域が必要です。
+| 項目 | 条件・確認範囲 |
+| --- | --- |
+| OS | Windows 11・64bitで動作確認。Windows 10、macOS、Linuxでのアプリ全体の確認は未実施 |
+| Python | 3.12・64bit。uvがあればセットアップで3.12の環境を準備可能 |
+| 起動環境 | Windows PowerShell 5.1以降、日本語フォント、JavaScriptが使えるブラウザー |
+| AI実行 | [Ollama](https://ollama.com/download)と`qwen3:4b`。CPUで実行、専用GPUは不要 |
+| メモリ | 最低容量は未測定。検証機はRAM 64GB搭載で、これは最低要件ではない |
+| 空き容量 | 依存・OCR・LLMで初回に数GB。Qwenモデルは約2.5GB。領収書原本・バックアップの保存領域も必要 |
+| 通信 | 初回の依存・モデル取得にネット接続。準備後のOCR・科目判断はPC内で実行 |
+
+CPU・モデル版などの[確認済み環境と詳しい要件](docs/REQUIREMENTS.md)を掲載しています。
+
+## 導入
 
 **モデルの利用条件を先に確認してください。** アプリのコードはMITですが、IndraのOCR重みはmodified OpenRAIL-Mです。事業規模・資金調達額・提供元と競合する用途などに制限があります。重みとLLMは同梱していません。[ライセンスと依存元](THIRD_PARTY.md) / [OCR重みの原文](https://huggingface.co/datalab-to/indra-ocr/blob/bd02167fdf2005a19962cc15188f8496a2c87d3b/LICENSE)
 
-このソースを展開したフォルダーでPowerShellを開き、実行します。
+[ソースZIPをダウンロード](https://github.com/studio-yebisu/ryoshu/archive/refs/heads/main.zip)して展開し、先にOllamaを導入します。このソースフォルダーでPowerShellを開き、実行します。
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1

@@ -1,6 +1,6 @@
-# 公開準備の検証範囲
+# 公開物と検証範囲
 
-2026-10-21のローカル公開候補です。公開先の候補名は`studio-yebisu/ryoshu`。外部リポジトリの作成・push、Release、GitHub Pagesへのdeployはこの準備に含めていません。
+公開先は[studio-yebisu/ryoshu](https://github.com/studio-yebisu/ryoshu)。2026-10-21のソース公開に含めるファイルと検証範囲をまとめています。[動作要件](REQUIREMENTS.md)も確認してください。
 
 ## 構成
 
@@ -18,10 +18,12 @@
 - JavaScript構文、PowerShell構文、ブラウザーの名称・検証ページ・検索・画像・リンクを確認。
 - 新しい配布候補のOCR・意味判断・会計モジュールと科目初期値を元の100件検証時のハッシュと照合。
 
-この文書の各項目の実行結果は`dist/verification.json`に保存します。実行できなかったものは同ファイルで未確認として記録します。GitHub Actionsの定義は用意していますが、GitHub上で成功したという意味ではありません。
+公開前のローカル検査では、配布用ZIPを別フォルダーへ展開した状態でも、67テスト、4形式のCSV生成・再読込、原本・生成コード・処理ソースのハッシュ検査が成功しました。初回モデル取得を含む空のPCでのセットアップ全体は未確認です。
+
+自動検査は[GitHub Actions](https://github.com/studio-yebisu/ryoshu/actions/workflows/ci.yml)でも実行します。GitHub上の実行状況は、その時点のrunで確認してください。ローカル検査の成功と、GitHub上の検査結果は区別します。
 
 ## 残っている確認
 
 未知の実領収書での精度評価、Mac・Linux、各会計ソフトの実アカウントへの取り込みは未確認です。Indra重みの利用条件は利用者自身が原文で確認する必要があります。アプリのMIT Licenseがモデルの利用条件を変更するものではありません。
 
-公開後はREADMEの説明文として「Ryoshu - 領収書OCRとAIによる勘定科目判断アプリ（各種CSV対応）」を使用できます。ページ公開は別途選択でき、現状のREADME・Markdown画像一覧はGitHubだけで閲覧できます。
+GitHub上のREADMEから、Markdownの検証ページ・100件の画像一覧・各原本PDFを閲覧できます。HTMLの比較画面はソースに同梱し、ローカルアプリの「設定・保存」から開けます。

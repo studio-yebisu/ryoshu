@@ -4,7 +4,7 @@
 
 ## 確認した環境
 
-Windows、Python 3.12.9、Indra OCR 1.1.2、Ollamaの`qwen3:4b`（Q4_K_M）、CPUで検証しました。Mac・Linuxでのアプリ全体の動作確認はしていません。
+Windows 11・64bit、Python 3.12.9、Indra OCR 1.1.2、Ollamaの`qwen3:4b`（Q4_K_M）、CPUで検証しました。必要なソフトウェア、検証機の構成、未確認の条件は[動作要件](REQUIREMENTS.md)にまとめています。
 
 Python 3.12またはuv、日本語フォント、Ollamaを用意します。初回は依存関係・OCR重み・約2.5GBのQwenモデルをダウンロードします。数GBのディスク空き容量と、モデルを動かすRAMが必要です。最小RAMや処理速度の保証値はまだ測定していません。
 
@@ -12,7 +12,7 @@ Indra重みのライセンスはコードと異なります。[利用条件](../
 
 ## セットアップ
 
-1. ソースZIPを新しいフォルダーに展開するか、このリポジトリをcloneします。
+1. [ソースZIP](https://github.com/studio-yebisu/ryoshu/archive/refs/heads/main.zip)を新しいフォルダーに展開するか、`git clone https://github.com/studio-yebisu/ryoshu.git`で取得します。
 2. [Ollama公式](https://ollama.com/download)からOllamaを導入します。
 3. このフォルダーでPowerShellを開いて実行します。
 
