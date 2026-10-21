@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "samples": 4,
+  "scope": "Saved fictional observations replayed; not new OCR/AI inference",
+  "checks": [
+    "default ledger visible before review",
+    "pending CSV default",
+    "later batch review with explicit shared fields",
+    "partial review leaves unknown amount pending",
+    "persistent optional review-first order",
+    "desktop and mobile UI"
+  ],
+  "errors": [],
+  "app_version": "0.4.0",
+  "unit_and_integration_tests": {
+    "passed": 71,
+    "new_workflow_tests": 4
+  },
+  "baseline_ocr_audit_commit": "a163a295f5e87532ef592021cee207adc2a53f6d",
+  "ocr_and_model_inference_rerun": false,
+  "baseline_processing_sources_unchanged": true,
+  "public_fixture_hashes_and_original_scores": "passed",
+  "workflow": "Import -> persisted unreviewed ledger -> later review -> accounting CSV. Initial per-receipt review is disabled by default."
+}

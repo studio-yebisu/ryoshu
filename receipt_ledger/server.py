@@ -21,8 +21,9 @@ from . import __version__, config
 from .accounting import amounts, csv_export, journal, summary
 from .exports import PROFILES, TAX_CHOICES, build_export
 from .pipeline import local_models, process, validate_file
-from .schemas import SaveRequest, VersionRequest, confirmation_errors
+from .schemas import Draft, SaveRequest, VersionRequest, confirmation_errors
 from .store import Conflict, Missing, Store, now
+from .workflow import ledger_records, review_before_ledger
 
 
 def create_app(data_dir=None, run_workers=True):
@@ -99,6 +100,7 @@ def create_app(data_dir=None, run_workers=True):
     def app_config():
         return {"accounts": store.accounts(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
                 "business_context": store.business_context(), "rules": store.rules(),
+                "review_before_ledger": review_before_ledger(store),
                 "samples": sample_set()[2],
                 "export_profiles":PROFILES,"export_tax_choices":TAX_CHOICES,
                 "export_account_maps":{p:store.export_map(p) for p in ['freee','mf','yayoi']},
@@ -136,11 +138,13 @@ def create_app(data_dir=None, run_workers=True):
 
     class SettingsRequest(BaseModel):
         model_config = ConfigDict(extra="forbid")
-        business_context: str = Field(max_length=1500)
+        business_context: str | None = Field(default=None, max_length=1500)
+        review_before_ledger: bool | None = None
 
     @app.post("/api/settings")
     def settings(body: SettingsRequest):
-        return {"business_context": store.business_context(body.business_context)}
+        return {"business_context": store.business_context(body.business_context),
+                "review_before_ledger": review_before_ledger(store, body.review_before_ledger)}
 
     class RuleRequest(BaseModel):
         merchant: str = Field(max_length=200)
@@ -153,6 +157,46 @@ def create_app(data_dir=None, run_workers=True):
     @app.get("/api/receipts")
     def receipts():
         return {"receipts": [decorate(r, detail=False) for r in store.list()]}
+
+    @app.get("/api/ledger")
+    def ledger(month: str = ""):
+        before = review_before_ledger(store)
+        rows = ledger_records(store.list(), month, before)
+        return {"rows": [decorate(r, detail=False) for r in rows],
+                "unreviewed_count": sum(r["status"] != "confirmed" for r in rows),
+                "review_before_ledger": before}
+
+    class ReviewRow(VersionRequest):
+        model_config = ConfigDict(extra="forbid")
+        id: str = Field(min_length=1, max_length=40)
+
+    class LedgerReviewRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        rows: list[ReviewRow] = Field(min_length=1, max_length=500)
+        purpose: str = Field(default="", max_length=1000)
+        payment: Literal["", "owner", "cash", "bank", "card"] = ""
+        business_percent: int | None = Field(default=None, ge=1, le=100, strict=True)
+
+    @app.post("/api/ledger/review")
+    def review_ledger(body: LedgerReviewRequest):
+        if len({r.id for r in body.rows}) != len(body.rows):
+            raise ValueError("同じ明細が重複しています")
+        reviewed, issues = [], []
+        for selected in body.rows:
+            try:
+                row = store.get(selected.id)
+                draft = Draft(**row["draft"])
+                if row["status"] == "confirmed":
+                    raise Conflict("既に確認済みです。画面を更新してください")
+                if row["status"] == "excluded":
+                    raise Conflict("対象外の明細です。先に対象へ戻してください")
+                updates = {key: getattr(body, key) for key in ("purpose", "payment", "business_percent")
+                           if not getattr(draft, key) and getattr(body, key) not in (None, "")}
+                saved = store.save(selected.id, selected.version, draft.model_copy(update=updates), confirm=True)
+                reviewed.append(saved["id"])
+            except (Conflict, Missing, ValueError) as exc:
+                issues.append({"id": selected.id, "message": str(exc) if not isinstance(exc, Missing) else "明細が見つかりません"})
+        return {"reviewed": reviewed, "issues": issues}
 
     @app.post("/api/receipts")
     async def upload(request: Request):
