@@ -44,12 +44,13 @@
     "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923"
   },
   "current_snapshot": {
+    ".gitattributes": "d1852e1afbe3e7b39d970f5982b0488b41471276a28a8d37d0ddeb82d1ee04e2",
     ".github/workflows/ci.yml": "ea46965ceb64e638af9b88085ec80335b3768e3a100bd63028bc71a4d4ef06f0",
     "data/account-catalog.json": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
-    "data/catalog-history/2026-10-21.2.json": "5266354295157ade777241fe103e0d59ac8e546b461ebbc6bf72d019b2bc43a9",
-    "data/catalog-history/2026-10-21.3.json": "df5c1d3b65d6b6e459399eea073adabf6c3833e32ecc7dfe32768409043de63c",
-    "data/catalog-history/2026-10-21.4.json": "547688464ffd395bd29a7bd78f9df4bb336564cdf43fdce07356bcea64240be1",
-    "data/catalog-history/2026-10-21.5.json": "d5bdb076124354705a332f550d59494b78770e71c8d222d6fd691161b29785c6",
+    "data/catalog-history/2026-10-21.2.json": "4eec92d39162195a4d9fc70b5a704b73d8cd03eb172f32db5c9ae04460e3459a",
+    "data/catalog-history/2026-10-21.3.json": "20af6471862621f0cd773b93eefa2ef468a579fa6ff2a3c7e601c8557326dcdc",
+    "data/catalog-history/2026-10-21.4.json": "5bf6455399f28ae23cdb1d428cd0fd788b45973cee1bd1556f36a07879a09489",
+    "data/catalog-history/2026-10-21.5.json": "7f627ec49c829662e248392cfcaead02e097c7ccb1236ffd8314fa8edb1fd5b3",
     "data/catalog-history/2026-10-21.6.json": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
     "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
     "receipt_ledger/__init__.py": "5504d4f4e3612dc915fd0fab9d53e9aea2c1ac5f963d11dea587e8a4a449ce2d",
@@ -82,16 +83,17 @@
     "receipt_ledger/workflow.py": "edc06a17f97e20c60bc6d80c0fb86459c920f2c422cd9a73fc03a12adac8f5f0",
     "requirements.lock.txt": "957c9edd9adf8b36aca00955825cd36d1afe695cad27acf1f646d085f96ded00",
     "requirements.txt": "95ab1efe1152ca87bf89e42a1f7ebce81c4be778bb2747d118bc46aa98989278",
-    "restore.ps1": "ec9ed22e17f297ac581eccee82a7d5592e7ffbe17388470a8d80bd8174cfbbba",
-    "scripts/bootstrap-uv.ps1": "02b7dcd9d7d79b588dc4f7bb1981ef4bf50a2060e67f27e5875c21fcf6184fd5",
+    "restore.ps1": "26ad7c0c14083473128de4ce3ba6c274189d2c0864e3a75b2972761b4a92c45e",
+    "scripts/bootstrap-uv.ps1": "e1de1ade3945b45adcbac385bc630bb6b544fc105fa08149be1693e3fea5e022",
     "scripts/browser_smoke.mjs": "160e73c3a876d316c79a9b5f592df635e61e40d993b0285f1248b0a4cdfe6100",
+    "scripts/check_publication.py": "5d469b5744f259ea3a5ffffd618546dcee2ee6640149de3355f8e6fcb3682e9c",
     "scripts/open_session.py": "07cb93227ae7c16c6e74cb3e7025dadd10c890aaed83a42e02421736bdee09c5",
     "scripts/security_ui_smoke.mjs": "628f052fddb03ba228c6608e1148e900265e04d566b70c33355bd4730454763e",
     "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
-    "setup.ps1": "29dfe39b98929215d752647dcbd3de0f6ac9a00e769ab1232d2b60896c64e499",
-    "start.ps1": "2add669645c47f13becc26c3b77311c679dca9b5eb97b413021fb87984354632",
+    "setup.ps1": "bc801c009d23720211f3de9f2b1cb5e819804c3a043207e0f00ae71d97e85ba4",
+    "start.ps1": "62252e5a7aa81f25e3979cfff8521ec0a66b9e1fda34066f6db581e51fa9b8bb",
     "web/app.js": "6705a399b0c68887a4f83db347fef89516e7c8e7a6388706b1b469f7bac04c11",
-    "web/help.html": "c5cf6063876851b88269fdb001dd5ffb94ffb86e8d70beb05257aebc33420d52",
+    "web/help.html": "2ac767b03c9f02970be99a31f032594435104562b55bfc12861c5ddb33ba16e9",
     "web/icon.svg": "98a09af37f9a7d8a3b83c74e90773944a627a25b42d55f7faf65f2a329133c54",
     "web/import.js": "486c20604308bedd9fe7b3753d7dbc173dcd4e34fd29a66a7995d71287c21bda",
     "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
@@ -123,5 +125,6 @@
     "web/security.js",
     "web/style.css"
   ],
-  "scope": "Frozen100 inference bytes stay immutable. Distribution snapshot includes later protection/restore/UI/launcher changes and deterministic Git text line endings. OCR extraction and semantic-classifier algorithm are unchanged. CI verifies distributed bytes separately."
+  "scope": "Frozen100 inference bytes stay immutable. Distribution snapshot includes later protection/restore/UI/launcher changes and deterministic Git text line endings. OCR extraction and semantic-classifier algorithm are unchanged. CI verifies distributed bytes separately.",
+  "snapshot_hashing": "Git canonical blob SHA-256: CRLF->LF for text, original bytes for explicit -text/binary per .gitattributes. Frozen inference hashes remain exact observed bytes. This handles CRLF Windows PS checkout and LF git archive without claiming a code change."
 }

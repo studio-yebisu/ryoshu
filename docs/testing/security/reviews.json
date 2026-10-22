@@ -121,6 +121,21 @@
         "web/style.css": "485869ddc4c9b4c412033d6547266cd12af67ab0e899e505fae10a836b86efbb",
         "web/import.js": "e65ca5235bbf793ae9355151aaf4ef620b2713a742d4e8404cf1a9f5ccecd991"
       }
+    },
+    {
+      "reviewer": "Gemini via Antigravity",
+      "requested_model": "gemini-3.8-flash-high",
+      "round": "Final simple UI Japanese copy",
+      "response_recorded": true,
+      "exit_code": 0,
+      "raw_response_sha256": "d07ed4da38c69cccd05c609a381dc0e5540dfc93c05b96a9316afb407c915906",
+      "prompt_sha256": "71e36e860a18e72f1e2799b1b254fe6098b5cf9d6845b12cecd98394a8ea5acc",
+      "reviewed_source_hashes": {
+        "README.md": "d329307825187d91ffb209da30374d45da37797914f032c0d23a73b42c5151da",
+        "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+        "web/help.html": "edff74e0651c0eec03453892b9f8c059c1e6dde4112cac62684dc11f9a8e5e01"
+      },
+      "scope": "Current public README/index/help only. Native Antigravity CLI selected model explicitly; the CLI response does not separately report backend model identity. No tools/edits or execution testing by the reviewer."
     }
   ],
   "findings": [
@@ -201,6 +216,20 @@
     {
       "topic": "Zoom scale, duplicate CSV save, skip link and repeated home announcement",
       "disposition": "Natural pixel zoom, single-flight CSV with captured filename, main-workspace skip link, stable home/pager DOM. These are implemented changes, not a blanket model quality approval."
+    }
+  ],
+  "japanese_final_dispositions": [
+    {
+      "finding": "Help backup route still says 設定・保存",
+      "result": "accepted and corrected to その他→設定・バックアップ"
+    },
+    {
+      "finding": "Move bulk-checkbox help label to 読み取り結果",
+      "result": "rejected: actual batch controls remain on CSV出力. Source and28browser workflow confirm the existing help label."
+    },
+    {
+      "finding": "README wording CSVに書き出す",
+      "result": "retained: it matches the actual button on the results screen; CSV出力 is the top navigation label."
     }
   ]
 }

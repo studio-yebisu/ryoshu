@@ -42,5 +42,6 @@
     "web/import.js",
     "web/style.css",
     "scripts/serve_browser_qa.py"
-  ]
+  ],
+  "canonical_hashing": "Git text blob SHA-256 per .gitattributes; local observed hashes remain exact raw run bytes."
 }

@@ -1,5 +1,6 @@
 """Check the public source tree and recorded evidence without downloading models."""
 import csv
+import fnmatch
 import hashlib
 from html.parser import HTMLParser
 import io
@@ -20,6 +21,26 @@ def require(condition, message):
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def distribution_sha(path):
+    """Compare Git's canonical text bytes across checkout and source ZIP EOLs."""
+    name = path.relative_to(ROOT).as_posix()
+    text = True
+    for line in (ROOT / '.gitattributes').read_text('utf-8').splitlines():
+        parts = line.split()
+        if not parts or parts[0].startswith('#'):
+            continue
+        pattern = parts[0]
+        if not fnmatch.fnmatchcase(name if '/' in pattern else path.name, pattern):
+            continue
+        for attribute in parts[1:]:
+            if attribute in {'-text', 'binary'}:
+                text = False
+            elif attribute == 'text' or attribute.startswith('text='):
+                text = True
+    raw = path.read_bytes()
+    return hashlib.sha256(raw.replace(b'\r\n', b'\n') if text else raw).hexdigest()
 
 def link(source, target):
     parsed = urlsplit(target)
@@ -130,7 +151,7 @@ if (security / 'results-100.json').is_file():
     if finalization.get('status') in {'passed','complete','completed'}:
         snapshot = json.loads((security / 'source-hashes.json').read_text('utf-8'))['current_snapshot']
         for name, expected_hash in snapshot.items():
-            require(sha(ROOT / name) == expected_hash, f'Final security source snapshot is stale: {name}')
+            require(distribution_sha(ROOT / name) == expected_hash, f'Final security source snapshot is stale: {name}')
 
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
