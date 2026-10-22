@@ -6,9 +6,11 @@
 
 **CSV → freee、MFクラウド、弥生などに取り込み。** 外部AIのアカウント・APIキーは不要です。初回準備では実行環境とモデルをダウンロードします。準備後のOCR・科目候補・CSV出力はローカルで行います。
 
-**v1.1.0** · [ダウンロード](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.1.0) · [100件の最新検証と安全性の点検結果](docs/testing/security/README.md) · [テスト画像一覧](docs/testing/gallery.md)
+**v1.2.0候補（検証中）** · [変更内容](CHANGELOG.md) · [新しい100件の検証](docs/testing/v1.2/README.md)
 
-[100件の画像・読み取った内容・科目を並べて見る](https://studio-yebisu.github.io/ryoshu/docs/testing/security/)
+現在の公開版：[v1.1.0のダウンロード](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.1.0) · [v1.1.0候補の検証・安全性点検](docs/testing/security/README.md) · [テスト画像一覧](docs/testing/gallery.md)
+
+v1.2.0では税額の範囲判定と科目保留の扱いを修正し、画面を白・藍色ベースに整理しています。新しい100件の実行結果と公開版は、検証完了後に案内します。
 
 ![架空の領収書で動作を確認したRyoshuの経費帳](docs/images/ryoshu.png)
 
@@ -38,11 +40,11 @@ Windows 11・64bit、JavaScriptが使えるブラウザー、Ollamaを使用し�
 
 Windows向けのローカルWebアプリです。ブラウザーで操作し、単体のexeではありません。スマホ・LAN共有は対象外です。[詳しい要件と確認環境](docs/REQUIREMENTS.md)
 
-## 100件の検証結果
+## 100件の検証結果（v1.1.0候補の記録）
 
 暗号化対応版の候補を固定し、100種類の架空PDFをHTTP取込からOCR・ローカルAI判定まで新規実行しました。**金額・円額未確定97/97、日付99/100、暫定科目47/48**。返金3件は金額の分母から除外しています。科目・保留等の扱いは89/100です。
 
-**改善に使った同じ100件の回帰検証であり、未知の実物領収書の正答率ではありません。** [全指標・期待値・差異・実行範囲](docs/testing/security/README.md)と[元PDF・画像](docs/testing/README.md)を公開しています。CSV4形式の生成・再読込・借貸一致も別に確認しました。各会計ソフトの実アカウントへの取り込みは未実施です。
+**改善に使った同じ100件の回帰検証であり、未知の実物領収書の正答率ではありません。** 上記はv1.1.0候補の履歴です。[全指標・期待値・差異・実行範囲](docs/testing/security/README.md)と[元PDF・画像](docs/testing/README.md)を公開しています。CSV4形式の生成・再読込・借貸一致も別に確認しました。各会計ソフトの実アカウントへの取り込みは未実施です。
 
 ## 保存と保護
 
