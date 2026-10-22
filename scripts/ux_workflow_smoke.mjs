@@ -43,11 +43,11 @@ try{
   page=await browser.newPage({viewport:{width:1365,height:1000},acceptDownloads:true});
   page.on('pageerror',e=>errors.push(e.message));
   const hashes=await sourceHashes();
-  // The isolated server adds a test-only banner absent from normal first use.
-  // Verify the production appearance, then restore the label before importing.
+  // Reproduce normal first use after setup, even on CI without local AI models.
+  // This appearance fixture changes only readiness/banner fields; no inference.
   await page.route('**/api/health',async route=>{
     const response=await route.fetch();const data=await response.json();
-    await route.fulfill({response,json:{...data,environment_label:''}});
+    await route.fulfill({response,json:{...data,environment_label:'',model_ready:true,model_issue:''}});
   });
   await page.goto(address.open_url,{waitUntil:'networkidle'});
   await page.locator('#choose-files').waitFor();
@@ -126,7 +126,7 @@ try{
   checks.push('home/results/CSV avoid body overflow at375/850/851/1000/1001px with44px primary navigation targets');
   assert.deepEqual(await sourceHashes(),hashes,'UI source changed during run; rerun stable candidate');
   assert.deepEqual(errors,[]);
-  const proof={status:'passed',scope:'Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI. First-use viewport checks remove only the isolated server test label from health response to reproduce normal production appearance; label is restored before importing.',checks,errors,receipt_count:6,breakpoint_widths:widths,source_sha256:hashes};
+  const proof={status:'passed',scope:'Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI. First-use viewport checks set only model readiness/banner fields in the health response to reproduce the appearance after setup, including on CI without local models. Actual health response is restored before importing.',checks,errors,receipt_count:6,breakpoint_widths:widths,source_sha256:hashes};
   await fs.writeFile(path.join(out,'record.json'),JSON.stringify(proof,null,2)+'\n');
   console.log(JSON.stringify({status:proof.status,checks:checks.length,out}));
 }finally{
