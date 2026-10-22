@@ -28,15 +28,15 @@ def draft(**changes):
 
 def test_master_is_persistent_and_user_definitions_are_not_reseeded(tmp_path):
     store=Store(tmp_path)
-    assert len(store.accounts(False))==38
-    assert len(store.accounts())==33
+    assert len(store.accounts(False))==74
+    assert len(store.accounts())==69
     assert len(store.policies())==15
     with store.connect() as db:
         assert db.execute("PRAGMA foreign_keys").fetchone()[0]==1
         db.execute("UPDATE account_master SET description='手動で決めた独自の説明' WHERE code='E101'")
     reopened=Store(tmp_path)
     assert next(a for a in reopened.accounts() if a["code"]=="E101")["description"]=="手動で決めた独自の説明"
-    assert reopened.catalog()["schema_version"]==2
+    assert reopened.catalog()["schema_version"]==3
 
 
 def test_seed_upgrade_preserves_manual_fields_and_existing_journal(tmp_path,monkeypatch):
@@ -56,7 +56,7 @@ def test_seed_upgrade_preserves_manual_fields_and_existing_journal(tmp_path,monk
     refund=next(p for p in upgraded.policies() if p['code']=='P_REFUND')
     assert refund['message']=='独自の確認文' and refund['match']=={'document_flag':'refund'}
     assert upgraded.get(r['id'])['posting']==r['posting']
-    assert len(upgraded.accounts(False))==38 and len(upgraded.policies())==15
+    assert len(upgraded.accounts(False))==74 and len(upgraded.policies())==15
 
 
 def test_posting_is_balanced_normalized_and_foreign_keys_are_enforced(tmp_path):
@@ -159,7 +159,7 @@ def test_v1_migration_backs_up_and_preserves_confirmed_data_and_rules(tmp_path):
 
 def test_catalog_api_updates_selection_and_samples_are_downloadable(tmp_path):
     with TestClient(create_app(tmp_path,run_workers=False)) as client:
-        assert len(client.get("/api/catalog").json()["accounts"])==38
+        assert len(client.get("/api/catalog").json()["accounts"])==74
         response=client.post("/api/accounts",json={"name":"制作素材費","kind":"expense","description":"素材の当月購入","aliases":["素材費"],"review_questions":["業務用途"],"keywords":["制作素材ライセンス"]},headers={"X-Ledger-Request":"1"})
         assert response.status_code==200
         assert response.json()["hints"]["any"]==["制作素材ライセンス"]

@@ -12,7 +12,21 @@ def seed_catalog():
 
 
 def default_accounts():
-    return [a for a in seed_catalog()["accounts"] if a.get("selectable")]
+    return [a for a in seed_catalog()["accounts"]
+            if a.get("selectable") and a.get("active", True) and a.get("kind") in {"expense", "asset"}]
+
+
+def account_categories():
+    return [dict(category, kinds=list(category["kinds"])) for category in seed_catalog()["account_categories"]]
+
+
+def category_for(kind, category_id=None):
+    fallback = "other" if kind == "expense" else "assets" if kind == "asset" else "settlement"
+    selected = fallback if category_id in (None, "") else category_id
+    category = next((c for c in account_categories() if c["id"] == selected), None)
+    if category is None or kind not in category["kinds"]:
+        raise ValueError("科目の区分に合うカテゴリーを選んでください")
+    return selected
 
 
 def account_key(value):
@@ -28,8 +42,17 @@ def resolve_account(value, accounts):
     key = account_key(value)
     if not key:
         return None
+    # A previously valid custom name can equal a newly added seed code.
+    # Names take precedence, followed by codes, then historical aliases.
+    # Draft.account stores formal names, so expanding the seed cannot retarget it.
     for account in accounts:
-        if key in {account_key(v) for v in [account["code"],account["name"], *account.get("aliases", [])]}:
+        if key == account_key(account["name"]):
+            return account
+    for account in accounts:
+        if key == account_key(account["code"]):
+            return account
+    for account in accounts:
+        if key in {account_key(v) for v in account.get("aliases", [])}:
             return account
     return None
 

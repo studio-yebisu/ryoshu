@@ -7,7 +7,7 @@ const localMonth = () => {const d = new Date(); return `${d.getFullYear()}-${Str
 const statusNames = {queued:'順番待ち',processing:'読み取り中',review:'未確認',confirmed:'確認済み',excluded:'対象外',error:'読み取りに失敗'};
 const state = {view:'home',config:null,catalog:null,health:null,records:[],active:null,detail:null,sourceTab:'image',page:0,history:null,queueFilter:'pending',queuePage:0,queuePageAnchor:null,month:'',drafts:new Map(),busy:false,ledgerFilter:'all',ledgerSearch:'',ledgerPage:0,selected:new Map(),batch:{},batchReport:null,batchOnlyIssues:false,exportMapDrafts:new Map()};
 let toastTimer, pollTimer, searchTimer;
-Object.assign(state,{resultsPage:0,resultsOnlyPending:false});
+Object.assign(state,{resultsPage:0,resultsOnlyPending:false,reviewAccountCategories:new Map(),catalogCategory:'',catalogSearch:''});
 let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
 
@@ -98,7 +98,7 @@ function renderResults(content, incremental=false){
   const all=orderedReceipts(state.records.filter(r=>!state.resultsOnlyPending||isPending(r))),pages=Math.max(1,Math.ceil(all.length/100));
   state.resultsPage=Math.max(0,Math.min(state.resultsPage,pages-1));
   const rows=all.slice(state.resultsPage*100,(state.resultsPage+1)*100),pending=state.records.filter(isPending).length;
-  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="96" height="128" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-content"><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</div></td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
+  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="96" height="128" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-content"><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</div></td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<div class="result-account-actions"><button class="text-button" type="button" data-change-account="${esc(r.id)}" ${busyRecord(r)||r.status==='excluded'?'disabled':''} ${r.status==='excluded'?'title="確認・修正から確認待ちへ戻してください"':''}>科目を変更</button><button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></div></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
   if(!incremental||!$('.results-table',content)){content.innerHTML=markup;return;}
   const fresh=document.createElement('div');fresh.innerHTML=markup;
   const body=$('.results-table tbody',content),nextBody=$('.results-table tbody',fresh);
@@ -125,7 +125,7 @@ function renderResults(content, incremental=false){
   $('span',pager).textContent=$('span',nextPager).textContent;
   for(const button of $$('button',pager))button.disabled=$(`[data-action="${button.dataset.action}"]`,nextPager).disabled;
 }
-let zoomReturn,zoomReceipt,zoomPage=0;
+let zoomReturn,zoomReceipt,zoomPage=0,accountEdit=null;
 function paintZoom(){
   const r=zoomReceipt,count=r.preview_count||0,dialog=$('#image-dialog');
   dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>${esc(r.original_name)}</h2><button class="button" autofocus>閉じる</button></form><div class="zoom-controls"><button class="button small" data-action="zoom-prev" ${zoomPage?'':'disabled'}>前のページ</button><span>${zoomPage+1} / ${count}</span><button class="button small" data-action="zoom-next" ${zoomPage<count-1?'':'disabled'}>次のページ</button><label>表示倍率 <select id="zoom-scale"><option value="fit">画面に合わせる</option><option value="100">100%</option><option value="150">150%</option><option value="200">200%</option></select></label></div><div class="zoom-image-wrap"><img width="1400" height="1800" data-private-src="/api/receipts/${r.id}/preview/${zoomPage}" alt="${esc(r.original_name)}の原本 ${zoomPage+1}ページ"></div>`;
@@ -191,6 +191,135 @@ function field(name,label,type='text', options={}) {
   return `<label class="field"><span class="field-label">${esc(label)}${options.required?'<span class="required">*</span>':''}</span>${input}${options.hint?`<div class="field-hint">${esc(options.hint)}</div>`:''}</label>`;
 }
 
+// Categories are presentation data; only the chosen account enters a receipt.
+function selectableAccounts(){
+  return (state.config?.accounts||[]).filter(a=>a.selectable!==false&&(!a.kind||['expense','asset'].includes(a.kind)));
+}
+function accountDefinitions(){
+  const supplied=state.config?.account_categories||state.catalog?.account_categories||[];
+  const seen=new Set(),rows=[];
+  for(const row of supplied)if(row.id&&row.label&&!seen.has(row.id)){rows.push(row);seen.add(row.id);}
+  for(const row of [{id:'__expense',label:'その他の経費',kinds:['expense']},{id:'__asset',label:'資産',kinds:['asset']},{id:'__other',label:'支払元・事業主勘定',kinds:['cash','bank','liability','equity']}])if(!seen.has(row.id))rows.push(row);
+  return rows;
+}
+function accountCategoryId(account){
+  if(account?.category_id&&accountDefinitions().some(c=>c.id===account.category_id))return account.category_id;
+  return account?.kind==='asset'?'__asset':!account?.kind||account.kind==='expense'?'__expense':'__other';
+}
+function findAccount(value){
+  const key=String(value||'').normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase();
+  if(!key)return undefined;
+  const accounts=selectableAccounts(),matches=v=>String(v||'').normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()===key;
+  return accounts.find(a=>matches(a.name))||accounts.find(a=>matches(a.code))||accounts.find(a=>(a.aliases||[]).some(matches));
+}
+function accountCategories(accounts=selectableAccounts()){
+  const used=new Set(accounts.map(accountCategoryId));
+  return accountDefinitions().filter(c=>used.has(c.id));
+}
+function accountCategoryOptions(accounts,value='',emptyLabel='カテゴリーを選んでください'){
+  return '<option value="">'+esc(emptyLabel)+'</option>'+accountCategories(accounts).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===value?' selected':'')+'>'+esc(c.label)+'</option>').join('');
+}
+function accountOptions(category,value=''){
+  const rows=selectableAccounts().filter(a=>accountCategoryId(a)===category);
+  return '<option value="">'+(category?'科目を選んでください':'カテゴリーを先に選んでください')+'</option>'+rows.map(a=>'<option value="'+esc(a.name)+'"'+(a.name===value?' selected':'')+'>'+esc(a.name)+'</option>').join('');
+}
+function accountHelp(account){
+  if(!account)return 'カテゴリーを選ぶと、その中の科目を選べます。';
+  return (account.description?'<p>'+esc(account.description)+'</p>':'')+(account.review_questions?.length?'<p class="field-hint">確認すること：'+account.review_questions.map(esc).join(' / ')+'</p>':'');
+}
+function accountPicker(value='',category='',id='review-account'){
+  const account=findAccount(value);
+  category=account?accountCategoryId(account):category;
+  return '<div class="account-picker" data-account-picker><div class="form-row"><label class="field"><span class="field-label">カテゴリー<span class="required">*</span></span><select id="'+esc(id)+'-category" data-account-category required>'+accountCategoryOptions(selectableAccounts(),category)+'</select></label><label class="field"><span class="field-label">勘定科目<span class="required">*</span></span><select id="'+esc(id)+'" name="account" data-account-choice required'+(category?'':' disabled')+'>'+accountOptions(category,account?.name||'')+'</select></label></div><div class="account-picker-help" data-account-help aria-live="polite">'+accountHelp(account)+'</div></div>';
+}
+function changeAccountCategory(picker){
+  const category=$('[data-account-category]',picker).value,choice=$('[data-account-choice]',picker);
+  choice.innerHTML=accountOptions(category);
+  choice.disabled=!category;
+  $('[data-account-help]',picker).innerHTML=accountHelp(null);
+}
+function updateAccountHelp(picker){
+  $('[data-account-help]',picker).innerHTML=accountHelp(findAccount($('[data-account-choice]',picker).value));
+}
+function addAccountCategoryOptions(kind,selected=''){
+  return '<option value="">カテゴリーを選択（任意）</option>'+accountDefinitions().filter(c=>!c.id.startsWith('__')&&(!c.kinds||c.kinds.includes(kind))).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===selected?' selected':'')+'>'+esc(c.label)+'</option>').join('');
+}
+function accountChangeHeading(){
+  return '<div class="dialog-heading"><h2 id="account-change-title">勘定科目を変更</h2><button class="button small" type="button" data-action="cancel-account-change">閉じる</button></div>';
+}
+function accountChangeNotice(row){
+  return row.status==='confirmed'?'保存すると未確認に戻ります。CSVへ出す前に、変更後の内容を確認してください。':'科目の変更を保存します。金額・日付など、ほかの項目はそのままです。';
+}
+function showAccountChangeError(message){
+  const box=$('#account-change-error');if(!box)return;
+  box.textContent=message;box.classList.remove('hidden');
+  $('#account-change-reload')?.classList.remove('hidden');
+}
+function paintAccountChange(){
+  const edit=accountEdit,dialog=$('#account-change-dialog'),row=edit.row;
+  dialog.innerHTML=accountChangeHeading()+'<p class="account-change-source">'+esc(row.draft.merchant||row.original_name)+'<span>'+esc(row.original_name)+' · '+yen(row.draft.total)+'</span></p><p class="account-change-notice">'+esc(accountChangeNotice(row))+'</p><form id="account-change-form" novalidate><fieldset class="account-change-fields">'+accountPicker(row.draft.account,'','quick-account')+'</fieldset><div id="account-change-error" class="error-box hidden" role="alert"></div><button id="account-change-reload" class="text-button hidden" type="button" data-action="reload-account-change">最新の内容を読み直す</button><div class="account-change-actions"><button class="button" type="button" data-action="cancel-account-change">キャンセル</button><button class="button primary" type="submit">変更を保存</button></div></form>';
+  $('#quick-account-category').focus();
+  updateAccountChangeSave();
+}
+function updateAccountChangeSave(){
+  const button=$('#account-change-form button[type="submit"]');
+  if(button)button.disabled=!!(accountEdit?.saving||accountEdit?.reloading||accountEdit?.unavailable)||!findAccount($('#quick-account')?.value);
+}
+async function openAccountChange(id,trigger){
+  if(accountEdit||state.busy)return;
+  if(state.drafts.has(id)){toast('この明細には未保存の変更があります。「確認・修正する」で先に保存してください。',true);return;}
+  const edit={id,trigger,row:null,saving:false},dialog=$('#account-change-dialog');accountEdit=edit;
+  dialog.innerHTML=accountChangeHeading()+'<p role="status">明細を読み込んでいます…</p>';dialog.showModal();
+  try{
+    const row=await api('/receipts/'+id);if(accountEdit!==edit||!dialog.open)return;
+    if(busyRecord(row))throw new Error('読み取り中です。完了してから科目を変更してください。');
+    if(row.status==='excluded')throw new Error('対象外の明細です。「確認・修正する」から確認待ちへ戻してください。');
+    edit.row=row;paintAccountChange();
+  }catch(error){if(accountEdit===edit){dialog.close();toast(error.message,true);}}
+}
+async function reloadAccountChange(){
+  const edit=accountEdit;if(!edit?.row||edit.saving||edit.reloading)return;
+  const button=$('#account-change-reload');button.disabled=true;edit.reloading=true;
+  $('.account-change-fields').disabled=true;updateAccountChangeSave();
+  try{
+    const row=await api('/receipts/'+edit.id);if(accountEdit!==edit)return;
+    if(busyRecord(row)||row.status==='excluded'){edit.unavailable=true;throw new Error('現在は科目を変更できません。閉じて明細の状態を確認してください。');}
+    edit.unavailable=false;edit.row=row;
+    $('.account-change-notice').textContent=accountChangeNotice(row);
+    $('.account-change-source').innerHTML=esc(row.draft.merchant||row.original_name)+'<span>'+esc(row.original_name)+' · '+yen(row.draft.total)+'</span>';
+    $('#account-change-error').textContent='最新の内容を読み直しました。選んだ科目を確認して、もう一度保存してください。';
+    button.classList.add('hidden');
+  }catch(error){if(accountEdit===edit)showAccountChangeError(error.message);}
+  finally{edit.reloading=false;if(accountEdit===edit){button.disabled=false;$('.account-change-fields').disabled=false;updateAccountChangeSave();}}
+}
+async function saveAccountChange(){
+  const edit=accountEdit;if(!edit?.row||edit.saving||edit.reloading||edit.unavailable||state.busy)return;
+  const choice=$('#quick-account'),account=findAccount(choice.value);
+  if(!account){showAccountChangeError('カテゴリーと勘定科目を選んでください。');choice.disabled?$('#quick-account-category').focus():choice.focus();return;}
+  if(account.name===(findAccount(edit.row.draft.account)?.name||edit.row.draft.account)){$('#account-change-dialog').close();return;}
+  edit.saving=true;state.busy=true;
+  const dialog=$('#account-change-dialog');$$('button',dialog).forEach(b=>b.disabled=true);$('.account-change-fields',dialog).disabled=true;
+  let saved=false,refreshFailed=false;
+  try{
+    const result=await api('/receipts/'+edit.id+'/save',{method:'POST',body:JSON.stringify({version:edit.row.version,draft:{...edit.row.draft,account:account.name},confirm:false,remember_account:false})});
+    saved=true;
+    state.records=state.records.map(r=>r.id===result.id?result:r);state.selected.delete(result.id);
+    if(state.detail?.id===result.id){state.detail=result;state.history=null;}
+    try{await loadReceipts();}catch{refreshFailed=true;}
+    render();dialog.close();toast(refreshFailed?'科目は保存しましたが、一覧を更新できませんでした。再読み込みして確認してください。':'勘定科目を変更しました。未確認として保存しています。',refreshFailed);
+  }catch(error){if(accountEdit===edit)showAccountChangeError(error.message);}
+  finally{
+    edit.saving=false;state.busy=false;
+    if(!saved&&accountEdit===edit){$$('button',dialog).forEach(b=>b.disabled=false);$('.account-change-fields',dialog).disabled=false;updateAccountChangeSave();}
+  }
+}
+$('#account-change-dialog').addEventListener('cancel',event=>{if(accountEdit?.saving)event.preventDefault();});
+$('#account-change-dialog').addEventListener('close',()=>{
+  const edit=accountEdit;accountEdit=null;
+  $('#account-change-dialog').innerHTML='';
+  queueMicrotask(()=>{const target=edit?.trigger?.isConnected?edit.trigger:$$('[data-change-account]').find(el=>el.dataset.changeAccount===edit?.id)||$('#main-content');target?.focus({preventScroll:true});});
+});
+
 function renderDetail() {
   const el=$('#review-panel'); if(!el)return;
   const r=state.detail;
@@ -199,7 +328,7 @@ function renderDetail() {
   const name=r.draft.merchant || r.original_name;
   const top=`<div class="review-top"><div><button class="text-button" type="button" data-action="back-to-ledger">← 読み取り結果に戻る</button><h2>${esc(name)}</h2><div class="review-subtitle">${esc(r.original_name)} · ${esc(r.id.slice(0,8).toUpperCase())}</div></div>${badge(r.status)}</div>`;
   if(busyRecord(r)) {el.innerHTML=top+`<div class="processing-box"><span class="spinner"></span><h3>${r.stage==='model'?'購入内容と科目の候補を確認中':'領収書の文字を読み取り中'}</h3><p>${r.stage==='model'?'ローカルAIが日付・金額・科目を整理しています。':'順番に処理します。そのままお待ちください。'}<br>完了すると、この画面に候補が表示されます。</p></div>`;return;}
-  el.innerHTML=top+`<div class="review-body"><div class="source-panel"><div class="source-tabs"><button class="source-tab ${state.sourceTab==='image'?'active':''}" data-source-tab="image">原本</button><button class="source-tab ${state.sourceTab==='ocr'?'active':''}" data-source-tab="ocr">OCR本文</button><button class="source-tab ${state.sourceTab==='history'?'active':''}" data-source-tab="history">変更履歴</button></div><div id="source-content"></div></div><div class="form-panel">${r.possible_duplicate_ids?.length?`<div class="warning-list" id="detail-duplicates"><p>同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p><p>関連候補（最大10件）：${r.possible_duplicate_ids.map(id=>`<button type="button" class="text-button" data-open-receipt="${esc(id)}">${esc(state.records.find(other=>other.id===id)?.original_name||'関連明細')} · ${esc(id.slice(0,8).toUpperCase())}</button>`).join(' / ')}</p></div>`:''}${r.status==='excluded'?'<div class="warning-list">この領収書は集計の対象外です。保存すると確認待ちに戻ります。</div>':''}${r.error?`<div class="error-box">${esc(r.error)}</div>`:''}${s?`<div class="suggestion-card"><div class="suggestion-label"><span>${s.origin==='merchant_rule'?'支払先ルールの候補':s.model?(s.retrieval?.length?'品目辞書・AIの候補':'AIによる科目候補'):'手入力で確認'}</span><span>${s.model?(s.account?'AI自己評価：'+({high:'高',medium:'中',low:'低'}[s.raw_model_candidate?.confidence||s.confidence]||'低'):'要確認'):''}</span></div><h3>${esc(s.account||'用途・科目を確認してください')}</h3><p>${esc(s.reason)}</p>${s.review_questions?.length?`<details class="candidate-questions"><summary>この候補の確認ポイント</summary><p>${s.review_questions.map(esc).join(' / ')}</p></details>`:''}${s.model?'<button class="text-button" data-action="use-suggestion">AI候補を入力欄へ戻す</button>':''}</div>`:''}${s?.warnings?.length?`<div class="warning-list">${s.warnings.map(w=>`<p>· ${esc(w)}</p>`).join('')}</div>`:''}<form id="review-form" novalidate><div class="form-row">${field('date','取引日','date',{required:true})}${field('total','領収書の合計（税込・円）','number',{required:true,placeholder:'原本の合計金額'})}</div>${field('merchant','支払先','text',{required:true,placeholder:'店舗名・取引先名',maxlength:200})}${field('account','勘定科目','select',{required:true,items:[['','科目を選択してください'],...state.config.accounts.map(a=>[a.name,a.name])]})}${field('description','購入内容・摘要','text',{placeholder:'例：制作資料の書籍',maxlength:1000})}${field('purpose','業務での用途','textarea',{required:true,placeholder:'例：案件Aの調査資料として使用'})}<div class="form-row">${field('business_percent','事業に使った割合（%）','number',{required:true,placeholder:'例：100',hint:'仕事専用なら100%。私用と共用なら、使用時間や面積などに基づく仕事の割合を入力'})}${field('payment','支払方法','select',{required:true,items:[['','支払元を選択'],...Object.entries(state.config.payments).map(([k,v])=>[k,v.label])]})}</div><div class="business-result"><span>帳簿に入れる事業分</span><strong id="business-amount">${d.total!=null&&d.business_percent!=null?yen(Math.round(d.total*d.business_percent/100)):'—'}</strong></div><details class="tax-details"><summary>税区分・税額・登録番号（会計ソフトへの出力前に確認）</summary>${field('tax_rate','記載されている税率','select',{items:Object.entries(state.config.tax_rates)})}${field('tax_amount','記載消費税（円）','number',{placeholder:'書かれている場合のみ'})}${field('invoice_number','記載登録番号','text',{placeholder:'T と13桁の数字',maxlength:14,hint:'番号の記録のみ。登録事業者の照会は行いません。'})}</details><label class="checkbox-line"><input name="remember_account" type="checkbox" ${state.drafts.get(r.id)?.remember_account?'checked':''}>この支払先の科目を次回の候補にする</label><div id="form-errors" class="error-box hidden" role="alert"></div><p class="field-hint">原本の金額・科目・用途は必ずご自身で確認してください。税務上の最終判断は税理士に確認してください。</p><div class="form-actions"><button class="button" type="button" data-action="save-draft">変更を保存（未確認のまま）</button><button class="button primary" type="submit" ${s?.blocking_reasons?.length?'disabled title="この取引は別途の仕訳確認が必要です"':''}>${r.status==='confirmed'?'修正を確認済みにする':'この明細を確認済みにする'} <span>✓</span></button></div><div id="save-status" class="${state.drafts.has(r.id)?'unsaved':'field-hint'}">${state.drafts.has(r.id)?'変更はまだ保存していません。':r.status==='confirmed'?'登録済み。下書き保存すると確認待ちに戻ります。':'帳簿には保存済みです。原本・科目・用途を確かめて確認済みにできます。'}</div><div class="journal-preview" id="journal-preview"></div><div class="secondary-actions"><button class="text-button" type="button" data-action="confirm-next" ${s?.blocking_reasons?.length?'disabled title="この取引は個別の仕訳確認が必要です"':''}>確認済みにして次へ →</button><button class="text-button" type="button" data-action="retry">再読取・AIを再実行</button><button class="text-button" type="button" data-action="${r.status==='excluded'?'restore':'exclude'}">${r.status==='excluded'?'確認待ちへ戻す':'経費の対象外にする'}</button></div></form></div></div>`;
+  el.innerHTML=top+`<div class="review-body"><div class="source-panel"><div class="source-tabs"><button class="source-tab ${state.sourceTab==='image'?'active':''}" data-source-tab="image">原本</button><button class="source-tab ${state.sourceTab==='ocr'?'active':''}" data-source-tab="ocr">OCR本文</button><button class="source-tab ${state.sourceTab==='history'?'active':''}" data-source-tab="history">変更履歴</button></div><div id="source-content"></div></div><div class="form-panel">${r.possible_duplicate_ids?.length?`<div class="warning-list" id="detail-duplicates"><p>同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p><p>関連候補（最大10件）：${r.possible_duplicate_ids.map(id=>`<button type="button" class="text-button" data-open-receipt="${esc(id)}">${esc(state.records.find(other=>other.id===id)?.original_name||'関連明細')} · ${esc(id.slice(0,8).toUpperCase())}</button>`).join(' / ')}</p></div>`:''}${r.status==='excluded'?'<div class="warning-list">この領収書は集計の対象外です。保存すると確認待ちに戻ります。</div>':''}${r.error?`<div class="error-box">${esc(r.error)}</div>`:''}${s?`<div class="suggestion-card"><div class="suggestion-label"><span>${s.origin==='merchant_rule'?'支払先ルールの候補':s.model?(s.retrieval?.length?'品目辞書・AIの候補':'AIによる科目候補'):'手入力で確認'}</span><span>${s.model?(s.account?'AI自己評価：'+({high:'高',medium:'中',low:'低'}[s.raw_model_candidate?.confidence||s.confidence]||'低'):'要確認'):''}</span></div><h3>${esc(s.account||'用途・科目を確認してください')}</h3><p>${esc(s.reason)}</p>${s.review_questions?.length?`<details class="candidate-questions"><summary>この候補の確認ポイント</summary><p>${s.review_questions.map(esc).join(' / ')}</p></details>`:''}${s.model?'<button class="text-button" data-action="use-suggestion">AI候補を入力欄へ戻す</button>':''}</div>`:''}${s?.warnings?.length?`<div class="warning-list">${s.warnings.map(w=>`<p>· ${esc(w)}</p>`).join('')}</div>`:''}<form id="review-form" novalidate><div class="form-row">${field('date','取引日','date',{required:true})}${field('total','領収書の合計（税込・円）','number',{required:true,placeholder:'原本の合計金額'})}</div>${field('merchant','支払先','text',{required:true,placeholder:'店舗名・取引先名',maxlength:200})}${accountPicker(d.account,state.reviewAccountCategories.get(r.id)||'')}${field('description','購入内容・摘要','text',{placeholder:'例：制作資料の書籍',maxlength:1000})}${field('purpose','業務での用途','textarea',{required:true,placeholder:'例：案件Aの調査資料として使用'})}<div class="form-row">${field('business_percent','事業に使った割合（%）','number',{required:true,placeholder:'例：100',hint:'仕事専用なら100%。私用と共用なら、使用時間や面積などに基づく仕事の割合を入力'})}${field('payment','支払方法','select',{required:true,items:[['','支払元を選択'],...Object.entries(state.config.payments).map(([k,v])=>[k,v.label])]})}</div><div class="business-result"><span>帳簿に入れる事業分</span><strong id="business-amount">${d.total!=null&&d.business_percent!=null?yen(Math.round(d.total*d.business_percent/100)):'—'}</strong></div><details class="tax-details"><summary>税区分・税額・登録番号（会計ソフトへの出力前に確認）</summary>${field('tax_rate','記載されている税率','select',{items:Object.entries(state.config.tax_rates)})}${field('tax_amount','記載消費税（円）','number',{placeholder:'書かれている場合のみ'})}${field('invoice_number','記載登録番号','text',{placeholder:'T と13桁の数字',maxlength:14,hint:'番号の記録のみ。登録事業者の照会は行いません。'})}</details><label class="checkbox-line"><input name="remember_account" type="checkbox" ${state.drafts.get(r.id)?.remember_account?'checked':''}>この支払先の科目を次回の候補にする</label><div id="form-errors" class="error-box hidden" role="alert"></div><p class="field-hint">原本の金額・科目・用途は必ずご自身で確認してください。税務上の最終判断は税理士に確認してください。</p><div class="form-actions"><button class="button" type="button" data-action="save-draft">変更を保存（未確認のまま）</button><button class="button primary" type="submit" ${s?.blocking_reasons?.length?'disabled title="この取引は別途の仕訳確認が必要です"':''}>${r.status==='confirmed'?'修正を確認済みにする':'この明細を確認済みにする'} <span>✓</span></button></div><div id="save-status" class="${state.drafts.has(r.id)?'unsaved':'field-hint'}">${state.drafts.has(r.id)?'変更はまだ保存していません。':r.status==='confirmed'?'登録済み。下書き保存すると確認待ちに戻ります。':'帳簿には保存済みです。原本・科目・用途を確かめて確認済みにできます。'}</div><div class="journal-preview" id="journal-preview"></div><div class="secondary-actions"><button class="text-button" type="button" data-action="confirm-next" ${s?.blocking_reasons?.length?'disabled title="この取引は個別の仕訳確認が必要です"':''}>確認済みにして次へ →</button><button class="text-button" type="button" data-action="retry">再読取・AIを再実行</button><button class="text-button" type="button" data-action="${r.status==='excluded'?'restore':'exclude'}">${r.status==='excluded'?'確認待ちへ戻す':'経費の対象外にする'}</button></div></form></div></div>`;
   $('.tax-details',el)?.insertAdjacentHTML('beforeend',field('export_tax','会計ソフトへ出す消費税区分','select',{items:Object.entries(state.config.export_tax_choices||{'':'未確認'}),hint:'会計ソフト向けCSVで使います。税率やT番号だけでは自動選択しません。税額は取込先で計算します。'}));
   if(s?.blocking_reasons?.length)$('#review-form .form-actions',el).insertAdjacentHTML('beforebegin',`<div class="error-box"><strong>この明細は確認済みにできません</strong>${s.blocking_reasons.map(reason=>`<p>${esc(reason)}</p>`).join('')}<p>原本と取引内容を確認してください。経費帳から外す場合は「経費の対象外にする」を選べます。</p></div>`);
   renderSource();renderJournal(d);
@@ -410,23 +539,24 @@ function renderCatalog(content){
   const catalog=state.catalog;
   if(!catalog){content.innerHTML='<section class="panel settings-card">マスターを読み込んでいます…</section>';return;}
   const accounts=catalog.accounts;
-  content.innerHTML=`<div class="summary-grid"><div class="stat-card"><div class="stat-label">登録されている科目</div><strong>${accounts.length}<small>科目</small></strong><div class="stat-caption">経費・資産・支払元・事業主勘定</div></div><div class="stat-card featured"><div class="stat-label">確認条件のデータ</div><strong>${catalog.policies.length}<small>種類</small></strong><div class="stat-caption">飲食・返金・家事按分・資産など</div></div><div class="stat-card"><div class="stat-label">保存と参照</div><strong class="catalog-db-label">SQLite</strong><div class="stat-caption">画面・AI候補・仕訳が同じマスターを参照</div></div></div><section class="panel"><div class="table-toolbar"><div class="toolbar-group"><input class="filter-input" id="catalog-search" type="search" placeholder="科目名・別名・用途で検索" aria-label="科目を検索"><span class="table-sub" id="catalog-count"></span></div><span class="table-sub">DBスキーマ ${catalog.schema_version} / 初期データ ${esc(catalog.seed_version)}</span></div><div class="table-scroll catalog-scroll"><table class="catalog-table"><thead><tr><th>コード / 科目</th><th>区分</th><th>主な用途</th><th>確認すること・別名</th></tr></thead><tbody id="catalog-rows"></tbody></table></div></section><details class="panel settings-card catalog-add"><summary>自分用の勘定科目を追加する</summary><p class="field-hint">既存科目は保持します。独自の科目もAIの候補と登録先に使えます。</p><form id="account-form"><div class="form-row"><label class="field"><span class="field-label">科目名</span><input name="name" maxlength="100" required placeholder="例：制作サービス利用料"></label><label class="field"><span class="field-label">区分</span><select name="kind"><option value="expense">経費</option><option value="asset">資産</option></select></label></div><label class="field"><span class="field-label">用途・例</span><textarea name="description" maxlength="1000" placeholder="この科目で記録する支出の内容"></textarea></label><label class="field"><span class="field-label">別名（任意・カンマ区切り）</span><input name="aliases" placeholder="サービス利用料, ツール利用料"></label><label class="field"><span class="field-label">品目の手がかり（任意・カンマ区切り）</span><input name="keywords" placeholder="例：制作素材ライセンス, テクスチャ素材"></label><label class="field"><span class="field-label">確認ポイント（任意・1行に1項目）</span><textarea name="review_questions" placeholder="事業で使うサービスか\n当月分の支払か"></textarea></label><button class="button primary" type="submit">科目を追加</button></form></details><section class="panel settings-card"><h2>候補を確かめるための条件</h2><p>科目の提案に加え、次の条件を確認します。用途や経費算入の可否を領収書だけで確定しません。</p><div class="policy-grid">${catalog.policies.map(p=>`<article class="policy-card"><div class="suggestion-label"><span>${esc(p.code)}</span><span>${p.action==='block'?'通常の経費登録を停止':p.action==='hold'?'科目を保留':'確認事項を表示'}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.message)}</p></article>`).join('')}</div><div class="catalog-sources"><span class="field-label">考え方の参照資料</span>${catalog.sources.map(s=>`<p><a href="${esc(s.url)}" target="_blank" rel="noreferrer">${esc(s.title)} ↗</a><span class="table-sub"> · 確認 ${esc(s.checked_at)}</span></p>`).join('')}<p class="field-hint">科目名や用途の例はアプリで編集した初期データです。税務上の取扱いを一律に確定する表ではありません。</p></div></section>`;
-  renderCatalogRows('');
+  content.innerHTML=`<div class="summary-grid"><div class="stat-card"><div class="stat-label">登録されている科目</div><strong>${accounts.length}<small>科目</small></strong><div class="stat-caption">経費・資産・支払元・事業主勘定</div></div><div class="stat-card featured"><div class="stat-label">確認条件のデータ</div><strong>${catalog.policies.length}<small>種類</small></strong><div class="stat-caption">飲食・返金・家事按分・資産など</div></div><div class="stat-card"><div class="stat-label">保存と参照</div><strong class="catalog-db-label">SQLite</strong><div class="stat-caption">画面・AI候補・仕訳が同じマスターを参照</div></div></div><section class="panel"><div class="table-toolbar"><div class="toolbar-group"><select class="filter-input" id="catalog-category" aria-label="科目のカテゴリー">${accountCategoryOptions(accounts,state.catalogCategory,'すべてのカテゴリー')}</select><input class="filter-input" id="catalog-search" type="search" value="${esc(state.catalogSearch)}" placeholder="科目名・別名・用途で検索" aria-label="科目を検索"><span class="table-sub" id="catalog-count"></span></div><span class="table-sub">DBスキーマ ${catalog.schema_version} / 初期データ ${esc(catalog.seed_version)}</span></div><div class="table-scroll catalog-scroll"><table class="catalog-table"><thead><tr><th>コード / 科目</th><th>区分</th><th>主な用途</th><th>確認すること・別名</th></tr></thead><tbody id="catalog-rows"></tbody></table></div></section><details class="panel settings-card catalog-add"><summary>自分用の勘定科目を追加する</summary><p class="field-hint">既存科目は保持します。独自の科目もAIの候補と登録先に使えます。</p><form id="account-form"><div class="form-row"><label class="field"><span class="field-label">科目名</span><input name="name" maxlength="100" required placeholder="例：制作サービス利用料"></label><label class="field"><span class="field-label">区分</span><select name="kind" id="account-add-kind"><option value="expense">経費</option><option value="asset">資産</option></select></label></div><label class="field"><span class="field-label">カテゴリー</span><select name="category_id" id="account-add-category">${addAccountCategoryOptions('expense')}</select></label><label class="field"><span class="field-label">用途・例</span><textarea name="description" maxlength="1000" placeholder="この科目で記録する支出の内容"></textarea></label><label class="field"><span class="field-label">別名（任意・カンマ区切り）</span><input name="aliases" placeholder="サービス利用料, ツール利用料"></label><label class="field"><span class="field-label">品目の手がかり（任意・カンマ区切り）</span><input name="keywords" placeholder="例：制作素材ライセンス, テクスチャ素材"></label><label class="field"><span class="field-label">確認ポイント（任意・1行に1項目）</span><textarea name="review_questions" placeholder="事業で使うサービスか\n当月分の支払か"></textarea></label><button class="button primary" type="submit">科目を追加</button></form></details><section class="panel settings-card"><h2>候補を確かめるための条件</h2><p>科目の提案に加え、次の条件を確認します。用途や経費算入の可否を領収書だけで確定しません。</p><div class="policy-grid">${catalog.policies.map(p=>`<article class="policy-card"><div class="suggestion-label"><span>${esc(p.code)}</span><span>${p.action==='block'?'通常の経費登録を停止':p.action==='hold'?'科目を保留':'確認事項を表示'}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.message)}</p></article>`).join('')}</div><div class="catalog-sources"><span class="field-label">考え方の参照資料</span>${catalog.sources.map(s=>`<p><a href="${esc(s.url)}" target="_blank" rel="noreferrer">${esc(s.title)} ↗</a><span class="table-sub"> · 確認 ${esc(s.checked_at)}</span></p>`).join('')}<p class="field-hint">科目名や用途の例はアプリで編集した初期データです。税務上の取扱いを一律に確定する表ではありません。</p></div></section>`;
+  renderCatalogRows(state.catalogSearch);
 }
 
 function renderCatalogRows(query){
   const el=$('#catalog-rows');if(!el)return;
-  const normalized=String(query).normalize('NFKC').toLocaleLowerCase();
-  const rows=state.catalog.accounts.filter(a=>[a.name,a.code,a.description,...a.aliases,...(a.hints?.any||[])].join(' ').normalize('NFKC').toLocaleLowerCase().includes(normalized));
+  state.catalogSearch=String(query);
+  const normalized=state.catalogSearch.normalize('NFKC').toLocaleLowerCase();
+  const rows=state.catalog.accounts.filter(a=>(!state.catalogCategory||accountCategoryId(a)===state.catalogCategory)&&[a.name,a.code,a.description,...a.aliases,...(a.hints?.any||[])].join(' ').normalize('NFKC').toLocaleLowerCase().includes(normalized));
   $('#catalog-count').textContent=`${rows.length}科目`;
-  el.innerHTML=rows.map(a=>`<tr><td><div class="table-sub">${esc(a.code)}${a.seeded?'':' / 自分の科目'}</div><strong>${esc(a.name)}</strong></td><td><span class="account-chip">${esc(kindLabels[a.kind]||a.kind)}</span></td><td class="catalog-description">${esc(a.description)}</td><td class="catalog-description">${a.review_questions.map(q=>`<div>· ${esc(q)}</div>`).join('')||'<span class="table-sub">支払元・仕訳の相手科目として使用</span>'}${a.hints?.any?.length?`<div class="field-hint">品目の手がかり：${esc(a.hints.any.join(' / '))}</div>`:''}${a.aliases.length?`<div class="table-sub">別名：${esc(a.aliases.join(' / '))}</div>`:''}</td></tr>`).join('')||'<tr><td colspan="4" class="empty-table">一致する科目はありません</td></tr>';
+  el.innerHTML=rows.map(a=>`<tr><td><div class="table-sub">${esc(a.code)}${a.seeded?'':' / 自分の科目'}</div><strong>${esc(a.name)}</strong></td><td><span class="account-chip">${esc(accountDefinitions().find(c=>c.id===accountCategoryId(a))?.label||'その他')}</span><div class="table-sub">${esc(kindLabels[a.kind]||a.kind)}</div></td><td class="catalog-description">${esc(a.description)}</td><td class="catalog-description">${a.review_questions.map(q=>`<div>· ${esc(q)}</div>`).join('')||'<span class="table-sub">支払元・仕訳の相手科目として使用</span>'}${a.hints?.any?.length?`<div class="field-hint">品目の手がかり：${esc(a.hints.any.join(' / '))}</div>`:''}${a.aliases.length?`<div class="table-sub">別名：${esc(a.aliases.join(' / '))}</div>`:''}</td></tr>`).join('')||'<tr><td colspan="4" class="empty-table">一致する科目はありません</td></tr>';
 }
 
 async function addAccount(form){
   const data=Object.fromEntries(new FormData(form));
   const button=$('button[type="submit"]',form);button.disabled=true;
   try{
-    await api('/accounts',{method:'POST',body:JSON.stringify({name:data.name.trim(),kind:data.kind,description:data.description.trim(),aliases:data.aliases.split(/[,、\n]/).map(v=>v.trim()).filter(Boolean),keywords:(data.keywords||'').split(/[,、\n]/).map(v=>v.trim()).filter(Boolean),review_questions:data.review_questions.split('\n').map(v=>v.trim()).filter(Boolean)})});
+    await api('/accounts',{method:'POST',body:JSON.stringify({name:data.name.trim(),kind:data.kind,category_id:data.category_id||'',description:data.description.trim(),aliases:data.aliases.split(/[,、\n]/).map(v=>v.trim()).filter(Boolean),keywords:(data.keywords||'').split(/[,、\n]/).map(v=>v.trim()).filter(Boolean),review_questions:data.review_questions.split('\n').map(v=>v.trim()).filter(Boolean)})});
     [state.catalog,state.config]=await Promise.all([api('/catalog'),api('/config')]);render();toast('勘定科目をデータベースに追加しました。');
   }catch(error){toast(error.message,true);}finally{button.disabled=false;}
 }
@@ -436,6 +566,7 @@ function captureForm() {
   const values=Object.fromEntries(new FormData(form));
   const draft={...currentDraft()};
   for(const key of new Set([...Object.keys(state.detail.draft),'export_tax'])) if(key in values) draft[key]=['total','tax_amount','business_percent'].includes(key)?(values[key]===''?null:Number(values[key])):values[key].trim();
+  const accountChoice=$('[data-account-choice]',form);if(accountChoice)draft.account=accountChoice.value;
   return {version:state.drafts.get(state.active)?.version||state.detail.version,draft,remember_account:values.remember_account==='on'};
 }
 function trackEdit() {
@@ -526,6 +657,7 @@ document.addEventListener('click',async event=>{
   const target=event.target.closest('button,a,[data-action],summary[data-ocr-receipt]');if(!target)return;
   try{
     if(target.dataset.view){event.preventDefault();if(!state.uiReady)return;const revision=++detailRevision;if(target.dataset.view==='catalog'){const catalog=await api('/catalog');if(revision!==detailRevision)return;state.catalog=catalog;}state.view=target.dataset.view;history.replaceState(null,'','#'+state.view);$('.more-nav').open=false;render();return;}
+    if(target.dataset.changeAccount){await openAccountChange(target.dataset.changeAccount,target);return;}
     if(target.dataset.reviewOpen){$('#review-dialog').close();state.queueFilter='all';await selectReceipt(target.dataset.reviewOpen);return;}
     if(target.dataset.zoomReceipt){openZoom(target.dataset.zoomReceipt,target);return;}
     if(target.dataset.ocrReceipt){const details=target.closest('details');if(!details.open&&!details.dataset.loaded){const r=await api('/receipts/'+target.dataset.ocrReceipt);if(details.isConnected){details.querySelector('pre').textContent=r.ocr?.text||'読み取った本文がありません。原本を確認してください。';details.dataset.loaded='1';}}return;}
@@ -535,6 +667,8 @@ document.addEventListener('click',async event=>{
     if(target.dataset.sourceTab){state.sourceTab=target.dataset.sourceTab;if(state.sourceTab==='history')state.history=(await api(`/receipts/${state.active}/history`)).history;renderDetail();return;}
     if(target.dataset.removeRule){await api('/rules/remove',{method:'POST',body:JSON.stringify({merchant:target.dataset.removeRule})});state.config=await api('/config');render();toast('科目のルールを解除しました。');return;}
     const action=target.dataset.action;
+    if(action==='cancel-account-change'){if(!accountEdit?.saving)$('#account-change-dialog').close();return;}
+    if(action==='reload-account-change'){await reloadAccountChange();return;}
     if(action==='back-to-ledger'){++detailRevision;state.view='results';render();return;}
     if(action==='save-export-map'){
       const names={};
@@ -577,9 +711,20 @@ document.addEventListener('click',async event=>{
     }
   }catch(error){target.disabled=false;toast(error.message,true);}
 });
-document.addEventListener('submit',event=>{if(event.target.id==='review-form'){event.preventDefault();save(true);}if(event.target.id==='account-form'){event.preventDefault();addAccount(event.target);}});
+document.addEventListener('submit',event=>{if(event.target.id==='account-change-form'){event.preventDefault();saveAccountChange();}if(event.target.id==='review-form'){event.preventDefault();save(true);}if(event.target.id==='account-form'){event.preventDefault();addAccount(event.target);}});
 document.addEventListener('input',event=>{if(event.target.id==='ledger-search'){state.ledgerSearch=event.target.value;state.ledgerPage=0;if(!event.isComposing&&!state.searchComposing){clearTimeout(searchTimer);searchTimer=setTimeout(()=>updateLedgerTable(true),180);}}if(event.target.closest('#review-form'))trackEdit();if(event.target.id==='catalog-search')renderCatalogRows(event.target.value);});
 document.addEventListener('change',event=>{
+  if(event.target.matches('[data-account-category]')){
+    changeAccountCategory(event.target.closest('[data-account-picker]'));
+    if(event.target.closest('#review-form'))state.reviewAccountCategories.set(state.active,event.target.value);
+  }
+  if(event.target.matches('[data-account-choice]'))updateAccountHelp(event.target.closest('[data-account-picker]'));
+  if(event.target.closest('#account-change-form')&&(event.target.matches('[data-account-category]')||event.target.matches('[data-account-choice]')))updateAccountChangeSave();
+  if(event.target.id==='catalog-category'){state.catalogCategory=event.target.value;renderCatalogRows(state.catalogSearch);}
+  if(event.target.id==='account-add-kind'){
+    const field=$('#account-add-category'),selected=field.value;
+    field.innerHTML=addAccountCategoryOptions(event.target.value,selected);
+  }
   if(event.target.id==='results-pending'){state.resultsOnlyPending=event.target.checked;state.resultsPage=0;renderResults($('#main-content'));$('#results-pending')?.focus({preventScroll:true});}
   if(event.target.id==='zoom-scale'){const img=$('.zoom-image-wrap img');img.style.width=event.target.value==='fit'?'100%':Math.round(img.naturalWidth*Number(event.target.value)/100)+'px';img.style.maxWidth=event.target.value==='fit'?'100%':'none';}
   if(event.target.id==='export-profile'){rememberLedgerInputs();state.exportProfile=event.target.value;$('#export-panel').outerHTML=exportPanel();updateExportPreview();$('#export-profile')?.focus({preventScroll:true});}
@@ -597,7 +742,7 @@ document.addEventListener('change',event=>{
   if(event.target.closest('#review-form'))trackEdit();
 });
 document.addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('.dropzone')){event.preventDefault();RyoshuImport.open();}});
-window.addEventListener('beforeunload',event=>{if(state.drafts.size||RyoshuImport.busy()){event.preventDefault();event.returnValue='';}});
+window.addEventListener('beforeunload',event=>{if(state.drafts.size||RyoshuImport.busy()||(accountEdit?.row&&$('#quick-account')?.value!==(findAccount(accountEdit.row.draft.account)?.name||accountEdit.row.draft.account||''))){event.preventDefault();event.returnValue='';}});
 
 async function init(){
   try{

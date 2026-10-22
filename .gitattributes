@@ -22,6 +22,7 @@ requirements*.txt text eol=lf
 samples/receipts-100-v2/manifest.json -text
 # Preserve the tax expectation bytes hashed before the v1.2 fresh run.
 docs/testing/v1.2/tax-scope-expectations.json -text
+docs/testing/v1.3/tax-scope-expectations.json -text
 # Preserve audited processing-source and catalog bytes, including original CRLF.
 receipt_ledger/accounting.py -text
 receipt_ledger/catalog.py -text
@@ -38,5 +39,6 @@ docs/testing/baseline/*.py -text
 docs/testing/baseline/*.json -text
 data/catalog-history/2026-10-21.6.json -text
 data/catalog-history/2026-10-22.1.json -text
+data/catalog-history/2026-10-22.2.json -text
 # Archived generator bytes correspond to generator_sha256 in the manifest.
 samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace

@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "scope": "Real browser/HTTP/persistence/CSV; OCR and model observations replayed by QA test double, not new inference",
+  "checks": [
+    "personal and tax-professional review policy visible in app and local help",
+    "100 PDFs selected once, explicit start with default document mode, pause/resume, saved and read to ledger",
+    "accounting CSV explains why unreviewed rows cannot be exported",
+    "ledger search",
+    "batch review warns about missing inputs before any confirmation request",
+    "explicit batch review acknowledgement, missing amount stays pending, only valid row posted",
+    "receipt detail returns to the ledger and retains batch results",
+    "named batch failures persist after opening a receipt and can filter the remaining rows",
+    "freee CSV download and version-aware CSV creation history",
+    "CSV preview network failure disables save and explains recovery in Japanese",
+    "persistent individual import errors and exact duplicate skip",
+    "100-page PDF split, immutable source download, 100-row pagination",
+    "duplicate warning remains visible in receipt details and opens related originals",
+    "a pending receipt response cannot override navigation or a newer receipt selection",
+    "delayed saves preserve same/other receipt edits and report saved state even if refresh fails",
+    "Japanese composition preserves the input node, focus, and rows until composition ends",
+    "confirm-and-next follows page1 to page2 within the same split PDF",
+    "bulk exclude and restore are reversible and retain originals",
+    "refund confirmation is disabled with the exact reason visible on the form",
+    "folder selection includes nested files and explains unsupported formats",
+    "file drop stages until explicit start and skips the existing original",
+    "375px mobile layout and import dialog",
+    "optional review-first setting automatically persists",
+    "a failed second100-row batch retains saved rows, reports partial success and names remaining rows",
+    "missing date in a simulated legacy confirmed row does not crash summaries",
+    "a delayed old receipt response cannot overwrite a newer refresh",
+    "old backend compatibility guard guides a restart before allowing uploads",
+    "2000-file result rendering is lazy and paged to100; this is not a2000-document OCR test"
+  ],
+  "errors": [],
+  "receipt_count": 202,
+  "render_stress": {
+    "milliseconds": 239.10000000149012,
+    "closedRows": 0
+  },
+  "source_sha256": {
+    "web/app.js": "4c6f87bc5509db0ad8cb7157e2c03a77eb5064893a0cc0599fca6bced13f7045",
+    "web/import.js": "452bbf1ab2496f2bf11854d53a0196ffeb94413f2b1869d6f366c23977a8706f",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "94e6a0d93c5e9c00dc2f6c89d8bec5170b078cddc3ecbafbc461d4cbbd5fcff1",
+    "web/style.css": "c5e167aece64a870a37611675107543a8f9776ccc5f2d19b8501a0479a81f757",
+    "receipt_ledger/server.py": "f968d0eed813359b27dc0ddbc3155b6a8902546415a0ea0eb3d9888f5defbef7",
+    "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
+    "scripts/browser_smoke.mjs": "7dfb2efb2fd9acf899cd2d7511582b08151696296e20b78d93ff4c4ba0f4a2fb"
+  }
+}

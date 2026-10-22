@@ -102,7 +102,9 @@ for item in meta['exports']:
 critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt_ledger/catalog.py',
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
-changes_path = ROOT / 'docs/testing/v1.2/source-changes.json'
+changes_path = ROOT / 'docs/testing/v1.3/source-changes.json'
+if not changes_path.is_file():
+    changes_path = ROOT / 'docs/testing/v1.2/source-changes.json'
 if not changes_path.is_file():
     changes_path = ROOT / 'docs/testing/security/source-changes.json'
 if not changes_path.is_file():
@@ -209,10 +211,69 @@ if (v12 / 'results-100.json').is_file():
     require(len(comparison) == 100 and {c['case_id'] for c in comparison} == set(truth), 'v1.2 comparison CSV scope differs')
     finalization = json.loads((v12 / 'finalization.json').read_text('utf-8'))
     if finalization.get('status') == 'passed':
-        for name, expected_hash in finalization['distribution_source_sha256'].items():
-            require(distribution_sha(ROOT / name) == expected_hash, f'v1.2 final source is stale: {name}')
+        archive_manifest = v12 / 'source-archive.json'
+        if archive_manifest.is_file():
+            recorded = json.loads(archive_manifest.read_text('utf-8'))
+            archive = (v12 / recorded['file']).resolve()
+            require(archive.is_relative_to(v12) and archive.is_file(), 'Missing historical v1.2 source archive')
+            require(recorded['source_commit'] == '40dfac8dfd0d819c3979c98caa1d79c0091a22a7', 'Historical v1.2 commit differs')
+            if archive.is_file():
+                require(sha(archive) == recorded['sha256'], 'Historical v1.2 archive changed')
+                with zipfile.ZipFile(archive) as source_zip:
+                    snapshot = finalization['distribution_source_sha256']
+                    require(source_zip.testzip() is None and set(source_zip.namelist()) == set(snapshot), 'Historical v1.2 archive scope differs')
+                    for name, expected_hash in snapshot.items():
+                        require(hashlib.sha256(source_zip.read(name)).hexdigest() == expected_hash, f'Historical v1.2 source differs: {name}')
+        else:
+            for name, expected_hash in finalization['distribution_source_sha256'].items():
+                require(distribution_sha(ROOT / name) == expected_hash, f'v1.2 final source is stale: {name}')
         for name, expected_hash in finalization['visual_review']['screenshots_sha256'].items():
             require(sha(v12 / 'screenshots' / name) == expected_hash, f'v1.2 screenshot changed: {name}')
+
+# The account expansion is a new inference run, never a relabel of v1.2 results.
+v13 = ROOT / 'docs/testing/v1.3'
+if (v13 / 'results-100.json').is_file():
+    latest = json.loads((v13 / 'results-100.json').read_text('utf-8'))
+    require(latest['app_version'] == '1.3.0' and latest['execution_status'] == 'complete' and latest['ocr_reuse'] is None, 'v1.3 fresh run is incomplete')
+    require(latest['fixture_manifest_sha256'] == sha(SAMPLE / 'manifest.json'), 'v1.3 fixtures differ')
+    require(len(latest['cases']) == 100 and {c['case_id'] for c in latest['cases']} == set(truth), 'v1.3 case scope differs')
+    require(latest['confirmed_count'] == latest['journal_row_count'] == 0, 'v1.3 inference must remain unconfirmed')
+    require(latest['metrics']['ocr_completed'] == latest['metrics']['model_completed'] == {'matched':100,'evaluated':100}, 'v1.3 must run OCR and local model for every case')
+    for row in latest['cases']:
+        expected = truth[row['case_id']]
+        require(row['sha256'] == expected['sha256'], f"v1.3 PDF changed: {row['case_id']}")
+        require(row['expected'] == {k:expected[k] for k in ['merchant','date','total','acceptable_accounts','expected_decision']}, f"v1.3 original truth changed: {row['case_id']}")
+    for key, score in latest['metrics'].items():
+        values = [c['checks'].get(key) for c in latest['cases'] if c['checks'].get(key) is not None]
+        require(score == {'matched':sum(v is True for v in values),'evaluated':len(values)}, f'v1.3 metric differs: {key}')
+    labels = json.loads((v13 / 'tax-scope-expectations.json').read_text('utf-8'))
+    require(sha(v13 / 'tax-scope-expectations.json') == sha(v12 / 'tax-scope-expectations.json') == latest['tax_expectations_sha256'], 'v1.3 must retain preregistered tax labels')
+    tax_expected = {c['case_id']:c['expected_tax_amount'] for c in labels['cases']}
+    evaluated = [c for c in latest['cases'] if c['tax_scope']['evaluated']]
+    require({c['case_id'] for c in evaluated} == set(tax_expected), 'v1.3 tax scope differs')
+    for row in evaluated:
+        actual = row['observed']['suggestion'].get('tax_amount'); target = tax_expected[row['case_id']]
+        require(row['tax_scope']['actual_tax_amount'] == actual and row['tax_scope']['expected_tax_amount'] == target and row['tax_scope']['exact'] == (actual == target), f"v1.3 tax comparison differs: {row['case_id']}")
+    tax = latest['tax_scope']
+    numeric = [c for c in evaluated if tax_expected[c['case_id']] is not None]
+    blank = [c for c in evaluated if tax_expected[c['case_id']] is None]
+    require([tax['evaluated'],tax['numeric_expected'],tax['blank_expected'],tax['exact_numeric'],tax['exact_blank']] == [len(evaluated),len(numeric),len(blank),sum(c['tax_scope']['exact'] for c in numeric),sum(c['tax_scope']['exact'] for c in blank)], 'v1.3 tax aggregate differs')
+    require(tax['wrong_value'] == [c['case_id'] for c in evaluated if not c['tax_scope']['exact'] and c['tax_scope']['actual_tax_amount'] is not None], 'v1.3 wrong-tax list differs')
+    require(tax['abstained'] == [c['case_id'] for c in evaluated if not c['tax_scope']['exact'] and c['tax_scope']['actual_tax_amount'] is None], 'v1.3 tax-abstention list differs')
+    require(tax['unreviewed_nonblank'] == [c['case_id'] for c in latest['cases'] if c['case_id'] not in tax_expected and c['case_id'] not in labels['excluded_from_normal_tax'] and c['observed']['suggestion'].get('tax_amount') is not None], 'v1.3 unreviewed tax list differs')
+    excluded = [c for c in latest['cases'] if c['case_id'] in labels['excluded_from_normal_tax'] and c['observed']['suggestion'].get('tax_amount') is not None]
+    require({c['case_id'] for c in tax['excluded_nonblank']} == {c['case_id'] for c in excluded} and all(c['checks']['actual_decision'] == 'block' and c['observed']['suggestion'].get('blocking_reasons') for c in excluded), 'v1.3 unsupported refund tax must remain outside score and blocked')
+    require(not latest['tax_scope']['wrong_value'] and not latest['tax_scope']['unreviewed_nonblank'], 'v1.3 incorrect/unreviewed nonblank taxes remain')
+    with (v13 / 'comparison-100.csv').open(encoding='utf-8-sig',newline='') as f:
+        comparison = list(csv.DictReader(f))
+    require(len(comparison) == 100 and {c['case_id'] for c in comparison} == set(truth), 'v1.3 comparison CSV scope differs')
+    final = json.loads((v13 / 'finalization.json').read_text('utf-8'))
+    require(final['status'] == 'passed' and final['frozen_runtime_matches_final_distribution'], 'v1.3 final integration is incomplete')
+    require(set(latest['source_hashes']).issubset(final['distribution_source_sha256']), 'v1.3 runtime reconciliation scope differs')
+    for name, expected_hash in final['distribution_source_sha256'].items():
+        require(distribution_sha(ROOT / name) == expected_hash, f'v1.3 final source is stale: {name}')
+    for name, expected_hash in final['visual_review']['screenshots_sha256'].items():
+        require(sha(v13 / 'screenshots' / name) == expected_hash, f'v1.3 screenshot changed: {name}')
 
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
