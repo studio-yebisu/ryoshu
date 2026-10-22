@@ -133,12 +133,23 @@ def semantic_document_text(text):
     The complete OCR remains the source for extracted fields and user review.
     A test service/item or a supplier called テスト商事 must remain in the body.
     """
-    mark=re.compile(r'(?:架空|仮想|テスト(?:用)?|サンプル|見本|複写|再発行不可|SAMPLE|SPECIMEN|DUMMY|FOR_TESTING)+',re.I)
+    mark=re.compile(r'架空|仮想|テスト(?:用)?|サンプル|見本|複写|再発行不可|SAMPLE|SPECIMEN|DUMMY|FOR_TESTING',re.I)
     body=[];ignored=[]
-    for line in text.splitlines():
+    lines=text.splitlines()
+    next_nonempty=['']*len(lines);following=''
+    for index in range(len(lines)-1,-1,-1):
+        next_nonempty[index]=following
+        if lines[index].strip():following=lines[index].strip()
+    for index,line in enumerate(lines):
         notice=re.sub(r'FOR\s+TESTING','FOR_TESTING',line.strip().strip('（()）'),flags=re.I)
         tokens=re.split(r'[\s/／・|｜-]+',notice.strip())
-        if tokens and all(mark.fullmatch(token) for token in tokens):ignored.append(line)
+        marks=[match.group() for token in tokens for match in mark.finditer(token)]
+        only_marks=bool(tokens and ''.join(marks).casefold()==''.join(tokens).casefold())
+        following=next_nonempty[index]
+        # A bare サンプル/見本/テスト can itself be an item name, especially
+        # when OCR split its price onto the next row. Preserve that information.
+        has_price=bool(re.search(r'[¥￥$]\s*\d|\d[\d,]*\s*円|数量|単価',following))
+        if only_marks and len(marks)>1 and not has_price:ignored.append(line)
         else:body.append(line)
     return '\n'.join(body),list(dict.fromkeys(ignored))
 

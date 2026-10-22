@@ -64,6 +64,11 @@ def test_ambiguous_purchase_policy_still_prevents_auto_classification():
 def test_standalone_document_marks_are_separate_from_real_purchase_descriptions():
     original='テスト商事株式会社\nソフトウェアの負荷テスト委託料\n見本市参加費\nサンプル品3個\n合計22,000円\n架空テスト / 再発行不可\n（見本）\nSAMPLE / DUMMY'
     body,ignored=semantic_document_text(original)
-    assert body=='テスト商事株式会社\nソフトウェアの負荷テスト委託料\n見本市参加費\nサンプル品3個\n合計22,000円'
-    assert ignored==['架空テスト / 再発行不可','（見本）','SAMPLE / DUMMY']
+    assert body=='テスト商事株式会社\nソフトウェアの負荷テスト委託料\n見本市参加費\nサンプル品3個\n合計22,000円\n（見本）'
+    assert ignored==['架空テスト / 再発行不可','SAMPLE / DUMMY']
     assert '架空テスト / 再発行不可' in original
+
+
+def test_bare_sample_item_and_its_separately_recognized_price_are_retained():
+    original='文具店\n品名\nサンプル\n1,000円\n見本・サンプル\n数量1 単価500円\n合計1,650円'
+    assert semantic_document_text(original)==(original,[])
