@@ -16,9 +16,10 @@
     "scope": "v1.2: 税額の範囲を共通抽出。括弧内の税込金額・内訳行・今回領収分・契約全体を区別し、印字されていない税額を計算しない。",
     "regression_tests": [
       "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
       "tests/test_extraction.py"
     ],
-    "after_sha256": "a6432721cedc8ba23c55fb07e2e2769b028399b2a800cf4d68ad804e7fa63f5d",
+    "after_sha256": "ebea624fe38d5254612e89723995d1a88e09be878c336c930c0b3d3c7cb04dbc",
     "previous_release_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705"
   },
   "receipt_ledger/exports.py": {
@@ -43,6 +44,7 @@
       "tests/test_local_model_guard.py",
       "tests/test_encryption_migration_files.py",
       "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
       "tests/test_extraction.py"
     ],
     "previous_release_sha256": "9662048a1ab2f992b5f6de490d852552f41eb00e77358516607f8190f6ccd893"
@@ -53,9 +55,10 @@
     "scope": "v1.2: 単独の帳票注記と購入内容を分離し、支出の種類と実際の業務用途の確認を分ける。小数割合の末尾を8%税率と誤認しない。",
     "regression_tests": [
       "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
       "tests/test_extraction.py"
     ],
-    "after_sha256": "a89805329ccd6141c61ec1713d22f6696bc8a11902b54a3488e7b500feded232",
+    "after_sha256": "30302bbf2435afb816e39244c5729279a4eb02509815ab03ec53cf2ea48a94ee",
     "previous_release_sha256": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59"
   },
   "receipt_ledger/store.py": {
