@@ -71,6 +71,9 @@ def printed_tax(text, mixed=False, total=None):
     for line in normalized.splitlines():
         labels=list(TAX_LABEL.finditer(line))
         for index,label in enumerate(labels):
+            prefix=line[:label.start()]
+            if '消費税' not in label.group() and '内税' not in label.group() and re.search(r'源泉|所得|宿泊|入湯|印紙|住民|固定資産|法人|関税',prefix):
+                continue
             tail=line[label.end():labels[index+1].start() if index+1<len(labels) else len(line)]
             # A parenthetical description can contain the taxable gross, not the
             # tax: 「うち消費税（手数料税込660円の内数）60円」.
@@ -80,7 +83,6 @@ def printed_tax(text, mixed=False, total=None):
             tail=re.split(r'税(?:込|抜)(?:合計|総額|金額)|総合計|報酬総額|回線合計|(?<!税)合計',tail,maxsplit=1)[0]
             amount=amount_on_line(tail)
             if amount is None:continue
-            prefix=line[:label.start()]
             current=bool(re.search(r'今回.*(?:領収|受領|入金|支払|決済)',prefix))
             current=current and total is not None and total in [value for value,_,_ in money_tokens(prefix)]
             other=bool(re.search(r'前回|前月|前受|着手金|予約金|契約(?:金額|額)|(?:回線|部門|商品|品目|明細)[A-Z0-9一二三四五六七八九十甲乙]|回線別|部門別|品目別|明細別',prefix)) and not current
