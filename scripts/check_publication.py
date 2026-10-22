@@ -200,6 +200,10 @@ if (v12 / 'results-100.json').is_file():
     require(tax['wrong_value'] == [c['case_id'] for c in evaluated if not c['tax_scope']['exact'] and c['tax_scope']['actual_tax_amount'] is not None], 'Tax wrong value list differs')
     require(tax['abstained'] == [c['case_id'] for c in evaluated if not c['tax_scope']['exact'] and c['tax_scope']['actual_tax_amount'] is None], 'Tax abstention list differs')
     require(not tax['wrong_value'] and not tax['unreviewed_nonblank'], 'Resolve incorrect or unreviewed nonblank taxes before publication')
+    excluded = {c['case_id']:c for c in latest['cases'] if c['case_id'] in tax_labels['excluded_from_normal_tax'] and c['observed']['suggestion'].get('tax_amount') is not None}
+    require({c['case_id'] for c in tax.get('excluded_nonblank',[])} == set(excluded), 'Excluded nonblank tax list differs')
+    require(tax['unreviewed_nonblank'] == [c['case_id'] for c in latest['cases'] if c['case_id'] not in tax_expected and c['case_id'] not in tax_labels['excluded_from_normal_tax'] and c['observed']['suggestion'].get('tax_amount') is not None], 'Unreviewed nonblank tax list differs')
+    require(all(c['checks']['actual_decision'] == 'block' and c['observed']['suggestion'].get('blocking_reasons') for c in excluded.values()), 'Unsupported refund tax must remain blocked and outside the tax score')
     with (v12 / 'comparison-100.csv').open(encoding='utf-8-sig',newline='') as f:
         comparison = list(csv.DictReader(f))
     require(len(comparison) == 100 and {c['case_id'] for c in comparison} == set(truth), 'v1.2 comparison CSV scope differs')

@@ -1,0 +1,2227 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ryoshu v1.2.0 — 100件の画像・OCR・科目・税額の検証</title><style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;color:#253047;background:#f5f6fa;font-size:14px}*{box-sizing:border-box}body{margin:0}main{max-width:1280px;margin:auto;padding:28px 24px 64px}a{color:#3848c0;text-underline-offset:3px}h1{font-size:28px;line-height:1.45;margin:22px 0 12px;letter-spacing:-.02em}p{line-height:1.65}.eyebrow{font-size:13px;letter-spacing:.06em;color:#66728b}.intro{max-width:880px;color:#526078}.stats{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.stats>div{background:white;border:1px solid #dfe3ed;border-radius:8px;padding:16px 22px;min-width:160px}.stats strong{display:block;font-size:25px;font-variant-numeric:tabular-nums}.stats span{font-size:13px;color:#526078}.note{background:#eef1fc;border-left:3px solid #6d78cf;padding:12px 16px}.tools{display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:20px 0}.tools input[type=search]{font:inherit;padding:10px 12px;min-width:260px;border:1px solid #aab3c6;border-radius:6px}.case{background:#fff;border:1px solid #dfe3ed;border-radius:8px;margin:14px 0;padding:20px}.case header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #edf0f5}.case h2{margin:0;font-size:15px}.case h2 span{font-weight:500;margin-left:10px}.badge{font-size:12px;border-radius:4px;background:#eef1fc;color:#3848c0;white-space:nowrap;padding:4px 8px}.badge.difference{background:#fff4df;color:#855a05}.columns{display:grid;grid-template-columns:160px minmax(0,1.3fr) minmax(0,1fr);gap:24px;padding-top:18px}.original{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}.original img{width:100%;height:200px;object-fit:contain;background:#f7f8fb;border:1px solid #e5e8f0;cursor:zoom-in}.columns h3{font-size:13px;color:#66728b;margin:0 0 12px}.account,.amount{font-size:19px!important;font-weight:650;font-variant-numeric:tabular-nums}.account{margin:0 0 10px}dl{display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px;margin:0}dt{font-size:13px;color:#66728b}dd{margin:0;overflow-wrap:anywhere}details{margin-top:16px}summary{cursor:pointer;color:#3848c0;font-size:13px}details dl{margin-top:14px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:13px;line-height:1.65;padding:14px;background:#f6f7fb;border-radius:6px}.tax{font-size:13px;color:#526078;border-top:1px solid #edf0f5;padding-top:12px}.case[hidden]{display:none}footer{margin-top:30px;color:#66728b;font-size:13px}button,input,summary,a{outline-offset:4px}:focus-visible{outline:3px solid #7786eb}@media(max-width:760px){main{padding:20px 14px 40px}h1{font-size:24px}.case{padding:16px}.columns{grid-template-columns:1fr;gap:20px}.original img{height:220px}.case header{flex-wrap:wrap}.case h2 span{display:block;margin:5px 0 0}.stats>div{padding:12px 16px;min-width:140px}.tools input[type=search]{min-width:0;width:100%}}
+</style></head><body><main><p><a href="../../../README.md">Ryoshu</a> / <a href="README.md">検証方法と残る差異</a> / <a href="../security/">v1.1.0候補の履歴</a></p><p class="eyebrow">RYOSHU 1.2.0 · FICTIONAL RECEIPTS</p><h1>100件の画像・読み取り結果・科目を見比べる。</h1><p class="intro">税額の範囲と科目保留の扱いを修正し、架空PDF100件をHTTP取り込みからIndra OCR・PC内のQwen3まで新規実行しました。保存済みOCR・モデル候補は再利用していません。原本・日付・金額・科目の元の期待値は変更していません。</p><div class="stats"><div><strong>97/97</strong><span>金額・円額未確定</span></div><div><strong>99/100</strong><span>日付</span></div><div><strong>47/48</strong><span>暫定科目</span></div><div><strong>89/100</strong><span>科目または保留条件</span></div></div><p class="note">改善にも使った同じ100件の回帰検査です。未知の実物領収書の正答率ではありません。返金3件は金額評価から除き、金額の分母97には円額未確定の外貨2件を含みます。全件が未確認の候補で、仕訳は0行です。</p><p>税額の範囲は別に63件を評価。印字額の数値一致 51/52、全体の税額が未印字等で空欄にする一致 11/11、印字額を読めず空欄にした保留 1件、異なる税額の採用 0件。残りのケースを税額の一致に加算していません。</p><p><a href="comparison-100.csv" download>期待値との比較CSV</a> · <a href="results-100.json">全結果JSON</a> · <a href="tax-scope-expectations.json">税額の独立した期待値</a> · <a href="finalization.json">試験・実画面確認</a> · <a href="reviews.json">レビューと対応</a></p><div class="tools"><label><input id="search" type="search" placeholder="ケース・支払先・科目で検索" aria-label="ケースを検索"></label><label><input id="differences" type="checkbox">差異・保留があるケースだけ</label><span id="count" aria-live="polite">100件</span></div><p>返金3件と外貨で円額未確定の2件は、事前に通常円取引の税額評価から除外しています。返金3件の仮の読取税額も観測値に残しますが、通常の経費としての確定を拒否しており、税額の成功件数には含めません。</p><article class="case" data-difference="false" data-search="V001 コンビニ58mmサーマル領収書 コンビニ みちのく 消耗品費" id="V001"><header><h2>V001<span>コンビニ58mmサーマル領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V001.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V001.jpg" alt="コンビニ58mmサーマル領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-11-02</dd><dt>支払先</dt><dd>コンビニ みちのく</dd><dt>金額</dt><dd class="amount">1,760円</dd></dl><p>乾電池 4本パック、A4コピー用紙 50100枚入、クリアファイル A4 2枚組</p><p class="tax">記載消費税：160円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>みちのく
+テスト市架空町1-2-3 テストビル前
+TEL 000-0000-0000
+2023/11/2(木) 19:41
+レジ #3 No.0429-113
+単3乾電池 4本パック 580
+A4コピー用紙 500枚入 780
+クリアファイル A4 2枚組 400
+10%対象 計 ¥1,760
+(内消費税等) 160
+合 計 ¥1,760
+お預かり ¥2,000
+おつり ¥240
+4 2 9 1 1 3
+またのご利用をお待ちしております
+※ 架空テスト用データ</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-11-02</dd><dt>期待する支払先</dt><dd>コンビニ みちのく</dd><dt>期待する金額</dt><dd>1,760円</dd><dt>許容する科目</dt><dd>消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V002 スーパー2税率マルチ買い物籠 スーパー いちばん星 テスト市店 " id="V002"><header><h2>V002<span>スーパー2税率マルチ買い物籠</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V002.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V002.jpg" alt="スーパー2税率マルチ買い物籠の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-16</dd><dt>支払先</dt><dd>スーパー いちばん星 テスト市店</dd><dt>金額</dt><dd class="amount">6,964円</dd></dl><p>牛乳 1L ×2, 食パン 6枚切, DNE IS, たまご 10個入, W CU 750g, 絹ごし豆腐 2丁, キヤ</p><p class="tax">記載消費税：空欄・要確認<br>税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。</p><details><summary>OCR本文を開く</summary><pre>単 テスト市店
+7000-0000 72 - 1812.5.0
+R6.3.16(E) 10:12
+会員番号 ****-2210 POS-12 係 1032
+◆ 食料品 (★印は軽減対象)
+牛乳 1L ×2 ★
+食パン 6枚切 ★ 430
+DNE IS  178
+たまご 10個入 ★ 298
+W CU 750g ★ 248
+絹ごし豆腐 2丁 ★ 345
+キヤベツ 1玉 ★ 176
+鶏むね肉 ★ 158
+玄米 2kg ★ 512
+納豆 3P ★ 1,580
+バナナ ★ 128
+◆ 日用雑貨・医薬部外品 198
+台所用洗剤 本体
+同 詰替用 328
+キッチンスポンジ 5P 264
+食品用ラップ 214
+トイレット紙 12R 305
+柔軟剤 詰替 668
+除菌ウェットシート 549
+385
+8%対象 計 4,251 (内消費税 314)
+10%対象 計 2,713 (内消費税 246)
+合計 ¥6,964 （税込)
+お預り
+$7,000
+$36
+レートはお買い上げ日を含め7日間有効です。返品交換の際は必ず
+す。 ご持参ください。本日のチラシ特売品はマイル付与の対象外となりま
+；ァンケートにご協力いただくと、次回使える駐車場サービス券を発
+行します(本券サンブル)。
+No. 31612-0481</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-16</dd><dt>期待する支払先</dt><dd>スーパー いちばん星</dd><dt>期待する金額</dt><dd>6,964円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V003 書店の縦書き帳付き御買上票 本と文具 ことば舎 新聞図書費" id="V003"><header><h2>V003<span>書店の縦書き帳付き御買上票</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V003.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V003.jpg" alt="書店の縦書き帳付き御買上票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2021-06-30</dd><dt>支払先</dt><dd>本と文具 ことば舎</dd><dt>金額</dt><dd class="amount">4,290円</dd></dl><p>実践データ整備術 第2版、店舗数字の読み方 入門</p><p class="tax">記載消費税：390円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>領収書 No. B-1029
+こ 本
+令和3年6月30日(水) ご 利用: 現金
+と と
+お客様: テスト事務所 様
+ば 文
+舎 具 品番 書名・品名 数量 金額
+SB-0042 実践データ整備術 第2版 1 2,420
+SB-0117 店舗数字の読み方 入門 1,870
+小 計 ¥4,290
+内消費税 390
+総合計 ¥4,290
+ご返品・ご交換について
+架
+空 書籍は未開封・未読の場合のみ、お買上日より7日以内で返品を承ります。汚損・書き込みのある商品はご容赦ください
+テ
+ス
+ト
+L-
+テスト市架空町4-9 / TEL 000-000-0000
+
+[縦組み文字列]
+本と文具
+ことば舎
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">新聞図書費</p><p>扱い：暫定提案</p><p>新聞図書費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2021-06-30</dd><dt>期待する支払先</dt><dd>本と文具 ことば舎</dd><dt>期待する金額</dt><dd>4,290円</dd><dt>許容する科目</dt><dd>図書費 / 研修費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact / decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V004 電器店大型モニタ領収(横A5) 電器専門店 デンキノハコ 工具器具備品" id="V004"><header><h2>V004<span>電器店大型モニタ領収(横A5)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V004.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V004.jpg" alt="電器店大型モニタ領収(横A5)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-12-14</dd><dt>支払先</dt><dd>電器専門店 デンキノハコ</dd><dt>金額</dt><dd class="amount">91,280円</dd></dl><p>27型業務用モニター K27-T01 WQHD</p><p class="tax">記載消費税：8,298円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>御 領収 書 No.EX-2207
+電器専門店 デンキノハコ 架空テスト
+テスト市架空町3-14-2
+発行 2022-12-14 16:55 / レジ #18 / 販売員: おおの
+品名 品番・仕様 数画(税込) 保証・ご登録のご案内
+27型業務用モ二タ K27-T01 WQHD 189,800 ーカー保証1年(要レシート提示)。製品番号: K27-T01-No.0048。化粧箱と本票は保証期間中保管してください。
+HDMIケーブル 2m HD-20A ver2.0 1 1,480
+小計 X91,280
+内消費税(10%) 8,298
+設置、配線サ スは承っておりません。初期不良は購入日より14日以内にご相談ください。
+※ 本票は架空テスト用です
+91 ,280-
+ご購入金額(税込)
+お支払: 現金 ¥92,000 お釣り ¥720
+お買い上げ誠にありがとうございました</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">工具器具備品</p><p>扱い：資産・費用区分の確認待ち</p><p>工具器具備品の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-12-14</dd><dt>期待する支払先</dt><dd>電器専門店 デンキノハコ</dd><dt>期待する金額</dt><dd>91,280円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V005 資材センター納品兼領収(写) 資材センター たてものや 消耗品費" id="V005"><header><h2>V005<span>資材センター納品兼領収(写)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V005.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V005.jpg" alt="資材センター納品兼領収(写)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2020-08-24</dd><dt>支払先</dt><dd>資材センター たてものや</dd><dt>金額</dt><dd class="amount">11,008円</dd></dl><p>WD-24 2x44 68 8 *390 3,184
+SC-38 木ネジ 38mm 箱 2 548 1,080
+PT-4</p><p class="tax">記載消費税：1,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>資材センター たてものや
+御納品書・兼領収 （No.2 写）
+9688 2020/08/24 ERNo. HM-3301
+78 2020/08/21 担当： 也家飞
+納入先: テスト工務店 御中(テスト市鍵空町6-1 現場)
+金額(税込)
+WD-24 2x44 68 8 *390 3,184
+SC-38 木ネジ 38mm 箱 2 548 1,080
+PT-42 水性ベン半 自 2L 缶880 5,640
+BR-40 4 10mm 本312 624
+TP-CR •生デープ 50m ₩480 480
+10%对象合計 11,008
+内消費税 1,000
+合計期求額(税込11,008円也
+備考： 現場2階への搬入分、荷受け印をお願いします。代金は現金 52%
+にて同時鎖収済。</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2020-08-24</dd><dt>期待する支払先</dt><dd>資材センター たてものや</dd><dt>期待する金額</dt><dd>11,008円</dd><dt>許容する科目</dt><dd>修繕費 / 消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V006 画材店の縦書き御買上証(年省略) 画材ときわ堂 消耗品費" id="V006"><header><h2>V006<span>画材店の縦書き御買上証(年省略)</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V006.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V006.jpg" alt="画材店の縦書き御買上証(年省略)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>画材ときわ堂</dd><dt>金額</dt><dd class="amount">9,000円</dd></dl><p>画具12色、平筆2点、パレットナイフ</p><p class="tax">記載消費税：818円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>御 買 上 証
+画 六
+月
+材
+四
+パ 平 ア キ 日
+と レ 筆 ク ャ
+ッ 二 リ ン
+き
+ト 点 ル バ
+わ
+ナ 960 絵 ス
+堂 イ 具 F
+フ 十 6 十
+二 ×
+320 五
+色 五 時
+テ
+ス 4,620 3,100
+分
+ト
+市
+架
+空
+町
+合 計 金 額
+金九阡円也
+(¥9,000 税込 / 内消費税 818)
+架空テスト
+
+[縦組み文字列]
+六月四日
+十五時分
+キャンバスF6五
+アクリ
+絵具十二色
+平筆二点
+パレットナイフ
+画材ときわ堂
+テスト市架空町</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：確認待ち</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd>画材 ときわ堂</dd><dt>期待する金額</dt><dd>9,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V007 文具店ミシン目控え付き領収書 文具 ほしぞら堂 消耗品費" id="V007"><header><h2>V007<span>文具店ミシン目控え付き領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V007.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V007.jpg" alt="文具店ミシン目控え付き領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2019-05-07</dd><dt>支払先</dt><dd>文具 ほしぞら堂</dd><dt>金額</dt><dd class="amount">4,422円</dd></dl><p>長3封筒 100枚入、朱肉 大、ゴム印(氏名印) 特注</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>ほしぞら堂 控え 1 御領収書 文具 ほしぞら堂
+No. R1-058 テスト市架空町5-7 / TEL 000-0000-0000
+株式会社テスト産業 御中 令和 元年 5月 7日
+令和元年5月7日
+Y4,422 長3封筒 100枚入 .. . 660
+1 朱肉 大 . ..1,100
+ゴム印(氏名印) 特注 .. . 2,200
+254 vol 1 x3 . .. 462
+44,422 (327)
+上記金額、現金にて頂戴いたしました。
+
+[画像の部分再読取]
+I
+文具 ほしぞら:
+
+御領収書
+I
+I
+テスト市架空町5-7 / TEL 000-0000-00
+I
+
+株式会社テスト産業 御中
+令和 元年 5月
+7
+
+長3封筒 100枚入 ..
+. 660
+
+1
+朱肉 大 ..
+.. 1,100
+1
+ゴム印(氏名印) 特注 ..
+..2,200
+
+
+I
+I
+I
+I
+I
+
+I
+I
+I
+I
+上記金額、現金にて頂戴いたしました。
+
+
+
+.462
+44,422 (27)</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2019-05-07</dd><dt>期待する支払先</dt><dd>文具 ほしぞら堂</dd><dt>期待する金額</dt><dd>4,422円</dd><dt>許容する科目</dt><dd>消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V008 ベーカリー持ち帰り価格札式 ベーカリー ひだまり " id="V008"><header><h2>V008<span>ベーカリー持ち帰り価格札式</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V008.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V008.jpg" alt="ベーカリー持ち帰り価格札式の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-09-09</dd><dt>支払先</dt><dd>ベーカリー ひだまり</dd><dt>金額</dt><dd class="amount">2,276円</dd></dl><p>ミルクフランス×4、あんぱん×2、クロワッサン×3、食パン(半斤)、アイスコーヒーM</p><p class="tax">記載消費税：168円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>(C) 1 1 1
+ベーカリー ひだまり
+お持ち帰り専門店(8% 税込価格)
+架空テスト
+ス ミル クフ ラン んぱん あ
+×4 ×2
+648 356
+クロサン I ワッ 食パン(半斤)
+×3
+648 324
+アイスコーヒ
+M
+300
+合計(5点) ¥2,276
+(うち消費税等 168)
+お預り ¥2,500 おつり ¥224
+-
+焼きたてを、またのお越しを
+2024/9/9(月) 09:02 No.0909-021</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-09-09</dd><dt>期待する支払先</dt><dd>ベーカリー ひだまり</dd><dt>期待する金額</dt><dd>2,276円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V009 カフェ店内/持帰り税率併記会計票 カフェ つきよみ " id="V009"><header><h2>V009<span>カフェ店内/持帰り税率併記会計票</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V009.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V009.jpg" alt="カフェ店内/持帰り税率併記会計票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-01-12</dd><dt>支払先</dt><dd>カフェ つきよみ</dd><dt>金額</dt><dd class="amount">3,052円</dd></dl><p>カフェラテ ×2 1,100、チーズケーキ 638、たまごサンド 864、本日のコーヒー 450</p><p class="tax">記載消費税：空欄・要確認<br>税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。</p><details><summary>OCR本文を開く</summary><pre>カフェ つきよみ
+お 会 計 票(お客様控)
+テー ブル No.4 2025年1月12日(日)
+係: こばやし 12:44 会計
+店内飲食 (10%) お持ち帰り (8%)
+カフェラテ ×2 1,100 たまごサンド 864
+チーズケーキ 638 本日のコーヒー 450
+小計 1,738 小計 1,314
+(内税 158) (内税 97)
+お会計合計 ¥3,052 (税込)
+お預り ¥4,000 おつり ¥948
+店内とお持ち帰りで税率が異なります
+架空テスト
+L -</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-01-12</dd><dt>期待する支払先</dt><dd>カフェ つきよみ</dd><dt>期待する金額</dt><dd>3,052円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V010 衣料店ハンギングタグ式明細票 ワーク&amp;タウン みらい店 " id="V010"><header><h2>V010<span>衣料店ハンギングタグ式明細票</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V010.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V010.jpg" alt="衣料店ハンギングタグ式明細票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-04-05</dd><dt>支払先</dt><dd>ワーク&amp;タウン みらい店</dd><dt>金額</dt><dd class="amount">10,500円</dd></dl><p>作業服・ユニフォーム・カジュアル衣料</p><p class="tax">記載消費税：954円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>O
+ワーク&amp;タウン みらい店
+作業服・ユニフォーム・カジュアル衣料
+架空テスト
+〒000-0000 テスト市架空町8-15 TEL 000-000-0000
+御買上明細 2023-04-05(X) 14:26
+品名 サイズ 色 数(額(税込)
+ポロシャツ(ロゴ無) M 紺 3 5,970
+作業用グローブ L 灰 5 1,950
+ショートエプロン F 黒 2 2,580
+合計(税込) $10,500
+内消費税 954
+お預り / おつり 11,000 / 500
+ご返品は未使用・タグ付き、7日以内に限り承ります。
+会員番号 ****-7742 / 係: たなか
+
+[縦組み文字列]
+色紺灰黒
+MLF</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-04-05</dd><dt>期待する支払先</dt><dd>ワーク&amp;タウン みらい店</dd><dt>期待する金額</dt><dd>10,500円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V011 花屋の納品書(後日請求・未入金) フラワー&amp;グリーン しきさい " id="V011"><header><h2>V011<span>花屋の納品書(後日請求・未入金)</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V011.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V011.jpg" alt="花屋の納品書(後日請求・未入金)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-05-20</dd><dt>支払先</dt><dd>フラワー&amp;グリーン しきさい</dd><dt>金額</dt><dd class="amount">6,600円</dd></dl><p>観葉植物 パキラ (Lサイズ) 1個、陶器鉢 白色 14号 1個、鉢受け皿 14号用 1個</p><p class="tax">記載消費税：600円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>納 品 書 No. FL-0412
+納品日 2024年5月22日
+フラワー&amp;グリーン しきさい
+発行日 2024年5月20日
+お届け先 件名: エントランス装花・観葉植物の設置
+テスト市架空町7-3
+ひかりオフィス 御中
+品名観葉植物 パキラ (Lサイズ) 数量1 金額(税込) 4,000
+陶器鉢 白色 14号 1 2,200
+鉢受け皿 14号用 1 400
+合 計¥6,600
+(内消費税 600)
+-
+代金: 後日 御請求書をお送りします(本書はお支払いの証ではありません)
+L -
+お受取者印:
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-05-22</dd><dt>期待する支払先</dt><dd>フラワー&amp;グリーン しきさい</dd><dt>期待する金額</dt><dd>6,600円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>date_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V012 青果店プライスボード式手書き風 八百屋 あづまや " id="V012"><header><h2>V012<span>青果店プライスボード式手書き風</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V012.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V012.jpg" alt="青果店プライスボード式手書き風の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-10-03</dd><dt>支払先</dt><dd>八百屋 あづまや</dd><dt>金額</dt><dd class="amount">3,534円</dd></dl><p>みかん、りんご、白菜、大根、ほうれん草、バナナ</p><p class="tax">記載消費税：261円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>八百屋 あづまや お買い上げ控え
+テスト市架空町10-2 青空市場内 2024年10月3日(木) 11:20
+みかん 袋 りんご バラ 白菜 1/2
+@500 ×3 @120 ×8
+1,500 960 178
+大根 ほうれん草 バナナ
+@158 ×2 @128 ×3 @98 ×2
+316 384 196
+合計 参阡伍佰参拾四円也
+現金の 3,
+(¥3,534 税込 / 内消費税 261)
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-10-03</dd><dt>期待する支払先</dt><dd>八百屋 あづまや</dd><dt>期待する金額</dt><dd>3,534円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V013 給油所リットル明細+ミシン目領収 スタンド ながれやま給油所 車両費" id="V013"><header><h2>V013<span>給油所リットル明細+ミシン目領収</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V013.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V013.jpg" alt="給油所リットル明細+ミシン目領収の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-08-11</dd><dt>支払先</dt><dd>スタンド ながれやま給油所</dd><dt>金額</dt><dd class="amount">6,091円</dd></dl><p>ハイオク 32.4 L</p><p class="tax">記載消費税：空欄・要確認<br>原本画像の内消費税10%553。OCRでは税ラベルが崩れているため空欄は安全側の保留として別集計。</p><details><summary>OCR本文を開く</summary><pre>スタンド ながれやま給油所
+パイオク・レギュラー・軽油・灯油
+2023/08/11(R) 08:31 給油機 #5
+扱い: セルフ / 画番確認済
+品名 R 影位 •• 金別
+ハイオク 32.4 L 18h 6,091
+お預り 現金 ४7,000
+מכB Y909
+(P9AN8210% 553)
+- ・キリトリ線 お客様控え 領収書 -
+領収書
+御買上金額 46,091-
+2023年8月11日 / ハイオク代 として
+ながれやま給油所 テスト而架空町11・6</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">車両費</p><p>扱い：暫定提案</p><p>車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-08-11</dd><dt>期待する支払先</dt><dd>スタンド ながれやま給油所</dd><dt>期待する金額</dt><dd>6,091円</dd><dt>許容する科目</dt><dd>車両費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact / decision_exact / tax_scope</p></details></section></div></article><article class="case" data-difference="false" data-search="V014 中古機器店ランク保証明細領収 中古機器 りさいくる市場 " id="V014"><header><h2>V014<span>中古機器店ランク保証明細領収</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V014.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V014.jpg" alt="中古機器店ランク保証明細領収の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2021-11-19</dd><dt>支払先</dt><dd>中古機器 りさいくる市場</dd><dt>金額</dt><dd class="amount">60,000円</dd></dl><p>モノクロレーザープリンタ B:良好 3ヶ月48,000
+オフィスチェア(布張) C:使用感有 1ヶ月12,000</p><p class="tax">記載消費税：5,454円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>中古機器 りさいくる市場
+中古品 御領収証(明細付)
+発行 2021年11月19日 No. UC-1187 / 担当: すずき
+テスト市架空町13-9 / TEL 000-000-0000
+品名・状態 ランク 保証金額(税込)
+モノクロレーザープリンタ B:良好 3ヶ月48,000
+印字確認済・トナー残3割程度・ドラム交換歴あり
+オフィスチェア(布張) C:使用感有 1ヶ月12,000
+昇降・ロッキング動作確認済・肘掛けに小さな破れ
+ご購入額(税込) ¥60,000- (内税5,454)
+お支払: 現金 ¥60,000
+保証・返品について
+保証は正常利用における自然故障に限り、表中の期間とします。消耗品・外装の経年劣化は対象外です。返品は初期不良のみ、お受取日から7日以内に限り
+承ります。その際は本票が必要です。中古品のため同等品との交換対応となる場合があります。 鈴
+店長・査定
+※ 架空テスト用レシート</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：資産・費用区分の確認待ち</p><p>一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2021-11-19</dd><dt>期待する支払先</dt><dd>中古機器 りさいくる市場</dd><dt>期待する金額</dt><dd>60,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V015 卸売業請求兼領収(登録番号付) 卸売 オフィスサプライ山川 消耗品費" id="V015"><header><h2>V015<span>卸売業請求兼領収(登録番号付)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V015.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V015.jpg" alt="卸売業請求兼領収(登録番号付)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-09-30</dd><dt>支払先</dt><dd>卸売 オフィスサプライ山川</dd><dt>金額</dt><dd class="amount">81,840円</dd></dl><p>用紙 A4(2,501枚/箱) 1箱、純正トナー TN-00X 4個、OAマルチクリーナー 12個</p><p class="tax">記載消費税：7,440円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>架空テスト用サンプル
+御請求書・御領収証
+テスト商事株式会社 御中
+卸売 オフィスサプライ山川
+件名: 事務消耗品 9月分 一式として
+〒000-0000 テスト市架空町9-18
+登録番号 T0000000000000
+ご請求金額(税込) 発行日 2024年9月25日
+Y81,840-
+(I II No. INV-0925-77 TEL 000-0000-0000
+(内消費税 ¥7,440)
+お支払期日：2024年9月30日 お支払方法： 銀行振込
+ー用紙 A4(2,500枚/箱) 1箱 29/8002)
+純正トナー TN-00X 4個 9,800 39,200
+OAマルチクリーナー 12個 450 5,400
+小計 74,400
+消費税(10%) 7,440
+合 計(税込) Y81,840
+お振込先
+テスト銀行 架空支店(店番 000) 普通 0000000
+オフィスサプライヤマカワ ※振込手数料は貴社ご負担
+上記金額、2024年9月30日付 お振込み着金確認のうえ 領収いたしました。
+之印
+備考: 収入印紙は省略(電子帳票のため)。本書は兼用帳票です。
+不明点は営業担当(架空)までお問い合わせください。</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-09-30</dd><dt>期待する支払先</dt><dd>卸売 オフィスサプライ山川</dd><dt>期待する金額</dt><dd>81,840円</dd><dt>許容する科目</dt><dd>消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V016 EC注文完了画面(ブラウザ風) テストショップ運営(架空) 印刷製本費" id="V016"><header><h2>V016<span>EC注文完了画面(ブラウザ風)</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V016.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V016.jpg" alt="EC注文完了画面(ブラウザ風)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-18</dd><dt>支払先</dt><dd>テストショップ運営(架空)</dd><dt>金額</dt><dd class="amount">7,610円</dd></dl><p>互換テープカートリッジ 10本パック x1</p><p class="tax">記載消費税：691円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>••• テストショップ ー ご注文ありがとうございました 架空
+注文照会ページ(架空アドレス) test-shop / orders
+ご注文番号 ORD-20240718-00012
+ご注文日 2024-07-18 22:41
+発送日 2024-07-19
+お届け予定日 2024-07-21(午前指定)
+ご注文内容
+互換テープカートリッジ 10本パック x1 4,860
+名刺印刷 両面カラー 100枚(データ入稿) x1 2,200
+お支払合計(税込) 47,610
+(内消費税 ¥691)
+お支払方法: クレジットカード ************-1234 (一括払い・決済完了)
+お届け先:〒000-0000 テスト市架空町12-6 サンプル倉庫
+)
+注文確定 決消完了 出荷 お届け
+テストショップ運営(架空) この画面は架空テスト用に生成されました
+出荷済(配送状況は架空の追跡番号 TT-0000-1111 でご確認いただけます)</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">印刷製本費</p><p>扱い：暫定提案</p><p>印刷製本費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-18</dd><dt>期待する支払先</dt><dd>テストショップ(架空EC)</dd><dt>期待する金額</dt><dd>7,610円</dd><dt>許容する科目</dt><dd>消耗品費 / 印刷製本費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V017 クーポン値引併用レシート ドラッグストア くすりのもり 消耗品費" id="V017"><header><h2>V017<span>クーポン値引併用レシート</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V017.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V017.jpg" alt="クーポン値引併用レシートの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-06-30</dd><dt>支払先</dt><dd>ドラッグストア くすりのもり</dd><dt>金額</dt><dd class="amount">1,690円</dd></dl><p>ボールペン 3色セット 440
+付箋紙 大×小セット 380
+のりテープ本体 330
+除菌ハンドジェル 640</p><p class="tax">記載消費税：153円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>クーポン使用レシ ト
+「文具まつり 100円引」券 1枚 使用済 I
+I
+ドラッグストア くすりのもり
+I
+テスト市架空町14-2 / No. CP-7712 I
+1
+✂ ✂ ✂ ✂ ✂ ✂ ✂ ✂
+2022年6月30日(木) 15:08 レジ #2
+ボールペン 3色セット 440
+付箋紙 大×小セット 380
+のりテープ本体 330
+除菌ハンドジェル 640
+クーポン前小計 1,790
+値引 文具まつり100円券 -100
+合計(値引後・税込) ¥1,690
+10%対象 1,690 (内消費税 153)
+お預り ¥2,000
+おつり ¥310
+クーポン券は回収しました
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-06-30</dd><dt>期待する支払先</dt><dd>ドラッグストア くすりのもり</dd><dt>期待する金額</dt><dd>1,690円</dd><dt>許容する科目</dt><dd>消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V018 ポイント併用レシート(充当/付与) ホームセンター きぼう館 消耗品費" id="V018"><header><h2>V018<span>ポイント併用レシート(充当/付与)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V018.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V018.jpg" alt="ポイント併用レシート(充当/付与)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-02-14</dd><dt>支払先</dt><dd>ホームセンター きぼう館</dd><dt>金額</dt><dd class="amount">3,274円</dd></dl><p>乾電池、LED電球、結束バンド、軍手、防水スプレー</p><p class="tax">記載消費税：297円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>ホームセンター きぼう館
+ポイント併用レシート(会員控)
+2025/2/14() 18:52 No. PT-0091
+会員カード ****-3308
+ご利用ポイント 今回付与ポイント
+-500 P +38 P
+(500円相当を充当) (商品金額1%・四捨五入)
+お買上明細
+乾電池 単4×8本 528
+LED電球 40W相当 1,280
+結束バンド 100本 428
+軍手 12双組 658
+防水スプレー 880
+商品合計(税込) $3,774
+ポイント充当 -500
+お支払額 43,274
+お預り ¥3,300 / おつり ¥26
+(内消費税 297)
+ポイント残高 1,238 P
+(前回残高 1,700 P – 利用 500 P + 付与 38 P)
+ポイントの有効期限は最終利用日より1年です。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-02-14</dd><dt>期待する支払先</dt><dd>ホームセンター きぼう館</dd><dt>期待する金額</dt><dd>3,274円</dd><dt>許容する科目</dt><dd>消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V019 返品返金伝票(マイナス金額) 電器専門店 デンキノハコ " id="V019"><header><h2>V019<span>返品返金伝票(マイナス金額)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V019.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V019.jpg" alt="返品返金伝票(マイナス金額)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-25</dd><dt>支払先</dt><dd>電器専門店 デンキノハコ</dd><dt>金額</dt><dd class="amount">1,480円</dd></dl><p>HDMIケーブル 2m HD-20A</p><p class="tax">記載消費税：134円<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>返 品 伝 票 (RETURN)
+電器専門店 デンキノハコ お客様サービスカウンター
+返品処理日 2024-07-25 13:10
+元伝票 No.EX-2207(2024-07-20購入分)
+処理者: せんと / 承認印 認
+返品明細
+HDMIケーブル 2m HD-20A -1,480
+未開封・未使用
+配送料(返品対象外のため0円) 0
+返金対象額(10%税込) -¥1,480
+(内消費税相当額 -134)
+ご返金額 -¥1,480
+返金方法: 現金にてお渡し
+お渡し ¥1,480 受取印 →
+本票は返品・ご返金の記録であり、新たなお支払いの証ではありませ
+ん。元のお買上レシートと併せて保管してください。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-25</dd><dt>期待する支払先</dt><dd>電器専門店 デンキノハコ</dd><dt>期待する金額</dt><dd>-1,480円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V020 手書き風個人商店売上控(年省略) 八百 たなか " id="V020"><header><h2>V020<span>手書き風個人商店売上控(年省略)</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V020.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V020.jpg" alt="手書き風個人商店売上控(年省略)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>八百 たなか</dd><dt>金額</dt><dd class="amount">970円</dd></dl><p>ごぼう 2束 300、みょうが 1袋 150、青梅 1kg(追熟用) 520</p><p class="tax">記載消費税：空欄・要確認<br>税込・税率等の記載はあるが、全体の税額の印字がない。</p><details><summary>OCR本文を開く</summary><pre>八百 たなか 売上控
+五月 十九日
+(年省略・店内控え)
+ごぼう 2束 300
+みょうが 1袋 150
+青梅 1kg(追熟用) 520
+스와 合計 九百七十円
+(¥970 現金)
+ありがとうございました 田
+※ 消費税は内税(自家計算)
+テスト市架空町の青空市場内
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd>八百 たなか</dd><dt>期待する金額</dt><dd>970円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V021 タクシー縦長感熱票 みずほ架空交通 旅費交通費" id="V021"><header><h2>V021<span>タクシー縦長感熱票</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V021.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V021.jpg" alt="タクシー縦長感熱票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-11-08</dd><dt>支払先</dt><dd>みずほ架空交通</dd><dt>金額</dt><dd class="amount">3,280円</dd></dl><p>テスト用の乗車</p><p class="tax">記載消費税：空欄・要確認<br>税込・税率等の記載はあるが、全体の税額の印字がない。</p><details><summary>OCR本文を開く</summary><pre>みずほ架空交通
+領収証
+2023年11月8日 22:41
+乗車 テスト市中央口
+降車 架空町二丁目
+運賃 2,400円
+深夜加算 480円
+迎車料金 400円
+3,280円
+税込・現金受領
+お預り 5,000円
+お釣り 1,720円
+車両 架空-018
+架空テスト / 再発行不可</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-11-08</dd><dt>期待する支払先</dt><dd>みずほ架空交通</dd><dt>期待する金額</dt><dd>3,280円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V022 タクシー横型領収券 こはくタクシー 旅費交通費" id="V022"><header><h2>V022<span>タクシー横型領収券</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V022.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V022.jpg" alt="タクシー横型領収券の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-14</dd><dt>支払先</dt><dd>こはくタクシー</dd><dt>金額</dt><dd class="amount">4,600円</dd></dl><p>運賃 4,100円、待機 500円</p><p class="tax">記載消費税：空欄・要確認<br>税込・税率等の記載はあるが、全体の税額の印字がない。</p><details><summary>OCR本文を開く</summary><pre>乗用旅客運送 領収券 控番号 071
+金 4,600 円 こはくタクシー
+運賃 4,100円
+上記金額を確かに受領しました。
+待機 500円
+令和6年6月14日 ／ 現金
+全額税込
+御乗車区間：架空町港 → テスト市駅
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-14</dd><dt>期待する支払先</dt><dd>こはくタクシー</dd><dt>期待する金額</dt><dd>4,600円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V023 鉄道券売機領収書 空想沿岸鉄道 テスト中央駅 旅費交通費" id="V023"><header><h2>V023<span>鉄道券売機領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V023.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V023.jpg" alt="鉄道券売機領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-04-03</dd><dt>支払先</dt><dd>空想沿岸鉄道 テスト中央駅</dd><dt>金額</dt><dd class="amount">1,180円</dd></dl><p>普通乗車券 大人1名</p><p class="tax">記載消費税：空欄・要確認<br>税込・税率等の記載はあるが、全体の税額の印字がない。</p><details><summary>OCR本文を開く</summary><pre>鉄道きっぶ購入 領収書
+2022/04/03 09:12
+テスト中央 → 架空海岸
+普通乗車券 大人1名
+$1,180
+発売機 004 現金
+投入 2,000 / 釣銭 820
+運賃等は消費税込み
+空想沿岸鉄道 テスト中央駅
+架空テスト・乗車券ではありません
+
+[画像の部分再読取]
+領収
+
+
+
+普通乗車券 大人1名
+$1,180
+1
+売機 004 現金
+入 2,000 / 釣銭 820
+『賃等は消費税込み
+2ᄎ
+
+
+道 テスト中</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-04-03</dd><dt>期待する支払先</dt><dd>空想沿岸鉄道 テスト中央駅</dd><dt>期待する金額</dt><dd>1,180円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V024 指定席鉄道電子領収書 空想高速鉄道 旅費交通費" id="V024"><header><h2>V024<span>指定席鉄道電子領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V024.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V024.jpg" alt="指定席鉄道電子領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-02-20</dd><dt>支払先</dt><dd>空想高速鉄道</dd><dt>金額</dt><dd class="amount">18,240円</dd></dl><p>2025-03-01テスト中央から架空北までの普通運賃</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>電子領収書 空想高速鉄道
+発行日 2025-02-20
+領収金額 18.240 F
+ご利用内容 / 予約番号 R-架空-442
+乗車日 2025-03-01
+区間 テスト中央 → 架空北
+列車 / 座席 しらベ 12号 / 8号車 4番A
+普通運賃 11,200円
+指定席特急料金 7. 0409
+決済済：カードー括
+税込合計18, 240円を2025-02-20に受領
+本書は購入代金の受領を証するものです。
+架空テスト / 乗車には別途きっぶが必要です</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-02-20</dd><dt>期待する支払先</dt><dd>空想高速鉄道</dd><dt>期待する金額</dt><dd>18,240円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V025 航空付帯料金付旅程領収書 AOZORA FICTION AIR 旅費交通費" id="V025"><header><h2>V025<span>航空付帯料金付旅程領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V025.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V025.jpg" alt="航空付帯料金付旅程領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-10</dd><dt>支払先</dt><dd>AOZORA FICTION AIR</dd><dt>金額</dt><dd class="amount">32,900円</dd></dl><p>航空運賃 28,000円（旅客施設使用料 1,200円、預入手荷物 2,500円、座席指定 1,200円）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>AOZORA FICTION AIR 受領額
+旅程明細・航空券代 領収書 32,900円
+発行・決済 2024/07/10 搭乗予定 2024/08/02
+FL301 テスト空港 08:10 → 架空空港 09:30
+普通席 / 片道 / 旅客1名
+航空運賃 28,000
+旅客施設使用料 1,200
+預入手荷物（追加） 2,500
+座席指定（追加） 1,200
+上記全項目税込 / カード受領済
+払戻・変更条件は別紙の架空運送約款によります。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-10</dd><dt>期待する支払先</dt><dd>AOZORA FICTION AIR</dd><dt>期待する金額</dt><dd>32,900円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V026 高速道路料金所小票 空想道路サービス 旅費交通費" id="V026"><header><h2>V026<span>高速道路料金所小票</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V026.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V026.jpg" alt="高速道路料金所小票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2021-12-09</dd><dt>支払先</dt><dd>空想道路サービス</dd><dt>金額</dt><dd class="amount">860円</dd></dl><p>架空南からテスト東までの普通車のETC決済料金</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>空想道路サービス
+利用料金領収証
+2021.12.09 15:06
+入口：架空南
+出口：テスト東
+車種：普通車
+料金 860
+ETC決済済 / 税込
+架空テスト 料金所控</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2021-12-09</dd><dt>期待する支払先</dt><dd>空想道路サービス</dd><dt>期待する金額</dt><dd>860円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V027 駐車時間タイムライン そよかぜ架空パーキング 旅費交通費" id="V027"><header><h2>V027<span>駐車時間タイムライン</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V027.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V027.jpg" alt="駐車時間タイムラインの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-01-17</dd><dt>支払先</dt><dd>そよかぜ架空パーキング</dd><dt>金額</dt><dd class="amount">1,400円</dd></dl><p>駐車料金</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>P / 駐車料金精算票
+そよかぜ架空パーキング
+入庫 2026/01/17 08:45
+0 滞在 3時間25分
+出庫 2026/01/17 12:10
+30分ごと200円 × 7区分
+税込料金 1,400円
+クレジットカード精算完了
+架空テスト / 駐車位置 23</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-01-17</dd><dt>期待する支払先</dt><dd>そよかぜ架空パーキング</dd><dt>期待する金額</dt><dd>1,400円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V028 ホテル付帯利用明細 ホテル架空庭 " id="V028"><header><h2>V028<span>ホテル付帯利用明細</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V028.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V028.jpg" alt="ホテル付帯利用明細の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-09-12</dd><dt>支払先</dt><dd>ホテル架空庭</dd><dt>金額</dt><dd class="amount">14,500円</dd></dl><p>宿泊料 1泊 12,000円、朝食 1名 1, 500円、ミニバー利用 800円</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>ホテル架空庭 GUEST FOLIO
+滞在 2025年9月11日〜9月12日 精算日 2025年9月12日
+利用日 摘要 税込金額
+9/11 宿泊料 1泊 12,000
+9/12 朝食 1名 1,500
+9/12 宿泊税（非課税） 200
+9/11 ミニバー利用 800
+カード受領 14,500 円
+課税分合計（税込）14,300円
+非課税宿泊税 200円
+追加利用は上記に含みます。精算残高 0円
+架空テスト / テスト市架空町</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-09-12</dd><dt>期待する支払先</dt><dd>ホテル架空庭</dd><dt>期待する金額</dt><dd>14,500円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V029 旅館予約金差引残金領収書 旅館 つきの架空庵 旅費交通費" id="V029"><header><h2>V029<span>旅館予約金差引残金領収書</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V029.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V029.jpg" alt="旅館予約金差引残金領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-10-22</dd><dt>支払先</dt><dd>旅館 つきの架空庵</dd><dt>金額</dt><dd class="amount">16,000円</dd></dl><p>宿泊</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>旅館 つきの架空庵
+御宿泊精算 領収証
+今回受領（残金）
+16,000円
+ご宿泊：令和5年10月21日～22日
+精算・発行：令和5年10月22日
+一泊二食 宿泊総額（税込） 26,000円
+予約金受領済 2023/09/20 10,000円
+本日 現金受領 16,000円
+予約金分は別途発行済の領収証をご確認ください。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-10-22</dd><dt>期待する支払先</dt><dd>旅館 つきの架空庵</dd><dt>期待する金額</dt><dd>16,000円</dd><dt>許容する科目</dt><dd>旅費交通費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact / decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V030 コワーキングカード型 架空ワークラウンジ 賃借料" id="V030"><header><h2>V030<span>コワーキングカード型</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V030.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V030.jpg" alt="コワーキングカード型の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-05-08</dd><dt>支払先</dt><dd>架空ワークラウンジ</dd><dt>金額</dt><dd class="amount">2,200円</dd></dl><p>フリー席利用</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>DESK 架空ワークラウンジ
+DAY 領収書
+PASS 利用日 2024-05-08
+フリー席 / 09:00〜18:00
+2,200円
+税込・電子マネー受領
+架空テスト / Wi-Fi利用込</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">賃借料</p><p>扱い：暫定提案</p><p>賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-05-08</dd><dt>期待する支払先</dt><dd>架空ワークラウンジ</dd><dt>期待する金額</dt><dd>2,200円</dd><dt>許容する科目</dt><dd>賃借料 / 会議費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V031 時間貸会議室入金明細 架空スペース管理合同会社 会議費" id="V031"><header><h2>V031<span>時間貸会議室入金明細</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V031.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V031.jpg" alt="時間貸会議室入金明細の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-06-19</dd><dt>支払先</dt><dd>架空スペース管理合同会社</dd><dt>金額</dt><dd class="amount">8,100円</dd></dl><p>会議室B 3.5時間分の利用（2025/06/18 13:00〜16:30）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>会議室利用明細 / 領収済
+架空スペース管理合同会社
+発行日 2025/06/19
+利用：2025/06/18 13:00〜16:30
+利用項目 数量 税込金額
+会議室B 2,000円/時 3.5h 7,000
+プロジェクター 1回 1,100
+お支払合計 8,100円
+銀行振込入金確認 2025/06/19
+残額 0円 / 上記を受領しました。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">会議費</p><p>扱い：暫定提案</p><p>会議費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-06-19</dd><dt>期待する支払先</dt><dd>架空スペース管理合同会社</dd><dt>期待する金額</dt><dd>8,100円</dd><dt>許容する科目</dt><dd>会議費 / 賃借料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V032 制作業務入金済請求書 架空デザイン室 外注工賃" id="V032"><header><h2>V032<span>制作業務入金済請求書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V032.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V032.jpg" alt="制作業務入金済請求書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-12-25</dd><dt>支払先</dt><dd>架空デザイン室</dd><dt>金額</dt><dd class="amount">66,000円</dd></dl><p>パンフレット版下制作</p><p class="tax">記載消費税：6,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>INVOICE / RECEIVED
+架空デザイン室 請求番号 D-280
+テスト企画 御中 2024年12月25日
+納品 2024年12月20日
+パンフレット版下制作 50.000円
+修正作業 2回 10, 000円
+小計 60,000円
+消費税10% 6,000円
+受領額
+66,000円
+2024年12月25日 銀行振込にて全額受領
+架空テスト / 架空町制作棟</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">外注工賃</p><p>扱い：暫定提案</p><p>外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-12-25</dd><dt>期待する支払先</dt><dd>架空デザイン室</dd><dt>期待する金額</dt><dd>66,000円</dd><dt>許容する科目</dt><dd>外注費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V033 源泉控除法律相談受領明細 架空みどり法律事務所 " id="V033"><header><h2>V033<span>源泉控除法律相談受領明細</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V033.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V033.jpg" alt="源泉控除法律相談受領明細の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-04-16</dd><dt>支払先</dt><dd>架空みどり法律事務所</dd><dt>金額</dt><dd class="amount">29,937円</dd></dl><p>法律相談料</p><p class="tax">記載消費税：3,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>法律相談料 受領明細
+架空みどり法律事務所
+相談実施：2025年4月15日
+発行・受領：2025年4月16日
+相談報酬（税抜） 30,000円
+消費税 10% 3,000円
+報酬総額 33,000円
+源泉徴収として控除 3,063円
+実受領金額
+29,937円
+銀行振込により上記実受領金額を受領しました。
+控除額の取扱いは支払側の記録と照合してください。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-04-16</dd><dt>期待する支払先</dt><dd>架空みどり法律事務所</dd><dt>期待する金額</dt><dd>29,937円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V034 早期割引セミナー参加費 学びの架空社 研修費" id="V034"><header><h2>V034<span>早期割引セミナー参加費</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V034.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V034.jpg" alt="早期割引セミナー参加費の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-08-01</dd><dt>支払先</dt><dd>学びの架空社</dd><dt>金額</dt><dd class="amount">5,000円</dd></dl><p>セミナー「資料設計の基礎」参加費</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>学びの架空社
+参加費 領収証
+セミナー「資料設計の基礎」
+開催日 2023/08/24 14:00
+受領日 2023/08/01
+一般参加 1名 × 5,500円
+早期申込割引 ▲500円
+領収金額 5,000円
+税込 / カード決済済 / 教材を含む
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">研修費</p><p>扱い：暫定提案</p><p>研修費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-08-01</dd><dt>期待する支払先</dt><dd>学びの架空社</dd><dt>期待する金額</dt><dd>5,000円</dd><dt>許容する科目</dt><dd>研修費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V035 イベント切取券風領収書 テスト市文化交流会（架空団体） " id="V035"><header><h2>V035<span>イベント切取券風領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V035.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V035.jpg" alt="イベント切取券風領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-11-03</dd><dt>支払先</dt><dd>テスト市文化交流会（架空団体）</dd><dt>金額</dt><dd class="amount">1,800円</dd></dl><p>架空文化祭 2022 ADMIT 入場料</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>架空文化祭 2022 ADMIT
+入場料領収証 ONE
+2022年11月3日 当日一般 1,800円
+現金受領 / 税込 1,800円 架空テスト
+発行：テスト市文化交流会（架空団体）</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>入場・参加料の用途が原本から確定できません。業務との関係と私用分を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-11-03</dd><dt>期待する支払先</dt><dd>テスト市文化交流会（架空団体）</dd><dt>期待する金額</dt><dd>1,800円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V036 撮影スタジオ時間精算 STUDIO 空想光 賃借料" id="V036"><header><h2>V036<span>撮影スタジオ時間精算</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V036.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V036.jpg" alt="撮影スタジオ時間精算の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-02-06</dd><dt>支払先</dt><dd>STUDIO 空想光</dd><dt>金額</dt><dd class="amount">18,150円</dd></dl><p>第2スタジオのレンタル（3時間基本 + 30分延長）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>STUDIO 空想光
+レンタル精算書・領収書
+2026-02-06 / 第2スタジオ
+開始 10:00 終了 13:30
+予約枠 3時間 + 延長30分
+基本料 3h × 4,400円 = 13,200円
+延長料 0.5h × 5,500円 = 2,750円
+照明レンタル 2,200円
+18150円 ,
+全額税込 / カード受領済
+精算・受領日 2026-02-06
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">賃借料</p><p>扱い：暫定提案</p><p>賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-02-06</dd><dt>期待する支払先</dt><dd>STUDIO 空想光</dd><dt>期待する金額</dt><dd>18,150円</dd><dt>許容する科目</dt><dd>賃借料 / 外注費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V037 宅配ラベル風運送料票 架空便 荷造運賃" id="V037"><header><h2>V037<span>宅配ラベル風運送料票</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V037.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V037.jpg" alt="宅配ラベル風運送料票の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-12</dd><dt>支払先</dt><dd>架空便</dd><dt>金額</dt><dd class="amount">1,450円</dd></dl><p>荷造運賃</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>架空便 / 運送料金領収書
+発送受付 2024/03/12 16:22
+配送先：テスト市 架空展示場 運送料税込
+発送元：架空町 作業室 1, 230円
+荷物 80サイズ / 1個
+資材料 220円
+元払い・現金 合計1,450円
+|| I
+架空テスト / 追跡不可</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">荷造運賃</p><p>扱い：暫定提案</p><p>荷造運賃の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-12</dd><dt>期待する支払先</dt><dd>架空便</dd><dt>期待する金額</dt><dd>1,450円</dd><dt>許容する科目</dt><dd>荷造運賃</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V038 海外USDデジタル請求書 FICTION CLOUD STUDIO " id="V038"><header><h2>V038<span>海外USDデジタル請求書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V038.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V038.jpg" alt="海外USDデジタル請求書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-10-03</dd><dt>支払先</dt><dd>FICTION CLOUD STUDIO</dd><dt>金額</dt><dd class="amount">円額未確定</dd></dl><p>Digital asset library monthly service</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>FICTION CLOUD STUDIO 2025-10-03
+PAID INVOICE Invoice FC-181
+Digital asset library / monthly service
+Service period: 2025-10-01 to 2025-10-31
+CHARGED CURRENCY: USD
+USD 30.00
+Paid by card on 2025-10-03
+Reference conversion only: 1 USD = JPY 150
+JPY equivalent 4,500 (NOT a JPY charge)
+Tax: USD 0.00 / Total paid: USD 30.00
+Supplier location: Fiction City, Imaginary Country
+FICTIONAL TEST DOCUMENT / No live account or payment link</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>外貨の記載があります。実際に確定した円額をカード明細等から確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-10-03</dd><dt>期待する支払先</dt><dd>FICTION CLOUD STUDIO</dd><dt>期待する金額</dt><dd>円額未確定</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V039 模擬手書き謝礼領収書 架空ことば研究会 " id="V039"><header><h2>V039<span>模擬手書き謝礼領収書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V039.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V039.jpg" alt="模擬手書き謝礼領収書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-05-16</dd><dt>支払先</dt><dd>架空ことば研究会</dd><dt>金額</dt><dd class="amount">20,000円</dd></dl><p>座談会への出演謝礼</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>領 収 書
+テスト編集部 御中
+金 弐萬円 也
+但し、座談会への出演謝礼として
+上記正に領収いたしました。
+令和4年5月16日 現金
+架空ことば研究会
+受領
+受領金額 20,000円 / 税区分の記載なし
+架空テスト（模擬筆記・実在の署名ではありません）</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>謝礼・謝金の記載があります。支払先の属性、報酬総額、源泉徴収の要否や別仕訳を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-05-16</dd><dt>期待する支払先</dt><dd>架空ことば研究会</dd><dt>期待する金額</dt><dd>20,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V040 未入金調査委託請求書 架空調査パートナーズ " id="V040"><header><h2>V040<span>未入金調査委託請求書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V040.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V040.jpg" alt="未入金調査委託請求書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-03-02</dd><dt>支払先</dt><dd>架空調査パートナーズ</dd><dt>金額</dt><dd class="amount">88,000円</dd></dl><p>2026年2月分 ユーザー調査支援</p><p class="tax">記載消費税：8,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>架空調査パートナーズ
+発行日 2026年3月2日
+支払期限 2026年3月31日
+請求金額 88, 000円
+2026年2月分 ユーザー調査支援
+税抜報酬 80,000円
+消費税10% 8,000円
+入金済額 0円
+未払残高 88,000円
+未入金 / 本書は領収証ではありません
+支払いは別途ご案内する業空の方法によります。
+架空テスト / 振込先の記載なし</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-03-02</dd><dt>期待する支払先</dt><dd>架空調査パートナーズ</dd><dt>期待する金額</dt><dd>88,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V041 電力メータ検針詳細と請求内訳（A4縦・4分割メータ欄） テスト電力株式会社 " id="V041"><header><h2>V041<span>電力メータ検針詳細と請求内訳（A4縦・4分割メータ欄）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V041.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V041.jpg" alt="電力メータ検針詳細と請求内訳（A4縦・4分割メータ欄）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-03</dd><dt>支払先</dt><dd>テスト電力株式会社</dd><dt>金額</dt><dd class="amount">25,968円</dd></dl><p>電力使用量の請求明細（2024年5月）</p><p class="tax">記載消費税：2,360円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>電力使用量のお知らせ（ご請求内訳明細）
+検針・ご使用期間内訳
+テスト電力株式会社
+テスト市架空町9-9-9 テスト荘 3号室 架空町電力センター ／ テスト市架空町1-2-3
+お問い合わせ（架空）03-0000-0000
+架空 太郎 様
+発行日：2024年6月3日
+ご使用期間 2024年5月1日 〜 2024年5月31日 （31日間）
+ご検針日：2024年5月31日（月末検針）
+検針時指示 当月使用
+8,421 kWh 561 kWh
+前月 7,860 kWh 前月 612 kWh
+ご使用期間 料金 (税込)
+5/1 - 5/31 ¥25,968
+月末検針 内消費税 ¥2,360
+料金区分 数量 単価（円） 金額（円）備考
+基本料金（30Aまで） 1 2,860 2,860 税込
+電力量料金（第1段階 120kWhまで） 120 29.30 3,516 税込
+電力量料金（第2段階 120-300kWh） 180 35.20 6,336 税込
+電力量料金（第3段階 300kWh超） 261 42.10 10,988 税込
+燃料費調整額 561 1.20 673 税込
+再生可能エネルギー発電促進賦課金 561 3.00 1,683 税込
+口座振替割引 1 -88 税込
+合計（税込） 25,968 内消費税 ¥2,360
+ご請求金額
+25,968 円
+（口座振替日 2024年6月25日）
+お客さま番号 TEST-8841-2077
+※お支払い済みの場合があります。ご確認ください。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-03</dd><dt>期待する支払先</dt><dd>テスト電力株式会社</dd><dt>期待する金額</dt><dd>25,968円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V042 ガス料金 領収書＋検針明細（A5横・左右分割） テスト都市ガス株式会社 水道光熱費" id="V042"><header><h2>V042<span>ガス料金 領収書＋検針明細（A5横・左右分割）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V042.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V042.jpg" alt="ガス料金 領収書＋検針明細（A5横・左右分割）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-05-14</dd><dt>支払先</dt><dd>テスト都市ガス株式会社</dd><dt>金額</dt><dd class="amount">4,437円</dd></dl><p>ガス料金（2024年4月分）</p><p class="tax">記載消費税：403円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>領 収 金額
+項目（税抜） 数量 単価
+ガス料金（2024年4月分）
+基本料金（20m まで） 1 1,056 1,056
+受領日：2024年5月14日
+従量料金（0～20m³) 18 168.2 3,028
+ご住所：テスト市架空町9-9-9 0
+従量料金（21m ～） 0 205.0
+ご氏名：架空 花子 様
+メーター使用料 1 150 150
+領収金額
+お得な料金プラン割引 1 -200
+消費税等（10%） 403
+4. 437 a ma
+ご請求分 4,437
+上記領収いたしました。
+本日ご入金 -4,437
+支払方法：現金
+検針日：2024年5月10日
+今回検針 184 m’
+前回検針 166 m’
+使用量 18 m²
+お支払いにより、お客さまコード TEST-5520 の4月分ガ
+ス料金は完納となりました。
+テスト都市ガス株式会社
+テスト市架空町2-4-6 架空町営業所
+架空テスト
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">水道光熱費</p><p>扱い：暫定提案</p><p>水道光熱費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-05-14</dd><dt>期待する支払先</dt><dd>テスト都市ガス株式会社</dd><dt>期待する金額</dt><dd>4,437円</dd><dt>許容する科目</dt><dd>水道光熱費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V043 上下水道料金 領収書（A4縦・上下2面・メータ縦罫） テスト市水道局 水道光熱費" id="V043"><header><h2>V043<span>上下水道料金 領収書（A4縦・上下2面・メータ縦罫）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V043.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V043.jpg" alt="上下水道料金 領収書（A4縦・上下2面・メータ縦罫）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-18</dd><dt>支払先</dt><dd>テスト市水道局</dd><dt>金額</dt><dd class="amount">3,410円</dd></dl><p>水道料金1,980円（税込）と下水道料金1,430円（税込）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>上下水道料金領収証 控 え
+領収金額
+口径 今回指針 前回指針 使用水量
+3, 410 &quot;
+13mm 1. 284 1. 272 12m’
+(水道 1,980円 / 下水道 1,430円 税込）
+領収日：2024年6月18日
+使用期間：2024年4月1日～2024年4月30日
+請求番号：TEST-W042-0618
+水道基本料金1,210＋従量770（いずれも税込）
+テスト市水道局 様より 下水道基本1,100＋従量330（いずれも税込）
+架空 一郎 様（架空町8-8）
+架空テスト
+きりとり線
+上下水道料金領収証 お客さま控え
+領収金額
+口径 今回指針 前回指針 使用水量
+3, 410 m
+13mm 1.284 12m’
+(水道 1,980円 / 下水道 1,430円 税込） All
+領収日：2024年6月18日
+使用期間：2024年4月1日～2024年4月30日
+請求番号：TEST-W042-0618
+水道基本料金1,210＋従量770（いずれも税込）
+テスト市水道局 様より 下水道基本1,100＋従量330（いずれも税込）
+架空 一郎 様（架空町8-8）
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">水道光熱費</p><p>扱い：暫定提案</p><p>水道光熱費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-18</dd><dt>期待する支払先</dt><dd>テスト市水道局（架空）</dd><dt>期待する金額</dt><dd>3,410円</dd><dt>許容する科目</dt><dd>水道光熱費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V044 携帯2回線 合算領収書（A4縦・回線ツリー） 架空モバイル通信株式会社 通信費" id="V044"><header><h2>V044<span>携帯2回線 合算領収書（A4縦・回線ツリー）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V044.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V044.jpg" alt="携帯2回線 合算領収書（A4縦・回線ツリー）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-27</dd><dt>支払先</dt><dd>架空モバイル通信株式会社</dd><dt>金額</dt><dd class="amount">13,479円</dd></dl><p>2回線の通信サービス（データ多めプラン・かけ放題）の請求額</p><p class="tax">記載消費税：空欄・要確認<br>2回線それぞれの消費税653円のみ。割引後の全体の税額は印字なし。足し算や逆算で税額を作らない。</p><details><summary>OCR本文を開く</summary><pre>架空モバイル通信 ご利用料金 領収書（2回線合算）
+2024年5月ご利用分（6月請求） / 発行日 2024-06-27 / お客さま番号 TEST-77120
+架空 事業部 御中 / 請求書払い（法人カード払い）
+合計ご請求額
+ผ้ 42
+13,479 円（税込）
+回線別内訳
+回線A（本社） 回線B（営業）
+TEST-A0110 / データ多めプラン 30GB TEST-B0111 / かけ放題 5GB
+基本プラン 5,200円 基本プラン 5,200円
+└ 通話・通信量超過 1,000円 └ 通話・通信量超過 1,000円
+└ オプション（留守番電話） 330円 └ オプション（留守番電話） 330円
+ユニバーサルサービス料 2円 ユニバーサルサービス料 2円
+小計 6,532円 小計 6,532円
+消費税（10%） 653円 消費税（10%） 653円
+回線合計 7,185円 回線合計 7,185円
+端末割賦（別途請求） 3,200円/月 端末割賦（別途請求） 3,200円/月
+合算内訳
+回線A 請求額 7,185円
+回線B 請求額 7,185円
+ファミリー割引（2回線） -891円
+合計ご請求額（税込） 13,479円
+端末割賦金（回線A 3,200円・回線B 3,200円）は本領収に含まれません。
+2024年6月27日 架空モバイル通信株式会社 ／ 東京都テスト区架空町
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">通信費</p><p>扱い：暫定提案</p><p>通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-27</dd><dt>期待する支払先</dt><dd>架空モバイル通信株式会社</dd><dt>期待する金額</dt><dd>13,479円</dd><dt>許容する科目</dt><dd>通信費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V045 固定回線 開通工事費＋月額 明細（B5横・左ナビ帯） テスト光ネットワーク株式会社 通信費" id="V045"><header><h2>V045<span>固定回線 開通工事費＋月額 明細（B5横・左ナビ帯）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V045.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V045.jpg" alt="固定回線 開通工事費＋月額 明細（B5横・左ナビ帯）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-04-08</dd><dt>支払先</dt><dd>テスト光ネットワーク株式会社</dd><dt>金額</dt><dd class="amount">8,980円</dd></dl><p>光回線10ギガ（6,600円）とWi-Fi機器レンタル（550円）の月額料金</p><p class="tax">記載消費税：空欄・要確認<br>税込・税率等の記載はあるが、全体の税額の印字がない。</p><details><summary>OCR本文を開く</summary><pre>テスト光ネットワーク株式会社
+サービス契約番号：TEST-BB-44821 / お支払い：口座振替
+発行：2024年4月10日（2024年3月ご利用分）
+開通工事費（初回のみ）
+工事費 44,000円（税込） 全額充当（キャンペーン）
+ご請求額 0円
+分割残金はありません。
+回線利用料
+オプション
+光回線 10ギガ
+6,600円 Wi-Fi機器レンタル
+550円
+標準工事費分割
+0円 電話基本料
+5509
+回線基本料
+1,100円 電話通話料
+180円
+回線小計 7,700
+オプション小計 1,280
+(消費税10% 内税）
+(消費税10% 内税）
+3月分ご請求額（工事費込み・税込）
+8, 980 a
+お支払い済み（口座振替済 2024/04/08)
+※ 工事費44, 000円と月額料金8,980円のうち、ご請求額は8,980円です。工事費は全額キャンペーン充当済み。</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">通信費</p><p>扱い：暫定提案</p><p>通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-04-08</dd><dt>期待する支払先</dt><dd>テスト光ネットワーク株式会社</dd><dt>期待する金額</dt><dd>8,980円</dd><dt>許容する科目</dt><dd>通信費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V046 クラウドサーバー 月次利用明細（A4縦・三列タイル） TEST CLOUD 通信費" id="V046"><header><h2>V046<span>クラウドサーバー 月次利用明細（A4縦・三列タイル）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V046.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V046.jpg" alt="クラウドサーバー 月次利用明細（A4縦・三列タイル）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-01</dd><dt>支払先</dt><dd>TEST CLOUD</dd><dt>金額</dt><dd class="amount">30,162円</dd></dl><p>コンピューティング、ネットワーク、ライセンスのサービス利用</p><p class="tax">記載消費税：2,742円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>TEST CLOUD / 月次ご利用明細 架空テスト
+お客さま：架空 株式会社テストラボ 御中 発行 2024年6月1日
+アカウント TEST-ACCT-77310 / 課金期間 2024-05-01〜2024-05-31 お支払い：カード（決済済 2024-06-01）
+コンピューティング ネットワーク ライセンス・その他
+品目 金額 品目 金額 品目 金額
+vCPU 時間 7,440 アウトバウンド転送 2,400 管理画面利用料 1,200
+620 × 12.0 120 GB × 20 1 × 1,200
+メモリ GB時間 8,680 ロードバランサー 2,500 サポート（スタンダード） 5,000
+1,240 × 7.0 1台 × 2,500 1 × 5,000
+スナップショット 200
+小計 4,900 小計 6,200
+40 × 5.0
+小計 16,320
+税抜小計 27,420円
+消費税 10% 2,742円
+ご請求総額（税込・決済済） 30,162円
+支払い済み。お支払い日：2024年6月1日（カード決済）</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">通信費</p><p>扱い：暫定提案</p><p>通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-01</dd><dt>期待する支払先</dt><dd>TEST CLOUD（架空クラウド事業者）</dd><dt>期待する金額</dt><dd>30,162円</dd><dt>許容する科目</dt><dd>通信費 / 支払手数料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V047 ドメイン更新料 領収書（A5縦・中央レシート風） テストネームサービス株式会社 通信費" id="V047"><header><h2>V047<span>ドメイン更新料 領収書（A5縦・中央レシート風）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V047.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V047.jpg" alt="ドメイン更新料 領収書（A5縦・中央レシート風）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-18</dd><dt>支払先</dt><dd>テストネームサービス株式会社</dd><dt>金額</dt><dd class="amount">1,122円</dd></dl><p>ドメイン更新料（.example）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>ご利用料金 領収書
+ドメイン更新料金のお支払い
+発行日 2024/03/18
+ご依頼者様 架空 株式会社テスト商店 様
+I
+I 請求書番号 TEST-INV-33092
+I ドメイン名 kakuu-test-shop. example
+I 更新期間 2024-03-20 ~ 2025-03-19 (1 )
+請求金額内訳
+ドメイン更新料（.example） 1,000 + 税
+プライバシー保護オプション 0
+I
+ICANN 手数料 20
+合計（税込） 1, 122円 I
+I 支払い方法：クレジットカード（一括）
+I I
+決済日：2024/03/18
+I
+領収済み（カード決済）- 全額
+I
+I
+I
+テストネームサービス株式会社
+架空テスト用登録サービス / 登録者情報は架空 領収
+TNS
+架空テスト
+I
+
+[縦組み文字列]
+IIIII
+IIII</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">通信費</p><p>扱い：暫定提案</p><p>通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-18</dd><dt>期待する支払先</dt><dd>テストネームサービス株式会社</dd><dt>期待する金額</dt><dd>1,122円</dd><dt>許容する科目</dt><dd>通信費 / 租税公課</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V048 年次SaaS 年度跨ぎライセンス 領収書（A4横・左期間パネル） テストソフトウェア株式会社 " id="V048"><header><h2>V048<span>年次SaaS 年度跨ぎライセンス 領収書（A4横・左期間パネル）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V048.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V048.jpg" alt="年次SaaS 年度跨ぎライセンス 領収書（A4横・左期間パネル）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2028-03-05</dd><dt>支払先</dt><dd>テストソフトウェア株式会社</dd><dt>金額</dt><dd class="amount">682,000円</dd></dl><p>年額サブスクリプション（ERPライセンス・25名・Businessプラン）</p><p class="tax">記載消費税：62,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>年額サブスクリプション ご請求・領収書
+テストERPクラウド（年額） 架空サプライチェーン株式会社 御中
+契約ID TEST-ERP-2028-004 テスト市架空町3-3-3
+発行者 テストソフトウェア株式会社
+サービス期間
+T0000000000000
+2028年4月1日
+~ 2029年3月31日
+(12か月・1会計年度) 品目 数量 単価 小計
+契約者数：25名 / プラン:Business ERPライセンス（年額・25名） 1 480, 000 480, 000
+請求日 2028年3月1日 / 決済 2028年3月5日 初期導入サポート 1 120, 000 120, 000
+支払い：銀行振込（TEST銀行） 追加アドオン（会計連携） 60,000 60,000
+長期契約割引（年額） –40, 000
+小計(税抜) 620,000
+消費税-10% 62,000
+合計一(税込) 682,000
+領収済 682,000円（税込）
+2028年3月5日 銀行振込にて入金確認
+領収
+※本ライセンスの利用期間は2028/4/1～2029/3/31です。
+※利用者数は25名です。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2028-03-05</dd><dt>期待する支払先</dt><dd>テストソフトウェア株式会社</dd><dt>期待する金額</dt><dd>682,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V049 ソフトウェア買切ライセンス 資産候補票（A4縦・三段） テスト計測システム株式会社 ソフトウェア" id="V049"><header><h2>V049<span>ソフトウェア買切ライセンス 資産候補票（A4縦・三段）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V049.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V049.jpg" alt="ソフトウェア買切ライセンス 資産候補票（A4縦・三段）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-02-28</dd><dt>支払先</dt><dd>テスト計測システム株式会社</dd><dt>金額</dt><dd class="amount">550,000円</dd></dl><p>ソフトウェア永久ライセンス（5ユーザー）</p><p class="tax">記載消費税：50,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>ソフトウェア永久ライセンス 購入代金 受領書
+（製品の利用条件と納品内容を記載しています）
+テスト計測ソフトウェア 設計解析エディション（買切・永久） 受領 2024年2月28日
+ライセンス数 5 / サポート切れなし / 譲渡不可 払込：銀行振込 一括
+納品日 2024年2月20日 ／ 導入日 2024年2月26日 架空 技術開発部 御中
+受領金額
+製品・納品内容
+550,000 円（税込）
+□ 物理媒体同梱あり
+税抜 500,000円 / 消費税 50,000円 □ 年額サブスクリプションではなく永続利用可
+※ 本製品は買切型の永久ライセンスです □ 導入支援費は別途（今回は本体と一体の買切）
+□ 利用者数：5ユーザー
+費用内訳（税抜）
+項目 金額（税抜）
+本体ライセンス（5ユーザー） 450,000
+インストール媒体・マニュアル 20,000
+初回導入サポート（1日） 30,000
+税抜合計 500,000
+消費税（10%） 50,000
+税込合計＝受領額 550,000
+受 領
+発行：テスト計測システム株式会社 ／ 架空町ソフトウェア事業部
+ご不明点は納品担当まで（架空連絡先）
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">ソフトウェア</p><p>扱い：資産・費用区分の確認待ち</p><p>ソフトウェアの暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-02-28</dd><dt>期待する支払先</dt><dd>テスト計測システム株式会社</dd><dt>期待する金額</dt><dd>550,000円</dd><dt>許容する科目</dt><dd>消耗品費 / 工具器具備品 / 長期前払費用</dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V050 事務機器リース 月額支払明細（A5横・左契約右内訳） テストリース株式会社 賃借料" id="V050"><header><h2>V050<span>事務機器リース 月額支払明細（A5横・左契約右内訳）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V050.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V050.jpg" alt="事務機器リース 月額支払明細（A5横・左契約右内訳）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-05</dd><dt>支払先</dt><dd>テストリース株式会社</dd><dt>金額</dt><dd class="amount">28,000円</dd></dl><p>テストコピー機TX-401のリース料（税抜）25,455円</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>リース料お支払明細書
+(第18回 分割リース料 / 2024年3月度）
+契約番号
+TEST-LEASE-5512 リース料（税抜） 25, 455円
+リース物件 2,545円
+消費税等
+テストコピー機 型式TX-401
+支払済額（税込） 28,000円
+契約期間
+2022年10月 ~ 2027年9月（60か月）
+今回回数
+18回 / 60回
+リース料
+月額 28,000円（税込）
+物件残価
+リース終了時に無償譲渡
+支払スケジュール
+テストリース株式会社
+2024/3/5 2024/3/5
+2024/2/27
+領収済 架空町リース営業部
+請求 振込
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">賃借料</p><p>扱い：暫定提案</p><p>賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-05</dd><dt>期待する支払先</dt><dd>テストリース株式会社</dd><dt>期待する金額</dt><dd>28,000円</dd><dt>許容する科目</dt><dd>リース料 / 地代家賃 / 消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V051 事務所賃料 領収書（A4縦・封筒型枠＋透かし） テスト不動産株式会社 / 架空町管理部 地代家賃" id="V051"><header><h2>V051<span>事務所賃料 領収書（A4縦・封筒型枠＋透かし）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V051.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V051.jpg" alt="事務所賃料 領収書（A4縦・封筒型枠＋透かし）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-20</dd><dt>支払先</dt><dd>テスト不動産株式会社 / 架空町管理部</dd><dt>金額</dt><dd class="amount">165,000円</dd></dl><p>2024年6月分の事務所賃料（137,500円）と共益費（12,500円）</p><p class="tax">記載消費税：15,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>賃料 領収書
+NO. TEST-R-202406-07
+架空テスト
+宛先 架空 株式会社テスト貿易 御中
+領収印
+内容
+テ ス 不動産
+2024年6月分 事務所賃料として
+対象物件：テスト市架空町5-5-5 架空ビル4F 区画401号室
+賃貸期間：2024年6月1日～2024年6月30日
+支払方法：銀行振込（2024年6月20日入金確認）
+振込手数料は借主負担にて別途支払
+※ 賃料 137,500円 + 共益費 12,500円
+165,000 円
+金額（税込）
+上記正に領収いたしました。 賃料 137, 500
+発行日：2024年6月20日 共益費 12, 500
+消費税 15, 000
+テスト不動産株式会社 / 架空町管理部
+※ 本領収書は2024年6月分の賃料領収書です。共益費・消費税を含みます。
+
+[画像の部分再読取]
+賃料 領収書
+
+領収印
+
+テスト不動産
+401号室
+
+※ 賃料 137,500円 + 共益費 12,500日
+金額（税込）
+165,000 19
+16</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">地代家賃</p><p>扱い：暫定提案</p><p>地代家賃の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-20</dd><dt>期待する支払先</dt><dd>テスト不動産株式会社</dd><dt>期待する金額</dt><dd>165,000円</dd><dt>許容する科目</dt><dd>地代家賃</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V052 自宅兼事務所 家賃の業務用按分 領収書（A5縦・二重枠按分表） 架空住宅管理サービス（架空） " id="V052"><header><h2>V052<span>自宅兼事務所 家賃の業務用按分 領収書（A5縦・二重枠按分表）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V052.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V052.jpg" alt="自宅兼事務所 家賃の業務用按分 領収書（A5縦・二重枠按分表）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-27</dd><dt>支払先</dt><dd>架空住宅管理サービス（架空）</dd><dt>金額</dt><dd class="amount">16,800円</dd></dl><p>居住用賃貸住宅の家賃一部支払分</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>居住用賃貸住宅の家賃 一部支払分 領収書
+（架空テスト用・一部支払の受領明細）
+物件：テスト市架空町7-7-7 テストハイム203号室
+契約者：架空 二郎 様（個人契約）
+賃貸人：架空住宅管理サービス（架空）
+● 家賃総額と今回支払分
+項目 総額 支払比率 今回分
+家賃（2024年6月分） 78,000 20% 15,600
+管理費・共益費 6,000 20% 1,200
+駐車場使用料 5,000 0% 0
+光熱水費（概算） 含まず
+今回分負担分合計（税込） 16,800
+今回分負担分として 16,800円 を受領した旨、証明します。 領収
+領収日 2024年6月27日 ／ 賃貸人代理人 架空住宅管理サービス
+※本書は記載の一部支払額のみの領収証です。総額を再度領収したものではありません。
+※家賃総額 78,000円の領収書は別途発行済み。 架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-27</dd><dt>期待する支払先</dt><dd>架空住宅管理サービス（架空）</dd><dt>期待する金額</dt><dd>16,800円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V053 法人向け賠償責任保険 保険料領収書（B5縦・左縦書き帯） テスト損害保険株式会社 損害保険料" id="V053"><header><h2>V053<span>法人向け賠償責任保険 保険料領収書（B5縦・左縦書き帯）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V053.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V053.jpg" alt="法人向け賠償責任保険 保険料領収書（B5縦・左縦書き帯）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-25</dd><dt>支払先</dt><dd>テスト損害保険株式会社</dd><dt>金額</dt><dd class="amount">54,000円</dd></dl><p>請負業者賠償責任保険（業務中・施設内/外）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>保険料領収証
+証券番号 TEST-PL-88012 / 契約者 架空 株式会社テスト機材
+保険種類：請負業者賠償責任保険（業務中・施設内/外）
+保険期間：2024年4月1日 ～ 2025年3月31日（12か月）
+補償内容と保険料（非課税）
+区分 保険金額
+保険料
+身体賠償（1名） 1億円
+身体賠償（1事故） 5億円
+財物賠償（1事故） 1,000万円
+基本保険料 62,000
+割増・割引（長期割引） -8,000
+合計保険料（非課税） 54.000
+免責・特約事項（概要）
+故意・重過失、地震、戦争等による損害は補償対象外。詳細は普通保険約款・特約をご確認くだ
+さい。
+I
+領収金額：54,000円
+領収日：2024年3月25日（口座振替にて全額収納）
+上記保険料を領収しました。
+テスト損害保険株式会社
+架空町保険センター
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">損害保険料</p><p>扱い：暫定提案</p><p>損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-25</dd><dt>期待する支払先</dt><dd>テスト損害保険株式会社</dd><dt>期待する金額</dt><dd>54,000円</dd><dt>許容する科目</dt><dd>保険料 / 損害保険料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V054 社用車任意保険 領収書（A4縦・車両情報グリッド） テストモーター保険株式会社 損害保険料" id="V054"><header><h2>V054<span>社用車任意保険 領収書（A4縦・車両情報グリッド）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V054.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V054.jpg" alt="社用車任意保険 領収書（A4縦・車両情報グリッド）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-05-28</dd><dt>支払先</dt><dd>テストモーター保険株式会社</dd><dt>金額</dt><dd class="amount">66,200円</dd></dl><p>自動車保険料（事業用車両）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>自動車保険 保険料 領収書（事業用車両）
+証明書番号 TEST-CAR-2024-0551
+テストモーター保険株式会社 ／ 2024年5月分
+保険契約者 被保険自動車 登録番号 初度登録
+架空 株式会社テスト建設 テスト商用バン 型式TX-V210（架 テスト 330 あ 00-00（架空登録） 2021年4月
+空）
+保険種類 運転者限定 保険期間 等級・事故有無
+任意保険（対人・対物・車両・人 35歳以上・業務限定 2024年6月1日 〜 2025年5月31日 17等級 / 事故有り（前年1回）
+身傷害）
+保険料内訳（非課税）
+対人賠償保険 9,800円 対物賠償保険 12,400円
+人身傷害保険 6,300円 車両保険（一般型） 28,500円
+運転者限定特約 1,200円 ノンフリート等級別割増 8,000円
+保険料合計（非課税） 66,200円
+領収日：2024年5月28日 ／ 金額：66,200円
+テストモーター保険株式会社
+上記金額を領収いたしました（クレジットカード決済済）
+※ 自賠責保険料（24,830円）は別途・別途領収済み。本領収書は任意保険料のみです。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">損害保険料</p><p>扱い：暫定提案</p><p>損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-05-28</dd><dt>期待する支払先</dt><dd>テストモーター保険株式会社</dd><dt>期待する金額</dt><dd>66,200円</dd><dt>許容する科目</dt><dd>保険料 / 損害保険料 / 車両費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V055 銀行振込手数料 受付票兼領収（B5横・等幅モノスペース明細） TEST BANK 架空支店 支払手数料" id="V055"><header><h2>V055<span>銀行振込手数料 受付票兼領収（B5横・等幅モノスペース明細）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V055.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V055.jpg" alt="銀行振込手数料 受付票兼領収（B5横・等幅モノスペース明細）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-01</dd><dt>支払先</dt><dd>TEST BANK 架空支店</dd><dt>金額</dt><dd class="amount">660円</dd></dl><p>振込手数料（他行向け）</p><p class="tax">記載消費税：60円<br>原本に手数料税込660円の内数として消費税60円。括弧内660は税額ではない。</p><details><summary>OCR本文を開く</summary><pre>振込手数料 受付票（領収書兼用） 受付日：2024年7月1日
+TEST BANK 架空支店 受付番号 TEST-FEE-884-07
+架空テスト
+依頼人 依頼人口座
+架空 株式会社テスト商事 架空支店 普通 0000000（架空）
+振込先 振込先口座
+テスト工業株式会社 様 架空支店 当座 1111111（架空）
+【明細】
+振込金額 250,000 円
+振込手数料（他行向け） 660 円
+うち消費税（手数料税込660円の内数） 60 円
+合計請求（振込金額＋手数料） 250,660 円
+※ 手数料は振込とは別に現金で支払済み（領収済）。
+本受付票は振込手数料の支払証明です。振込金額の領収書ではありません。
+受付
+お客さまの資金移動に係る受付票です（テスト発行・架空口座）
+印
+2024/07/01 14:32</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">支払手数料</p><p>扱い：暫定提案</p><p>支払手数料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-01</dd><dt>期待する支払先</dt><dd>TEST BANK 架空支店（架空銀行）</dd><dt>期待する金額</dt><dd>660円</dd><dt>許容する科目</dt><dd>支払手数料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V056 ローン元利均等返済 予定表兼領収（A4横・左縦罫表/右箱サマリ） テストローン " id="V056"><header><h2>V056<span>ローン元利均等返済 予定表兼領収（A4横・左縦罫表/右箱サマリ）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V056.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V056.jpg" alt="ローン元利均等返済 予定表兼領収（A4横・左縦罫表/右箱サマリ）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-27</dd><dt>支払先</dt><dd>テストローン</dd><dt>金額</dt><dd class="amount">83,900円</dd></dl><p>ローンの第25回返済額（元金68,760円、利息15,140円）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>ローンご返済予定表兼 領収書 発行 2024年6月25日
+テストローン 契約番号 TEST-LN-2022-009 / 返済方法 元利均等返済 / 元金・利息内訳
+回 返済日 返済額 うち元金 うち利息 残元金
+第25回 ご返済分（2024年6月）
+24 2024/05/27 83, 900 68,320 15, 580 1, 402, 680
+返済額
+25 2024/06/27 83, 900 68,760 15, 140 1, 333, 920
+83, 900 &quot;
+26 2024/07/27 83, 900 69, 201 14,699 1, 264, 719
+※ 元利均等返済のため、返済額固定・元金/利息の比率が毎月変化します。
+元金部分 68,760
+利息部分 15, 140
+完済までの残回数 110
+返済口座（架空） 普通 0000000
+2024年6月27日 口座振替にて領収。
+領収済
+元金・利息の内訳は上記のとおりです。次回返済日は予定です。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-27</dd><dt>期待する支払先</dt><dd>テストローン株式会社（架空金融）</dd><dt>期待する金額</dt><dd>83,900円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V057 収入印紙 購入代金領収証（A5横・切手風券種ブロック） テスト郵便局 租税公課" id="V057"><header><h2>V057<span>収入印紙 購入代金領収証（A5横・切手風券種ブロック）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V057.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V057.jpg" alt="収入印紙 購入代金領収証（A5横・切手風券種ブロック）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-10</dd><dt>支払先</dt><dd>テスト郵便局</dd><dt>金額</dt><dd class="amount">7,000円</dd></dl><p>収入印紙 200円券10枚・1,000円券5枚</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>収入印紙 購入代金 領収証
+テスト郵便局（架空） ／ 受付番号 TEST-Y-2024-0334
+領収日：2024年6月10日 購入明細（印紙の券種）
+購入者：架空 株式会社テスト総務
+購入印紙
+200円 200円
+200円券 10枚 ／ 1,000円券 5枚 ×5 ×5
+1,000 1,000
+合計
+7,000 円（税込・非課税取扱） 1,000円 1,000円
+×3 ×2
+支払方法：現金
+3,000 2,000
+※ 印紙税は消費税の対象外です。
+領収
+合計枚数 15枚 / 合計 7,000円 済
+領収印
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">租税公課</p><p>扱い：暫定提案</p><p>租税公課の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-10</dd><dt>期待する支払先</dt><dd>テスト郵便局（架空）</dd><dt>期待する金額</dt><dd>7,000円</dd><dt>許容する科目</dt><dd>租税公課 / 印刷費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V058 自治体証明書手数料 領収書（A5縦・左窓口右金額枠） テスト市役所架空町支所 収納係 " id="V058"><header><h2>V058<span>自治体証明書手数料 領収書（A5縦・左窓口右金額枠）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V058.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V058.jpg" alt="自治体証明書手数料 領収書（A5縦・左窓口右金額枠）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-03</dd><dt>支払先</dt><dd>テスト市役所架空町支所 収納係</dd><dt>金額</dt><dd class="amount">300円</dd></dl><p>住民票の写し 1通</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>テスト市役所 架空町支所
+証明書発行手数料 領収書
+窓口 04
+受付日 2024年7月3日（水）
+領収金額
+申請者 架空 三郎
+証明書 住民票の写し 1通 300 円
+手数料 300円
+住民票の写し 1通分
+支払方法 現金
+備考 手数料はテスト市条例に基づく定額です。※架空自治体・架空手続きのテスト発行物です。
+2024年7月3日 テスト市役所架空町支所 収納係
+収納
+担当：架空 係長
+済
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-03</dd><dt>期待する支払先</dt><dd>テスト市役所架空町支所（架空）</dd><dt>期待する金額</dt><dd>300円</dd><dt>許容する科目</dt><dd>租税公課 / 事務用品費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V059 所得税 予定納税の納付証明（A4縦・左右2枚組領収証） テスト税務署 " id="V059"><header><h2>V059<span>所得税 予定納税の納付証明（A4縦・左右2枚組領収証）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V059.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V059.jpg" alt="所得税 予定納税の納付証明（A4縦・左右2枚組領収証）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-07-25</dd><dt>支払先</dt><dd>テスト税務署</dd><dt>金額</dt><dd class="amount">92,400円</dd></dl><p>所得税・予定納税（第1期分）の納付</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>所得税・予定納税（第1期分）の納付を証明する領収証
+テスト税務署一架空」発行／開空町税務部
+領収証（納税者控え） A 領収証（納付書使用用） B
+1212-P
+架空 商店（個人事業主） 架空 商店（個人事業主）
+税者备号
+TEST-N0-0000-0000 TEST-N0-0000-0000
+所得税 所得税
+2024年7月1日 ~ 2024年7月31日 2024年7月1日 ~ 2024年7月31日
+E
+予定納税 第1期分 予定納税 第1期分
+4.2 초ᄇ
+92. 400F7 92.400
+029 0円
+TH
+2024年7月25日 2024年7月25日
+92. 400 a 92. 400 =
+収納
+上記納付額は税目・納期区分に対する予定納税です。確定申告により精算されます。
+※ 本領収証は業室テスト用の見本であり、実際の国税納付証明には使用できません
+7 712 -
+
+[画像の部分再読取]
+所得税・予定納税（第1期分）の納付を証明する領収証
+テスト税務署一架空」発行／開空町税務部
+
+
+
+R
+
+領収証（納付書使用用）
+B
+112 P
+架空 商店（個人事業主）
+
+
+領収証 《納税者控え）
+架空 商店（個人事業主）
+A
+
+領収証（納付書使用用）
+
+架空 商店（個人事業主）</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-07-25</dd><dt>期待する支払先</dt><dd>テスト税務署（架空）</dd><dt>期待する金額</dt><dd>92,400円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact / account_or_decision_exact / decision_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V060 自治体の過料 納付通知兼領収（A5横・横罫表＋太枠納付帯） テスト市架空町 会計課 " id="V060"><header><h2>V060<span>自治体の過料 納付通知兼領収（A5横・横罫表＋太枠納付帯）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V060.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V060.jpg" alt="自治体の過料 納付通知兼領収（A5横・横罫表＋太枠納付帯）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-05-20</dd><dt>支払先</dt><dd>テスト市架空町 会計課</dd><dt>金額</dt><dd class="amount">12,000円</dd></dl><p>過料（違反金）納付</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>過料（違反金） 納付通知兼 領収証 納付番号 TEST-PEN-2024-0512
+テスト市架空町 環境美化条例に基づく過料
+対象者 架空 株式会社テスト工業（架空町工場）
+違反日時 2024年5月12日 14:20
+違反場所 テスト市架空町10丁目 架空公園周辺
+違反内容 条例第12条に基づく指定場所外投棄（架空の事例）
+納付期限 2024年5月31日
+納付金額 12,000円
+納付日：2024年5月20日 ／ 納付金額：12,000円（現金）
+テスト市架空町 会計課
+上記金額を過料として領収しました（領収済）。
+※ 本書は記載の納付番号に対する収納を証するものです。
+納付
+※ 納付期限までに納付済みのため、延滞金は発生していません。 済
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-05-20</dd><dt>期待する支払先</dt><dd>テスト市架空町 会計課（架空）</dd><dt>期待する金額</dt><dd>12,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact / account_or_decision_exact / decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V061 印刷工房の詳細請求明細書（入金済） イラスト印刷工房 こもれび 印刷製本費" id="V061"><header><h2>V061<span>印刷工房の詳細請求明細書（入金済）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V061.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V061.jpg" alt="印刷工房の詳細請求明細書（入金済）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-02-03</dd><dt>支払先</dt><dd>イラスト印刷工房 こもれび</dd><dt>金額</dt><dd class="amount">187,330円</dd></dl><p>会社案内パンフレット 500枚、名刺（社員用）12枚、封筒角2 300枚、クリアファイル200枚、納品書（複写）5枚</p><p class="tax">記載消費税：17,030円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>イラスト印刷工房 こもれび
+架空町2-8 テスト市 印刷事業部 請求明細書
+登録番号 T0000000000000
+No. PS-2601-118
+発行日 2026年1月16日
+テスト株式会社 営業部 御中
+下記のとおりご請求申し上げます。
+curam &amp; 187,330 -
+支払期限 2026年2月15日 / お支払済み（2026-02-03 着金）
+入金確認済
+品目・内容 / 仕様 数量 単価 金額（税抜）
+税区分
+会社案内パンフレット 500 168
+84,000 10%
+A4 16P / マット紙 / 4色両面
+名刺（社員用） 12 2,600
+31,200 10%
+白ケント220kg / 片面 / 100枚×12名
+封筒 角2 300 55
+16,500 10%
+長3色上質 / 名入れ印刷
+クリアファイル 200 190
+38,000 10%
+A4 / UV印刷
+納品書（複写） 5 720
+3,600 10%
+2枚複写 / 100組
+小計(10%対象） 173,300
+値引（税抜） -3,000
+消費税（値引後10%） 17,030
+合計 187, 330
+(内 消費税 ¥17,030)
+架空テスト資料 / 振込口座：記録用ダミー</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">印刷製本費</p><p>扱い：暫定提案</p><p>印刷製本費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-02-03</dd><dt>期待する支払先</dt><dd>イラスト印刷工房 こもれび</dd><dt>期待する金額</dt><dd>187,330円</dd><dt>許容する科目</dt><dd>印刷費 / 広告宣伝費 / 販売促進費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V062 名刺印刷の見積書（未払い） さくら製版印刷 株式会社 " id="V062"><header><h2>V062<span>名刺印刷の見積書（未払い）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V062.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V062.jpg" alt="名刺印刷の見積書（未払い）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2027-05-28</dd><dt>支払先</dt><dd>さくら製版印刷 株式会社</dd><dt>金額</dt><dd class="amount">64,900円</dd></dl><p>名刺・箔押し加工・データ校正費・送料</p><p class="tax">記載消費税：5,900円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>さくら製版印刷 株式会社
+テスト商事株式会社
+テスト市架空町5-3-2 第2工場
+総務部 御中 TEL 000-0000-0000 (X= —)
+登録番号 T0000000000000
+ご担当：山吹様
+お見積金額（税込）
+(税抜 ¥59,000 + 税 ¥5,900)
+* 64,900
+※ 本見積書は金額の提示であり、領収書ではありません。
+品名 / 仕様 用紙 数量 単価 金額 備考
+名刺 片面フルカラー ケント220 1200 33 39,600 10%
+名刺 両面フルカラー ケント220 300 45 13,500 10%
+箔押し加工（金） 300 10 3,000 10%
+データ校正費 1 2,100 2,100 10%
+送料 1 800 800 10%
+小計 59,000
+消費税（10%） 5,900
+合計（税込） $64,900
+納期：ご発注後 約10営業日 / 納入場所：貴社ご指定
+お支払条件：納品月末締め 翌月末払い（予定） 版
+備考：紙質・数量変更で金額が変動します。版下データはAI/PDF・CMYK。
+架空テスト
+
+[見出しの部分再読取]
+見 積 書
+No. MJ-27-0441
+見積番号/有効期限 2027年6月30日
+見積日 2027年5月28日
+テスト商事株式会社
+総務部 御中
+ご担当：山吹様
+お見積金額（税込）
+さくら製版印刷 株式会社
+テスト市架空町5-3-2 第2工場
+TEL 000-0000-0000 (X= —)
+登録番号 T0000000000000
+
+(税抜 ¥59,000 + 税 ¥5,900)
+
+</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2027-05-28</dd><dt>期待する支払先</dt><dd>さくら製版印刷 株式会社</dd><dt>期待する金額</dt><dd>64,900円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V063 モニター修理の受付票兼領収書（80mm） パソコン修理 みつばち電機 修繕費" id="V063"><header><h2>V063<span>モニター修理の受付票兼領収書（80mm）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V063.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V063.jpg" alt="モニター修理の受付票兼領収書（80mm）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-11-11</dd><dt>支払先</dt><dd>パソコン修理 みつばち電機</dd><dt>金額</dt><dd class="amount">39,380円</dd></dl><p>27インチ IPS モニターのLCDパネル交換・内部清掃</p><p class="tax">記載消費税：3,580円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>修理受付票・領収書
+パソコン修理 みつばち電機
+テスト市架空町9-1-7
+受付番号 R-2025-08311
+受付日 2025年11月4日 14:20
+修理完了日 2025年11月11日
+品名 27インチ IPS モニター
+型番（記載） LCD-273WQ ※型式は概算
+症状 画面左半分が映らず / 点滅
+処置 LCDパネル交換・内部清掃
+保証 修理箇所 90日保証
+作業明細
+技術料 8,800
+部品代 LCDパネル 24,000
+部品代 バックライト 1,900
+送料 1,100
+小計 （税抜） 35,800
+消費税（10%） 3,580
+領収金額 $39, 380
+領収日 2025/11/11 現金
+お預かり 40,000
+お釣り 620
+※ 再修理は保証期間内でも有償の場合があります。
+※ 部品の取り寄せは完了しています。
+領収
+受付 佐々木 済
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">修繕費</p><p>扱い：暫定提案</p><p>修繕費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-11-11</dd><dt>期待する支払先</dt><dd>パソコン修理 みつばち電機</dd><dt>期待する金額</dt><dd>39,380円</dd><dt>許容する科目</dt><dd>修繕費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V064 自作PCパーツのカード領収明細（資産確認用） 架空パーツ館 テスト店 工具器具備品" id="V064"><header><h2>V064<span>自作PCパーツのカード領収明細（資産確認用）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V064.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V064.jpg" alt="自作PCパーツのカード領収明細（資産確認用）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-09</dd><dt>支払先</dt><dd>架空パーツ館 テスト店</dd><dt>金額</dt><dd class="amount">284,130円</dd></dl><p>自作PC 構成部品 一式</p><p class="tax">記載消費税：25,830円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>パーツ購入明細・領収書
+XH 2024-03-09
+伝票番号 PB-4402-917
+自作PC 構成部品 一式
+販売：架空パーツ館 テスト店 お支払：クレジットー括
+部品カテゴリ 型番・仕様 数量 単価 金額 備考
+CPU CPU X9-7800 3.9GHz 1 62,800 62,800 10%
+マザーボード ATX T790 チップセット（架空） 1 34,800 34,800 10%
+メモリ DDR5-5600 32GB × 2 1 23,600 23,600 10%
+SSD NVMe 2TB Gen4 2 17,900 35,800 10%
+電源 850W 高効率仕様 1 16,800 16,800 10%
+CPUクーラー 空冷 大型ヒートシンク 1 8,900 8,900 10%
+ケース ミドルタワー ガラス側面 1 12,400 12,400 10%
+ケースFAN 120mm PWM 3 1,800 5,400 10%
+OS・セットアップ OSライセンス+初期設定 1 18,000 18,000 10%
+モニター 27型 4K ディスプレイ 1 39,800 39,800 10%
+小計（税抜） 258,300
+消費税（10%） Y25,830
+合計（税込） $284,130
+【保証・動作確認】
+各構成品の初期動作確認済み。保証書と製造番号の控えは同梱明細をご確認ください。初期不良のお問い合わせには本伝票番号をご用意ください。
+価格は税抜表示、クレジットカード決済は完了しています。
+架空テスト / カード決済完了</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">工具器具備品</p><p>扱い：資産・費用区分の確認待ち</p><p>工具器具備品の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-09</dd><dt>期待する支払先</dt><dd>架空パーツ館 テスト店</dd><dt>期待する金額</dt><dd>284,130円</dd><dt>許容する科目</dt><dd>工具器具備品 / 備品費</dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V065 家具の配送・組立完了書（兼領収書） テスト市家具 リビング館 " id="V065"><header><h2>V065<span>家具の配送・組立完了書（兼領収書）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V065.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V065.jpg" alt="家具の配送・組立完了書（兼領収書）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-09-21</dd><dt>支払先</dt><dd>テスト市家具 リビング館</dd><dt>金額</dt><dd class="amount">273,900円</dd></dl><p>会議用テーブル 1800×900 x1 68,000
+ワークチェア メッシュ x4 96,000
+サイドキャビネット x</p><p class="tax">記載消費税：24,900円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>家具お届け・組立完了書 2023/09/21
+受付No. F-2317
+兼 お支払領収書
+テスト市架空町3丁目22 テスト市家具 リビング館
+納品先：テスト株式会社（架空）
+お届け日：2023年9月20日 組立：同日完了
+商品明細
+会議用テーブル 1800×900 x1 68,000
+ワークチェア メッシュ x4 96,000
+サイドキャビネット x 2 63,000
+配達・設置・組立費 x 1 22,000
+小計（税抜） 249,000
+消費税（10%) 24,900
+ご請求合計（税込） 4273,900
+お支払：クレジットカード（1回払い）
+カード下4桁 1234 / 承認番号 000000（ダミー）
+配送・組立の完了サイン
+設置完了 承認
+館
+お問い合わせ
+テスト市家具 カスタマー窓口
+TEL 0000-00-0000 ()
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：資産・費用区分の確認待ち</p><p>一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-09-21</dd><dt>期待する支払先</dt><dd>テスト市家具 リビング館</dd><dt>期待する金額</dt><dd>273,900円</dd><dt>許容する科目</dt><dd>工具器具備品 / 備品費</dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V066 カメラ機材レンタルの精算書 架空撮影機材 テスト市レンタル 賃借料" id="V066"><header><h2>V066<span>カメラ機材レンタルの精算書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V066.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V066.jpg" alt="カメラ機材レンタルの精算書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-04-10</dd><dt>支払先</dt><dd>架空撮影機材 テスト市レンタル</dd><dt>金額</dt><dd class="amount">73,590円</dd></dl><p>カメラ機材のレンタル</p><p class="tax">記載消費税：6,690円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>カメラ機材 貸出 ご契約者 貸出日
+レンタル精算書 企画部 映像チーム 令和6年4月8日
+発注書 No. RNT-3312 返却：4月10日 正午
+架空撮影機材 テスト市レンタル
+お支払合計
+* 73,590
+機材 品番 数量 日数 金額
+シネカメラ本体 CAM-X1( E) 1 3 36,000
+レンズ 24-70mm LNZ-2470 1 3 9,000
+レンズ 70-200mm LNZ-7200 1 3 7,500
+三脚 TRP-HD 1 3 3,600
+LEDパネル LED-200 2 3 10,800
+小計（税抜） 66,900
+予約金 ¥10,000 + 返却時精算 ¥63,590 = 領収総額 ¥73,590
+支払日 2024年4月10日 / 全額領収済 消費税（10%） 6,690
+延滞料：返却が1時間超で ¥3,000（税込）／破損は別途見積
+返却済
+機材保険：付帯あり / 免責 ¥5,000
+4/10 11:45
+架空テスト
+
+[縦組み文字列]
+111</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">賃借料</p><p>扱い：暫定提案</p><p>賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-04-10</dd><dt>期待する支払先</dt><dd>架空撮影機材 テスト市レンタル</dd><dt>期待する金額</dt><dd>73,590円</dd><dt>許容する科目</dt><dd>賃借料 / レンタル料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V067 レコーディングスタジオのセッション利用請求書 架空スタジオ 音色 外注工賃" id="V067"><header><h2>V067<span>レコーディングスタジオのセッション利用請求書</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V067.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V067.jpg" alt="レコーディングスタジオのセッション利用請求書の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-12-20</dd><dt>支払先</dt><dd>架空スタジオ 音色</dd><dt>金額</dt><dd class="amount">291,280円</dd></dl><p>音色レコーディングサービス</p><p class="tax">記載消費税：26,480円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>架空スタジオ 音色
+レコーディング セッション請求書
+講求番号：SS-2022-115 発行：2022.12.05
+ご利用：テスト市架空町1-1 音色レコーディング室A
+ご利用期間
+2022年11月1日 ~ 2022年11月30日
+利用日 時間帯 室内 エンジニア 利用料 税抜-
+11828 (X) 13:00-18:00 A 鈴木 42.000
+11月4日(金) 19:00-22:00 A 鈴木 22,000
+11月9日(水) 13:00-19:00 B (E 50,000
+11月15日(火) 10:00-17:00 A 鈴木 63,000
+11月24日(木) 18:00-23:00 c 佐野 45.000
+エンジニア・機林追加
+ミックスダウン・エンジニア 28.000
+外部マイクレンタル 6,000
+HDD持ち出し（2TB, 販売） 8,800
+小計（税抜） 254,800
+消費税（10%） 26,480
+合計（税込） Y291, 280
+お支払方法：銀行振込（2022年12月20日 入金確認）
+g
+機材の持ち込み・変更は事前にご連続ください。</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">外注工賃</p><p>扱い：暫定提案</p><p>外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-12-20</dd><dt>期待する支払先</dt><dd>架空スタジオ 音色</dd><dt>期待する金額</dt><dd>291,280円</dd><dt>許容する科目</dt><dd>賃借料 / 外注費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V068 広告出稿の媒体別支払済サマリー 架空広告代理店 ネクストテスト 広告宣伝費" id="V068"><header><h2>V068<span>広告出稿の媒体別支払済サマリー</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V068.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V068.jpg" alt="広告出稿の媒体別支払済サマリーの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-08-25</dd><dt>支払先</dt><dd>架空広告代理店 ネクストテスト</dd><dt>金額</dt><dd class="amount">1,342,000円</dd></dl><p>SNS動画広告 15秒 / A/B 2種 120.45 420,000 34.4% 10%</p><p class="tax">記載消費税：122,000円<br>原本の全体集計欄：税抜合計1220000、消費税10%122000、税込合計1342000。構成比14.8%は税率ではない。</p><details><summary>OCR本文を開く</summary><pre>キャンペーン合計（支払済）
+広告出稿 支払済報告書
+ADVERTISING CAMPAIGN SUMMARY * 1,342,000
+架空広告代理店 ネクストテスト 〒000-0000 テスト市架空町6-6 対象期間 2025年7月1日～7月31日/ 支払日 2025-08-25
+クライアント：テスト物産 株式会社 マーケ部 御中 L7- No. AD-2507-31
+媒体 配信/掲載 表示回数 支出額 構成比 税区分
+SNS動画広告 15秒 / A/B 2種 120.45 420,000 34.4% 10%
+検索連動型 キーワード12件 48.2万 380,000 31.1% - 10%
+静止画バナー 4媒体 66.0万 240,000 19.7% • 10%
+記事広告 2社 3.1 180,000 14.8% 10%
+税抜合計 1,220,000 消費税（10%） 122,000 税込合計 1,342,000
+支払状況：全額入金済
+振込 2025-08-25 / 残高 ¥0
+備考：媒体レポートは別添。追加出稿分は翌月精算。
+承認番号 TRX-0000-DUMMY
+税区分は各媒体の請求基準に準拠。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">広告宣伝費</p><p>扱い：暫定提案</p><p>広告宣伝費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-08-25</dd><dt>期待する支払先</dt><dd>架空広告代理店 ネクストテスト</dd><dt>期待する金額</dt><dd>1,342,000円</dd><dt>許容する科目</dt><dd>広告宣伝費 / 販売促進費 / 雑費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V069 卸売商品の仕入請求書（入金済） 架空物産卸 株式会社 消耗品費" id="V069"><header><h2>V069<span>卸売商品の仕入請求書（入金済）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V069.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V069.jpg" alt="卸売商品の仕入請求書（入金済）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-02-20</dd><dt>支払先</dt><dd>架空物産卸 株式会社</dd><dt>金額</dt><dd class="amount">230,340円</dd></dl><p>収納ボックス（中）、ステンレスボトル、タオルセット、洗剤セットA、LEDデスクライト、食品保存容器</p><p class="tax">記載消費税：20,940円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>卸 売 請 求 書
+WHOLESALE INVOICE / PAID
+テスト小売株式会社 仕入部 請求書番号：WS-240118
+御中 発行日：令和6年1月18日
+発行：架空物産卸 株式会社
+ご請求額（税込）
+テスト市架空町8-4 センター倉庫
+登録番号 T0000000000000 $230,340
+支払期日：2024-02-28 ／ 支払済
+商品 入数 単価 金額
+収納ボックス（中） 48 720 34,560
+ステンレスボトル 500ml 24 1,580 37,920
+タオルセット 3枚組 36 920 33,120
+洗剤セット A 20 2,100 42,000
+LEDデスクライト 12 3,300
+39,600
+食品保存容器 4個組 30 740 22,200
+小計 209,400
+消費税（10%） 20,940
+合計 230, 340
+入金：2024年2月20日 普通預金口座へ着金
+返品期限：納品後7日以内 / 送料は元払い
+本請求書は支払い済みです。
+卸
+物
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-02-20</dd><dt>期待する支払先</dt><dd>架空物産卸 株式会社</dd><dt>期待する金額</dt><dd>230,340円</dd><dt>許容する科目</dt><dd>仕入高 / 消耗品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V070 包材ショップの小型レシート かんぶパッケージ テスト店 消耗品費" id="V070"><header><h2>V070<span>包材ショップの小型レシート</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V070.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V070.jpg" alt="包材ショップの小型レシートの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-06-03</dd><dt>支払先</dt><dd>かんぶパッケージ テスト店</dd><dt>金額</dt><dd class="amount">7,370円</dd></dl><p>段ポール箱 A4（20枚組）2枚、緩衝材 ブチプチ 50m 1卷、クラフト紙袋 中50個、OPP袋 100枚3枚、ガムテ</p><p class="tax">記載消費税：670円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>品目 数量 金額
+段ポール箱 A4（20枚組） 2 1,680
+緩衝材 ブチプチ 50m 1 2,200
+クラフト紙袋 中 50 1,600
+OPP袋 100枚 3 840
+ガムテープ 透明 50mm 2 380
+小計 6,700
+消費税（10%） 670
+お預り 10,000
+at 47.370
+お釣り 2,630 現金
+架空テスト / 包材・資材
+
+[画像の部分再読取]
+1,
+6
+6
+6
+
+alt
+
+47,370
+お預り 10,000
+お釣り 2,630
+架空テスト / 包材・資材</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-06-03</dd><dt>期待する支払先</dt><dd>かんぷパッケージ テスト店</dd><dt>期待する金額</dt><dd>7,370円</dd><dt>許容する科目</dt><dd>消耗品費 / 荷造運賃</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V071 電子部品の納品書兼受領確認（高密度品目表） 架空電子 部品センター テスト支店 " id="V071"><header><h2>V071<span>電子部品の納品書兼受領確認（高密度品目表）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V071.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V071.jpg" alt="電子部品の納品書兼受領確認（高密度品目表）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-06-14</dd><dt>支払先</dt><dd>架空電子 部品センター テスト支店</dd><dt>金額</dt><dd class="amount">587,290円</dd></dl><p>積層セラミックコンデンサ、抵抗器、電解コンデンサ、LED、コネクタ、基板用スペーサー、スイッチ、ジャンパーワイヤ、リレー</p><p class="tax">記載消費税：53,390円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>発行 2024-06-14 / 対象仕入 2024-05-31
+電子部品 購入・納品書（兼 受領確認）
+架空電子 部品センター テスト支店
+# 部品名 / メーカー型式（架空） JAN/管理 数量 単価 金額 分類
+1 積層セラミックコンデンサ 0000001 5,000 3 15,000 電子部品
+CC-0402-100N
+2 抵抗器 1/4W 10k2 0000002 3,000 2 6,000 電子部品
+RS-025-103
+3 電解コンデンサ 470μF 0000003 500 48 24,000 電子部品
+EC-105-471
+4 LED 赤 3mm 0000004 1,000 12 12,000 電子部品
+LD-030-R
+5 コネクタ 40P 0000005 200 95 19,000 電子部品
+CN-40P-2R
+6 基板用スペーサー 0000006 4,000 4 16,000 機構部品
+SP-05M-10
+7 スイッチ タクト 0000007 1,500 8 12,000 電子部品
+SW-6MM-01
+8 ジャンパーワイヤ 0000008 50 240 12,000 配線材
+JW-20-100
+9 リレー 5V 0000009 300 380 114,000 電子部品
+RL-05-DPDT
+10 ヒートシンク 小型 0000010 800 65 52,000 機構部品
+HS-20-30
+11 テープ 絶縁 耐熱 0000011 40 980 39,200 資材
+TP-HT-50
+12 静電気防止袋 100枚 0000012 60 620 37,200 資材
+ES-200-100
+13 はんだ 鉛フリー 0000013 30 1,450 43,500 資材
+SL-LF-05
+14 アクリルケース 0000014 150 880 132,000 機構部品
+AC-150-CL
+消費税（10%） 53,390
+税抜小計 533,900
+合計（税込） 4587, 290
+発注書 No. PO-5520 / 受領者：測試 太郎（架空）
+納入条件：DAP・数量不足なし・外装損傷なし 受領確認
+この納品書は物品の受領を確認する書類であり、支払の証明ではありません。 2024/06/14
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-06-14</dd><dt>期待する支払先</dt><dd>架空電子 部品センター テスト支店</dd><dt>期待する金額</dt><dd>587,290円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V072 翻訳業務の報酬計算書（源泉検討） 架空製作 株式会社 出版部 " id="V072"><header><h2>V072<span>翻訳業務の報酬計算書（源泉検討）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V072.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V072.jpg" alt="翻訳業務の報酬計算書（源泉検討）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-12-18</dd><dt>支払先</dt><dd>架空製作 株式会社 出版部</dd><dt>金額</dt><dd class="amount">440,000円</dd></dl><p>技術文書 英→日 翻訳 42,000字 × ¥7</p><p class="tax">記載消費税：40,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>翻訳業務 報酬計算書 計算日：2025年12月18日
+お支払日：2025年12月25日（予定）
+(源泉徴収の取り扱い検討用）
+受注者：テスト翻訳事務所（個人事業） 宛
+発注者：架空製作 株式会社 出版部
+業務明細
+技術文書 英→日 翻訳 42,000字 × ¥7 294,000
+校正・用語統- - 20時間 × ¥4,000 80,000
+専門用語データ整備 1式 26,000
+400, 000
+報酬合計（税抜）
+源泉徴収の検討欄
+源泉徴収税額（参考）：未計算 / 適用の有無は発注者・受注者の契約区分により異なる
+確認事項：業務委託か雇用か、原稿料・翻訳料の区分、受給者区分。
+本欄は仮の記載。確定額は税務処理の判断後に別途明記する。
+支払額（仮）：¥400,000（源泉徴収額控除前）
+消費税の扱い
+・請求書の税区分：課税（10%）
+・報酬額 ¥400,000 に対する消費税：¥40,000
+・税込支払額：¥440,000
+$440,000
+支払額（税込・源泉控除前）
+本計算書は支払い前の社内確認資料です。実際の入金は確定後に通知します。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-12-18</dd><dt>期待する支払先</dt><dd>架空製作 株式会社 出版部</dd><dt>期待する金額</dt><dd>440,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V073 オンライン研修の年間サブスク支払明細 学習ラボ オンライン " id="V073"><header><h2>V073<span>オンライン研修の年間サブスク支払明細</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V073.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V073.jpg" alt="オンライン研修の年間サブスク支払明細の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-04-01</dd><dt>支払先</dt><dd>学習ラボ オンライン</dd><dt>金額</dt><dd class="amount">39,600円</dd></dl><p>年間サブスクリプション（PRO プラン）</p><p class="tax">記載消費税：3,600円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>学習ラボ オンライン 領収済
+2024/04/01
+年間サブスクリプション
+$ 39.600
+税込 / 年額 一括払い
+PRO プラン（法人向け）
+契約期間 2024-04-01 ～ 2025-03-31
+受講枠 20名 / 管理者アカウント 1
+自動更新：なし（都度更新）
+お支払い内訳
+基本料金 Y36,000
+消費税（10%） $3,600
+カード請求額 $39,600
+カード種別 架空カード テスト
+下4桁 / 承認 0000 / 000000
+ご利用明細はアカウント管理画面からも確認できます。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-04-01</dd><dt>期待する支払先</dt><dd>学習ラボ オンライン</dd><dt>期待する金額</dt><dd>39,600円</dd><dt>許容する科目</dt><dd>研修費 / 教育研修費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>account_or_decision_exact / decision_exact / account_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V074 専門職協会の会費領収書（年度・日付の記載なし） 架空専門職 協会 諸会費" id="V074"><header><h2>V074<span>専門職協会の会費領収書（年度・日付の記載なし）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V074.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V074.jpg" alt="専門職協会の会費領収書（年度・日付の記載なし）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>架空専門職 協会</dd><dt>金額</dt><dd class="amount">18,000円</dd></dl><p>年会費（正会員）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>架空専門職 協会
+会費 領収書
+領収金額 発行日： 年 月 日（記載なし）
+会員番号：M-2201-77
+* 18,000
+会費の種別 正会員 年会費
+対象年度 年度の記載なし（更新分）
+お支払区分 一括
+備考
+会員情報の変更と受領証の再発行は事務局までご連絡ください。お問い合わせの際は、上記の会員番号をお知らせください。
+領収 済
+長
+架空テスト
+
+[画像の部分再読取]
+
+
+
+
+f
+会費 領収書
+
+領収
+
+
+額
+Y 12 NNN
+
+領収 済
+
+[見出しの部分再読取]
+3
+ᄉ
+架空専門職 協会
+会費 領収書
+領収金額
+
+発行日：
+年
+月
+日（記載なし）
+i
+n
+ann
+会員番号：M-2201-77
+
+</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">諸会費</p><p>扱い：確認待ち</p><p>諸会費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd>架空専門職 協会</dd><dt>期待する金額</dt><dd>18,000円</dd><dt>許容する科目</dt><dd>諸会費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V075 慈善基金の寄附受領証（業務と切り離し） 架空こども支援基金 " id="V075"><header><h2>V075<span>慈善基金の寄附受領証（業務と切り離し）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V075.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V075.jpg" alt="慈善基金の寄附受領証（業務と切り離し）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-03-02</dd><dt>支払先</dt><dd>架空こども支援基金</dd><dt>金額</dt><dd class="amount">30,000円</dd></dl><p>寄附金受領</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>寄附受領証 2
+DONATION RECEIPT
+架空こども支援基金
+72 23-10 
+受領金額
+* 30,000 ()
+日付：令和7年3月2日
+受付番号：DN-2503-0418
+寄附者：テスト 花子（架空） 様
+寄附の目的・区分
+子どもの学習機会支援として受領いたしました。使途指定：学習教材・運営費（一般寄附）。受領内容の変更・再発行の際は受
+付番号をお知らせください。
+寄附金控除（参考）
+・特定寄附金の該当区分：未確認
+・支払証明書としての利用は個別確認が必要
+・領収書の発行主体は架空の組織
+控除の取扱いは別途案内をご確認ください
+返金・振替はできません。
+個空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-03-02</dd><dt>期待する支払先</dt><dd>架空こども支援基金</dd><dt>期待する金額</dt><dd>30,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V076 百貨店ギフトの8%・10%混在レシート 架空百貨店 テスト店 " id="V076"><header><h2>V076<span>百貨店ギフトの8%・10%混在レシート</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V076.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V076.jpg" alt="百貨店ギフトの8%・10%混在レシートの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-12-24</dd><dt>支払先</dt><dd>架空百貨店 テスト店</dd><dt>金額</dt><dd class="amount">16,650円</dd></dl><p>洋菓子詰合せ、和菓子詰合せ、スパークリングワイン、赤ワイン、チーズ詰合せ、ギフトラッピング、のし・包装紙</p><p class="tax">記載消費税：空欄・要確認<br>税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。</p><details><summary>OCR本文を開く</summary><pre>架空百貨店 テスト店
+ギフト お買上票
+2024年12月24日(火) 18:06
+レジ 03 / 担当 002 No.1024-7788
+表示金額は税込
+洋菓子詰合せ（ギフト） 8% 3,200
+和菓子詰合せ（ギフト） 8% 2,800
+スパークリングワイン 10% 4,180
+赤ワイン 750ml 10% 3,520
+チーズ詰合せ 8% 2,400
+ギフトラッピング 10% 330
+のし・包装紙 手提げ 10% 220
+--
+8%対象 小計（税抜） 7,778
+8%対象 消費税 622
+10%対象 小計（税抜） 7,500
+10%対象 消費税 750
+合計（税込） 416,650
+お支払：架空ギフトカード 10,000 + 現金 10,000
+お預り計 20,000 / お釣り 3,350
+ギフト用途：贈答用 / 送り先住所は別手配
+のし：御歳暮 / 名入れ：なし
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-12-24</dd><dt>期待する支払先</dt><dd>架空百貨店 テスト店</dd><dt>期待する金額</dt><dd>16,650円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V077 ケータリング精算書（業務と私用の混在） 架空デリ クッキングテスト " id="V077"><header><h2>V077<span>ケータリング精算書（業務と私用の混在）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V077.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V077.jpg" alt="ケータリング精算書（業務と私用の混在）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-06-30</dd><dt>支払先</dt><dd>架空デリ クッキングテスト</dd><dt>金額</dt><dd class="amount">310,200円</dd></dl><p>創立記念パーティのケータリングサービス（30名用）</p><p class="tax">記載消費税：28,200円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>ケータリング
+納品日 2023年6月17日
+お料理・飲料 ご精算書 請求日 2023年6月20日
+架空デリ クッキングテスト 請求書 No. CT-2306-17
+ご利用：テスト株式会社 創立記念パーティ（会場：架空町イベントホール）
+人数：30名（内、社外のご家族：10名）
+お品書きと数量
+オードブル盛合せ（1人前） 30 1,800
+54,000
+メイン料理（ローストビーフ） 30 2,600
+78,000
+サラダバー（1人前） 30 900
+27,000
+デザート盛合せ 30 800
+24,000
+ソフトドリンク飲放題 30 1,200
+36,000
+Tra-N (E-M/012) 1 45,000
+45,000
+会場運搬・設営費 1 18,000
+18,000
+小計（税抜） 282,000
+消費税（10%） 28,200
+ご請求合計 310, 200
+配膳・撤収のご案内
+お料理と飲料は30名様分でご用意しました。食器・保温器具は当日20時に回収済みです。お持ち帰り品は十分に冷却し、お早めにお召し上がりください。
+お支払：2023年6月30日 銀行振込 入金確認済
+備考：残った料理はお持ち帰りいただきました。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-06-30</dd><dt>期待する支払先</dt><dd>架空デリ クッキングテスト</dd><dt>期待する金額</dt><dd>310,200円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V078 社内旅費交通費の精算内訳書（事業者領収書でない）  " id="V078"><header><h2>V078<span>社内旅費交通費の精算内訳書（事業者領収書でない）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V078.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V078.jpg" alt="社内旅費交通費の精算内訳書（事業者領収書でない）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>未確定</dd><dt>金額</dt><dd class="amount">13,450円</dd></dl><p>電車、タクシー、宿泊費、昼食代</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>旅費交通費 精算内訳書（社内） 提出日 2022/10/05
+申請部署：営業第二課 / 申請者：架空 太郎 No. EX-2210-088
+日付 内容 領収書 金額 備考
+10/02 電車 テスト市→架空町 なし 640 IC履歴のみ
+10/02 タクシー（客先・緊急） あり（別添） 2,150 領収書原本未提出
+10/03 宿泊費（出張） あり（別添） 8,800 宿泊先は架空ホテル
+10/04 昼食代（社外） なし 1,200 目的不明
+10/04 電車 架空町→テスト市 なし 660 IC履歴のみ
+合計 13,450
+注意：領収書未添付 3件
+本用紙は社内精算用の内訳書であり、外部事業者から受領した領収書ではありません。
+金額の裏付けとしての領収書原本・カード明細は別途必要です。
+申請者 課長 経理
+架空
+架空テスト / 社内書式
+
+[見出しの部分再読取]
+旅費交通費 精算内訳書（社内）
+申請部署：営業第二課 /申請者：架空 太郎
+提出日 2022/10/05
+No. EX-2210-088
+
+内容
+金額
+備考
+領収書
+10/02
+電車 テスト市→架空町
+なし
+640
+IC履歴のみ
+10/02
+タクシー（客先・緊急）
+あり（別添）
+2.150
+領収書原本未提出
+10/03
+宿泊費（出張）
+あり（別添）
+8,800
+宿泊先は架空ホテル
+10/04
+昼食代（社外）
+なし
+1,200
+目的不明
+10/04
+電車 架空町→テスト市
+なし
+660
+IC履歴のみ
+合計
+10
+00
+
+11 0
+(内)</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd></dd><dt>期待する金額</dt><dd>13,450円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact / decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V079 キャンセル料と払戻済み予約金額の対比案内 架空リゾート テストヴィラ " id="V079"><header><h2>V079<span>キャンセル料と払戻済み予約金額の対比案内</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V079.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V079.jpg" alt="キャンセル料と払戻済み予約金額の対比案内の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-08-30</dd><dt>支払先</dt><dd>架空リゾート テストヴィラ</dd><dt>金額</dt><dd class="amount">0円</dd></dl><p>予約取消のキャンセル料</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>キャンセル精算のご案内
+架空リゾート テストヴィラ 予約担当
+発行 2023年8月30日
+(1) 取消前のご予約（払戻済み）
+ご宿泊 2023年9月16日～18日 2泊 / 3名
+ご予約金額（税込） $96,000
+払戻済み（2023/08/29 クレジット返金） $96,000
+差引残額 40
+予約番号 RSV-7702 / お支払いはカードー括（架空カード 下4桁 0000）
+(2) キャンセル料の内訳
+キャンセル日 2023年8月28日
+取消規定：宿泊日14日前まで 無料
+7日前～2日前まで 30%
+前日・当日 100%
+本件：宿泊日19日前 → 無料取消
+キャンセル料（税込） 40
+ご確認ください
+本ページは、払戻し済みのご予約金額 ¥96,000 と、キャンセル料 ¥0 を対比して示す精算案内です。合計額はキャンセル料の ¥0 であり、¥96,000 は元の予約金
+額（払戻済み）です。二重請求・二重払戻はありません。
+1
+架空テスト/ ご予約に関するご案内</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-08-30</dd><dt>期待する支払先</dt><dd>架空リゾート テストヴィラ</dd><dt>期待する金額</dt><dd>0円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V080 返金処理完了通知（元取引に対するマイナス返金） 架空ストア テスト店 " id="V080"><header><h2>V080<span>返金処理完了通知（元取引に対するマイナス返金）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V080.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V080.jpg" alt="返金処理完了通知（元取引に対するマイナス返金）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-02-14</dd><dt>支払先</dt><dd>架空ストア テスト店</dd><dt>金額</dt><dd class="amount">14,850円</dd></dl><p>ワイヤレスイヤホン（架空プランド）の返金</p><p class="tax">記載消費税：1,350円<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>返金手続き 完了のお知らせ 発行 2025-02-14
+処理番号 RF-2502-1180
+架空ストア テスト店 / カスタマーサポート
+【元のご購入】
+ご購入日 2025年1月28日 / 注文番号 ORD-9901
+商品：ワイヤレスイヤホン（架空プランド）
+当時のお支払額（税込） Y14,850
+返金理由：初期不良（返品受領 2/10）
+返金額 -14,850
+商品代金の全額返金
+返金方法：元のカードへ返金
+内訳
+商品代金（税抜） 13,500
+消費税（10%） 1,350
+返金合計 -14,850
+カード会社の処理後に明細へ反映されます（目安3～10営業日）。
+この書面は返金処理の記録であり、新たな請求書ではありません。
+返金完了
+2025/02/14
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-02-14</dd><dt>期待する支払先</dt><dd>架空ストア テスト店</dd><dt>期待する金額</dt><dd>-14,850円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V081 飲食店 3名分割会計 サービス料10% 使途不明 酒肴ごちそう みなと亭 " id="V081"><header><h2>V081<span>飲食店 3名分割会計 サービス料10% 使途不明</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V081.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V081.jpg" alt="飲食店 3名分割会計 サービス料10% 使途不明の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-11-14</dd><dt>支払先</dt><dd>酒肴ごちそう みなと亭</dd><dt>金額</dt><dd class="amount">8,910円</dd></dl><p>刺身盛合せ、生ビール、焼鳥五種盛り、ハイボール、烏龍茶、天ぷら盛合せ、日本酒</p><p class="tax">記載消費税：810円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>酒肴ごちそう みなと亭
+テスト市架空町1-2-3 TEL 000-0000-0000
+登録番号 T0000000000000
+2025年11月14日(金) 22:41
+伝票 No.0457 卓 12 3名様
+ご精算 3名分割 (別会計)
+お客様 A 個別会計
+刺身盛合せ 1,800
+生ビール x2 1,200
+小計 3,000
+サービス料 10% 300
+A様 お会計 3,300
+お客様 B 個別会計
+焼鳥五種盛り 1,500
+ハイボール 600
+烏龍茶 400
+小計 2,500
+サービス料 10% 250
+B様 お会計 2,750
+お客様 C 個別会計
+天ぷら盛合せ 1,700
+日本酒 一合 900
+小計 2,600
+サービス料 10% 260
+C様 お会計 2,860
+小計 (3名分) 8,100
+サービス料 10% 810
+お会計合計 ¥8,910
+(税込 内消費税10% 810)
+【お支払い内訳】
+現金 (A+C分) 6,160
+お預り (現金) 6,200
+お釣り 40
+クレジット (B分) 2,750
+宛名 上様 但し お飲食代として
+担当 07 ご来店ありがとうございました
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-11-14</dd><dt>期待する支払先</dt><dd>酒肴ごちそう みなと亭</dd><dt>期待する金額</dt><dd>8,910円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V082 二連複写 修理伝票 手書き風 朱印 架空町モータース 車両費" id="V082"><header><h2>V082<span>二連複写 修理伝票 手書き風 朱印</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V082.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V082.jpg" alt="二連複写 修理伝票 手書き風 朱印の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-08</dd><dt>支払先</dt><dd>架空町モータース</dd><dt>金額</dt><dd class="amount">15,950円</dd></dl><p>ブレーキパッド(前) 1 8,500 8,500 取付工賃(前輪) 1 6,000 6,000</p><p class="tax">記載消費税：1,450円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>お客様控 No. 000318 店 控 No. 000318
+修 理 伝 票 修 理 伝 票
+架空町モータース 令和6 年 3 月 8 日 架空町モータース 令和6 年 3 月 8 日
+テスト市架空町4-5-6 TEL 000-0000-0000 テスト市架空町4-5-6 TEL 000-0000-0000
+登録番号 T0000000000000 自動車整備工場 登録番号 T0000000000000 自動車整備工場
+車名・登録No. 車名・登録No.
+宮坂ベーカリー 様 - 架空バン 宮坂ベーカリー 様 - 架空バン
+テスト300 さ 00-00 テスト300 さ 00-00
+ご請求金額 ご請求金額
+宮田) 宮田
+$15,950 - $15,950 -
+品名・作業内容 数量 単価 金額 品名・作業内容 数量 単価 金額
+ブレーキパッド(前) 1 8,500 8, 500 ブレーキパッド(前) 1 8, 500 8, 500
+取付工賃(前輪) 1 6,000 6,000 取付工賃(前輪) 1 6, 000 6,000
+- 以下余白 - — 以下余白 - -
+備考 小計 14, 500 備考 14, 500
+前輪パッド摩耗限度のため交換 消費税(10%) 1, 450 前輪パッド摩耗限度のため交換 消費税(10%) 1,450
+次回 車検時に後輪も点検 គតិ 15, 950 次回 車検時に後輪も点検 合計 15, 950
+上記の金額、正に領収いたしました。 上記の金額、正に領収いたしました。
+架空テスト 架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">車両費</p><p>扱い：暫定提案</p><p>車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-08</dd><dt>期待する支払先</dt><dd>架空町モータース</dd><dt>期待する金額</dt><dd>15,950円</dd><dt>許容する科目</dt><dd>修繕費 / 車両費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V083 セルフ給油機レシート 洗車別明細 架空町セルフSS 車両費" id="V083"><header><h2>V083<span>セルフ給油機レシート 洗車別明細</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V083.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V083.jpg" alt="セルフ給油機レシート 洗車別明細の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-02-19</dd><dt>支払先</dt><dd>架空町セルフSS</dd><dt>金額</dt><dd class="amount">6,050円</dd></dl><p>レギュラー給油 32.74L（168円/L）と洗車1回（550円）</p><p class="tax">記載消費税：550円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>◆ ご利用明細書 ◆
+架空町セルフSS
+テスト市架空町9-9
+ T0000000000000
+2026/02/19 16:08
+給油機 No. 3 取引 0215
+油種 .. . レギュラー
+हैंती 単価 168.0 円/L
+油 数量 32.74 L
+給油金額 $5, 500
+洗 洗車 ノーマル 1回 $550
+単 ※給油とは別明細（税10%）
+合 計 $6,050
+10%対象 内消費税 550
+現金 お預り .. 7.000
+8 V . .. 950
+またのご来店をお待ちしております
+0215 0219 1608 0003
+K
+IH
+AK
+
+[画像の部分再読取]
+
+
+
+
+
+
+
+
+• •
+•
+•
+
+111
+— 71. 1
+
+10%対象 内消費税
+•
+• •
+現金 お預り
+
+お釣り
+•
+
+• •
+•
+
+
+
+
+•
+
+•
+
+$6,050
+6.
+•
+•
+
+• •
+550
+7,000
+• •
+
+950
+しております
+
+
+I
+III</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">車両費</p><p>扱い：暫定提案</p><p>車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-02-19</dd><dt>期待する支払先</dt><dd>架空町セルフSS</dd><dt>期待する金額</dt><dd>6,050円</dd><dt>許容する科目</dt><dd>車両費 / 旅費交通費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V084 海外向けデジタル領収書 USDのみ Harborlight Digital Ltd. " id="V084"><header><h2>V084<span>海外向けデジタル領収書 USDのみ</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V084.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V084.jpg" alt="海外向けデジタル領収書 USDのみの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-10-03</dd><dt>支払先</dt><dd>Harborlight Digital Ltd.</dd><dt>金額</dt><dd class="amount">円額未確定</dd></dl><p>Sound Library Pro - 12-month license</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>Harborlight Digital Ltd. Receipt #HD-2025-004217
+Receipt for your purchase Oct 3, 2025
+Amount paid
+Thank you!
+Payment received on Oct 3, 2025 USD 129.00
+BILLED TO SOLD BY
+Test Customer K.K. Harborlight Digital Ltd.
+Kakuu-cho 1-2-3, Test City Export sales desk
+Japan Harbor Road 10, Testville
+Description Qty Amount (USD)
+Sound Library Pro - 12-month license 1 99.00
+Premium support add-on 1 30.00
+Subtotal 129.00
+Tax - export sale (0%) 0.00
+Total paid USD 129.00
+PAYMENT METHOD
+Visa ending 0000 - charged Oct 3, 2025
+All amounts are shown in US dollars (USD) only. This receipt does not show a yen amount;
+the amount posted by your card issuer in your billing currency may differ.
+Digital goods delivered by download. Export sale: no Japanese consumption tax was added
+by the seller.
+架空テスト Fictional test receipt
+This is an automated receipt. Please do not reply.</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>外貨の記載があります。実際に確定した円額をカード明細等から確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-10-03</dd><dt>期待する支払先</dt><dd>Harborlight Digital Ltd.</dd><dt>期待する金額</dt><dd>円額未確定</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V085 事前精算式 駐車券 出庫時刻・お釣り テストパーキング架空町第3 旅費交通費" id="V085"><header><h2>V085<span>事前精算式 駐車券 出庫時刻・お釣り</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V085.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V085.jpg" alt="事前精算式 駐車券 出庫時刻・お釣りの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-07-22</dd><dt>支払先</dt><dd>テストパーキング架空町第3</dd><dt>金額</dt><dd class="amount">1,400円</dd></dl><p>駐車券</p><p class="tax">記載消費税：127円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>I
+I
+事前精算券
+I
+7/22 1
+I テストパーキング架空町第3
+I 駐車料金
+TUE 登録番号 T0000000000000
+I 2025年7月22日(火)
+1,4 0 n 円
+駐車券 控
+I
+No. 0731 1 課金 3時間19分 精算 12:31
+I お預り(現金) 2,000円
+入庫 09:12 出庫 12:47 お釣り 600円
+I
+1 料金 30分 200円 × 7 = 1,400円 精算機 No.2 精算済
+1 内 消費税10% 127円
+架空テスト
+I
+I
+I
+
+[縦組み文字列]
+III1II
+I11III</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">旅費交通費</p><p>扱い：暫定提案</p><p>旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-07-22</dd><dt>期待する支払先</dt><dd>テストパーキング架空町第3</dd><dt>期待する金額</dt><dd>1,400円</dd><dt>許容する科目</dt><dd>旅費交通費 / 車両費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V086 ホスティング利用 領収書 前回残高を別枠表示 ミナトクラウド株式会社 通信費" id="V086"><header><h2>V086<span>ホスティング利用 領収書 前回残高を別枠表示</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V086.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V086.jpg" alt="ホスティング利用 領収書 前回残高を別枠表示の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-12-05</dd><dt>支払先</dt><dd>ミナトクラウド株式会社</dd><dt>金額</dt><dd class="amount">3,850円</dd></dl><p>レンタルサーバー スタンダード 2025/12/01-12/31 1,650円、ドメイン更新 kakuu-test.jp</p><p class="tax">記載消費税：350円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>D
+RECEIPT
+今回のご利用明細
+株式会社テストトレーディング
+御中 ご利用内容 2ER(EA)
+レンタルサーバー スタンダード 2025/12/01-12/31 1,650
+KT-004217 102 227680 38008
+R-2512-004217 ドメイン更新 kakuu-test.jp 2025/12/05 更新 2,200
+1年間中新
+2025年12月5日
+小計(税抜) 3,500
+消費税(10%) 350
+1 ご参考：前回までの残高
+43,850
+219.62001/2 6 4
+Y5,500 ; 10591 3,850 (85%) / 58-8317 350
+11/28 ご入金 -Y5,500 1
+繰越残高 vo : お支払い済み クレジットカード(****0000) 2025/12/05
+(രോ ജക)
+サービス レンタルサーパ(2025412月分))・トメインとた
+
+[画像の部分再読取]
+(10%)
+$3,850
+
+-(****00
+
+2025/12/05
+
+[見出しの部分再読取]
+株式会社テストトレーディング
+御中
+KT-004217
+R-2512-004217
+
+
+
+
+
+
+領
+
+
+2025年12月5日
+EIPT
+
+ご参考：前回までの残高
+今回のご利用明細
+ご利用内容
+レンタルサーバー スタンダード
+102 2027580 3800B
+ドメイン更新 kakuu-test.jp
+1358425
+期間・日付
+
+2025/12/01-12/31
+1,650
+2025/12/05 更新
+2,200
+小計(税抜)
+消費税(10%)
+3,500
+350
+
+
+• ミナトクラウド株式会社
+9
+
+11/09 75-6-7 02/51) 10000000000000</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">通信費</p><p>扱い：暫定提案</p><p>通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-12-05</dd><dt>期待する支払先</dt><dd>ミナトクラウド株式会社</dd><dt>期待する金額</dt><dd>3,850円</dd><dt>許容する科目</dt><dd>通信費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V087 交流会参加費 領収書 月日のみ(年なし) 架空町商店会 青年部 接待交際費" id="V087"><header><h2>V087<span>交流会参加費 領収書 月日のみ(年なし)</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V087.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V087.jpg" alt="交流会参加費 領収書 月日のみ(年なし)の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>架空町商店会 青年部</dd><dt>金額</dt><dd class="amount">5,000円</dd></dl><p>第12回 架空町異業種交流会懇親会費</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>架空テスト
+第12回 架空町 異業種交流会
+懇親会費込み
+領
+収
+¥ 5 5 5. 000 5
+5. ,
+金
+書
+上記、参加費として領収しました。
+受付日 架空町商店会 青年部
+11月8日 テスト市架空町2-2
+No.17
+
+[縦組み文字列]
+555
+領収書</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">接待交際費</p><p>扱い：確認待ち</p><p>接待交際費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd>架空町商店会 青年部</dd><dt>期待する金額</dt><dd>5,000円</dd><dt>許容する科目</dt><dd>諸会費 / 交際費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact</p></details></section></div></article><article class="case" data-difference="true" data-search="V088 寄付金受領証 現金寄付 テスト市みらい食堂 " id="V088"><header><h2>V088<span>寄付金受領証 現金寄付</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V088.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V088.jpg" alt="寄付金受領証 現金寄付の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-12-20</dd><dt>支払先</dt><dd>テスト市みらい食堂</dd><dt>金額</dt><dd class="amount">10,000円</dd></dl><p>子ども食堂「みらい食堂」の運営に使われる寄付金</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>• •
+受領番号 第0042号
+寄付 金 受 領 証
+河合 悠 様
+ご寄付額
+金 壱万円也
+(Y10, 000)
+上記の金額を、令和7年12月20日、現金にて確かに受領いたしました。
+ご寄付は、子ども食堂「みらい食堂」の運営に使わせていただきます。
+※ 本書は寄付金の受領をお知らせするものです。
+特定非営利活動法人
+令和7年12月20日 テスト市みらい食堂
+テスト市架空町3-4-5
+受
+代表理事 領
+架空テスト •</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-12-20</dd><dt>期待する支払先</dt><dd>特定非営利活動法人 テスト市みらい食堂</dd><dt>期待する金額</dt><dd>10,000円</dd><dt>許容する科目</dt><dd>寄付金</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V089 スーパー買物 軽減税率混在 自宅用 スーパーみなと市場 架空町店 " id="V089"><header><h2>V089<span>スーパー買物 軽減税率混在 自宅用</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V089.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V089.jpg" alt="スーパー買物 軽減税率混在 自宅用の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-03-14</dd><dt>支払先</dt><dd>スーパーみなと市場 架空町店</dd><dt>金額</dt><dd class="amount">3,791円</dd></dl><p>食パン、牛乳、卵、鶏もも肉、キャベ: 198
+*豆腐 3連 98
+*納豆 3パック 128
+*チョコレート 168
+ティ</p><p class="tax">記載消費税：空欄・要確認<br>税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。</p><details><summary>OCR本文を開く</summary><pre>スーパーみなと市場
+架空町店
+TEL 000-0000-0000
+登録番号 T0000000000000
+2026/03/14(±) 18:25 レジ03 #0412
+*食パン 6枚切 158
+*牛乳 1L 218
+2= x 109
+*卵 10個入 278
+*鶏もも肉 300g 548
+*キャベツ 198
+*豆腐 3連 98
+*納豆 3パック 128
+*チョコレート 168
+ティッシュ 5箱 458
+食器用洗剤 238
+缶ビール 350ml 6P 1. 298
+レジ袋 小 3
+- -
+3.791
+合計 $3,791
+8%対象(*) 1,794
+内消費税 8% 132
+10%対象 1,997
+内消費税 10% 181
+お預り(現金) 4,000
+ភ៖ V 209
+今回ポイント 3P
+* は軽減税率(8%)対象商品
+2603 1418 2503 0412
+ありがとうございました
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-03-14</dd><dt>期待する支払先</dt><dd>スーパーみなと市場 架空町店</dd><dt>期待する金額</dt><dd>3,791円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V090 翻訳報酬 請求書(支払済) 源泉徴収あり 言葉舎 水野 " id="V090"><header><h2>V090<span>翻訳報酬 請求書(支払済) 源泉徴収あり</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V090.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V090.jpg" alt="翻訳報酬 請求書(支払済) 源泉徴収ありの架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2026-01-31</dd><dt>支払先</dt><dd>言葉舎 水野</dd><dt>金額</dt><dd class="amount">99,790円</dd></dl><p>英日翻訳業務(取扱説明書 24頁)</p><p class="tax">記載消費税：10,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>No. T-2601-03
+請求書 請求日 令和8年1月20日
+株式会社テストトレーディング 御中 言葉舎 水野
+テスト市架空町7-8
+登録番号 T0000000000000
+件名 英日翻訳業務(取扱説明書 24頁)
+お支払日 令和8年1月31日 (銀行振込)
+翻訳料(税抜) 英日 24頁 100,000
+消費税 10% 10,000
+(1) 報酬総額(税込) 110,000
+(2) 源泉所得税を差引 -10,210
+税抜報酬100,000 × 10.21%
+(3) 実振込額 99,790
+振込先: テスト銀行 架空支店 普通 0000000
+※ 源泉所得税は税抜報酬から差し引き、
+(3)の実振込額を令和8年1月31日にお振込みいただきました。
+28. 1. 31
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2026-01-31</dd><dt>期待する支払先</dt><dd>言葉舎 水野</dd><dt>期待する金額</dt><dd>99,790円</dd><dt>許容する科目</dt><dd>外注費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V091 ホテル見開き精算書（明細左・精算右） ホテル架空ベイテラス " id="V091"><header><h2>V091<span>ホテル見開き精算書（明細左・精算右）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V091.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V091.jpg" alt="ホテル見開き精算書（明細左・精算右）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-11-14</dd><dt>支払先</dt><dd>ホテル架空ベイテラス</dd><dt>金額</dt><dd class="amount">27,900円</dd></dl><p>宿泊（2024-11-12～2024-11-14）</p><p class="tax">記載消費税：2,500円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>ホテル架空ベイテラス ご精算書 1 SETTLEMENT
+テスト市架空町3-1 TEL 000-0000-0000
+ご利用明細 GUEST FOLIO Folio No. F-24111407 ご請求総額（税込）
+客室 ご宿泊者 人数 $ 27,900
+0712 架空 一郎 様 1名
+ご到着 ご出発 泊数
+2024-11-12 2024-11-14 2.4
+日付 お支払内容 金額（円）
+日付 摘要 税区分 金額（円）
+2024-11-12 お預り金（現金・チェックイン時） 10, 000
+2024-11-12 宿泊料 シングル（素泊まり） 10% 12, 100 2024-11-14 クレジットカードー括 承認番号 000000 17, 900
+2024-11-12 宿泊税 対象外 200
+お支払合計 27,900
+2024-11-13 朝食ビュッフェ（レストラン汐風） 10% 1,650
+差引残高 0
+2024-11-13 宿泊料 シングル（素泊まり） 10% 12, 100
+2024-11-13 宿泊税 対象外 200
+上記の金額を正に領収いたしました。
+2024-11-14 朝食ビュッフェ（レストラン汐風） 10% 1,650
+発行日 2024年11月14日 10:12
+ご利用合計 Y27,900
+10%対象 ￥27,500（内消費税 ￥2,500）／ 対象外（宿泊税） ￥400
+登録番号 T0000000000000
+フロント担当 テスト
+またのご利用をお待ちしております ※本精算書は領収書を兼ねます。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-11-14</dd><dt>期待する支払先</dt><dd>ホテル架空ベイテラス</dd><dt>期待する金額</dt><dd>27,900円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V092 細幅レジ紙・合計先頭型（旧式キャッシュレジスター） テスト文具店 架空町本店 消耗品費" id="V092"><header><h2>V092<span>細幅レジ紙・合計先頭型（旧式キャッシュレジスター）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V092.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V092.jpg" alt="細幅レジ紙・合計先頭型（旧式キャッシュレジスター）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2024-03-08</dd><dt>支払先</dt><dd>テスト文具店 架空町本店</dd><dt>金額</dt><dd class="amount">1,078円</dd></dl><p>ノートB5 220、ボールペン黒、封筒角2 50枚</p><p class="tax">記載消費税：98円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>合計 ￥1,078
+お預り 2,000
+お釣り 922
+領 収 証
+R.6- 3- 8 No.0417
+レジ02 担当07
+03 ノートB5 220
+03 ボールペン黒
+@165 x 2 330
+05 封筒角2 50枚 528
+小計 1,078
+点数 4
+(内税10% 98)
+テスト文具店
+架空町本店
+TEL 000-000-0000
+毎度ありがとうございます
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：暫定提案</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2024-03-08</dd><dt>期待する支払先</dt><dd>テスト文具店 架空町本店</dd><dt>期待する金額</dt><dd>1,078円</dd><dt>許容する科目</dt><dd>消耗品費 / 事務用品費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V093 横型社印領収証（大字枠＋算用数字併記） 合同会社架空デザイン工房 外注工賃" id="V093"><header><h2>V093<span>横型社印領収証（大字枠＋算用数字併記）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V093.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V093.jpg" alt="横型社印領収証（大字枠＋算用数字併記）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-09-29</dd><dt>支払先</dt><dd>合同会社架空デザイン工房</dd><dt>金額</dt><dd class="amount">132,000円</dd></dl><p>ロゴデザイン制作業務委託料</p><p class="tax">記載消費税：12,000円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>No. 0093-27
+領 株式会社テスト商会 御中
+令和五年九月二十九日
+収
+金額 金 壱 拾 犬 I 也
+$ 132,000 – （税込）
+(税抜金額 120,000円 消費税額等（10%）12,000円）
+但 ロゴデザイン制作業務委託料として
+上記正に領収いたしました
+合同会社架空デザイン工房
+架 架
+空 テスト市架空町2-8-1 工
+テ
+ス お支払方法 口現金 ■銀行振込 口小切手
+登録番号 T0000000000000 房 空
+担当 デザイン部 テスト
+
+[縦組み文字列]
+架空テス
+
+[画像の部分再読取]
+金額
+
+拾
+
+
+
+壱
+
+(税抜金額 120,000円 消費税額等（10%）12,000円）
+但 ロゴデザイン制作業務委託料として
+
+上記正に領収いたしました
+合同会社架空デザイン工房
+テスト市架空町2-8-1
+お支払方法 口現金 ■銀行振込 口小切手
+登録番号 T0000000000000
+F</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">外注工賃</p><p>扱い：暫定提案</p><p>外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-09-29</dd><dt>期待する支払先</dt><dd>合同会社架空デザイン工房</dd><dt>期待する金額</dt><dd>132,000円</dd><dt>許容する科目</dt><dd>外注費 / 広告宣伝費 / 支払手数料</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V094 A4電子部品商社 請求書兼領収書（20行・繰越小計） 株式会社テスト電子商会 " id="V094"><header><h2>V094<span>A4電子部品商社 請求書兼領収書（20行・繰越小計）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V094.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V094.jpg" alt="A4電子部品商社 請求書兼領収書（20行・繰越小計）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-02-14</dd><dt>支払先</dt><dd>株式会社テスト電子商会</dd><dt>金額</dt><dd class="amount">150,106円</dd></dl><p>炭素皮抵抗、層セラミックコンデンサ、電解コンデンサ、LED、ビンヘッダ、XHコネクタ、圧着端子、ユニバーサル基板、inA</p><p class="tax">記載消費税：13,646円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>請求書 兼 領収書
+T000-0000
+テスト市架空町5-5 株式会社テスト電子商会
+架空ロボティクス株式会社 テスト市要空町1-20-3 果望ビル2F
+TEL 000-0000-0000 FAX 000-0000-0001
+開発部 御中
+登録番号 T0000000000000
+請求推号 摘求日 入金日 お支払方法
+INV-250210-031 2025/02/10 2025/02/14 銀行振込
+下記のとおりご精求申し上げます。本書は入金確認後の領収書を兼ねます。
+No 品名 이율 数量 単価 金額
+1 炭素皮抵抗 1/4 10kQ（100本入） R-CF 14-103 3 380 1, 140
+2 層セラミックコンデンサ 0. 1 μF（50個） TC-LC-104 2 450 900
+3 電解コンデンサ 470μF 259 1C-EL-47125 10 48 480
+4 LED 赤 5mm(100個） TL-R5-100 1 980 980
+5 ビンヘッダ 1×40P TP-H140 20 35 700
+ (No.1~5) 累計 （聯延： 4, 200 4,200
+6 XHコネクタ ハウジング 4P IX-404 50 12 600
+7 圧着端子 XH用 IX-101 100 4 400
+8 ユニバーサル基板 95×72mm 18-19572 5 260 1, 300
+9 in A1: 0. Bon 100g TS-06-100 2 1.480 2.960
+10 フラックス 20ml TF-20 1 690 690
+小計（No.6～10） 累計 （機越） 10. 150 5,950
+11 熱収縮チュープ φ3 Ia TH-3-1M 10 55 550
+12 E=LO ANG24 10m M T-24-8X 3 420 1. 260
+13 ビニル線 AM624 10m 赤 T-24-RD 3 420 1.260
+14 ターミナルブロック 2P 17-82 10 88 880
+15 D0-00コンバータ 5V 2A TD-0502 4 1.250 5. 000
+小計（No.11～15〉 集計（繰越： 19.100 8,950
+16 ACアダプタ 12V 3A TA-1203 2 2, 380 4,760
+17 ロジック[0 実験セット TK-LOGIC-S 1 3.600 3.600
+18 ESD対策マット 600×450m TE-M5045 1 6,800 6,800
+19 デジタルオシロスコープ 2ch 100MHz 70-030-2100 1 98.000 98.000
+20 オシロプローブ 10:1 (2本組） 10-PRB-10 1 4, 200 4, 200
+1 (No. 16-200 累計 （繰越） 136, 460 117,360
+上記金額を 税抜合計 136. 460
+2025年2月14日
+消費税（10%） 13.646
+銀行振込にて
+2025 0 14
+領収いたしました。
+ご請求金額（税込） * 150,106
+税率別内訳 10%対象 136,460円 消費税 13.646円
+※ 計測器（Mo. 19）の校正証明書は別送いたします。
+※ 単画・金額は税抜表示です。消費税は合計額に対して計算しています。
+1 / 1 20,2 -
+
+[縦組み文字列]
+521
+21111
+12345
+6789</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：資産・費用区分の確認待ち</p><p>一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-02-14</dd><dt>期待する支払先</dt><dd>株式会社テスト電子商会</dd><dt>期待する金額</dt><dd>150,106円</dd><dt>許容する科目</dt><dd>工具器具備品 / 消耗品費</dd><dt>期待する扱い</dt><dd>資産・費用区分の確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V095 手書き中古工具領収証（日付空欄） 架空町リサイクル工具 消耗品費" id="V095"><header><h2>V095<span>手書き中古工具領収証（日付空欄）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V095.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V095.jpg" alt="手書き中古工具領収証（日付空欄）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>未確定</dd><dt>支払先</dt><dd>架空町リサイクル工具</dd><dt>金額</dt><dd class="amount">6,500円</dd></dl><p>ナ電動ドリル（充電式）</p><p class="tax">記載消費税：空欄・要確認<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>領 収 証 No.
+年 月 日
+求 R
+金額
+*6,500- -
+( ナ電動ドリル（充電式）代として
+上記正に領収いたしました
+※ケース・充電器なし 架空町リサイクル工具
+テスト市業空町9-9
+4 S T A MR 1298 TEL 000-000-000
+架空テスト
+
+[画像の部分再読取]
+46,500
+-
+
+領 収 証
+No.
+
+
+上記正に領収いたしました
+※ケース・充電器なし
+架空町リ
+テスト市
+
+[見出しの部分再読取]
+領 収 証
+No.
+年
+月
+日
+求
+
+
+17</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">消耗品費</p><p>扱い：確認待ち</p><p>消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd></dd><dt>期待する支払先</dt><dd>架空町リサイクル工具</dd><dt>期待する金額</dt><dd>6,500円</dd><dt>許容する科目</dt><dd>工具器具備品 / 消耗品費</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>account_or_decision_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V096 SaaS年額前払い 電子領収書（利用期間タイムライン付） クラウド帳票テスト株式会社 " id="V096"><header><h2>V096<span>SaaS年額前払い 電子領収書（利用期間タイムライン付）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V096.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V096.jpg" alt="SaaS年額前払い 電子領収書（利用期間タイムライン付）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-04-01</dd><dt>支払先</dt><dd>クラウド帳票テスト株式会社</dd><dt>金額</dt><dd class="amount">118,800円</dd></dl><p>ノートブリッジ Pro 年間プラン（5ユーザー）</p><p class="tax">記載消費税：10,800円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>NoteBridge
+クラウド帳票テスト株式会社
+ノートブリッジ
+テスト市架空町1-1-1 billing@example. invalid
+登録番号 T0000000000000
+領収書 mosit お支払済み
+領収書番号 RCP-2025-000418
+発行日 2025-04-01
+お支払日 2025-04-01
+お支払方法 クレジットカード（末尾 0000）
+ご契約者 架空ソリューションズ合同会社
+ご契約ID ACC-7781-TEST
+ご利用期間 2025-04-01 ～ 2026-03-31（12か月・年額前払い）
+2025 2026
+6月 7月 8月 9月 10月 11月 12月 1月 2月 3月
+4月 5月
+▲お支払日 2025-04-01（期間開始日にー括請求）
+数量 金額（税抜）
+内容
+108, 000
+ノートブリッジ Pro 年間プラン（5ユーザー）
+小計 108, 000
+消費税（10%） 10, 800
+合計（税込） Y118,800
+本領収書は電子的に発行しています。年額料金は上記ご利用期間分の前払いです。
+お問い合わせは上記メールアドレスまでお願いいたします。
+لنا
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-04-01</dd><dt>期待する支払先</dt><dd>クラウド帳票テスト株式会社</dd><dt>期待する金額</dt><dd>118,800円</dd><dt>許容する科目</dt><dd>通信費 / 支払手数料 / 前払費用</dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V097 一部返金クレジットノート（元請求・返金・差引の三分割） テスト事務機オンライン " id="V097"><header><h2>V097<span>一部返金クレジットノート（元請求・返金・差引の三分割）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V097.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V097.jpg" alt="一部返金クレジットノート（元請求・返金・差引の三分割）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-06-20</dd><dt>支払先</dt><dd>テスト事務機オンライン</dd><dt>金額</dt><dd class="amount">33,000円</dd></dl><p>レーザー複合機用トナー 黒（互換）1本の返品</p><p class="tax">記載消費税：3,000円<br>税額は独立した数値評価の対象外。</p><details><summary>OCR本文を開く</summary><pre>返金明細書（クレジットノート） テスト事務機オンライン
+テスト市架空町4-2-1
+登録番号 T0000000000000
+架空工房 御中 発行日 2025年6月20日
+注文番号 ORD-25-06031 ／ 返金番号 RF-0620-07
+下記のとおり、ご注文の一部返品にともない返金を行いました。
+元のご請求額 今回の返金額 返金後のご負担額
+2025/06/03 決済 2025/06/20 処理 差引（参考）
++
+Y 33,000 - 11,000 Y 22,000
+ご注文時にカード決済済 ご利用カードへ返金 追加のご請求はありません
+返品明細
+架
+品名 数量 税込金額 内消費税 空
+レーザー複合機用トナー 黒（互換） 1 11, 000 1,000
+返品理由：数量誤り（2本ご注文のうち1本を未開封にて返品）
+ご参考：元のご注文内容
+レーザー複合機用トナー 黒（互換）×2 22,000円
+コピー用紙 A4（500枚×5冊）×2箱 11,000円
+合計 33,000円（10%対象・内消費税 3,000円）
+返金方法：ご注文時のクレジットカードへ返金（カード会社の締め日により翌月以降の明細に反映）
+本書は返金の明細であり、新たなご請求書・領収書ではありません。
+テスト事務機オンライン カスタマーセンター</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：通常の経費帳では対象外</p><p>返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-06-20</dd><dt>期待する支払先</dt><dd>テスト事務機オンライン</dd><dt>期待する金額</dt><dd>-11,000円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>通常の経費帳では対象外</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="false" data-search="V098 着手金控除後の残金領収書（控え半券付き） 架空町空調サービス 修繕費" id="V098"><header><h2>V098<span>着手金控除後の残金領収書（控え半券付き）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V098.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V098.jpg" alt="着手金控除後の残金領収書（控え半券付き）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2022-01-31</dd><dt>支払先</dt><dd>架空町空調サービス</dd><dt>金額</dt><dd class="amount">55,000円</dd></dl><p>事務所空調機分解洗浄（天井カセット形 3台）</p><p class="tax">記載消費税：5,000円<br>原本の今回領収分55000の内訳に消費税5000。契約全額88000の税8000とは別。</p><details><summary>OCR本文を開く</summary><pre>No. 1093
+領 収 書 発行日 令和4年1月31日
+No. 1093
+架空町商事株式会社 様
+架空町商事(株)様
+契約 88, 000 工事名 事務所空調機 分解洗浄（天井カセット形 3台）
+作業日 令和4年1月28日
+前受 33, 000
+今回 55,000
+区分 日付 金額（円） 備考
+残 0
+ご契約金額（税込） 88, 000 契約額
+R4. 1. 31 受領
+着手金（前受） 令和4年1月10日 33, 000 受領済 No. 1077
+今回ご入金（残金） 令和4年1月31日 55,000 本書で領収
+残金 0 完済
+今回領収金額
+$55,000-
+内訳 今回領収分 55,000円（税抜 50,000円・消費税 5,000円 10%）
+ご契約金額 88,000円（税抜 80,000円・消費税 8,000円）
+着手金 33,000円（令和4年1月10日受領・別紙領収書 No.1077）を差し引いた残金です。
+上記金額を正に領収いたしました。
+架空町空調サービス
+テスト市架空町7-3-12
+登録番号 T0000000000000
+TEL 000-0000-0000
+本書は残金分の領収書です。着手金の領収書と合わせて保管してください。
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">修繕費</p><p>扱い：暫定提案</p><p>修繕費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2022-01-31</dd><dt>期待する支払先</dt><dd>架空町空調サービス</dd><dt>期待する金額</dt><dd>55,000円</dd><dt>許容する科目</dt><dd>修繕費 / 雑費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><article class="case" data-difference="true" data-search="V099 スーパー80mmレシート（8%/10%混在・私用品混在） スーパー テス ストマート " id="V099"><header><h2>V099<span>スーパー80mmレシート（8%/10%混在・私用品混在）</span></h2><span class="badge difference">差異・保留あり</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V099.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V099.jpg" alt="スーパー80mmレシート（8%/10%混在・私用品混在）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2023-12-09</dd><dt>支払先</dt><dd>スーパー テス ストマート</dd><dt>金額</dt><dd class="amount">2,094円</dd></dl><p>牛乳 1L, 食パン 6枚切, バナナ, コピー用紙 A4 502枚, アルカリ乾電池 単3 4本, ゴミ袋 45L 3</p><p class="tax">記載消費税：空欄・要確認<br>税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。</p><details><summary>OCR本文を開く</summary><pre>スーパー テス ストマート
+架空町店 TEL 000-0000-0000
+登録番号 T0000000000000
+2023年12月09日(土) 18:42 レジ3
+責No. 112 取引0841
+領収証
+牛乳 1L 238 *
+食パン 6枚切 178 *
+バナナ 198 
+コピー用紙 A4 500枚 X 548
+アルカリ乾電池 単3 4本 X 398
+ゴミ袋 45L 30枚 278
+缶コーヒー 微糖 256 
+2コ×単128
+小計 8点 2,094
+合計 $2,094
+（ 8%対象 ￥870 内税 ￥64)
+(10%対象 ￥1,224 内税 ￥111)
+※印は軽減税率（8%）適用商品です
+お預り 現金 $3,000
+お釣り $ 906
+今回付与ポイント 20P
+累計ポイント 1,345P（金額ではありません）
+ご来店ありがとうございました
+2312090841003
+架空テスト</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">確認待ち</p><p>扱い：確認待ち</p><p>事務用品と飲食品等が混在しています。単一科目にまとめられるか、私用分や別科目への分割が必要か確認してください。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2023-12-09</dd><dt>期待する支払先</dt><dd>スーパーテストマート 架空町店</dd><dt>期待する金額</dt><dd>2,094円</dd><dt>許容する科目</dt><dd></dd><dt>期待する扱い</dt><dd>確認待ち</dd></dl><p>merchant_exact</p></details></section></div></article><article class="case" data-difference="false" data-search="V100 セミナー受講料領収書（宛名右縦書き・金額左下） 一般社団法人テスト経営研究会 研修費" id="V100"><header><h2>V100<span>セミナー受講料領収書（宛名右縦書き・金額左下）</span></h2><span class="badge ">評価項目は期待値と一致</span></header><div class="columns"><a class="original" href="../../../samples/receipts-100-v2/individual/V100.pdf" target="_blank" rel="noreferrer"><img src="../../../samples/receipts-100-v2/thumbnails/V100.jpg" alt="セミナー受講料領収書（宛名右縦書き・金額左下）の架空原本" loading="lazy"><span>原本PDFを拡大 ↗</span></a><section><h3>読み取った文字・数字</h3><dl><dt>日付</dt><dd>2025-05-17</dd><dt>支払先</dt><dd>一般社団法人テスト経営研究会</dd><dt>金額</dt><dd class="amount">16,500円</dd></dl><p>中小企業のための電子帳簿実務講座（基礎編）受講</p><p class="tax">記載消費税：1,500円<br>原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。</p><details><summary>OCR本文を開く</summary><pre>受講料領収書 発行日 令和7年5月17日
+株
+No. S-0517-022
+式
+会
+講座名 中小企業のための電子帳簿実務講座（基礎編）
+社
+開催日 令和7年5月17日（土）13:30〜16:30
+架
+会場 テスト市架空町 市民ホール 第2研修室
+空
+受講者 架空 花子 様（1名） 設
+受講料 15,000円 ＋ 消費税（10%）1,500円 計
+お支払方法 開催当日 受付にて現金 御
+中
+上記の金額を受講料として正に領収いたしました。
+一般社団法人テスト経営研究会
+領収金額 研
+テスト市架空町6-1-4
+究
+登録番号 T0000000000000
+￥16,500 事務局 電話 000-0000-0000
+（税込 うち消費税等 1,500円）
+架空テスト
+
+[縦組み文字列]
+株式会社架空設計御中</pre></details></section><section><h3>勘定科目の候補</h3><p class="account">研修費</p><p>扱い：暫定提案</p><p>研修費の暫定候補です。業務用途・事業割合・支払元は未確認です。</p><details><summary>期待値・差異を見る</summary><dl><dt>期待する日付</dt><dd>2025-05-17</dd><dt>期待する支払先</dt><dd>一般社団法人テスト経営研究会</dd><dt>期待する金額</dt><dd>16,500円</dd><dt>許容する科目</dt><dd>研修費 / 教育研修費</dd><dt>期待する扱い</dt><dd>暫定提案</dd></dl><p>評価項目は期待値と一致。</p></details></section></div></article><footer>このページは保存済みの架空データの検証記録です。ここから領収書をアップロードしたり、外部AIを実行したりする機能はありません。金額・科目・用途は本人が確認し、税務上の最終判断は税理士へ確認してください。</footer></main><script>const cards=[...document.querySelectorAll('.case')],search=document.querySelector('#search'),only=document.querySelector('#differences'),count=document.querySelector('#count');function filter(){const q=search.value.normalize('NFKC').toLowerCase().trim();let n=0;for(const card of cards){const show=(!only.checked||card.dataset.difference==='true')&&card.dataset.search.normalize('NFKC').toLowerCase().includes(q);card.hidden=!show;if(show)n++;}count.textContent=n+'件 / 100件';}search.addEventListener('input',filter);only.addEventListener('change',filter);</script></body></html>
