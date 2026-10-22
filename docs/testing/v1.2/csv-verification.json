@@ -1,0 +1,86 @@
+{
+  "scenario": "架空の免税個人事業主。6件を原本の期待値で手動確認した出力検証。OCR・AIの正答率とは別集計。",
+  "records": [
+    {
+      "case_id": "V001",
+      "receipt_id": "3a649d0dc18241b58f536a460faab6a8",
+      "business": 1760,
+      "private": 0
+    },
+    {
+      "case_id": "V021",
+      "receipt_id": "34ead48c4d4043399d283cd4ab8cbe36",
+      "business": 3280,
+      "private": 0
+    },
+    {
+      "case_id": "V005",
+      "receipt_id": "5bc212032f594977a35dd02f704e133d",
+      "business": 11008,
+      "private": 0
+    },
+    {
+      "case_id": "V042",
+      "receipt_id": "4d0e139971844524937bf064613b0d9f",
+      "business": 2219,
+      "private": 2218
+    },
+    {
+      "case_id": "V061",
+      "receipt_id": "3796ed11626f44028fe9a7e62517ce04",
+      "business": 187330,
+      "private": 0
+    },
+    {
+      "case_id": "V004",
+      "receipt_id": "e60b8ca14c854368be45e51980996698",
+      "business": 91280,
+      "private": 0
+    }
+  ],
+  "expected_gross": 299095,
+  "exports": [
+    {
+      "profile": "generic",
+      "file": "qa-exempt-generic-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "2edaa31e4549a17b733707cdfda47c1ef4a53e813999529dee31366fdf395598"
+    },
+    {
+      "profile": "freee",
+      "file": "qa-exempt-freee-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "70ab4fd09b8e274caecfd048700d46b656f340bd0f005248680147a4cf1d0510"
+    },
+    {
+      "profile": "mf",
+      "file": "qa-exempt-mf-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "7e66664ca75aca3a8cb83a786d91289566b46963962b6adf419c6a86b33afeaa"
+    },
+    {
+      "profile": "yayoi",
+      "file": "qa-exempt-yayoi-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "cp932",
+      "sha256": "93b696c933cf20e63a480fe08c2fea210c34829197e8c9e444e12ed7d0291617"
+    }
+  ],
+  "unit": "JPY",
+  "source": "actual /api/receipts, /save, /export-preview, /export endpoints; test client; workers disabled"
+}

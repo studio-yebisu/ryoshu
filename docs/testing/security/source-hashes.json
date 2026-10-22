@@ -126,5 +126,11 @@
     "web/style.css"
   ],
   "scope": "Frozen100 inference bytes stay immutable. Distribution snapshot includes later protection/restore/UI/launcher changes and deterministic Git text line endings. OCR extraction and semantic-classifier algorithm are unchanged. CI verifies distributed bytes separately.",
-  "snapshot_hashing": "Git canonical blob SHA-256: CRLF->LF for text, original bytes for explicit -text/binary per .gitattributes. Frozen inference hashes remain exact observed bytes. This handles CRLF Windows PS checkout and LF git archive without claiming a code change."
+  "snapshot_hashing": "Git canonical blob SHA-256: CRLF->LF for text, original bytes for explicit -text/binary per .gitattributes. Frozen inference hashes remain exact observed bytes. This handles CRLF Windows PS checkout and LF git archive without claiming a code change.",
+  "historical_source_archive": {
+    "file": "source-v1.1.0.zip",
+    "sha256": "e8907394d21c635eb1058a01ec873b8ccff971f2a8f1c767cf037bb540a2a883",
+    "commit": "1fed7ed649a1f54407e38f8ac90289b1519ed39c",
+    "scope": "Exact canonical Git blobs of current_snapshot from the released v1.1.0. Later versions verify this archive rather than claiming these historical tests exercised their changed sources."
+  }
 }

@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "app_version": "1.2.0",
+  "scope": "Windows local regression on the corrected runtime. Separate from fresh100 OCR/localAI and browser replay checks.",
+  "source_commit": "e47c049f9314a303065aeea4b5c11ca12e249b6d",
+  "recorded_at": "2026-10-22T12:21:09.511356+00:00",
+  "python_full": {
+    "passed": 237,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 152.675,
+    "private_junit_sha256": "13f483a3dfdd6ba476bd2fa94ad2ad256f45cd99a590fe3064da694e83193bf3",
+    "modules": {
+      "tests.test_audit_run": 1,
+      "tests.test_bulk_import": 11,
+      "tests.test_catalog": 13,
+      "tests.test_database_protection": 7,
+      "tests.test_encryption_migration_files": 2,
+      "tests.test_exports": 14,
+      "tests.test_extraction": 26,
+      "tests.test_launchers": 6,
+      "tests.test_ledger": 13,
+      "tests.test_ledger_workflow": 4,
+      "tests.test_local_model_guard": 4,
+      "tests.test_privacy": 1,
+      "tests.test_protection": 13,
+      "tests.test_residential_rent": 10,
+      "tests.test_restore": 12,
+      "tests.test_restore_final_regressions": 11,
+      "tests.test_retained_evidence": 4,
+      "tests.test_security_guards": 3,
+      "tests.test_security_recovery_regressions": 6,
+      "tests.test_session_security": 4,
+      "tests.test_tax_scope": 24,
+      "tests.test_tax_scope_review": 25,
+      "tests.test_v1_quality": 17,
+      "tests.test_v1_workflow": 6
+    }
+  },
+  "javascript": {
+    "passed": 3,
+    "scope": "node --test tests/import-ui.test.cjs; plus app/import/security syntax checks"
+  },
+  "independent_review_cases": {
+    "count": 25,
+    "file": "../../../tests/test_tax_scope_review.py",
+    "scope": "Independently written counterexamples reproduced failures before fixes and now included in the full suite."
+  }
+}

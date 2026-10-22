@@ -72,7 +72,8 @@ def test_recipient_marker_does_not_become_issuer_option():
 
 
 def test_tax_evidence_is_not_added_twice_for_stubs_or_ocr_retries():
-    assert printed_tax('消費税10% 150円\n消費税10% 150円')==150
+    assert printed_tax('消費税10% 150円\n消費税10% 150円') is None
+    assert printed_tax('合計1,650円\n消費税10% 150円\n消費税10% 150円',total=1650)==150
     assert printed_tax('8%内消費税132円\n10%内消費税181円',mixed=True) is None
     assert printed_tax('消費税合計313円\n8%内消費税132円\n10%内消費税181円',mixed=True)==313
 

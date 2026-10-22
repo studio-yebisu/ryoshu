@@ -1,0 +1,102 @@
+{
+  "scope": "Development review of public source and fictional receipt text only; no external model integration exists in the app runtime.",
+  "reviews": [
+    {
+      "area": "UI/UX",
+      "stage": "plan",
+      "requested_model": "claude-opus-5-5",
+      "confirmed_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "bd822ed64bc71377bd890ea9292358304497eac4925c1049baf75103bbb7727f",
+      "scope": "Text/source consultation only; no browser or visual review by Opus."
+    },
+    {
+      "area": "UI/UX",
+      "stage": "review",
+      "requested_model": "claude-opus-5-5",
+      "confirmed_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "dde5f3ad0d8e8717ee308777b6f39ca6346cdb7f86a9fa259d169dc67664c255",
+      "scope": "Text/source consultation only; no browser or visual review by Opus."
+    },
+    {
+      "area": "UI/UX",
+      "stage": "closure",
+      "requested_model": "claude-opus-5-5",
+      "confirmed_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "b9042d5411ef9d0663f8e464897ff1c7c277964bf45479dcd399c9bacf7fa25c",
+      "scope": "Text/source consultation only; no browser or visual review by Opus."
+    },
+    {
+      "area": "tax extraction / document annotation",
+      "stage": "review",
+      "requested_model": "claude-opus-5-5",
+      "confirmed_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "a55b6f0a57fb0d06d93e003ac2e8aaeea7c8c216fd8984fe552cb0f1ba34ef8d",
+      "reviewed_raw_source_sha256": {
+        "receipt_ledger/extraction.py": "a6432721cedc8ba23c55fb07e2e2769b028399b2a800cf4d68ad804e7fa63f5d",
+        "receipt_ledger/semantic.py": "a89805329ccd6141c61ec1713d22f6696bc8a11902b54a3488e7b500feded232",
+        "receipt_ledger/pipeline.py": "cdda304ea14b6540705bfa59f6729c52ad2fbf9386c681be17ddcac000de6b7d",
+        "tests/test_tax_scope.py": "edc440c3c98ae738477113ee82e4f9104c4bf269b297c28658d200bf9d83beaa"
+      },
+      "scope": "Source-only. No tools or tests executed by reviewer; actual OCR/AI, browser and regressions are separate."
+    },
+    {
+      "area": "tax extraction / document annotation",
+      "stage": "closure",
+      "requested_model": "claude-opus-5-5",
+      "confirmed_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "ab56b39e02a1897fb10e29f1354e074bdf65fc547f81998aa5ccbfe3f162d2ff",
+      "reviewed_raw_source_sha256": {
+        "receipt_ledger/extraction.py": "ebea624fe38d5254612e89723995d1a88e09be878c336c930c0b3d3c7cb04dbc",
+        "receipt_ledger/semantic.py": "30302bbf2435afb816e39244c5729279a4eb02509815ab03ec53cf2ea48a94ee",
+        "receipt_ledger/pipeline.py": "cdda304ea14b6540705bfa59f6729c52ad2fbf9386c681be17ddcac000de6b7d",
+        "tests/test_tax_scope.py": "42b27207db1e0eed6b616ef07be5d1249944e503848bb0319c32c1448d2e8690",
+        "tests/test_tax_scope_review.py": "a025d035098add0d5fe59264a94f9d602187d7feae1b8e0ff364bca0dc5aa8c8"
+      },
+      "scope": "Source-only. No tools or tests executed by reviewer; actual OCR/AI, browser and regressions are separate."
+    }
+  ],
+  "ui_findings": {
+    "P2-1": "Fixed beginImport results flow and preserved CSV period",
+    "P2-2": "Fixed all-period control via aria-pressed and secondary selection style",
+    "P2-3": "Fixed period display in ledger count, same visible/read label context",
+    "P2-4": "Fixed desktop nav links align-self stretch to full56px header",
+    "P2-5": "Fixed initial empty pending badge"
+  },
+  "ui_closure": "Opus judged all5 resolved in provided source, no new P1/P2. Browser tests are separate.",
+  "ui_after_closure": "Implemented low-risk P3 source cleanups: visually-hidden pending-count words instead of forbidden aria-label on generic span; removed misleading generic context aria-label; optional null guard; removed unused summary-grid update. The pending count within month was independently corrected for review-before-ledger mode. These later small edits were not a new blanket-model review.",
+  "backend_disposition": "All original and closure findings were reproduced with independent regression cases before fixes. Source fixes and execution results are recorded in tests.json; the final backend correction was verified by tests, not a further blanket model approval.",
+  "backend_cases": [
+    "contract/component/current-payment scope",
+    "tax summary excluded from gross",
+    "nonVAT tax and tax bases",
+    "tax before later gross/current installment",
+    "mixed-rate printed aggregate",
+    "cash tender/change context",
+    "external tax notation",
+    "same-line gross and tax summary",
+    "preserve bare sample/test item names"
+  ],
+  "additional_visual_review": {
+    "status": "7 screenshots reviewed; no visible P1/P2 found",
+    "scope": "Static fictional replay screenshots, no interactive or fresh100 review by this reviewer",
+    "p3": [
+      "Completed import card still occupies about140px on home",
+      "Tall original preview has unused space to its right"
+    ]
+  },
+  "kimi_current_request": "Both configured KimiK3 agent routes rejected the account/model combination before executing. No current Kimi review is claimed; earlier v1.1 reviews remain historical evidence.",
+  "design_sources": {
+    "official": "https://github.com/freee/vibes/tree/94af08a3974e22d7629baa7a0c856ad2d9270aa2",
+    "unofficial": "https://github.com/kzhrknt/awesome-design-md-jp/blob/707b40b68f534f7715a97077e5fb228d70859a85/design-md/freee/DESIGN.md"
+  }
+}

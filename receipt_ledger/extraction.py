@@ -55,23 +55,157 @@ def amount_on_line(line):
     return candidates[0] if candidates and len(set(candidates))==1 else None
 
 
+TAX_LABEL = re.compile(r"(?:(?:合計|総額)\s*)?(?:うち|内)?(?:消費税(?:等|額)?|内税(?:額)?|外税(?:額)?|税額)(?:\s*(?:の)?(?:合計|総額))?")
+TAX_RATE = re.compile(r"(?<![\d.])(8|10)\s*[%％]")
+
+
+def _tax_scope_amount(text):
+    """The last monetary anchor, excluding rates, quantities and dates."""
+    if re.search(r'お預[りか]|お釣|釣銭|おつり',text):return None
+    values=[]
+    for value,start,end in money_tokens(text):
+        before=text[:start];after=text[end:]
+        if re.match(r'\s*(?:%|年|月|日|個|本|点|枚|名|人|台|件|部|袋|箱|L\b|回(?:目)?|[-/:])',after,re.I):continue
+        written=text[start:end]
+        if not (',' in written or re.match(r'\s*円',after) or re.search(r'[¥￥$]\s*$',before)
+                or re.search(r'合計|総額|金額|税抜|小計|対象|領収|受領|入金|支払|振込',before)):
+            continue
+        values.append((value,start,end))
+    if not values:return None
+    value,start,end=values[-1]
+    prefix=text[values[-2][2] if len(values)>1 else 0:start]
+    kind='taxable' if re.search(r'(?<!非)課税対象|(?<!非)課税額|(?:8|10)\s*%\s*対象',prefix) else 'net' if re.search(r'税抜|小計',prefix) else 'gross' if re.search(r'合計|総額|金額|領収|受領|入金|支払|振込',prefix) else 'component'
+    return {'value':value,'kind':kind,'current':bool(re.search(r'今回.*(?:領収|受領|入金|支払|決済)',prefix))}
+
+
+def printed_tax(text, mixed=False, total=None):
+    """Read an existing tax amount only when its scope is the selected receipt.
+
+    Equal amounts can be separate line taxes. They are not a document total just
+    because a set happens to contain one value. Reconciliation below only checks
+    whether repeated observations describe the same total; it never invents tax.
+    """
+    records=[]
+    normalized=unicodedata.normalize('NFKC',text)
+    lines=normalized.splitlines()
+    # Repeated section headings identify component scope even when a tax label
+    # is on a later line. The stem is arbitrary; no issuer/item vocabulary is used.
+    heading=re.compile(r'^\s*([^\dA-Za-z¥￥$%()\n]+?)([A-Z]|\d{1,3})\s*(?:\([^)]*\))?\s*$')
+    headings={}
+    for line in lines:
+        tax=TAX_LABEL.search(line)
+        for possible in [line,line[:tax.start()] if tax else '']:
+            match=heading.fullmatch(possible)
+            if match:headings.setdefault(match[1].strip(),set()).add(match[2])
+    section_stems={stem for stem,ids in headings.items() if len(ids)>1}
+    deductions=set()
+    for line in lines:
+        label=re.search(r'源泉(?:徴収(?:税額)?|所得税)',line)
+        if label:
+            deduction=_tax_scope_amount(line[label.end():])
+            if deduction and deduction['kind']!='net':deductions.add(deduction['value'])
+    rates={int(rate) for rate in TAX_RATE.findall(normalized)} or {8,10}
+    def matches_gross(tax,gross):
+        return any(abs(tax*(100+rate)-gross*rate)<=100+rate for rate in rates)
+    def adjusted(gross):
+        return total is not None and (gross==total or any(gross-deduction==total for deduction in deductions))
+    context=None;in_section=False;anchors=[]
+    for line_index,line in enumerate(lines):
+        match=heading.fullmatch(line)
+        if match and match[1].strip() in section_stems:in_section=True;context=None
+        labels=list(TAX_LABEL.finditer(line))
+        previous_fields=[]
+        for index,label in enumerate(labels):
+            prefix=line[:label.start()]
+            for start,end in previous_fields:prefix=prefix[:start]+' '*(end-start)+prefix[end:]
+            if not re.search(r'消費税|内税|外税',label.group()) and re.search(r'[\w一-龥ぁ-んァ-ヶ]\s*$',prefix) and not re.search(r'消費\s*$',prefix):
+                continue
+            tail=line[label.end():labels[index+1].start() if index+1<len(labels) else len(line)]
+            if re.match(r'\s*(?:対象|課税)',tail):continue
+            # A parenthetical description can contain the taxable gross, not the
+            # tax: 「うち消費税（手数料税込660円の内数）60円」.
+            annotation=re.match(r'^\s*[:：]?\s*\(([^()]*)\)',tail)
+            offset=0
+            if annotation and re.search(r'%|内数|税率|税込|税抜|対象',annotation[1]):
+                offset=annotation.end();tail=tail[offset:]
+            tail=re.split(r'税(?:込|抜)(?:合計|総額|金額)|(?<!税)(?:合計|総額)',tail,maxsplit=1)[0]
+            amount=amount_on_line(tail)
+            if amount is None:continue
+            amount_token=next(((start,end) for value,start,end in money_tokens(tail) if value==amount and not re.match(r'\s*%',tail[end:])),None)
+            if amount_token:previous_fields.append((label.start(),label.end()+offset+amount_token[1]))
+            if total is not None and amount>=total:continue
+            prefix_heading=heading.fullmatch(prefix)
+            component_header=bool(prefix_heading and prefix_heading[1].strip() in section_stems)
+            if component_header:in_section=True;context=None
+            own_anchor=_tax_scope_amount(prefix)
+            anchor=own_anchor or context
+            current=bool(anchor and anchor['current'] and anchor['value']==total)
+            other=(in_section or component_header) and not current
+            if anchor and total is not None and anchor['value']!=total:
+                # A rate-specific taxable base can exclude explicitly non-taxable
+                # charges; a gross/net item or entire contract is a different scope
+                # unless the selected payment and printed deductions reconcile.
+                compatible=anchor['kind']=='taxable' or adjusted(anchor['value']) or adjusted(anchor['value']+amount)
+                if not compatible:other=True
+            if not own_anchor and not in_section and total is not None and matches_gross(amount,total):other=False
+            local_rate=bool(TAX_RATE.search(prefix+label.group()+tail))
+            aggregate=bool(re.search(r'合計|総額',label.group())) or bool(anchor and anchor['kind']=='gross' and adjusted(anchor['value']) and not local_rate)
+            records.append({'amount':amount,'aggregate':aggregate,'current':current,'other_scope':other,
+                            'line':line_index,'unanchored':anchor is None,'local_rate':local_rate})
+        # Tax values are not monetary scope anchors for subsequent lines.
+        without_tax=line
+        for start,end in previous_fields:without_tax=without_tax[:start]+' '*(end-start)+without_tax[end:]
+        if labels and not previous_fields:without_tax=line[:labels[0].start()]
+        anchor=_tax_scope_amount(without_tax)
+        if anchor:
+            anchors.append((line_index,anchor))
+            context=anchor
+            if anchor['value']==total and anchor['kind']=='gross':in_section=False
+    if not records:return None
+    for record in records:
+        if not record['unanchored'] or total is None:continue
+        following=next((anchor for line_index,anchor in anchors if line_index>=record['line']),None)
+        if following:
+            compatible=following['kind']=='taxable' or adjusted(following['value']) or adjusted(following['value']+record['amount'])
+            if not compatible:record['other_scope']=True
+            elif not record['other_scope']:
+                record['aggregate']|=following['kind']=='gross' and adjusted(following['value']) and not record['local_rate']
+                record['current']|=following['current'] and following['value']==total
+        elif not matches_gross(record['amount'],total):record['other_scope']=True
+    records=[r for r in records if not r['other_scope']]
+    if not records:return None
+    current=[r['amount'] for r in records if r['current']]
+    if current:return current[0] if len(set(current))==1 else None
+    aggregates=[r['amount'] for r in records if r['aggregate']]
+    if aggregates:return aggregates[0] if len(set(aggregates))==1 else None
+    if mixed:return None
+    if len(records)==1:return records[0]['amount']
+    values={r['amount'] for r in records}
+    if len(values)!=1 or any(r['other_scope'] for r in records) or total is None:return None
+    amount=next(iter(values))
+    # Two copies of an entire receipt/stub may repeat its tax. A per-line tax
+    # such as 653+653 on a discounted invoice does not reconcile with its gross.
+    return amount if matches_gross(amount,total) else None
+
+
 def total_candidates(text):
     lines=[l.strip() for l in unicodedata.normalize('NFKC',text).splitlines() if l.strip()]
     found=[]
     for i,line in enumerate(lines):
         key=compact(line)
-        matches=list(TOTAL_LABEL.finditer(key));match=matches[-1] if matches else None
+        tax_labels=list(TAX_LABEL.finditer(key))
+        matches=[match for match in TOTAL_LABEL.finditer(key) if not any(tax.start()<=match.start()<tax.end() for tax in tax_labels)]
+        match=matches[-1] if matches else None
         if not match:continue
         before=key[max(0,match.start()-12):match.start()]
         if re.search(r'小計$|税抜$|消費税$|課税(?:分|対象)?$|対象(?:額)?$|前回|繰越',before):continue
         if re.search('返品について|返品の際|返品規定',key):continue
-        tail=key[match.end():]
+        tax_start=next((tax.start() for tax in tax_labels if tax.start()>=match.end()),len(key))
+        tail=key[match.end():tax_start]
         # Avoid taking a reference conversion of a foreign currency as a yen payment.
         if re.search(r"usd|eur|参考|換算",key):continue
         # Multiple monetary fields on one row: use the suffix belonging to this label.
-        label=match
-        normalized_line=unicodedata.normalize('NFKC',line)
-        value=amount_on_line(normalized_line) if label is None else amount_on_line(compact(line)[label.end():])
+        value=amount_on_line(tail)
         evidence=line
         if value is None:
             for offset in [1,-1,2]:

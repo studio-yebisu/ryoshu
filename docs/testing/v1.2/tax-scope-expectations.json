@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "scope": "独立した税額単位の回帰期待値。100件のうち税額の数値と範囲を点検したケースのみ。未評価を一致に加算しない。",
+  "created_before_new100": true,
+  "fixture_manifest_sha256": "1b9e40688cc730724328923c7f3b5ce1cd7941fb102fdf369dd58968d3b151c7",
+  "sources": [
+    "v1.1.0実行時OCR本文の全税額行",
+    "V013/V055/V068/V090/V098の元PDFをPDFiumで描画して目視確認"
+  ],
+  "policy": "印字された現在の取引範囲の税額を保持する。税額の計算・未印字合計の推測はしない。数値の一致、空欄の一致、印字額を読めず空欄にした保留、異なる数値の採用を別集計。",
+  "excluded_from_normal_tax": [
+    "V019",
+    "V080",
+    "V097",
+    "V038",
+    "V084"
+  ],
+  "cases": [
+    {
+      "case_id": "V001",
+      "expected_tax_amount": 160,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V002",
+      "expected_tax_amount": null,
+      "basis": "税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。"
+    },
+    {
+      "case_id": "V003",
+      "expected_tax_amount": 390,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V004",
+      "expected_tax_amount": 8298,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V005",
+      "expected_tax_amount": 1000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V006",
+      "expected_tax_amount": 818,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V008",
+      "expected_tax_amount": 168,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V009",
+      "expected_tax_amount": null,
+      "basis": "税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。"
+    },
+    {
+      "case_id": "V010",
+      "expected_tax_amount": 954,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V011",
+      "expected_tax_amount": 600,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V012",
+      "expected_tax_amount": 261,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V013",
+      "expected_tax_amount": 553,
+      "basis": "原本画像の内消費税10%553。OCRでは税ラベルが崩れているため空欄は安全側の保留として別集計。"
+    },
+    {
+      "case_id": "V014",
+      "expected_tax_amount": 5454,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V015",
+      "expected_tax_amount": 7440,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V016",
+      "expected_tax_amount": 691,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V017",
+      "expected_tax_amount": 153,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V018",
+      "expected_tax_amount": 297,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V020",
+      "expected_tax_amount": null,
+      "basis": "税込・税率等の記載はあるが、全体の税額の印字がない。"
+    },
+    {
+      "case_id": "V021",
+      "expected_tax_amount": null,
+      "basis": "税込・税率等の記載はあるが、全体の税額の印字がない。"
+    },
+    {
+      "case_id": "V022",
+      "expected_tax_amount": null,
+      "basis": "税込・税率等の記載はあるが、全体の税額の印字がない。"
+    },
+    {
+      "case_id": "V023",
+      "expected_tax_amount": null,
+      "basis": "税込・税率等の記載はあるが、全体の税額の印字がない。"
+    },
+    {
+      "case_id": "V032",
+      "expected_tax_amount": 6000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V033",
+      "expected_tax_amount": 3000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V040",
+      "expected_tax_amount": 8000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V041",
+      "expected_tax_amount": 2360,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V042",
+      "expected_tax_amount": 403,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V044",
+      "expected_tax_amount": null,
+      "basis": "2回線それぞれの消費税653円のみ。割引後の全体の税額は印字なし。足し算や逆算で税額を作らない。"
+    },
+    {
+      "case_id": "V045",
+      "expected_tax_amount": null,
+      "basis": "税込・税率等の記載はあるが、全体の税額の印字がない。"
+    },
+    {
+      "case_id": "V046",
+      "expected_tax_amount": 2742,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V048",
+      "expected_tax_amount": 62000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V049",
+      "expected_tax_amount": 50000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V051",
+      "expected_tax_amount": 15000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V055",
+      "expected_tax_amount": 60,
+      "basis": "原本に手数料税込660円の内数として消費税60円。括弧内660は税額ではない。"
+    },
+    {
+      "case_id": "V061",
+      "expected_tax_amount": 17030,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V062",
+      "expected_tax_amount": 5900,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V063",
+      "expected_tax_amount": 3580,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V064",
+      "expected_tax_amount": 25830,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V065",
+      "expected_tax_amount": 24900,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V066",
+      "expected_tax_amount": 6690,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V067",
+      "expected_tax_amount": 26480,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V068",
+      "expected_tax_amount": 122000,
+      "basis": "原本の全体集計欄：税抜合計1220000、消費税10%122000、税込合計1342000。構成比14.8%は税率ではない。"
+    },
+    {
+      "case_id": "V069",
+      "expected_tax_amount": 20940,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V070",
+      "expected_tax_amount": 670,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V071",
+      "expected_tax_amount": 53390,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V072",
+      "expected_tax_amount": 40000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V073",
+      "expected_tax_amount": 3600,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V076",
+      "expected_tax_amount": null,
+      "basis": "税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。"
+    },
+    {
+      "case_id": "V077",
+      "expected_tax_amount": 28200,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V081",
+      "expected_tax_amount": 810,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V082",
+      "expected_tax_amount": 1450,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V083",
+      "expected_tax_amount": 550,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V085",
+      "expected_tax_amount": 127,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V086",
+      "expected_tax_amount": 350,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V089",
+      "expected_tax_amount": null,
+      "basis": "税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。"
+    },
+    {
+      "case_id": "V090",
+      "expected_tax_amount": 10000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V091",
+      "expected_tax_amount": 2500,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V092",
+      "expected_tax_amount": 98,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V093",
+      "expected_tax_amount": 12000,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V094",
+      "expected_tax_amount": 13646,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V096",
+      "expected_tax_amount": 10800,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    },
+    {
+      "case_id": "V098",
+      "expected_tax_amount": 5000,
+      "basis": "原本の今回領収分55000の内訳に消費税5000。契約全額88000の税8000とは別。"
+    },
+    {
+      "case_id": "V099",
+      "expected_tax_amount": null,
+      "basis": "税率別の内訳税額のみ。書類全体の税額合計は明記されていないため、加算せず空欄。"
+    },
+    {
+      "case_id": "V100",
+      "expected_tax_amount": 1500,
+      "basis": "原文の税ラベルと金額の対応を独立に確認。金額から計算した税額ではない。"
+    }
+  ]
+}

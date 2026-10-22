@@ -17,7 +17,7 @@ from .schemas import Draft, Suggestion
 from .pdf_runtime import serialized
 from .previews import save_preview
 from .catalog import account_key, apply_account_policies, default_accounts, resolve_account, retrieve_accounts
-from .extraction import amount_on_line, compact, document_flags, extract_total, kanji_amount, money_tokens, total_candidates, vertical_text
+from .extraction import TAX_RATE, amount_on_line, compact, document_flags, extract_total, kanji_amount, money_tokens, printed_tax, total_candidates, vertical_text
 
 Image.MAX_IMAGE_PIXELS = 25_000_000
 _converter = None
@@ -240,7 +240,7 @@ def classify(ocr: dict, business_context="", rules=None, accounts=None, policies
     return local_classify(ocr,business_context,rules,accounts,policies)
 
 
-def ground(candidate, text, accounts=None, policies=None):
+def ground(candidate, text, accounts=None, policies=None, *, tax_text=None):
     accounts=default_accounts() if accounts is None else accounts
     candidate = dict(candidate)
     notes = list(candidate.get("warnings", []))[:8]
@@ -286,11 +286,13 @@ def ground(candidate, text, accounts=None, policies=None):
     number = unicodedata.normalize("NFKC", candidate["invoice_number"])
     candidate["invoice_number"] = number if re.fullmatch(r"T\d{13}", number) and normalized(number) in normalized(text) else ""
     tax = candidate["tax_amount"]
-    tax_lines = [line for line in text.splitlines() if re.search(r"消費税|内税|税額", line)]
-    if tax is not None and (not any(tax in money_in(line) for line in tax_lines) or (candidate["total"] is not None and tax > candidate["total"])):
+    rates = set(TAX_RATE.findall(unicodedata.normalize("NFKC", text)))
+    # Auxiliary OCR/native layers are independent observations, not additional
+    # invoice lines. Validate against the same layer used for tax extraction.
+    grounded_tax=printed_tax(text if tax_text is None else tax_text,rates=={"8","10"},candidate["total"])
+    if tax is not None and (tax!=grounded_tax or (candidate["total"] is not None and tax > candidate["total"])):
         candidate["tax_amount"] = None
-        notes.append("記載消費税を確かめられないため空欄にしました")
-    rates = set(re.findall(r"(?<!\d)(8|10)\s*[%％]", unicodedata.normalize("NFKC", text)))
+        notes.append("合計金額に対応する記載消費税を確かめられないため空欄にしました")
     if candidate["tax_rate"] in ["8", "10"] and candidate["tax_rate"] not in rates:
         candidate["tax_rate"] = "unknown"
     if candidate["tax_rate"] == "mixed" and rates != {"8", "10"}:

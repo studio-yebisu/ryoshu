@@ -59,10 +59,16 @@ function stats(month = '') {
   return `<div class="summary-grid"><div class="stat-card"><div class="stat-label"><span class="stat-dot"></span>確認を待っている領収書</div><strong>${state.records.filter(isPending).length}<small>件</small></strong><div class="stat-caption">読み取り中・要再確認を含む</div></div><div class="stat-card featured"><div class="stat-label">登録済みの経費 ${month ? esc(month.replace('-','年')+'月') : '· 全期間'}</div><strong>${yen(sum.expenses)}</strong><div class="stat-caption">事業分・税込 / 資産候補を除く</div><span class="stat-icon">↗</span></div><div class="stat-card"><div class="stat-label">帳簿に登録した領収書</div><strong>${sum.count}<small>件</small></strong><div class="stat-caption">${sum.assets ? '資産候補 ' + yen(sum.assets) + ' を含む' : '確認した明細だけを集計'}</div></div></div>`;
 }
 
+function renderPendingCount(){
+  const count=state.records.filter(isPending).length,el=$('#pending-count');
+  el.innerHTML=count?`<span class="visually-hidden">未確認 </span>${count}<span class="visually-hidden">件</span>`:'';
+  el.title=`未確認 ${count}件`;
+}
 function render() {
   rememberLedgerInputs();
-  $$('.nav-item').forEach(el => el.classList.toggle('active',el.dataset.view===state.view));
-  $('#pending-count').textContent = state.records.filter(isPending).length;
+  document.body.dataset.view=state.view;
+  $$('.nav-item').forEach(el => {const active=el.dataset.view===state.view||(state.view==='inbox'&&el.dataset.view==='results');el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
+  renderPendingCount();
   const titles = {home:['領収書を読み取る','PDFや画像をまとめて読み込み、CSVに。'],results:['読み取り結果','原本・読み取った内容・勘定科目を見比べられます。'],inbox:['領収書の確認','帳簿の明細を原本と見比べて、あとから確認・修正できます。'],ledger:['CSV出力','内容を確認して、使う会計ソフトの形式で保存します。'],accounts:['科目別の集計','何に、どれくらい使ったかを見渡す。'],settings:['設定・保存','事業のことと、このPCでの保存について。']};
   titles.catalog=['勘定科目一覧','科目・用途・確認ポイントを、このPCのデータベースで管理します。'];
   $('#page-title').textContent=titles[state.view][0]; $('#page-description').textContent=titles[state.view][1];
@@ -92,7 +98,7 @@ function renderResults(content, incremental=false){
   const all=orderedReceipts(state.records.filter(r=>!state.resultsOnlyPending||isPending(r))),pages=Math.max(1,Math.ceil(all.length/100));
   state.resultsPage=Math.max(0,Math.min(state.resultsPage,pages-1));
   const rows=all.slice(state.resultsPage*100,(state.resultsPage+1)*100),pending=state.records.filter(isPending).length;
-  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="120" height="156" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span>${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
+  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="96" height="128" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-content"><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</div></td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
   if(!incremental||!$('.results-table',content)){content.innerHTML=markup;return;}
   const fresh=document.createElement('div');fresh.innerHTML=markup;
   const body=$('.results-table tbody',content),nextBody=$('.results-table tbody',fresh);
@@ -221,13 +227,13 @@ function renderSource() {
   }
 }
 
-function monthControl() {return `<div class="toolbar-group"><input class="filter-input" id="month-filter" type="month" value="${esc(state.month)}" aria-label="集計する月"><button class="button small ${!state.month?'primary':''}" data-action="all-months">全期間</button></div>`;}
+function monthControl() {return `<div class="toolbar-group"><input class="filter-input" id="month-filter" type="month" value="${esc(state.month)}" aria-label="${state.view==='ledger'?'対象の期間（CSVと一覧）':'集計する月'}"><button class="button small" data-action="all-months" aria-pressed="${!state.month}">全期間</button></div>`;}
 function ledgerRows(month=state.month){
   const states=state.config.review_before_ledger?['confirmed']:['queued','processing','review','error','confirmed'];
   return state.records.filter(r=>states.includes(r.status)&&(!month||!r.draft.date||r.draft.date.startsWith(month))).sort((a,b)=>(a.draft.date||'9999').localeCompare(b.draft.date||'9999'));
 }
 function importCard(){
-  return `<section class="panel import-launch"><div><h2>領収書をまとめて取り込む</h2><p>画像・PDF・フォルダーをドロップできます。複数ページPDFの分け方も選べます。</p></div><button class="button primary" data-action="upload">ファイル・フォルダーを選ぶ</button></section>`;
+  return `<section class="panel import-launch"><div><h2>領収書をまとめて取り込む</h2><p>画像・PDF・フォルダーをドロップできます。複数ページPDFの分け方も選べます。</p></div><button class="button" data-action="upload">ファイル・フォルダーを選ぶ</button></section>`;
 }
 
 function ledgerSelection(){
@@ -241,11 +247,28 @@ function ledgerSelection(){
 }
 
 function ledgerBody(rows,all){return rows.map(r=>`<tr><td>${!busyRecord(r)&&r.status!=='confirmed'?`<input type="checkbox" data-ledger-select="${esc(r.id)}" ${state.selected.has(r.id)?'checked':''} aria-label="${esc(r.draft.merchant||r.original_name)}を選択">`:''}</td><td>${badge(r.status)}${r.error?'<span class="table-sub">読取エラーあり</span>':''}</td><td>${esc(r.draft.date||'未確定')}</td><td><div class="table-main">${esc(r.draft.merchant||r.original_name)}</div><div class="table-sub">${esc(r.draft.description||r.draft.purpose||r.error)}</div>${r.possible_duplicate_ids?.length?'<span class="badge warning">重複の可能性</span>':''}</td><td><span class="account-chip">${esc(r.draft.account||'未確定')}</span></td><td class="num">${yen(r.draft.total)}</td><td class="num">${r.draft.business_percent==null?'未確認':r.draft.business_percent+'%'}</td><td class="num table-main">${r.draft.business_percent==null||r.draft.total==null?'—':yen(r.business_amount)}</td><td><button class="text-button" data-open-receipt="${esc(r.id)}">${r.status==='confirmed'?'詳細・修正':'確認・修正'} ↗</button></td></tr>`).join('')||'<tr><td colspan="9" class="empty-table">'+(all.length?'条件に合う明細がありません。検索や期間を変えてください。':'領収書を取り込むと、未確認の帳簿がここに並びます。')+'</td></tr>';}
-function ledgerPaging(pages){return pages>1?`<div class="pagination"><button class="button small" data-action="ledger-prev" ${state.ledgerPage?'':'disabled'}>前の100件</button><span>${state.ledgerPage+1} / ${pages}ページ</span><button class="button small" data-action="ledger-next" ${state.ledgerPage<pages-1?'':'disabled'}>次の100件</button></div>`:'';}
+function ledgerCountLabel(rows){return `${state.month||'全期間'} / ${rows.length}件${rows.length>100?' / 100件ずつ表示':''}`;}
+function ledgerPaging(pages){return pages>1?`<div class="pagination"><button class="button small" data-action="ledger-prev" ${state.ledgerPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.ledgerPage+1} / ${pages}ページ</span><button class="button small" data-action="ledger-next" ${state.ledgerPage<pages-1?'':'disabled'}>次の100件</button></div>`:'';}
 
+function refreshMonth(){
+  if(state.view!=='ledger'){render();return;}
+  const input=$('#month-filter');if(input&&input.value!==state.month)input.value=state.month;
+  $('[data-action="all-months"]')?.setAttribute('aria-pressed',String(!state.month));
+  const context=$('#main-content .ledger-context');if(context)context.outerHTML=ledgerContext();
+  updateLedgerTable(true);updateExportPreview();
+}
+function focusPager(selector,action){
+  const pager=$(selector);if(!pager)return;
+  const button=$(`[data-action="${action}"]`,pager),target=button&&!button.disabled?button:$('span',pager);
+  target?.focus({preventScroll:true});
+}
+function ledgerContext(){
+  const rows=ledgerRows(state.month),pending=state.records.filter(r=>isPending(r)&&(!state.month||!r.draft.date||r.draft.date.startsWith(state.month))).length;
+  return `<div class="ledger-context"><span>帳簿の明細 <strong>${rows.length}件</strong></span><span>未確認 <strong>${pending}件</strong></span><span>確認済みの経費 <strong>${yen(summaryFor(state.month).expenses)}</strong><small>事業分・税込、資産候補を除く</small></span></div>`;
+}
 function refreshLedgerDisplay(){
   if(state.view!=='ledger')return;
-  const summary=$('#main-content .summary-grid');if(summary)summary.outerHTML=stats(state.month);
+  const context=$('#main-content .ledger-context');if(context)context.outerHTML=ledgerContext();
   if(!state.searchComposing&&!state.selected.size){updateLedgerTable();state.ledgerNeedsRefresh=false;}else state.ledgerNeedsRefresh=true;
 }
 
@@ -253,7 +276,7 @@ function updateLedgerTable(resetScroll=false){
   if(state.view!=='ledger'||!$('#ledger-rows'))return;
   const {all,filtered,pages,rows,selectable}=ledgerSelection(),table=$('#ledger-table'),top=table.scrollTop,left=table.scrollLeft;
   $('#ledger-rows').innerHTML=ledgerBody(rows,all);
-  $('#ledger-count').textContent=`${filtered.length}件${filtered.length>100?' / 100件ずつ表示':''}`;
+  $('#ledger-count').textContent=ledgerCountLabel(filtered);
   $('#ledger-page-controls').innerHTML=ledgerPaging(pages);
   $('#select-ledger-all').disabled=!selectable.length;
   $('#select-ledger-all').checked=!!selectable.length&&selectable.every(r=>state.selected.has(r.id));
@@ -263,7 +286,7 @@ function updateLedgerTable(resetScroll=false){
 function renderLedger(content) {
   if(!state.records.length){renderInbox(content);return;}
   const {all,filtered,pages,rows,selectable}=ledgerSelection();
-  content.innerHTML=importCard()+stats(state.month)+`<section class="panel"><div class="table-toolbar"><div class="toolbar-group">${monthControl()}<input id="ledger-search" class="filter-input" type="search" value="${esc(state.ledgerSearch)}" placeholder="支払先・科目・ファイル名で検索" aria-label="帳簿を検索"></div><div class="toolbar-group"><select class="filter-input" id="ledger-filter" aria-label="確認状況で絞り込む"><option value="all">未確認を含むすべて</option><option value="review">未確認</option><option value="confirmed">確認済み</option><option value="error">読み取りに失敗</option><option value="excluded">対象外</option></select><span class="table-sub" id="ledger-count">${filtered.length}件${filtered.length>100?' / 100件ずつ表示':''}</span></div></div><div class="table-scroll" id="ledger-table"><table><thead><tr><th><input id="select-ledger-all" type="checkbox" aria-label="表示中の未確認明細をすべて選択" ${selectable.length?'':'disabled'} ${selectable.length&&selectable.every(r=>state.selected.has(r.id))?'checked':''}></th><th>確認状況</th><th>取引日</th><th>支払先 / 購入内容</th><th>勘定科目</th><th class="num">領収書合計</th><th class="num">事業割合</th><th class="num">事業分金額</th><th></th></tr></thead><tbody id="ledger-rows">${ledgerBody(rows,all)}</tbody></table></div><div id="ledger-page-controls">${ledgerPaging(pages)}</div></section><p class="ledger-note">未確認の金額・科目は候補です。原本を確かめてから確認済みにしてください。日付未確定の明細は、月で絞り込んでも表示します。</p><details class="panel settings-card" id="batch-review-details" ${state.selected.size||state.batchReport?'open':''}><summary id="batch-selection">選択した明細をまとめて確認（${state.selected.size}件）</summary><p>共通の用途・事業割合・支払元・税区分を、空欄だけに入力できます。入力済みの内容は保持します。</p><div class="form-row"><label class="field"><span class="field-label">共通の用途（空欄のみ）</span><input id="batch-purpose" maxlength="1000" placeholder="例：制作の業務で使用"></label><label class="field"><span class="field-label">仕事に使った割合（空欄のみ・%）</span><input id="batch-percent" type="number" min="1" max="100" placeholder="例：仕事専用なら100"><span class="field-hint">確認済みにする割合は1〜100%。全額私用の明細は「選択分を対象外にする」を使います。</span></label></div><label class="field"><span class="field-label">支払元（空欄のみ）</span><select id="batch-payment"><option value="">各明細の入力を使う</option>${Object.entries(state.config.payments).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join('')}</select></label><label class="field"><span class="field-label">会計ソフト出力用の税区分（空欄のみ・任意）</span><select id="batch-tax">${Object.entries(state.config.export_tax_choices).map(([k,v])=>`<option value="${esc(k)}">${esc(k?v:'各明細の入力を使う')}</option>`).join('')}</select><span class="field-hint">税率の混在は個別に確認します。税区分は自動では決めません。</span></label><div class="import-actions"><button class="button primary" data-action="review-ledger">選択内容を確認する</button><button class="button" data-action="exclude-selected">選択分を対象外にする</button><button class="text-button" data-action="clear-selection">選択をすべて解除</button><button class="text-button" data-action="restore-selected">対象外から戻す</button></div><div id="batch-result" aria-live="polite"></div></details>${exportPanel()}`;
+  content.innerHTML=ledgerContext()+`<section class="panel"><div class="table-toolbar"><div class="toolbar-group"><input id="ledger-search" class="filter-input" type="search" value="${esc(state.ledgerSearch)}" placeholder="支払先・科目・ファイル名で検索" aria-label="帳簿を検索"></div><div class="toolbar-group"><select class="filter-input" id="ledger-filter" aria-label="確認状況で絞り込む"><option value="all">未確認を含むすべて</option><option value="review">未確認</option><option value="confirmed">確認済み</option><option value="error">読み取りに失敗</option><option value="excluded">対象外</option></select><span class="table-sub" id="ledger-count">${esc(ledgerCountLabel(filtered))}</span></div></div><div class="table-scroll" id="ledger-table"><table><thead><tr><th><input id="select-ledger-all" type="checkbox" aria-label="表示中の未確認明細をすべて選択" ${selectable.length?'':'disabled'} ${selectable.length&&selectable.every(r=>state.selected.has(r.id))?'checked':''}></th><th>確認状況</th><th>取引日</th><th>支払先 / 購入内容</th><th>勘定科目</th><th class="num">領収書合計</th><th class="num">事業割合</th><th class="num">事業分金額</th><th></th></tr></thead><tbody id="ledger-rows">${ledgerBody(rows,all)}</tbody></table></div><div id="ledger-page-controls">${ledgerPaging(pages)}</div></section><p class="ledger-note">未確認の金額・科目は候補です。原本を確かめてから確認済みにしてください。日付未確定の明細は、月で絞り込んでも表示します。</p><details class="panel settings-card" id="batch-review-details" ${state.selected.size||state.batchReport?'open':''}><summary id="batch-selection">選択した明細をまとめて確認（${state.selected.size}件）</summary><p>共通の用途・事業割合・支払元・税区分を、空欄だけに入力できます。入力済みの内容は保持します。</p><div class="form-row"><label class="field"><span class="field-label">共通の用途（空欄のみ）</span><input id="batch-purpose" maxlength="1000" placeholder="例：制作の業務で使用"></label><label class="field"><span class="field-label">仕事に使った割合（空欄のみ・%）</span><input id="batch-percent" type="number" min="1" max="100" placeholder="例：仕事専用なら100"><span class="field-hint">確認済みにする割合は1〜100%。全額私用の明細は「選択分を対象外にする」を使います。</span></label></div><label class="field"><span class="field-label">支払元（空欄のみ）</span><select id="batch-payment"><option value="">各明細の入力を使う</option>${Object.entries(state.config.payments).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join('')}</select></label><label class="field"><span class="field-label">会計ソフト出力用の税区分（空欄のみ・任意）</span><select id="batch-tax">${Object.entries(state.config.export_tax_choices).map(([k,v])=>`<option value="${esc(k)}">${esc(k?v:'各明細の入力を使う')}</option>`).join('')}</select><span class="field-hint">税率の混在は個別に確認します。税区分は自動では決めません。</span></label><div class="import-actions"><button class="button primary" data-action="review-ledger">選択内容を確認する</button><button class="button" data-action="exclude-selected">選択分を対象外にする</button><button class="text-button" data-action="clear-selection">選択をすべて解除</button><button class="text-button" data-action="restore-selected">対象外から戻す</button></div><div id="batch-result" aria-live="polite"></div></details>${importCard()}${exportPanel()}`;
   $('#ledger-filter').value=state.ledgerFilter;
   renderBatchReport();
   if(state.batchOnlyIssues)$('#ledger-count').insertAdjacentHTML('afterend','<button class="text-button" data-action="clear-issue-filter">残った明細の絞り込みを解除</button>');
@@ -327,7 +350,7 @@ function renderBatchReport(){
 function exportPanel(){
   const profiles=state.config.export_profiles||{generic:{label:'汎用CSV'}};
   const native=state.exportProfile!=='generic';
-  return `<section class="panel export-panel" id="export-panel"><div class="export-heading"><div><span class="section-kicker">CSV出力</span><h2>帳簿をCSVファイルに出力する</h2><p>未確認を含む汎用CSVはすぐ保存できます。自分で確認後はFreee・MFクラウド・弥生などに取り込むCSVを作成できます。</p><p class="field-hint">税務処理に使う前に、税理士に最終判断を確認してください。CSV作成は税理士の承認を意味しません。</p></div><span class="export-local">このPCで作成</span></div><div class="export-controls"><label class="field"><span class="field-label">取り込み先</span><select id="export-profile">${Object.entries(profiles).map(([k,v])=>`<option value="${esc(k)}" ${k===state.exportProfile?'selected':''}>${esc(v.label)}</option>`).join('')}</select></label>${native?`<label class="field"><span class="field-label">消費税の扱い</span><select id="export-tax-mode"><option value="reviewed" ${state.exportTaxMode==='reviewed'?'selected':''}>各領収書で確認した区分を使う</option><option value="exempt" ${state.exportTaxMode==='exempt'?'selected':''}>免税事業者として全行を対象外にする</option></select><span class="field-hint">免税事業者の税込記帳では、上の「全行を対象外にする」を選ぶと、個別の税区分入力を省略できます。</span></label>`:`<label class="field"><span class="field-label">出力する内容</span><select id="export-kind"><option value="expenses" ${state.exportKind==='expenses'?'selected':''}>確認済みの経費帳</option><option value="journal" ${state.exportKind==='journal'?'selected':''}>確認済みの仕訳</option><option value="review" ${state.exportKind==='review'?'selected':''}>作成した帳簿（未確認を含む）</option></select></label>`}<div class="export-save"><button class="button primary" data-action="download-csv" id="download-csv" disabled>CSVを保存 ↓</button></div></div><p class="field-hint">${esc(profiles[state.exportProfile]?.route||'')} · ${esc(profiles[state.exportProfile]?.encoding||'UTF-8 BOM')}</p><label class="checkbox-line"><input id="export-new-only" type="checkbox" ${state.exportNewOnly?'checked':''}>この形式でCSVを作成した明細を除く（修正後の明細は含む）</label><p class="field-hint">CSVを作成した記録です。会計ソフトへの取り込み完了を示すものではありません。検索や明細のチェックはCSVの範囲を絞り込みません。</p>${exportMapPanel()}<div id="export-result" aria-live="polite"><p class="ledger-note">出力内容を確認しています…</p></div></section>`;
+  return `<section class="panel export-panel" id="export-panel"><div class="export-heading"><div><h2>CSVの形式と範囲</h2></div></div><div class="export-controls"><label class="field"><span class="field-label">取り込み先</span><select id="export-profile">${Object.entries(profiles).map(([k,v])=>`<option value="${esc(k)}" ${k===state.exportProfile?'selected':''}>${esc(v.label)}</option>`).join('')}</select></label>${native?`<label class="field"><span class="field-label">消費税の扱い</span><select id="export-tax-mode"><option value="reviewed" ${state.exportTaxMode==='reviewed'?'selected':''}>各領収書で確認した区分を使う</option><option value="exempt" ${state.exportTaxMode==='exempt'?'selected':''}>免税事業者として全行を対象外にする</option></select><span class="field-hint">免税事業者の税込記帳では、上の「全行を対象外にする」を選ぶと、個別の税区分入力を省略できます。</span></label>`:`<label class="field"><span class="field-label">出力する内容</span><select id="export-kind"><option value="expenses" ${state.exportKind==='expenses'?'selected':''}>確認済みの経費帳</option><option value="journal" ${state.exportKind==='journal'?'selected':''}>確認済みの仕訳</option><option value="review" ${state.exportKind==='review'?'selected':''}>作成した帳簿（未確認を含む）</option></select></label>`}<div class="field export-period"><span class="field-label">対象の期間</span>${monthControl()}</div><div class="export-save"><button class="button primary" data-action="download-csv" id="download-csv" disabled>CSVを保存 ↓</button></div></div><p class="field-hint">${esc(profiles[state.exportProfile]?.route||'')} · ${esc(profiles[state.exportProfile]?.encoding||'UTF-8 BOM')}</p><label class="checkbox-line"><input id="export-new-only" type="checkbox" ${state.exportNewOnly?'checked':''}>この形式でCSVを作成した明細を除く（修正後の明細は含む）</label><p class="field-hint">CSVを作成した記録です。会計ソフトへの取り込み完了を示すものではありません。検索や明細のチェックはCSVの範囲を絞り込みません。</p><p class="field-hint export-tax-note">CSV作成は税理士の承認を意味しません。</p>${exportMapPanel()}<div id="export-result" aria-live="polite"><p class="ledger-note">出力内容を確認しています…</p></div></section>`;
 }
 
 function exportMapPanel(){
@@ -453,7 +476,7 @@ let importRefreshTimer;
 function beginImport(){
   if(state.view==='inbox'&&state.drafts.size)return;
   if(state.view==='home'){renderHome();return;}
-  state.view=state.config.review_before_ledger?'inbox':'ledger';state.month='';state.ledgerFilter='all';state.ledgerSearch='';state.ledgerPage=0;render();
+  state.view=state.config.review_before_ledger?'inbox':'results';render();
 }
 async function refreshImported(){
   try{
@@ -488,7 +511,7 @@ async function retryErrors(){
 
 function schedulePoll(){clearTimeout(pollTimer);if(state.records.some(busyRecord))pollTimer=setTimeout(poll,2200);}
 async function poll(){
-  try{await loadReceipts();renderProcessing();$('#pending-count').textContent=state.records.filter(isPending).length;
+  try{await loadReceipts();renderProcessing();renderPendingCount();
     const updated=state.records.find(r=>r.id===state.active);
     if(updated&&(busyRecord(state.detail)||updated.version!==state.detail?.version)&&!state.drafts.has(state.active)){state.detail=await api('/receipts/'+state.active);if(state.view==='inbox')render();}
     else if(state.view==='inbox')renderQueue();
@@ -526,8 +549,8 @@ document.addEventListener('click',async event=>{
     if(action==='confirm-batch'){target.disabled=true;try{await reviewLedger();}finally{target.disabled=false;}return;}
     if(action==='retry-errors'){target.disabled=true;try{await retryErrors();}finally{target.disabled=false;}return;}
     if(action==='queue-prev'||action==='queue-next'){state.queuePage+=action==='queue-next'?1:-1;$('#queue-list').scrollTop=0;renderQueue();return;}
-    if(action==='ledger-prev'||action==='ledger-next'){state.ledgerPage+=action==='ledger-next'?1:-1;updateLedgerTable(true);return;}
-    if(action==='results-prev'||action==='results-next'){state.resultsPage+=action==='results-next'?1:-1;renderResults($('#main-content'));return;}
+    if(action==='ledger-prev'||action==='ledger-next'){state.ledgerPage+=action==='ledger-next'?1:-1;updateLedgerTable(true);focusPager('#ledger-page-controls .pagination',action);return;}
+    if(action==='results-prev'||action==='results-next'){state.resultsPage+=action==='results-next'?1:-1;renderResults($('#main-content'));focusPager('#main-content > .pagination',action);return;}
     if(action==='zoom-prev'||action==='zoom-next'){zoomPage+=action==='zoom-next'?1:-1;paintZoom();return;}
     if(action==='download-csv'){await downloadCsv();return;}
     if(action==='upload'||target.id==='upload-top'){RyoshuImport.open();return;}
@@ -537,7 +560,7 @@ document.addEventListener('click',async event=>{
     if(action==='clear-selection'){state.selected.clear();render();return;}
     if(action==='confirm-next'){await save(true,true);return;}
     if(action==='save-draft'){await save(false);return;}
-    if(action==='all-months'){state.month='';render();return;}
+    if(action==='all-months'){state.month='';state.ledgerPage=0;refreshMonth();$('[data-action="all-months"]')?.focus({preventScroll:true});return;}
     if(action==='prev-page'||action==='next-page'){state.page+=action==='prev-page'?-1:1;renderSource();return;}
     if(action==='use-suggestion'){
       const body=captureForm();for(const key of ['date','merchant','total','description','account','tax_rate','tax_amount','invoice_number'])if(key in state.detail.suggestion)body.draft[key]=state.detail.suggestion[key];
@@ -557,9 +580,9 @@ document.addEventListener('click',async event=>{
 document.addEventListener('submit',event=>{if(event.target.id==='review-form'){event.preventDefault();save(true);}if(event.target.id==='account-form'){event.preventDefault();addAccount(event.target);}});
 document.addEventListener('input',event=>{if(event.target.id==='ledger-search'){state.ledgerSearch=event.target.value;state.ledgerPage=0;if(!event.isComposing&&!state.searchComposing){clearTimeout(searchTimer);searchTimer=setTimeout(()=>updateLedgerTable(true),180);}}if(event.target.closest('#review-form'))trackEdit();if(event.target.id==='catalog-search')renderCatalogRows(event.target.value);});
 document.addEventListener('change',event=>{
-  if(event.target.id==='results-pending'){state.resultsOnlyPending=event.target.checked;state.resultsPage=0;renderResults($('#main-content'));}
+  if(event.target.id==='results-pending'){state.resultsOnlyPending=event.target.checked;state.resultsPage=0;renderResults($('#main-content'));$('#results-pending')?.focus({preventScroll:true});}
   if(event.target.id==='zoom-scale'){const img=$('.zoom-image-wrap img');img.style.width=event.target.value==='fit'?'100%':Math.round(img.naturalWidth*Number(event.target.value)/100)+'px';img.style.maxWidth=event.target.value==='fit'?'100%':'none';}
-  if(event.target.id==='export-profile'){rememberLedgerInputs();state.exportProfile=event.target.value;$('#export-panel').outerHTML=exportPanel();updateExportPreview();}
+  if(event.target.id==='export-profile'){rememberLedgerInputs();state.exportProfile=event.target.value;$('#export-panel').outerHTML=exportPanel();updateExportPreview();$('#export-profile')?.focus({preventScroll:true});}
   if(event.target.id==='export-new-only'){state.exportNewOnly=event.target.checked;updateExportPreview();}
   if(event.target.id==='export-kind'){state.exportKind=event.target.value;updateExportPreview();}
   if(event.target.id==='export-tax-mode'){state.exportTaxMode=event.target.value;api('/settings',{method:'POST',body:JSON.stringify({export_tax_mode:state.exportTaxMode})}).catch(error=>toast('今回の出力には選択を使いますが、初期値の保存に失敗しました：'+error.message,true));updateExportPreview();}
@@ -567,7 +590,7 @@ document.addEventListener('change',event=>{
   if(event.target.id==='ledger-filter'){state.ledgerFilter=event.target.value;state.ledgerPage=0;updateLedgerTable(true);}
   if(event.target.dataset.ledgerSelect){const id=event.target.dataset.ledgerSelect,row=state.records.find(r=>r.id===id);if(event.target.checked&&row)state.selected.set(id,row.version);else state.selected.delete(id);}
   if(event.target.id==='select-ledger-all'){for(const el of $$('[data-ledger-select]')){el.checked=event.target.checked;const row=state.records.find(r=>r.id===el.dataset.ledgerSelect);if(el.checked&&row)state.selected.set(row.id,row.version);else if(row)state.selected.delete(row.id);}}
-  if(event.target.id==='month-filter'){state.month=event.target.value;state.ledgerPage=0;render();}
+  if(event.target.id==='month-filter'){state.month=event.target.value;state.ledgerPage=0;refreshMonth();$('#month-filter')?.focus({preventScroll:true});}
   if(event.target.id==='review-before-ledger'){api('/settings',{method:'POST',body:JSON.stringify({review_before_ledger:event.target.checked})}).then(result=>{state.config.review_before_ledger=result.review_before_ledger;toast('表示順の設定を保存しました。');}).catch(error=>{event.target.checked=!event.target.checked;toast(error.message,true);});}
   if(event.target.id==='review-ack')$('#confirm-batch').disabled=!event.target.checked;
   if(event.target.dataset.ledgerSelect||event.target.id==='select-ledger-all'){const details=$('#batch-review-details');if(details){details.open=state.selected.size>0||!!state.batchReport;$('#batch-selection').textContent=`選択した明細をまとめて確認（${state.selected.size}件）`;}if(!state.selected.size&&state.ledgerNeedsRefresh)refreshLedgerDisplay();}

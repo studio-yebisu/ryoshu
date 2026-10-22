@@ -1,0 +1,639 @@
+{
+  "status": "passed",
+  "version": "1.2.0",
+  "scope": "Five original live-demo fictional PDFs rerun through actual HTTP/Indra/localQwen with empty global business description. No saved OCR, expected answers, per-case purpose or manual correction supplied. Not added again to the100 metrics.",
+  "business_context": "",
+  "ocr_reuse": null,
+  "confirmed_count": 0,
+  "journal_rows": 0,
+  "started_at": "2026-10-22T12:24:27.763467+00:00",
+  "finished_at": "2026-10-22T12:26:22.446752+00:00",
+  "elapsed_s": 110.5,
+  "source_runtime": {
+    "source_commit": "e47c049f9314a303065aeea4b5c11ca12e249b6d",
+    "version": "1.2.0",
+    "python": "3.12.15",
+    "operating_system": "Windows 11",
+    "hardware": {
+      "cpu": "AMD Ryzen 9 7950X3D 16-Core Processor          ",
+      "ram_bytes": 67867463680
+    },
+    "indra_ocr": "1.1.2",
+    "onnxruntime": "1.31.0",
+    "ocr_provider": "CPUExecutionProvider",
+    "ocr_weights_revision": "bd02167fdf2005a19962cc15188f8496a2c87d3b",
+    "ollama": "0.40.7",
+    "model": {
+      "name": "qwen3:4b",
+      "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "size": 2497293931,
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen3",
+        "families": [
+          "qwen3"
+        ],
+        "parameter_size": "4.0B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 2560,
+        "runner": "ggml"
+      }
+    },
+    "model_options": {
+      "temperature": 0,
+      "num_ctx": 8192,
+      "num_predict": 850,
+      "num_gpu": 0,
+      "num_thread": 6,
+      "seed": 42
+    },
+    "scope": "Frozen runtime directories from the stated commit. No OCR or model observation reuse. One global business context, never fixture answers or per-case business context. Additional default-empty-context5 fresh OCR/localAI reproduction of the live demo; never counted again in100metrics."
+  },
+  "raw_report_sha256": "31adc11ff7f3be9743f13e6602a97616f82bcb536637977acfc2106f121f99a5",
+  "summary": {
+    "ocr_completed": 5,
+    "model_completed": 5,
+    "total_exact": 5,
+    "date_exact": 5,
+    "merchant_exact": 5,
+    "account_or_decision_exact": 5,
+    "decision_exact": 5,
+    "account_exact": 5,
+    "completed": 5,
+    "total": 5,
+    "elapsed_s": 110.5,
+    "active_stages": {}
+  },
+  "tax_exact": 5,
+  "remaining_limit": "In the separate100-case run with a global business description, V021 still contained the unprinted phrase テスト用の乗車. This empty-context5 run produced a route description instead. Correct account suggestion is distinct from faithful description; original/OCR/user review remain required.",
+  "cases": [
+    {
+      "case_id": "V001",
+      "sha256": "581f7e2f848f7ec324f019b44a305cffcff3f63789b5f851b185be1437ac6d9a",
+      "expected": {
+        "merchant": "コンビニ みちのく",
+        "date": "2023-11-02",
+        "total": 1760,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "expected_tax_amount": 160,
+      "suggestion": {
+        "date": "2023-11-02",
+        "merchant": "コンビニ みちのく",
+        "total": 1760,
+        "description": "乾電池 4本パック、A4コピー用紙 500枚入、クリアファイル A4 2枚組",
+        "account": "消耗品費",
+        "tax_rate": "10",
+        "tax_amount": 160,
+        "invoice_number": "",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "evidence": {
+          "date": "2023/11/2(木) 19:41",
+          "merchant": "コンビニ みちのく",
+          "total": "合 計 ¥1,760"
+        },
+        "account_code": "E101",
+        "account_kind": "expense",
+        "policy_matches": [],
+        "blocking_reasons": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "raw_model_candidate": {
+          "merchant": "コンビニ みちのく",
+          "description": "乾電池 4本パック、A4コピー用紙 500枚入、クリアファイル A4 2枚組",
+          "account": "消耗品費",
+          "reason": "コンビニで購入した文具・用紙類を消耗品費に分類。",
+          "hold_reason": "",
+          "confidence": "high"
+        },
+        "model": "qwen3:4b",
+        "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "seconds": 12.78,
+        "origin": "model",
+        "retrieval": [
+          {
+            "code": "E101",
+            "terms": [
+              "コピー用紙",
+              "乾電池",
+              "クリアファイル"
+            ]
+          }
+        ],
+        "field_method": "source_extraction_and_local_semantic_model",
+        "amount_candidates": [
+          {
+            "value": 1760,
+            "evidence": "合 計 ¥1,760",
+            "priority": 3
+          },
+          {
+            "value": 1760,
+            "evidence": "合 計 ¥1,760",
+            "priority": 3
+          }
+        ],
+        "ignored_document_annotations": [],
+        "decision": "propose"
+      },
+      "ocr": {
+        "engine": "Indra OCR",
+        "version": "1.1.2",
+        "text": "みちのく\nテスト市架空町1-2-3 テストビル前\nTEL 000-0000-0000\n2023/11/2(木) 19:41\nレジ #3 No.0429-113\n単3乾電池 4本パック 580\nA4コピー用紙 500枚入 780\nクリアファイル A4 2枚組 400\n10%対象 計 ¥1,760\n(内消費税等) 160\n合 計 ¥1,760\nお預かり ¥2,000\nおつり ¥240\n4 2 9 1 1 3\nまたのご利用をお待ちしております\n※ 架空テスト用データ",
+        "raw_text": "みちのく\nテスト市架空町1-2-3 テストビル前\nTEL 000-0000-0000\n2023/11/2(木) 19:41\nレジ #3\nNo.0429-113\n単3乾電池 4本パック\n580\nA4コピー用紙 500枚入\n780\nクリアファイル A4 2枚組\n400\n10%対象 計\n¥1,760\n(内消費税等)\n160\n合 計\n¥1,760\nお預かり\n¥2,000\nおつり\n¥240\n4 2 9 1 1 3\nまたのご利用をお待ちしております\n※ 架空テスト用データ",
+        "seconds": 0.148,
+        "page_count": 1
+      }
+    },
+    {
+      "case_id": "V021",
+      "sha256": "4440450e7373d0ec84ad907b15aef7fee0b613590efc3dab2b695dad905a5b14",
+      "expected": {
+        "merchant": "みずほ架空交通",
+        "date": "2023-11-08",
+        "total": 3280,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "expected_tax_amount": null,
+      "suggestion": {
+        "date": "2023-11-08",
+        "merchant": "みずほ架空交通",
+        "total": 3280,
+        "description": "テスト市中央口から架空町二丁目までの運賃",
+        "account": "旅費交通費",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "evidence": {
+          "date": "2023年11月8日 22:41",
+          "merchant": "みずほ架空交通",
+          "total": "3,280円\n税込・現金受領"
+        },
+        "account_code": "E103",
+        "account_kind": "expense",
+        "policy_matches": [],
+        "blocking_reasons": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "raw_model_candidate": {
+          "merchant": "みずほ架空交通",
+          "description": "テスト市中央口から架空町二丁目までの運賃",
+          "account": "旅費交通費",
+          "reason": "テスト用の運賃を業務の電車・バス・タクシーに分類",
+          "hold_reason": "",
+          "confidence": "high"
+        },
+        "model": "qwen3:4b",
+        "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "seconds": 22.31,
+        "origin": "model",
+        "retrieval": [
+          {
+            "code": "E103",
+            "terms": [
+              "運賃"
+            ]
+          }
+        ],
+        "field_method": "source_extraction_and_local_semantic_model",
+        "amount_candidates": [
+          {
+            "value": 3280,
+            "evidence": "3,280円\n税込・現金受領",
+            "priority": 5
+          }
+        ],
+        "ignored_document_annotations": [
+          "架空テスト / 再発行不可"
+        ],
+        "decision": "propose"
+      },
+      "ocr": {
+        "engine": "Indra OCR",
+        "version": "1.1.2",
+        "text": "みずほ架空交通\n領収証\n2023年11月8日 22:41\n乗車 テスト市中央口\n降車 架空町二丁目\n運賃 2,400円\n深夜加算 480円\n迎車料金 400円\n3,280円\n税込・現金受領\nお預り 5,000円\nお釣り 1,720円\n車両 架空-018\n架空テスト / 再発行不可",
+        "raw_text": "みずほ架空交通\n領収証\n2023年11月8日 22:41\n乗車 テスト市中央口\n降車 架空町二丁目\n運賃\n2,400円\n深夜加算\n迎車料金\n480円\n400円\n3,280円\n税込・現金受領\nお預り 5,000円\nお釣り 1,720円\n車両 架空-018\n架空テスト / 再発行不可",
+        "seconds": 0.163,
+        "page_count": 1
+      }
+    },
+    {
+      "case_id": "V023",
+      "sha256": "3ae221312d08598c7c137f0a6932f4b412b6653020e1064dd3cfb19bacd0a223",
+      "expected": {
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "date": "2022-04-03",
+        "total": 1180,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "expected_tax_amount": null,
+      "suggestion": {
+        "date": "2022-04-03",
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "total": 1180,
+        "description": "普通乗車券 大人1名",
+        "account": "旅費交通費",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "合計金額に対応する記載消費税を特定できないため空欄にしました。明細ごとの税額と区別して原本を確認してください"
+        ],
+        "evidence": {
+          "date": "2022/04/03 09:12",
+          "merchant": "空想沿岸鉄道 テスト中央駅",
+          "total": "$1,180"
+        },
+        "account_code": "E103",
+        "account_kind": "expense",
+        "policy_matches": [],
+        "blocking_reasons": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "raw_model_candidate": {
+          "merchant": "空想沿岸鉄道 テスト中央駅",
+          "description": "普通乗車券 大人1名",
+          "account": "旅費交通費",
+          "reason": "鉄道の乗車券を購入し、業務の移動に使用したため、旅費交通費に分類",
+          "hold_reason": "",
+          "confidence": "high"
+        },
+        "model": "qwen3:4b",
+        "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "seconds": 15.82,
+        "origin": "model",
+        "retrieval": [
+          {
+            "code": "E103",
+            "terms": [
+              "乗車券",
+              "鉄道",
+              "運賃"
+            ]
+          }
+        ],
+        "field_method": "source_extraction_and_local_semantic_model",
+        "amount_candidates": [
+          {
+            "value": 1180,
+            "evidence": "$1,180",
+            "priority": 1
+          },
+          {
+            "value": 1180,
+            "evidence": "$1,180",
+            "priority": 1
+          },
+          {
+            "value": 1180,
+            "evidence": "$1,180",
+            "priority": 2
+          },
+          {
+            "value": 1180,
+            "evidence": "$1,180",
+            "priority": 2
+          }
+        ],
+        "ignored_document_annotations": [],
+        "decision": "propose"
+      },
+      "ocr": {
+        "engine": "Indra OCR",
+        "version": "1.1.2",
+        "text": "鉄道きっぶ購入 領収書\n2022/04/03 09:12\nテスト中央 → 架空海岸\n普通乗車券 大人1名\n$1,180\n発売機 004 現金\n投入 2,000 / 釣銭 820\n運賃等は消費税込み\n空想沿岸鉄道 テスト中央駅\n架空テスト・乗車券ではありません\n\n[画像の部分再読取]\n領収\n\n\n\n普通乗車券 大人1名\n$1,180\n1\n売機 004 現金\n入 2,000 / 釣銭 820\n『賃等は消費税込み\n2ᄎ\n\n\n道 テスト中",
+        "raw_text": "鉄道きっぶ購入\n領収書\n2022/04/03 09:12\nテスト中央 → 架空海岸\n普通乗車券 大人1名\n$1,180\n発売機 004 現金\n投入 2,000 / 釣銭 820\n運賃等は消費税込み\n空想沿岸鉄道 テスト中央駅\n\n架空テスト・乗車券ではありません",
+        "seconds": 0.37,
+        "page_count": 1
+      }
+    },
+    {
+      "case_id": "V044",
+      "sha256": "297374a68acb60052ff363440574fd84e593b12402f68290d1b9f846a02fe124",
+      "expected": {
+        "merchant": "架空モバイル通信株式会社",
+        "date": "2024-06-27",
+        "total": 13479,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "expected_decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "expected_tax_amount": null,
+      "suggestion": {
+        "date": "2024-06-27",
+        "merchant": "架空モバイル通信株式会社",
+        "total": 13479,
+        "description": "2回線のモバイル通信料金（回線Aと回線Bの基本プラン、通話・通信量超過、オプション、ユニバーサルサービス料、消費税）",
+        "account": "通信費",
+        "tax_rate": "10",
+        "tax_amount": null,
+        "invoice_number": "",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "合計金額に対応する記載消費税を特定できないため空欄にしました。明細ごとの税額と区別して原本を確認してください",
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "evidence": {
+          "date": "2024年5月ご利用分（6月請求） / 発行日 2024-06-27 / お客さま番号 TEST-77120",
+          "merchant": "架空モバイル通信株式会社",
+          "total": "合計ご請求額\n13,479 円(税込)"
+        },
+        "account_code": "E102",
+        "account_kind": "expense",
+        "policy_matches": [],
+        "blocking_reasons": [],
+        "review_questions": [
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "raw_model_candidate": {
+          "merchant": "架空モバイル通信株式会社",
+          "description": "2回線のモバイル通信料金（回線Aと回線Bの基本プラン、通話・通信量超過、オプション、ユニバーサルサービス料、消費税）",
+          "account": "通信費",
+          "reason": "モバイル通信料金は業務用の通信サービスに該当し、通信費科目に分類可能",
+          "hold_reason": "",
+          "confidence": "high"
+        },
+        "model": "qwen3:4b",
+        "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "seconds": 34.39,
+        "origin": "model",
+        "retrieval": [],
+        "field_method": "source_extraction_and_local_semantic_model",
+        "amount_candidates": [
+          {
+            "value": 13479,
+            "evidence": "合計ご請求額\n13,479 円(税込)",
+            "priority": 5
+          },
+          {
+            "value": 7185,
+            "evidence": "回線合計 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 7185,
+            "evidence": "回線合計 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 7185,
+            "evidence": "回線A 請求額 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 7185,
+            "evidence": "回線B 請求額 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 13479,
+            "evidence": "合計ご請求額(税込) 13,479円",
+            "priority": 5
+          },
+          {
+            "value": 13479,
+            "evidence": "13,479 円(税込)",
+            "priority": 5
+          },
+          {
+            "value": 7185,
+            "evidence": "回線合計 7,185円 回線合計 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 7185,
+            "evidence": "回線A 請求額 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 7185,
+            "evidence": "回線B 請求額 7,185円",
+            "priority": 3
+          },
+          {
+            "value": 13479,
+            "evidence": "合計ご請求額(税込) 13,479円",
+            "priority": 5
+          }
+        ],
+        "ignored_document_annotations": [
+          "架空テスト"
+        ],
+        "decision": "propose"
+      },
+      "ocr": {
+        "engine": "Indra OCR",
+        "version": "1.1.2",
+        "text": "架空モバイル通信 ご利用料金 領収書（2回線合算）\n2024年5月ご利用分（6月請求） / 発行日 2024-06-27 / お客さま番号 TEST-77120\n架空 事業部 御中 / 請求書払い（法人カード払い）\n合計ご請求額\nผ้ 42\n13,479 円（税込）\n回線別内訳\n回線A（本社） 回線B（営業）\nTEST-A0110 / データ多めプラン 30GB TEST-B0111 / かけ放題 5GB\n基本プラン 5,200円 基本プラン 5,200円\n└ 通話・通信量超過 1,000円 └ 通話・通信量超過 1,000円\n└ オプション（留守番電話） 330円 └ オプション（留守番電話） 330円\nユニバーサルサービス料 2円 ユニバーサルサービス料 2円\n小計 6,532円 小計 6,532円\n消費税（10%） 653円 消費税（10%） 653円\n回線合計 7,185円 回線合計 7,185円\n端末割賦（別途請求） 3,200円/月 端末割賦（別途請求） 3,200円/月\n合算内訳\n回線A 請求額 7,185円\n回線B 請求額 7,185円\nファミリー割引（2回線） -891円\n合計ご請求額（税込） 13,479円\n端末割賦金（回線A 3,200円・回線B 3,200円）は本領収に含まれません。\n2024年6月27日 架空モバイル通信株式会社 ／ 東京都テスト区架空町\n架空テスト",
+        "raw_text": "架空モバイル通信\nご利用料金 領収書（2回線合算）\n2024年5月ご利用分（6月請求） / 発行日 2024-06-27 / お客さま番号 TEST-77120\n架空 事業部 御中 / 請求書払い（法人カード払い）\n合計ご請求額\n13,479 円（税込）\nผ้\n42\n回線別内訳\n回線A（本社）\nTEST-A0110 / データ多めプラン 30GB\n基本プラン\n5,200円\n└ 通話・通信量超過\n1,000円\n└ オプション（留守番電話）\n330円\nユニバーサルサービス料\n2円\n小計\n6,532円\n消費税（10%）\n653円\n回線合計\n7,185円\n端末割賦（別途請求）\n3,200円/月\n回線B（営業）\nTEST-B0111 / かけ放題 5GB\n基本プラン\n5,200円\n└ 通話・通信量超過\n1,000円\n└ オプション（留守番電話）\n330円\nユニバーサルサービス料\n2円\n小計\n6,532円\n消費税（10%）\n653円\n回線合計\n7,185円\n端末割賦（別途請求）\n3,200円/月\n合算内訳\n回線A 請求額\n7,185円\n回線B 請求額\n7,185円\nファミリー割引（2回線）\n-891円\n合計ご請求額（税込）\n13,479円\n端末割賦金（回線A 3,200円・回線B 3,200円）は本領収に含まれません。\n2024年6月27日 架空モバイル通信株式会社 ／ 東京都テスト区架空町\n架空テスト",
+        "seconds": 0.184,
+        "page_count": 1
+      }
+    },
+    {
+      "case_id": "V045",
+      "sha256": "f4fb94ac2b1c50fe127cf2bbdbca5485a6d0b856852127483939aef1e4ee882d",
+      "expected": {
+        "merchant": "テスト光ネットワーク株式会社",
+        "date": "2024-04-08",
+        "total": 8980,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "expected_decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "expected_tax_amount": null,
+      "suggestion": {
+        "date": "2024-04-08",
+        "merchant": "テスト光ネットワーク株式会社",
+        "total": 8980,
+        "description": "光回線 10ギガ 6,600円（税込）とWi-Fi機器レンタル 550円（税込）",
+        "account": "通信費",
+        "tax_rate": "10",
+        "tax_amount": null,
+        "invoice_number": "",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "合計金額に対応する記載消費税を特定できないため空欄にしました。明細ごとの税額と区別して原本を確認してください",
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。"
+        ],
+        "evidence": {
+          "date": "お支払い済み（口座振替済 2024/04/08)",
+          "merchant": "テスト光ネットワーク株式会社",
+          "total": "3月分ご請求額(工事費込み・税込)\n8, 980 a"
+        },
+        "account_code": "E102",
+        "account_kind": "expense",
+        "policy_matches": [
+          {
+            "code": "P_SHARED",
+            "title": "家事関連費の確認",
+            "action": "review",
+            "message": "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "blocking_reasons": [],
+        "review_questions": [
+          "事業で使った割合",
+          "その割合の根拠",
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "raw_model_candidate": {
+          "merchant": "テスト光ネットワーク株式会社",
+          "description": "光回線 10ギガ 6,600円（税込）とWi-Fi機器レンタル 550円（税込）",
+          "account": "通信費",
+          "reason": "光回線とWi-Fi機器レンタルの月額料金が通信費に該当。工事費はキャンペーンで全額充当済みで月額料金に含まない。",
+          "hold_reason": "",
+          "confidence": "high"
+        },
+        "model": "qwen3:4b",
+        "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "seconds": 21.35,
+        "origin": "model",
+        "retrieval": [
+          {
+            "code": "E102",
+            "terms": [
+              "光回線"
+            ]
+          },
+          {
+            "code": "E118",
+            "terms": [
+              "レンタル"
+            ]
+          }
+        ],
+        "field_method": "source_extraction_and_local_semantic_model",
+        "amount_candidates": [
+          {
+            "value": 0,
+            "evidence": "ご請求額 0円",
+            "priority": 3
+          },
+          {
+            "value": 8980,
+            "evidence": "3月分ご請求額(工事費込み・税込)\n8, 980 a",
+            "priority": 6
+          },
+          {
+            "value": 8980,
+            "evidence": "※ 工事費44, 000円と月額料金8,980円のうち、ご請求額は8,980円です。工事費は全額キャンペーン充当済み。",
+            "priority": 3
+          }
+        ],
+        "ignored_document_annotations": [],
+        "decision": "propose"
+      },
+      "ocr": {
+        "engine": "Indra OCR",
+        "version": "1.1.2",
+        "text": "テスト光ネットワーク株式会社\nサービス契約番号：TEST-BB-44821 / お支払い：口座振替\n発行：2024年4月10日（2024年3月ご利用分）\n開通工事費（初回のみ）\n工事費 44,000円（税込） 全額充当（キャンペーン）\nご請求額 0円\n分割残金はありません。\n回線利用料\nオプション\n光回線 10ギガ\n6,600円 Wi-Fi機器レンタル\n550円\n標準工事費分割\n0円 電話基本料\n5509\n回線基本料\n1,100円 電話通話料\n180円\n回線小計 7,700\nオプション小計 1,280\n(消費税10% 内税）\n(消費税10% 内税）\n3月分ご請求額（工事費込み・税込）\n8, 980 a\nお支払い済み（口座振替済 2024/04/08)\n※ 工事費44, 000円と月額料金8,980円のうち、ご請求額は8,980円です。工事費は全額キャンペーン充当済み。",
+        "raw_text": "テスト光ネットワーク株式会社\nサービス契約番号：TEST-BB-44821 / お支払い：口座振替\n発行：2024年4月10日（2024年3月ご利用分）\n開通工事費（初回のみ）\n工事費 44,000円（税込）\n分割残金はありません。\n全額充当（キャンペーン）\nご請求額 0円\n回線利用料\n光回線 10ギガ\n標準工事費分割\n回線基本料\n回線小計 7,700\n(消費税10% 内税）\nオプション\n6,600円\nWi-Fi機器レンタル\n550円\n0円\n電話基本料\n5509\n1,100円\n電話通話料\n180円\nオプション小計 1,280\n(消費税10% 内税）\n3月分ご請求額（工事費込み・税込）\nお支払い済み（口座振替済 2024/04/08)\n\n\n8, 980 a\n\n※ 工事費44, 000円と月額料金8,980円のうち、ご請求額は8,980円です。工事費は全額キャンペーン充当済み。",
+        "seconds": 0.426,
+        "page_count": 1
+      }
+    }
+  ]
+}

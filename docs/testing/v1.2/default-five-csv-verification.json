@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "scope": "Actual in-app browser download after fresh Indra/localQwen on the5 default-empty-context PDFs; no manual edits or confirmations. Generic review CSV, not a posted accounting journal.",
+  "rows": 5,
+  "encoding": "utf-8-sig",
+  "sha256": "c34f49ade38c1630bd449fdbc83d70deddd32e30189b08b09b925862ce804c8d",
+  "file": "csv/default-five-unconfirmed.csv",
+  "checks": [
+    "all5 original names and SHA256",
+    "all5 expected dates/merchants/amounts/accounts",
+    "all5 visibly unconfirmed",
+    "UTF8 BOM and CSV reparse"
+  ],
+  "screenshot": "screenshots/08-default-five-csv.png"
+}
