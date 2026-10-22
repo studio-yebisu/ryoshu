@@ -32,7 +32,7 @@
   "errors": [],
   "receipt_count": 202,
   "render_stress": {
-    "milliseconds": 146.09999999403954,
+    "milliseconds": 103.7999999821186,
     "closedRows": 0
   },
   "source_sha256": {
@@ -42,6 +42,6 @@
     "web/style.css": "796cfa56054208ea15704f9520a85c6dc097bb49bd994edb8a1c5b7d71540386",
     "receipt_ledger/server.py": "4ed53ed23d18caf5babb681cd9a284253b2b5643276905339eca06a4c28d7624",
     "scripts/serve_browser_qa.py": "cec46344b2770674ba86787a1c4114c07074b5d08d3c40deba352bf1428e68e7",
-    "scripts/browser_smoke.mjs": "4454c75b162eb2cf1443543ce5360b3a9277c4ebff93ca8004d38683ac593b69"
+    "scripts/browser_smoke.mjs": "3c70102a896a07218f353f47aa6dc41c2dae5469581ffca18c645ea200d14c15"
   }
 }

@@ -168,10 +168,12 @@ try{
   for(const id of chosen)await page.locator(`[data-ledger-select="${id}"]`).check();
   page.once('dialog',dialog=>dialog.accept());await page.locator('[data-action="exclude-selected"]').click();
   await page.waitForFunction(async ids=>{const rows=(await(await fetch('/api/receipts')).json()).receipts;return ids.every(id=>rows.find(r=>r.id===id)?.status==='excluded');},chosen);
+  await page.waitForFunction(()=>document.querySelector('#batch-result')?.innerText.includes('2件を対象外にしました'));
   await page.locator('#ledger-filter').selectOption('excluded');await page.waitForFunction(()=>document.querySelectorAll('[data-ledger-select]').length===2);
   for(const id of chosen)await page.locator(`[data-ledger-select="${id}"]`).check();
   page.once('dialog',dialog=>dialog.accept());await page.locator('[data-action="restore-selected"]').click();
   await page.waitForFunction(async ids=>{const rows=(await(await fetch('/api/receipts')).json()).receipts;return ids.every(id=>rows.find(r=>r.id===id)?.status==='review');},chosen);
+  await page.waitForFunction(()=>document.querySelector('#batch-result')?.innerText.includes('2件を確認待ちへ戻しました'));
   await page.locator('#ledger-filter').selectOption('all');
   checks.push('bulk exclude and restore are reversible and retain originals');
 
