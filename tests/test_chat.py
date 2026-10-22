@@ -282,6 +282,52 @@ def test_old_callback_cleanup_does_not_close_a_new_sign_in_attempt(auth):
     assert auth.pending["state"] == new["state"] and auth.listener is not None
 
 
+def test_login_timeout_explains_retry_and_rejects_the_expired_callback(auth):
+    query = begin(auth)
+    timer = auth.timer
+    timer.function(*timer.args, **timer.kwargs)
+    status = auth.status()
+    assert not status["pending"] and not status["profiles"]
+    assert "有効時間" in status["message"] and "やり直" in status["message"]
+    assert auth.listener is None
+    with pytest.raises(ChatConnectionError):
+        auth.finish({"state": query["state"], "code": "expired", "client_id": "oaiapp_fictional"})
+    assert not auth.http.calls
+
+
+def test_old_login_timer_cannot_replace_a_new_attempt_or_its_message(auth):
+    begin(auth)
+    old_timer = auth.timer
+    latest = begin(auth)
+    current_message = auth.status()["message"]
+    old_timer.function(*old_timer.args, **old_timer.kwargs)
+    assert auth.pending["state"] == latest["state"]
+    assert auth.status()["message"] == current_message and auth.listener is not None
+
+
+def test_login_timer_cannot_report_expiry_after_successful_identity_validation(auth):
+    query = begin(auth)
+    timer = auth.timer
+    auth.finish({"state": query["state"], "code": "fictional-code", "client_id": "oaiapp_fictional"})
+    message = auth.status()["message"]
+    timer.function(*timer.args, **timer.kwargs)
+    status = auth.status()
+    assert status["profiles"][0]["signed_in"]
+    assert status["message"] == message and "有効時間" not in message
+
+
+def test_cancelling_login_updates_the_visible_status_and_allows_retry(app):
+    with TestClient(app) as client:
+        assert client.post("/api/chat/connect", headers=HEADERS, json={}).status_code == 200
+        assert client.get("/api/chat/connection").json()["pending"]
+        assert client.post("/api/chat/cancel-login", headers=HEADERS).status_code == 200
+        status = client.get("/api/chat/connection").json()
+        assert not status["pending"] and "終了しました" in status["message"]
+        assert client.post("/api/chat/connect", headers=HEADERS, json={}).status_code == 200
+        status = client.get("/api/chat/connection").json()
+        assert status["pending"] and "終了しました" not in status["message"]
+
+
 def test_missing_oauth_dependency_explains_setup_before_opening_listener(auth, monkeypatch):
     monkeypatch.setattr(oauth.importlib.util, "find_spec", lambda name: None)
     with pytest.raises(ChatConnectionError, match="初回セットアップ"):

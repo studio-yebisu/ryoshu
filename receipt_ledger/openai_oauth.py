@@ -242,10 +242,12 @@ class OpenAIConnection:
                     "registration_pending": bool(data.get("registration")),
                     "message": self.login_message, "usage_url": "https://chatgpt.com/settings/usage"}
 
-    def close(self, attempt=None):
+    def close(self, attempt=None, message=None):
         with self.mutex:
             if attempt is not None and self.listener_attempt != attempt:
                 return
+            if message and self.pending:
+                self.login_message = message
             self.pending = None
             listener, self.listener = self.listener, None
             self.listener_attempt = None
@@ -320,7 +322,8 @@ class OpenAIConnection:
                 query["prompt"] = "consent"
             self.login_message = "ブラウザーで接続してください。接続待ちは10分で終了します。"
             threading.Thread(target=self.listener.serve_forever, daemon=True).start()
-            self.timer = threading.Timer(600, self.close, args=(pending["state"],))
+            self.timer = threading.Timer(600, self.close, args=(pending["state"],), kwargs={
+                "message": "接続待ちの有効時間（10分）が過ぎました。チャット画面の接続ボタンからやり直してください。"})
             self.timer.daemon = True
             self.timer.start()
             return {"authorization_url": AUTHORIZE + "?" + urlencode(query)}

@@ -119,7 +119,7 @@ def create_app(data_dir=None, run_workers=True, auth_dir=None):
 
     @app.post("/api/chat/cancel-login")
     def chat_cancel_login():
-        connection.close()
+        connection.close(message="接続待ちを終了しました。必要なときは接続ボタンからやり直せます。")
         return {"cancelled": True}
 
     @app.post("/api/chat/reset-registration")
