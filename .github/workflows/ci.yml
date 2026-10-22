@@ -23,10 +23,12 @@ jobs:
       - run: python scripts/check_publication.py
       - run: node --check web/app.js
       - run: node --check web/import.js
+      - run: node --check web/chat.js
       - run: node --test tests/import-ui.test.cjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npx playwright install chromium
       - run: npm run test:browser
+      - run: npm run test:chat-browser
       - shell: powershell
         run: |
           foreach ($target in @('setup.ps1','start.ps1','stop.ps1','restore.ps1','scripts/launcher-process.ps1')) {

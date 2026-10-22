@@ -8,6 +8,8 @@
 
 **v1.0.0**。Windows / Python 3.12 / CPUで確認しています。[リリースと配布ZIP](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.0.0)
 
+このブランチは**1.1.0開発版**です。任意の[OpenAI OAuth・チャット編集](docs/CHAT-EDIT.md)を追加しています。選択した帳簿の科目・摘要・事業割合などを会話で修正し、変更前後を確認して未確認のまま保存できます。使用時は選択明細と会話をOpenAIへ送信します。既定のOCR・自動分類は引き続きPC内で行います。公開済みv1.0.0のZIPには、この機能は含まれません。
+
 **[テスト画像と100件の検証結果](docs/testing/README.md)** · **[全100件の画像一覧](docs/testing/gallery.md)** · [v1.0.0の改善・レビュー・検証](docs/testing/v1/README.md) · [動作要件](docs/REQUIREMENTS.md) · [使い方](docs/GUIDE.md) · [収録38科目と分類範囲](docs/ACCOUNTS.md) · [CSV仕様](docs/CSV-EXPORT.md)
 
 ![Ryoshuの確認画面](docs/images/ryoshu.png)
@@ -57,7 +59,7 @@ CSVは架空の6件を手動確認した別の検査で、4形式の生成・再
 
 保存先は既定で `%USERPROFILE%\StudioYebisu\ReceiptLedger`。SQLiteと原本はソースフォルダーの外に保存します。旧試作との互換性のため、内部のモジュール名と保存先名はReceiptLedgerを使用しています。
 
-読み取り中の画像・本文を外部OCR・LLMへ送信する機能はありません。アプリとOllamaはループバック接続を使い、OCRは準備済みキャッシュから読み込みます。初回の依存関係・モデル取得は外部の配布元へ接続します。保存データとバックアップは暗号化していません。[保存範囲と通信](docs/PRIVACY.md)
+通常の読み取りでは画像・本文を外部OCR・LLMへ送りません。アプリとOllamaはループバック接続を使い、OCRは準備済みキャッシュから読み込みます。任意のチャット編集を使用したときは、明示的に選んだ明細と会話をOpenAIへ送信します。初回の依存関係・モデル取得は外部の配布元へ接続します。帳簿とバックアップは暗号化していません。OAuthの接続情報は別に保護します。[保存範囲と通信](docs/PRIVACY.md)
 
 ## 開発・ライセンス
 

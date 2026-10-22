@@ -8,6 +8,7 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
   <script src="/import.js" defer></script>
+  <script src="/chat.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -25,8 +26,8 @@
         <a class="nav-item" href="/help.html" target="_blank" rel="noreferrer"><span class="nav-symbol">?</span>使い方</a>
       </nav>
       <div class="sidebar-note"><span class="small-leaf">↳</span>ためていた領収書を、<br>ひとつずつ整えよう。</div>
-      <div class="local-status"><span class="status-dot"></span><div>このPC内で処理<small id="engine-status">エンジンを確認中</small></div></div>
-      <div class="sidebar-version">Ryoshu <span id="app-version">1.0.0</span></div>
+      <div class="local-status"><span class="status-dot"></span><div>OCR・自動分類はPC内<small id="engine-status">エンジンを確認中</small></div></div>
+      <div class="sidebar-version">Ryoshu <span id="app-version">1.1.0.dev1</span></div>
     </aside>
     <main>
       <header class="page-header"><div><div class="eyebrow">日々の経費整理</div><h1 id="page-title">経費帳</h1><p id="page-description">領収書をまとめて取り込み、あとから確認。</p></div><button class="button primary" id="upload-top"><span>＋</span> 領収書を取り込む</button></header>
@@ -42,6 +43,7 @@
   <input id="folder-input" class="visually-hidden" type="file" webkitdirectory multiple aria-label="領収書のフォルダーを選ぶ">
   <dialog id="import-dialog" aria-label="領収書の取り込み"></dialog>
   <dialog id="review-dialog" aria-label="選択した明細の確認"></dialog>
+  <dialog id="chat-dialog" aria-labelledby="chat-title"></dialog>
   <div id="toast" class="toast hidden" role="status"></div>
   <div id="upload-overlay" class="upload-overlay hidden"><div>＋<strong>ここに領収書をドロップ</strong><span>JPG・PNG・WebP・PDF</span></div></div>
 </body>

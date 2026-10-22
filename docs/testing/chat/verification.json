@@ -1,0 +1,73 @@
+{
+  "version": "1.1.0.dev1",
+  "date": "2026-10-22",
+  "live_openai_account_verified": false,
+  "live_openai_inference_verified": false,
+  "python": {
+    "passed": 168,
+    "existing": 130,
+    "chat": 38
+  },
+  "browser": {
+    "existing_passed": 28,
+    "chat_passed": 15,
+    "chat_checks": [
+      "external consent is initially off; exactly two selected records",
+      "synthetic OAuth loopback callback verifies a real RSA-signed identity",
+      "missing external consent prevents any generation",
+      "preview does not save; unselected records and OCR never enter request",
+      "lost apply response states unknown outcome and prevents misleading discard",
+      "explicit apply saves only the selected two rows as unreviewed",
+      "successful save starts a clearly marked fresh conversation with consent off",
+      "confirmed entry is explicitly reopened and its old journal voided",
+      "375px dialog has no horizontal overflow",
+      "new conversation clears external-data consent",
+      "new conversation retains an unsent Japanese request",
+      "another-tab account switch stops sending and clears model plus consent",
+      "login polling retains the focused Japanese input node",
+      "disconnect clears only the chosen connection and keeps other accounts separate",
+      "no browser exceptions or external browser requests"
+    ],
+    "scope": "Synthetic OAuth and AI. Actual browser, APIs and SQLite. No live account or inference."
+  },
+  "csv": {
+    "profiles": [
+      "generic",
+      "freee",
+      "mf",
+      "yayoi"
+    ],
+    "receipts": 6,
+    "journal_rows": 7,
+    "debit_jpy": 299095,
+    "credit_jpy": 299095,
+    "saas_import_verified": false
+  },
+  "ocr_run": "No new OCR/automatic-classification run for this feature. Published v1.0.0 100-case result remains separate and unchanged.",
+  "reviews": [
+    {
+      "requested_model": "kimi-code/k3",
+      "route": "Kimi CLI",
+      "original_findings_rechecked": true,
+      "scope": "Read-only code review; missing-dependency test run failed before parent updated runtime and ran all checks"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "route": "Claude CLI",
+      "original_findings_rechecked": true,
+      "scope": "Read-only code review; six P2 findings resolved, no remaining P1/P2 in re-read"
+    }
+  ],
+  "source_sha256": {
+    "receipt_ledger/chat.py": "8621cfd807b5e1e738cfdadc72ac4c2053d527063e3fc76cd39bbbfc70c45eda",
+    "receipt_ledger/openai_oauth.py": "78fc9d5f34be6e324efd7535434fd3afd3805f54faad36e15c0802cd7b1c6dcd",
+    "receipt_ledger/privacy.py": "cf9fe97db14afb68b6862cd1ad027240726a3e76b8c2cdf3cc21c743af90aae8",
+    "receipt_ledger/server.py": "8191840076191048ae2dbcb10eaba8560978af18fb459c59e4ddca1483706f61",
+    "web/chat.js": "ad0e19fa8ecfc114abdce167b9284757dc9e726be65f23f92488df9191eb5bc2",
+    "web/app.js": "59a9f03e7f28e2b81b33d2d4c8e16c807e711478a0a93b13f94d99ef41c33ed0",
+    "tests/test_chat.py": "46c97a3eef5c841dcaa8c36555b6bb72ab257066e6efcbc7c3db659d34690ff5",
+    "scripts/chat_browser_smoke.mjs": "2574431ae5e8f779022bef624f857bead8ae657cdfa88c9abc5dc39b1b91ac9b",
+    "scripts/serve_chat_qa.py": "ea926056e607cdc48c08c21600231f55d058262133ccb00a8f924cdfe0ae7800"
+  },
+  "hash_scope": "Working-tree bytes at parent verification, before Git line-ending normalization"
+}

@@ -23,3 +23,23 @@
 .batch-issue { overflow-wrap:anywhere; }
 /* Static guidance stays visible while receipt processing and editing continue. */
 .usage-guidance{font-size:13px;line-height:1.7;padding:12px 14px;margin:0 0 20px;border:1px solid #dce2d8;border-radius:10px;background:#f4f7f0;color:#43503f;overflow-wrap:anywhere}.usage-guidance a{margin-left:.5em;text-decoration:underline}
+/* Optional chat editor: its consent, connection and changes stay in one dialog. */
+#chat-dialog{width:min(820px,calc(100vw - 24px));max-width:820px;max-height:90dvh;overflow:auto;padding:24px;border:1px solid #dadbd3;border-radius:16px;background:#fafaf6;color:#26372d}
+#chat-dialog::backdrop{background:#172b2480}
+.chat-heading{display:flex;justify-content:space-between;align-items:start;gap:16px;position:sticky;top:0;z-index:2;background:#fafaf6;padding:8px 0}
+.chat-heading h2{margin:8px 0 16px}
+.chat-privacy{padding:14px;background:#edf2e9;border-radius:8px;line-height:1.8}
+.chat-connection,.chat-targets,.chat-proposal{margin:16px 0;padding:16px;border:1px solid #d9ddd4;border-radius:8px}
+#chat-dialog summary{cursor:pointer;font-weight:600}
+#chat-dialog dl{font-size:13px;margin:10px 0 18px}
+#chat-dialog dl>div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;padding:5px 0;border-bottom:1px solid #e5e6df}
+#chat-dialog dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+#chat-dialog dt{color:#637267}
+#chat-dialog ins{text-decoration:none;font-weight:600;color:#244d35}
+#chat-dialog del{color:#7b6459}
+.chat-message{border-radius:8px;background:#f0f1e9;padding:14px;margin:12px 0}
+.chat-message.chat-user{background:#e6eedf}
+.chat-message p{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0}
+#chat-dialog textarea{min-height:100px;width:100%;box-sizing:border-box}
+#chat-dialog form{margin-top:20px}
+@media(max-width:560px){#chat-dialog{padding:16px}#chat-dialog dl>div{grid-template-columns:90px minmax(0,1fr);gap:8px}.chat-heading h2{font-size:20px}}

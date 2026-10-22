@@ -31,14 +31,19 @@ from .backups import create_backup
 from .export_history import ExportHistory
 from starlette.background import BackgroundTask
 from .previews import ensure_preview
+from .openai_oauth import OpenAIConnection, ChatConnectionError
+from .chat import ChatEdits, ChatRequest, ApplyRequest
+from filelock import Timeout as FileLockTimeout
 
 
-def create_app(data_dir=None, run_workers=True):
+def create_app(data_dir=None, run_workers=True, auth_dir=None):
     store = Store(Path(data_dir or config.DATA_DIR))
     importer = Importer(store)
     export_history = ExportHistory(store)
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="receipt")
     import_lock = threading.Lock()
+    connection = OpenAIConnection(auth_dir or config.DEFAULT_ROOT / "auth")
+    chat = ChatEdits(store, connection)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -48,10 +53,13 @@ def create_app(data_dir=None, run_workers=True):
         else:
             store.recover()
         yield
+        connection.close()
         executor.shutdown(wait=True, cancel_futures=True)
 
     app = FastAPI(title="Ryoshu", version=__version__, lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.store = store
+    app.state.openai = connection
+    app.state.chat = chat
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
     app.add_middleware(UploadSizeLimit, max_bytes=config.MAX_REQUEST_BYTES)
 
@@ -83,6 +91,62 @@ def create_app(data_dir=None, run_workers=True):
     @app.exception_handler(ValueError)
     async def bad_value(request, exc):
         return JSONResponse({"detail":str(exc)},status_code=422)
+
+    @app.exception_handler(ChatConnectionError)
+    async def chat_error(request, exc):
+        return JSONResponse({"detail": str(exc)}, status_code=502)
+
+    @app.exception_handler(FileLockTimeout)
+    async def auth_busy(request, exc):
+        return JSONResponse({"detail": "別のRyoshuが認証情報を更新中です。少し待ってからもう一度操作してください。"}, status_code=409)
+
+    class ConnectRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        profile_id: str | None = Field(default=None, max_length=100)
+        reconsent: bool = False
+
+    class AccountRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        profile_id: str = Field(min_length=1, max_length=100)
+
+    @app.get("/api/chat/connection")
+    def chat_connection():
+        return connection.status()
+
+    @app.post("/api/chat/connect")
+    def chat_connect(body: ConnectRequest):
+        return connection.start(body.profile_id, body.reconsent)
+
+    @app.post("/api/chat/cancel-login")
+    def chat_cancel_login():
+        connection.close()
+        return {"cancelled": True}
+
+    @app.post("/api/chat/reset-registration")
+    def chat_reset_registration():
+        connection.reset_registration()
+        return connection.status()
+
+    @app.post("/api/chat/account")
+    def chat_account(body: AccountRequest):
+        connection.select(body.profile_id)
+        return connection.status()
+
+    @app.post("/api/chat/disconnect")
+    def chat_disconnect(body: AccountRequest):
+        return connection.disconnect(body.profile_id)
+
+    @app.post("/api/chat/models")
+    def chat_models():
+        return {"models": connection.models()}
+
+    @app.post("/api/chat/propose")
+    def chat_propose(body: ChatRequest):
+        return chat.propose(body)
+
+    @app.post("/api/chat/apply")
+    def chat_apply(body: ApplyRequest):
+        return chat.apply(body.proposal_id)
 
     def enqueue(receipt_id):
         if run_workers:
@@ -128,6 +192,7 @@ def create_app(data_dir=None, run_workers=True):
                 "business_context": store.business_context(), "rules": store.rules(),
                 "review_before_ledger": review_before_ledger(store),
                 "export_tax_mode": export_tax_mode(store),
+                "chat": {"supported": True, "provider": "openai-oauth", "max_rows": 50},
                 "samples": sample_set()[2],
                 "export_profiles":PROFILES,"export_tax_choices":TAX_CHOICES,
                 "export_account_maps":{p:store.export_map(p) for p in ['freee','mf','yayoi']},

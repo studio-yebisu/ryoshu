@@ -16,7 +16,7 @@ MAX_FILES = 50
 MAX_SPLIT_PAGES = 300
 MAX_REQUEST_BYTES = 64 * 1024 * 1024
 
-# No credentials, telemetry, or remote inference are used by this application.
+# OCR and automatic classification stay local. Optional chat uses its own OAuth vault.
 os.environ["HF_HOME"] = str(CACHE_DIR / "huggingface")
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
