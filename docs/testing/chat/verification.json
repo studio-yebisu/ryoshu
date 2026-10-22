@@ -61,7 +61,9 @@
       "requested_model": "gemini-3.8-flash-high",
       "route": "Antigravity terminal CLI (agy)",
       "scope": "Read-only Japanese review of supplied chat UI/help/README; no real browser or OAuth operated by the reviewer",
-      "findings": "Login visibility and expired/cancelled retry guidance corrected against actual behavior; no extra repeated tax notice added because existing pre-apply guidance remains"
+      "findings": "Login visibility and expired/cancelled retry guidance corrected against actual behavior; no extra repeated tax notice added because existing pre-apply guidance remains",
+      "original_findings_rechecked": true,
+      "recheck_scope": "Focused supplied login recovery copy, conditional buttons and timeout processing; no additional findings. Full-document empty response was not treated as a successful review."
     }
   ],
   "source_sha256": {
