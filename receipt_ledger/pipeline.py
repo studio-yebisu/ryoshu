@@ -159,7 +159,6 @@ def read_receipt(folder: Path, extension: str):
         result['header_focus']=headers
         if headers:result['text']+='\n\n[見出しの部分再読取]\n'+'\n\n'.join(p['text'] for p in headers)
     result['seconds']=round(time.perf_counter()-started,3)
-    (folder / "ocr.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     return result
 
 
@@ -215,11 +214,25 @@ def fallback(text):
             "confidence": "low", "model": None, "warnings": ["AI分類未実行"], "evidence": {}}
 
 
+class ModelSafetyError(ValueError):
+    pass
+
+
 def local_models():
     with httpx.Client(trust_env=False, timeout=3) as client:
         response = client.get(config.OLLAMA_URL + "/api/tags")
         response.raise_for_status()
-        return response.json().get("models", [])
+        models=response.json().get("models", [])
+        target=next((m for m in models if m.get("name")==config.MODEL),None)
+        if target is not None:
+            details=client.post(config.OLLAMA_URL+"/api/show",json={"model":config.MODEL})
+            details.raise_for_status()
+            info=details.json()
+            if info.get("remote_host") or info.get("remote_model") or target.get("remote_host") or target.get("remote_model"):
+                raise ModelSafetyError("クラウドモデルには領収書を送りません。Ollamaにローカル版のqwen3:4bを準備してください。")
+            if info.get("details",{}).get("format")!="gguf" or info.get("model_info",{}).get("general.architecture")!="qwen3" or type(target.get("size")) is not int or target["size"]<1024**3:
+                raise ModelSafetyError("ローカルのQwen3 4Bを確認できません。初回セットアップでqwen3:4bを準備してください。")
+        return models
 
 
 def classify(ocr: dict, business_context="", rules=None, accounts=None, policies=None):
@@ -307,10 +320,15 @@ def process(store, receipt_id):
         current = store.get(receipt_id)
         folder = store.folder(receipt_id)
         store.stage(receipt_id, "ocr")
-        ocr = read_receipt(folder, current["extension"])
+        from .protection import private_work
+        with private_work(store.root) as work:
+            original = folder / ("original" + current["extension"])
+            (work / original.name).write_bytes(store.keys.read_file(original))
+            ocr = read_receipt(work, current["extension"])
+            for preview in work.glob("preview-*.jpg"):
+                store.keys.write_file(folder / preview.name, preview.read_bytes())
         store.stage(receipt_id, "model")
         suggestion = classify(ocr, store.business_context(), store.rules(),store.accounts(),store.policies())
-        (folder / "suggestion.json").write_text(json.dumps(suggestion, ensure_ascii=False, indent=2), encoding="utf-8")
         store.complete(receipt_id, ocr, suggestion)
     except Exception as exc:
         if isinstance(exc, httpx.ConnectError):

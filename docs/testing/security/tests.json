@@ -1,0 +1,985 @@
+{
+  "scope": "実Windows DPAPI/SQLCipher/AES-GCMを含むPython単体・API・回帰検査。OCR・モデル100件とブラウザー操作は別記録。",
+  "status": "passed",
+  "records": [
+    {
+      "name": "security-release-final.xml",
+      "source_xml_sha256": "10c3100098cdd5858c18734e954252e7371e1bbdc166a835c88e8a993ff13357",
+      "tests": 188,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "junit_reported_seconds": 133.992,
+      "reported_wall_seconds": 134.2,
+      "started_at": [
+        "2026-10-22T16:05:35.548863+09:00"
+      ],
+      "cases": [
+        {
+          "class": "tests.test_audit_run",
+          "name": "test_resume_of_a_completed_frozen_run_does_not_start_a_server"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_page_split_preserves_source_provenance_and_duplicate_identity_after_restore"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_single_document_mode_does_not_split_and_bad_files_do_not_discard_good_ones"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_split_limits_and_invalid_mode_leave_no_receipts"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_multipart_body_limit_is_streamed_and_keeps_existing_records"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_simultaneous_duplicate_uploads_save_one_original"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_interrupted_processing_restarts_automatically_without_losing_draft"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_batch_retry_is_versioned_preserves_inputs_and_does_not_touch_confirmed"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_repeatedly_interrupted_processing_does_not_auto_restart_forever"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_oversize_file_does_not_discard_other_files_in_same_request"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_single_page_pdf_is_not_duplicated_when_import_mode_changes"
+        },
+        {
+          "class": "tests.test_bulk_import",
+          "name": "test_native_split_failure_keeps_saved_pages_and_imports_other_files"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_master_is_persistent_and_user_definitions_are_not_reseeded"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_seed_upgrade_preserves_manual_fields_and_existing_journal"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_posting_is_balanced_normalized_and_foreign_keys_are_enforced"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_changing_confirmed_data_voids_posting_and_preserves_history"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_custom_asset_and_alias_are_used_by_validation_and_totals"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_nonselectable_or_unknown_accounts_cannot_be_used_as_expense"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_refund_guard_cannot_be_bypassed_by_manually_positive_amount"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_food_guard_applies_even_if_a_merchant_suggestion_is_present"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_v1_migration_backs_up_and_preserves_confirmed_data_and_rules"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_catalog_api_updates_selection_and_samples_are_downloadable"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_retrieval_uses_purchase_terms_and_excludes_repair_from_asset_hint"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_mismatched_model_code_and_reason_is_held"
+        },
+        {
+          "class": "tests.test_catalog",
+          "name": "test_geometry_pairs_tax_label_with_its_amount_without_changing_text"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_real_legacy_ledger_migration_preserves_every_row_and_has_a_data_free_old_version_guard"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_exclusive_legacy_lock_is_held_until_the_guard_commits"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_restart_after_export_uses_the_current_legacy_ledger_not_a_stale_snapshot"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_restart_after_guard_commit_finishes_verified_cutover"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_lost_ciphertext_and_tampered_state_never_create_an_empty_replacement"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_new_protected_database_and_independently_keyed_snapshot_are_encrypted"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_locked_key_cannot_create_a_database"
+        },
+        {
+          "class": "tests.test_encryption_migration_files",
+          "name": "test_legacy_original_sidecars_old_backups_and_deleted_db_records_are_protected"
+        },
+        {
+          "class": "tests.test_encryption_migration_files",
+          "name": "test_active_ledger_never_accepts_replaced_plaintext_original"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_native_compound_journal_preserves_gross_private_split_and_quotes[freee-7-13-1-4]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_native_compound_journal_preserves_gross_private_split_and_quotes[mf-8-16-1-2]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_native_compound_journal_preserves_gross_private_split_and_quotes[yayoi-8-14-3-4]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_personal_payment_exports_business_portion_once"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_tax_is_explicit_and_missing_values_block_whole_native_download"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_confirmed_transition_treatment_uses_transaction_date[2026-09-30-80]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_confirmed_transition_treatment_uses_transaction_date[2026-10-01-70]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_confirmed_transition_treatment_uses_transaction_date[2028-09-30-70]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_confirmed_transition_treatment_uses_transaction_date[2028-10-01-50]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_confirmed_transition_treatment_uses_transaction_date[2030-10-01-30]"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_mixed_rate_and_unrepresentable_text_are_reported_without_partial_export"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_review_csv_retains_unknown_amounts_status_and_formula_safety"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_yayoi_unit_compatibility_keeps_original_notes"
+        },
+        {
+          "class": "tests.test_exports",
+          "name": "test_preview_download_and_account_mapping_use_same_saved_postings"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u5408\\u8a08(5\\u70b9) \\xa57,480\\n\\u5185\\u6d88\\u8cbb\\u7a0e680-7480]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u5408\\u8a08\\uff08\\u7a0e\\u8fbc\\uff09 18,260 \\u5185\\u6d88\\u8cbb\\u7a0e \\xa51,660\\n\\u3054\\u8acb\\u6c42\\u91d1\\u984d\\n18,260 \\u5186-18260]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\xa572,820-\\n\\u3054\\u8cfc\\u5165\\u91d1\\u984d(\\u7a0e\\u8fbc)\\n\\u304a\\u652f\\u6255 \\u73fe\\u91d175,000 \\u304a\\u91e3\\u308a2,180-72820]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u4eca\\u56de\\u53d7\\u9818\\uff08\\u6b8b\\u91d1\\uff09\\n13,000\\u5186\\n\\u5bbf\\u6cca\\u7dcf\\u984d28,000\\u5186\\n\\u4e88\\u7d04\\u91d1\\u53d7\\u9818\\u6e0815,000\\u5186-13000]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u5408\\u8a08\\u3054\\u8acb\\u6c42\\u984d\\n12,100\\u5186\\n\\u56de\\u7dda\\u5408\\u8a085,500\\u5186\\n\\u56de\\u7dda\\u5408\\u8a086,600\\u5186-12100]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u53d7\\u9818\\u984d\\n32,100\\u5186\\n\\u822a\\u7a7a\\u904b\\u8cc330,000\\u5186\\n\\u65bd\\u8a2d\\u4f7f\\u7528\\u65992,100\\u5186-32100]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_evidence_total_label_and_adjacent_value[\\u5408\\u8a08 \\u91d1\\u53c2\\u842c\\u5f10\\u9621\\u4e94\\u767e\\u5186\\u4e5f-32500]"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_return_policy_is_not_a_refund_and_actual_refund_is_stopped"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_legitimate_leading_four_is_not_removed_from_a_currency_amount"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_geometry_recovers_amount_without_taking_meters_or_tax"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_native_pdf_amount_and_scan_amount_disagreement_is_visible"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_japanese_era_kanji_and_dotted_abbreviation_dates"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_payment_date_wins_over_future_usage_date_on_same_line"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_issuer_options_keep_names_separate_from_receipt_caption_and_test_marker"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_recipient_marker_does_not_become_issuer_option"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_tax_evidence_is_not_added_twice_for_stubs_or_ocr_retries"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_currency_code_without_space_does_not_become_a_yen_amount"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_event_purpose_and_honorarium_require_review"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_repeated_amount_and_tax_consistency_disambiguate_previous_balance"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_supplier_header_is_distinct_from_recipient_and_captions"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_shop_branch_and_address_shared_row_are_preserved"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_food_policy_uses_purchases_not_customer_name_or_storage_container"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_partial_payment_certificate_is_not_an_unpaid_document"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_annual_service_waits_for_period_allocation"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_document_date_is_not_quote_expiry_and_product_is_not_issuer"
+        },
+        {
+          "class": "tests.test_extraction",
+          "name": "test_trusted_pdf_issuer_text_excludes_image_ocr_variants_and_room_names"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_restored_ledger_launcher_passes_literal_japanese_paths_and_never_overwrites"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_stop_checks_all_unique_listener_owners_before_any_stop[False]"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_stop_checks_all_unique_listener_owners_before_any_stop[True]"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_startup_lock_prevents_second_launch_and_releases_cleanly"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_stop_can_recover_verified_app_without_a_current_record[False]"
+        },
+        {
+          "class": "tests.test_launchers",
+          "name": "test_stop_can_recover_verified_app_without_a_current_record[True]"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_business_private_split_has_correct_counterpart[owner-expected0]"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_business_private_split_has_correct_counterpart[bank-expected1]"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_business_private_split_has_correct_counterpart[card-expected2]"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_yen_rounding_is_decimal_half_up"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_no_assumption_about_business_share_or_payment"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_original_deduplication_and_stale_version"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_reanalysis_preserves_manual_values_and_has_separate_suggestion"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_csv_excludes_unconfirmed_and_prevents_formula_injection"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_model_hallucinations_and_tender_are_not_silently_accepted"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_era_date_and_invalid_date"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_food_does_not_become_business_meeting_expense_without_purpose"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_upload_validation_rejects_arbitrary_bytes"
+        },
+        {
+          "class": "tests.test_ledger",
+          "name": "test_api_manual_confirmation_security_backup_and_export"
+        },
+        {
+          "class": "tests.test_ledger_workflow",
+          "name": "test_ledger_is_created_before_review_and_survives_restart"
+        },
+        {
+          "class": "tests.test_ledger_workflow",
+          "name": "test_review_order_setting_persists_without_changing_existing_rows"
+        },
+        {
+          "class": "tests.test_ledger_workflow",
+          "name": "test_later_batch_review_posts_only_valid_rows_and_preserves_existing_inputs"
+        },
+        {
+          "class": "tests.test_ledger_workflow",
+          "name": "test_stale_batch_review_cannot_overwrite_a_newer_edit"
+        },
+        {
+          "class": "tests.test_local_model_guard",
+          "name": "test_cloud_or_unknown_model_is_rejected_using_metadata_before_sending_any_receipt[local]"
+        },
+        {
+          "class": "tests.test_local_model_guard",
+          "name": "test_cloud_or_unknown_model_is_rejected_using_metadata_before_sending_any_receipt[cloud-alias]"
+        },
+        {
+          "class": "tests.test_local_model_guard",
+          "name": "test_cloud_or_unknown_model_is_rejected_using_metadata_before_sending_any_receipt[small-cloud-manifest]"
+        },
+        {
+          "class": "tests.test_local_model_guard",
+          "name": "test_cloud_or_unknown_model_is_rejected_using_metadata_before_sending_any_receipt[unknown-format]"
+        },
+        {
+          "class": "tests.test_privacy",
+          "name": "test_app_process_blocks_real_outbound_connect_before_network_io"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_real_dpapi_restart_and_no_unprotected_key_material"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_copy_without_windows_key_requires_password_and_validates_before_rewrapping"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_failed_recovered_database_validation_does_not_replace_key_file"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_missing_or_corrupt_key_never_creates_a_replacement_for_an_existing_vault"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_file_encryption_hides_content_and_detects_modification_and_path_substitution"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_plaintext_files_and_paths_outside_the_ledger_are_rejected"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change0]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change1]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change2]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change3]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change4]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_recovery_password_and_context_are_both_required"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_aborted_atomic_write_keeps_previous_protected_file"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_residential_rent_never_keeps_a_forced_travel_candidate[\\u5c45\\u4f4f\\u7528\\u8cc3\\u8cb8\\u4f4f\\u5b85\\u306e\\u5bb6\\u8cc3 \\u4e00\\u90e8\\u652f\\u6255\\u5206\\n\\u5bb6\\u8cc3 70,000 20% 14,000\\n\\u99d0\\u8eca\\u5834\\u4f7f\\u7528\\u6599 4,000 0% 0\\n\\u4eca\\u56de\\u5206\\u5408\\u8a0814,000\\u5186]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_residential_rent_never_keeps_a_forced_travel_candidate[\\u4f4f\\u5c45\\u7528\\u8cc3\\u6599 75,000\\u5186 \\u9818\\u53ce\\u66f8]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_residential_rent_never_keeps_a_forced_travel_candidate[\\u81ea\\u5b85\\u5bb6\\u8cc3 \\u4eca\\u6708\\u5206\\u306e\\u9818\\u53ce\\u8a3c 80,000\\u5186]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_non_residential_rent_is_not_held_by_the_new_policy[\\u4e8b\\u52d9\\u6240\\u8cc3\\u6599 70,000\\u5186 \\u99d0\\u8eca\\u5834\\u4f7f\\u7528\\u65990\\u5186-\\u5730\\u4ee3\\u5bb6\\u8cc3]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_non_residential_rent_is_not_held_by_the_new_policy[\\u51fa\\u5f35\\u5148\\u30db\\u30c6\\u30eb \\u5bbf\\u6cca\\u6599\\u91d1 12,000\\u5186-\\u65c5\\u8cbb\\u4ea4\\u901a\\u8cbb]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_non_residential_rent_is_not_held_by_the_new_policy[\\u4f4f\\u5c45\\u7528 \\u706b\\u707d\\u4fdd\\u967a \\u4fdd\\u967a\\u6599 20,000\\u5186-\\u640d\\u5bb3\\u4fdd\\u967a\\u6599]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_non_residential_rent_is_not_held_by_the_new_policy[\\u4f4f\\u5c45\\u7528\\u30fb\\u8cc3\\u8cb8\\u4f4f\\u5b85\\u5411\\u3051 \\u706b\\u707d\\u4fdd\\u967a\\u6599 20,000\\u5186-\\u640d\\u5bb3\\u4fdd\\u967a\\u6599]"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_old_catalog_gets_the_review_policy_and_preserves_manual_catalog_fields"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_owner_can_confirm_real_business_use_after_the_candidate_was_held"
+        },
+        {
+          "class": "tests.test_residential_rent",
+          "name": "test_seed_upgrade_refreshes_pending_warning_but_keeps_owner_input_and_confirmed_entries"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_restore_new_directory_rekeys_verifies_hashes_and_keeps_original"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_restore_cli_japanese_path_ascii_console_and_password_uses_stdin"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_wrong_password_rejected_before_destination_creation"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[truncated]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[last-tag]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[header]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_authenticated_but_altered_original_fails_hash_validation"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[../escape.txt]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[data/../../escape.txt]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[data/imports/fake/source.pdf]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[script.ps1]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_is_encrypted_during_restore_and_preserves_postings"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_rescue_of_300_missing_originals_reopens_with_bounded_authenticated_state"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_missing_state_with_both_plain_and_ciphertext_never_overwrites_either"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_creating_state_after_guard_commit_finishes_active_on_restart"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_guard_alone_never_offers_setup_or_creates_replacement_keys"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_deep_protection_json_reports_value_error"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_state_limit_rejects_oversize_update_without_replacing_valid_state"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_stream_cipher_interoperates_with_standard_high_level_aesgcm"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_encrypted_restore_destination_created_after_preflight_is_left_untouched"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_legacy_restore_destination_created_after_preflight_is_left_untouched"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_legacy_cleanup_failure_never_removes_in_progress_marker"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_encrypted_restore_checks_fresh_key_loader_before_removing_marker"
+        },
+        {
+          "class": "tests.test_retained_evidence",
+          "name": "test_refund_in_retained_evidence_cannot_be_posted_individually_or_in_bulk[native_pdf_text]"
+        },
+        {
+          "class": "tests.test_retained_evidence",
+          "name": "test_refund_in_retained_evidence_cannot_be_posted_individually_or_in_bulk[initial_text]"
+        },
+        {
+          "class": "tests.test_retained_evidence",
+          "name": "test_refund_in_retained_evidence_cannot_be_posted_individually_or_in_bulk[page_initial]"
+        },
+        {
+          "class": "tests.test_retained_evidence",
+          "name": "test_ai_failure_still_checks_refund_in_pdf_text_layer"
+        },
+        {
+          "class": "tests.test_security_guards",
+          "name": "test_actual_python_udp_tcp_and_dns_are_blocked_before_external_transmission"
+        },
+        {
+          "class": "tests.test_security_guards",
+          "name": "test_failed_restore_destination_is_never_opened_as_a_fresh_ledger"
+        },
+        {
+          "class": "tests.test_security_guards",
+          "name": "test_seed_history_identifier_cannot_read_outside_the_known_history_directory"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_missing_original_is_detected_before_legacy_cutover_and_has_a_retry_screen_api"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_abandoned_atomic_ciphertext_is_removed_without_aad_failure_on_migration"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_hot_rollback_journal_after_actual_process_exit_recovers_before_migration"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_unlocked_windows_account_can_reset_forgotten_recovery_password"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_rescue_backup_explicitly_omits_missing_file_restores_ledger_and_can_repair_by_exact_reimport"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_private_work_cleanup_skips_a_live_job_and_cleans_after_it_exits"
+        },
+        {
+          "class": "tests.test_session_security",
+          "name": "test_public_health_has_no_paths_models_or_ledger_and_all_data_requires_auth"
+        },
+        {
+          "class": "tests.test_session_security",
+          "name": "test_bearer_bootstrap_and_wrong_instance_expiry_are_independent"
+        },
+        {
+          "class": "tests.test_session_security",
+          "name": "test_password_validation_never_echoes_input_and_recovery_preserves_data"
+        },
+        {
+          "class": "tests.test_session_security",
+          "name": "test_saved_original_preview_db_and_wal_hide_plaintext_and_upload_never_rolls_to_disk"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_csv_get_is_read_only_and_post_creation_rejects_cross_site_requests"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_image_pixel_warning_and_error_both_explain_how_to_resize[40-30]"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_image_pixel_warning_and_error_both_explain_how_to_resize[60-40]"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_batch_does_not_overwrite_explicit_zero_business_use"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_unknown_total_does_not_become_zero_business_amount_in_api"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_restored_pdf_and_image_have_previews_without_ocr_or_ai"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_same_page_from_different_source_pdfs_keeps_both_originals_in_backup"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_source_mapping_migration_preserves_rows_and_saves_snapshot"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_large_history_response_is_compact_but_saved_evidence_is_untouched"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_bulk_exclude_restore_is_versioned_and_preserves_originals"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_missing_original_backup_reports_actionable_message"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_pdf_validation_waits_for_process_wide_pdfium_lock"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_image_validation_does_not_wait_for_pdf_ocr_lock"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_duplicate_warning_payload_is_bounded_for_a_large_identical_group"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_real_pixel_limit_matches_the_25_megapixel_guidance[size0-True]"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_real_pixel_limit_matches_the_25_megapixel_guidance[size1-False]"
+        },
+        {
+          "class": "tests.test_v1_quality",
+          "name": "test_single_restore_does_not_demote_a_confirmed_posting"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_small_list_keeps_detail_ocr_and_flags_possible_duplicates_without_deleting"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_batch_tax_fills_only_empty_and_mixed_rate_stays_pending"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_csv_history_only_skips_exported_versions_and_does_not_claim_saas_import"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_pending_csv_history_includes_unknown_dates_and_excluded_rows"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_backup_streams_archive_and_database_and_bounds_each_original"
+        },
+        {
+          "class": "tests.test_v1_workflow",
+          "name": "test_export_tax_preference_is_explicit_and_survives_restart"
+        }
+      ]
+    },
+    {
+      "name": "security-final-regressions.xml",
+      "source_xml_sha256": "d0aa5180f63896ca62cb6bf644f54d26a214ff23e8f0662e8250db3d6b9526a4",
+      "tests": 49,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "junit_reported_seconds": 55.026,
+      "reported_wall_seconds": 55.38,
+      "started_at": [
+        "2026-10-22T16:03:47.649810+09:00"
+      ],
+      "cases": [
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_rescue_of_300_missing_originals_reopens_with_bounded_authenticated_state"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_missing_state_with_both_plain_and_ciphertext_never_overwrites_either"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_creating_state_after_guard_commit_finishes_active_on_restart"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_guard_alone_never_offers_setup_or_creates_replacement_keys"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_deep_protection_json_reports_value_error"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_state_limit_rejects_oversize_update_without_replacing_valid_state"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_stream_cipher_interoperates_with_standard_high_level_aesgcm"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_encrypted_restore_destination_created_after_preflight_is_left_untouched"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_legacy_restore_destination_created_after_preflight_is_left_untouched"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_legacy_cleanup_failure_never_removes_in_progress_marker"
+        },
+        {
+          "class": "tests.test_restore_final_regressions",
+          "name": "test_encrypted_restore_checks_fresh_key_loader_before_removing_marker"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_restore_new_directory_rekeys_verifies_hashes_and_keeps_original"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_restore_cli_japanese_path_ascii_console_and_password_uses_stdin"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_wrong_password_rejected_before_destination_creation"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[truncated]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[last-tag]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_archive_tampering_never_adopts_a_partial_ledger[header]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_authenticated_but_altered_original_fails_hash_validation"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[../escape.txt]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[data/../../escape.txt]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[data/imports/fake/source.pdf]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_traversal_unknown_files_fail_before_creation[script.ps1]"
+        },
+        {
+          "class": "tests.test_restore",
+          "name": "test_legacy_zip_is_encrypted_during_restore_and_preserves_postings"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_real_legacy_ledger_migration_preserves_every_row_and_has_a_data_free_old_version_guard"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_exclusive_legacy_lock_is_held_until_the_guard_commits"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_restart_after_export_uses_the_current_legacy_ledger_not_a_stale_snapshot"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_restart_after_guard_commit_finishes_verified_cutover"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_lost_ciphertext_and_tampered_state_never_create_an_empty_replacement"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_new_protected_database_and_independently_keyed_snapshot_are_encrypted"
+        },
+        {
+          "class": "tests.test_database_protection",
+          "name": "test_locked_key_cannot_create_a_database"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_missing_original_is_detected_before_legacy_cutover_and_has_a_retry_screen_api"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_abandoned_atomic_ciphertext_is_removed_without_aad_failure_on_migration"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_hot_rollback_journal_after_actual_process_exit_recovers_before_migration"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_unlocked_windows_account_can_reset_forgotten_recovery_password"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_rescue_backup_explicitly_omits_missing_file_restores_ledger_and_can_repair_by_exact_reimport"
+        },
+        {
+          "class": "tests.test_security_recovery_regressions",
+          "name": "test_private_work_cleanup_skips_a_live_job_and_cleans_after_it_exits"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_real_dpapi_restart_and_no_unprotected_key_material"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_copy_without_windows_key_requires_password_and_validates_before_rewrapping"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_failed_recovered_database_validation_does_not_replace_key_file"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_missing_or_corrupt_key_never_creates_a_replacement_for_an_existing_vault"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_file_encryption_hides_content_and_detects_modification_and_path_substitution"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_plaintext_files_and_paths_outside_the_ledger_are_rejected"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change0]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change1]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change2]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change3]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_untrusted_recovery_headers_do_not_control_kdf_cost_or_bypass_authentication[change4]"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_recovery_password_and_context_are_both_required"
+        },
+        {
+          "class": "tests.test_protection",
+          "name": "test_aborted_atomic_write_keeps_previous_protected_file"
+        }
+      ]
+    }
+  ],
+  "limits": "この記録だけで最終UIの操作・見た目やGitHub Actionsの完了は保証しない。"
+}

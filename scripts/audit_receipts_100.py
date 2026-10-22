@@ -53,6 +53,9 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--fixtures',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--port',type=int,default=8767);ap.add_argument('--cases',default='');ap.add_argument('--reuse-ocr',type=Path);ap.add_argument('--source',type=Path,default=SOURCE);ap.add_argument('--resume',action='store_true');ap.add_argument('--keep-server',action='store_true');ap.add_argument('--allow-model-offline',action='store_true',help='Diagnostic run only; never label offline fallback as successful AI inference')
     args=ap.parse_args();output=args.output.resolve()
     if (output/'run.json').exists() and not args.resume:raise SystemExit('Use a fresh run directory; previous evidence is immutable.')
+    if args.port == 0:
+        with socket.socket() as allocation:
+            allocation.bind(('127.0.0.1',0));args.port=allocation.getsockname()[1]
     with socket.socket() as probe:
         if probe.connect_ex(('127.0.0.1',args.port))==0:raise SystemExit(f'Port {args.port} already in use; no process will be replaced.')
     output.mkdir(parents=True,exist_ok=True);snapshot=output/'app'
@@ -102,12 +105,26 @@ def main():
             for _ in range(90):
                 if process.poll() is not None:raise RuntimeError('Owned app exited; inspect server.log')
                 try:
-                    response=client.get('/api/config');response.raise_for_status();break
+                    response=client.get('/api/health');response.raise_for_status();break
                 except httpx.ConnectError:time.sleep(1)
             else:raise RuntimeError('Owned app did not become ready')
+            sys.path.insert(0,str(snapshot))
+            from receipt_ledger.session import open_record,bootstrap
+            from urllib.parse import urlsplit,parse_qs
+            record=open_record(output/'data',args.port)
+            if record['instance'] != response.json().get('instance'):
+                raise RuntimeError('The owned app instance does not match its protected record')
+            result=client.post('/api/session',headers={'X-Ledger-Request':'1','Authorization':'Bootstrap '+bootstrap(bytes.fromhex(record['secret']))})
+            result.raise_for_status();client.headers['Authorization']='Bearer '+result.json()['token']
             health=get('/api/health').json()
             if not args.allow_model_offline and not health.get('model_ready'):
                 raise RuntimeError('ローカルAIの準備ができていません。Ollamaとqwen3:4bを確認してください。PDFの取り込みは開始していません。')
+            if not get('/api/security').json()['ready']:
+                import secrets
+                password=secrets.token_urlsafe(32)
+                opened=client.post('/api/security/open',headers={'X-Ledger-Request':'1'},json={'password':password,'confirmation':password})
+                opened.raise_for_status();del password
+            response=get('/api/config')
             account_list=response.json()['accounts']
             response=client.post('/api/settings',headers={'X-Ledger-Request':'1'},json={'business_context':'個人事業主。ソフトウェア・ゲーム制作、デザイン業。科目は暫定候補で、実際の業務用途・事業割合・支払方法は本人が確認する。'});response.raise_for_status()
             mapping=meta.get('receipt_ids',{}) if args.resume else {}

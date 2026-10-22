@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "scope": "Local integration checks on the candidate. GitHub Actions and published artifacts are separate release gates linked below; this file does not claim a future CI run has completed.",
+  "recorded_at": "2026-10-22T07:20:48.462650+00:00",
+  "version": "1.1.0",
+  "checks": {
+    "python_full": 188,
+    "python_focused_security": 49,
+    "javascript": 3,
+    "browser_workflow": 28,
+    "browser_security_and_simple_ui": 10,
+    "real_http_security": 18,
+    "csv_profiles": 4,
+    "new_fictional_ocr_ai_receipts": 100
+  },
+  "browser_ocr_ai": "saved-observation replay; cryptography, auth, IO and backup restore are real",
+  "real100": "frozen candidate run, followed by security/restore/UI changes; no OCR/classifier algorithm change",
+  "visual_review": {
+    "status": "reviewed",
+    "surfaces": [
+      "desktop home",
+      "desktop three-column results",
+      "original zoom",
+      "375px home/results"
+    ],
+    "screenshots_sha256": {
+      "02-simple-home.png": "776f2ad02c8280eebd9bdf00ac88ae38f9f8d0d1517f180ea9cb86ac0107f4b7",
+      "03-three-column-results.png": "e20a475a8569f5b389102e8ac332666107689234f685d42628a87455b83a65d7",
+      "04-original-zoom.png": "acbdba4ee64a0cb30169f46933e9933d30d87b1abeb86386b7162274d3475561",
+      "02b-home-375px.png": "ee98b9cfe9f89f0cdd5c0ff8a2fae0cdee908e2c45986208a640aaba7a57f6d0",
+      "05-results-375px.png": "804fc7487cb995a233cb9dedf2dec80fc6b7dda3b449258336d81f37211091e7"
+    },
+    "limit": "Visual inspection and browser regression, not a representative user study."
+  },
+  "github_checks": "https://github.com/studio-yebisu/ryoshu/actions",
+  "release": "https://github.com/studio-yebisu/ryoshu/releases/tag/v1.1.0",
+  "remaining_limits": [
+    "Same-user malware/admin and OS forensic residue are outside at-rest protection.",
+    "SQLCipher wheel embeds OpenSSL3.6.0; native-dependencies.json records remaining advisory scope.",
+    "Vendor accounting service account imports and native OS Save dialog were not automated-tested."
+  ]
+}

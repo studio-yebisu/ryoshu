@@ -81,7 +81,9 @@ for item in meta['exports']:
 critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt_ledger/catalog.py',
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
-changes_path = ROOT / 'docs/testing/v1/source-changes.json'
+changes_path = ROOT / 'docs/testing/security/source-changes.json'
+if not changes_path.is_file():
+    changes_path = ROOT / 'docs/testing/v1/source-changes.json'
 changes = json.loads(changes_path.read_text('utf-8')) if changes_path.is_file() else {}
 for name in critical:
     original_hash = report['current_source_hashes'][name]
@@ -95,6 +97,40 @@ for name in critical:
         require(sha(archive) == original_hash == change.get('before_sha256'), f'Original baseline hash differs: {name}')
     require(current_hash == change.get('after_sha256'), f'Unrecorded processing change: {name}')
     require(bool(change.get('scope')) and bool(change.get('regression_tests')), f'Missing change scope/tests: {name}')
+
+# New runs are additional evidence; historical scores and baselines stay immutable.
+security = ROOT / 'docs/testing/security'
+if (security / 'results-100.json').is_file():
+    latest = json.loads((security / 'results-100.json').read_text('utf-8'))
+    require(latest['execution_status'] == 'complete', 'Security 100-case run is incomplete')
+    require(latest['fixture_manifest_sha256'] == sha(SAMPLE / 'manifest.json'), 'Security run uses different fixtures')
+    require(len(latest['cases']) == 100 and {c['case_id'] for c in latest['cases']} == set(truth), 'Security run IDs/count differ')
+    require(latest['confirmed_count'] == 0 and latest['journal_row_count'] == 0, 'Security run must remain unconfirmed')
+    for row in latest['cases']:
+        original = truth[row['case_id']]
+        require(row['sha256'] == original['sha256'], f"Security PDF hash differs: {row['case_id']}")
+        require(row['expected'] == {k:original[k] for k in ['merchant','date','total','acceptable_accounts','expected_decision']}, f"Security truth differs: {row['case_id']}")
+    for key, score in latest['metrics'].items():
+        values = [c['checks'].get(key) for c in latest['cases'] if c['checks'].get(key) is not None]
+        require({'matched':sum(v is True for v in values),'evaluated':len(values)} == score, f'Security aggregate differs: {key}')
+    with (security / 'comparison-100.csv').open(encoding='utf-8-sig',newline='') as f:
+        latest_rows = list(csv.DictReader(f))
+    require(len(latest_rows) == 100 and {r['case_id'] for r in latest_rows} == set(truth), 'Security comparison CSV differs')
+    dependencies = json.loads((security / 'python-dependency-audit.json').read_text('utf-8'))
+    require(len(dependencies['dependencies']) == 45 and not dependencies['ignored_advisories'], 'Python dependency audit scope differs')
+    require(all(not d.get('vulns') and not d.get('skip_reason') for d in dependencies['dependencies']), 'Python audit contains a match or skip')
+    http = json.loads((security / 'http-security.json').read_text('utf-8'))
+    require(len(http['checks']) == 18 and all(c['expected_http'] == c['observed_http'] for c in http['checks']), 'HTTP security result differs')
+    require(http['owned_listener_stopped'] and not http['database_header_is_plain_sqlite'], 'HTTP security cleanup/encryption proof differs')
+    csv_meta = json.loads((security / 'csv-verification.json').read_text('utf-8'))
+    for item in csv_meta['exports']:
+        require(sha(security / 'csv' / item['file']) == item['sha256'], f"Security CSV changed: {item['file']}")
+        require(item['receipts'] == 6 and item['rows'] == 7 and item['debit'] == item['credit'] == 299095, f"Security CSV totals differ: {item['profile']}")
+    finalization = json.loads((security / 'finalization.json').read_text('utf-8'))
+    if finalization.get('status') in {'passed','complete','completed'}:
+        snapshot = json.loads((security / 'source-hashes.json').read_text('utf-8'))['current_snapshot']
+        for name, expected_hash in snapshot.items():
+            require(sha(ROOT / name) == expected_hash, f'Final security source snapshot is stale: {name}')
 
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
@@ -113,6 +149,8 @@ for p in files:
     relative = p.relative_to(ROOT).as_posix()
     require(not p.is_symlink(), f'Symlink is not part of the public package: {relative}')
     require(p.suffix.lower() not in {'.sqlite','.sqlite3','.db','.onnx','.safetensors','.gguf','.log','.pem','.key','.ttf','.ttc'}, f'Private/model/font artifact: {relative}')
+    require(p.suffix.lower() not in {'.dpapi','.ryoshubak'} and not p.name.startswith('.ryoshu-')
+            and not re.search(r'\.(?:sqlite3?|db)-(?:wal|shm|journal)$',p.name,re.I), f'Private protected artifact: {relative}')
     require(not p.name.startswith('.env'), f'Environment file in source package: {relative}')
     if p.suffix.lower() not in text_suffixes:
         continue

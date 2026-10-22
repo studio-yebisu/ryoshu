@@ -31,3 +31,5 @@ samples/receipts-100-v2/sources/authors/*/final-fragment.json
 .DS_Store
 Thumbs.db
 node_modules/
+**/.ryoshu-*
+*.ryoshubak

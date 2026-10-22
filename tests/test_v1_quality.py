@@ -1,3 +1,4 @@
+from support import PASSWORD, backup_files
 import concurrent.futures
 import hashlib
 import io
@@ -6,7 +7,7 @@ from pathlib import Path
 import threading
 import zipfile
 
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 from PIL import Image
 import pytest
 import pypdfium2 as pdfium
@@ -16,8 +17,8 @@ from receipt_ledger.pdf_runtime import PDF_LOCK
 from receipt_ledger.pipeline import validate_file
 from receipt_ledger.restore import restore_backup
 from receipt_ledger.schemas import Draft
-from receipt_ledger.server import create_app
-from receipt_ledger.store import Store
+from support import ready_app as create_app
+from support import ready_store as Store
 
 HEADERS = {"X-Ledger-Request": "1"}
 
@@ -98,8 +99,8 @@ def test_restored_pdf_and_image_have_previews_without_ocr_or_ai(tmp_path, monkey
         app.state.store.complete(a["id"], {"text": "架空", "page_count": 2}, None)
         b = analyzed(app.state.store, image())
         backup = tmp_path / "backup.zip"
-        backup.write_bytes(client.get("/api/backup").content)
-    restored = restore_backup(backup, tmp_path / "restored")
+        backup.write_bytes(client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD}).content)
+    restored = restore_backup(backup, tmp_path / "restored", PASSWORD)
     app = create_app(restored["restored_data"], run_workers=False)
     def unexpected(*args):
         raise AssertionError("Preview must not run OCR or AI")
@@ -116,7 +117,7 @@ def test_restored_pdf_and_image_have_previews_without_ocr_or_ai(tmp_path, monkey
 
 def pdf_bytes(store, receipt_id):
     row = store.get(receipt_id)
-    return (store.folder(receipt_id) / ("original" + row["extension"])).read_bytes()
+    return store.keys.read_file(store.folder(receipt_id) / ("original" + row["extension"]))
 
 
 def test_same_page_from_different_source_pdfs_keeps_both_originals_in_backup(tmp_path):
@@ -128,7 +129,7 @@ def test_same_page_from_different_source_pdfs_keeps_both_originals_in_backup(tmp
     digest_b = hashlib.sha256(source_b).hexdigest()
     cache = importer.source_path(digest_b).parent
     cache.mkdir(parents=True)
-    (cache / "page-0001.pdf").write_bytes(pdf_bytes(store, first["id"]))
+    store.keys.write_file(cache / "page-0001.pdf",pdf_bytes(store, first["id"]))
     rows = list(importer.add("元B.pdf", source_b, "pages"))
     assert rows[0][0]["id"] == first["id"] and rows[0][1]
     assert len(importer.sources(first["id"])) == 2
@@ -136,11 +137,11 @@ def test_same_page_from_different_source_pdfs_keeps_both_originals_in_backup(tmp
         listed = client.get("/api/receipts").json()["receipts"]
         assert len(listed) == len({row["id"] for row in listed})
         assert client.get(f'/api/receipts/{first["id"]}/source?source={digest_b}').content == source_b
-        result = client.get("/api/backup")
+        result = client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD})
         result.raise_for_status()
-        with zipfile.ZipFile(io.BytesIO(result.content)) as bundle:
-            assert bundle.read(f"data/imports/{digest_b}/source.pdf") == source_b
-            assert bundle.read(f"data/imports/{hashlib.sha256(source_a).hexdigest()}/source.pdf") == source_a
+        files = backup_files(result.content)
+        assert files[f"data/imports/{digest_b}/source.pdf"] == source_b
+        assert files[f"data/imports/{hashlib.sha256(source_a).hexdigest()}/source.pdf"] == source_a
 
 
 def test_source_mapping_migration_preserves_rows_and_saves_snapshot(tmp_path):
@@ -185,7 +186,7 @@ def test_missing_original_backup_reports_actionable_message(tmp_path):
     with TestClient(app) as client:
         row = analyzed(app.state.store)
         (app.state.store.folder(row["id"]) / "original.png").unlink()
-        result = client.get("/api/backup")
+        result = client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD})
         assert result.status_code == 422 and "原本が見つかりません" in result.json()["detail"]
 
 

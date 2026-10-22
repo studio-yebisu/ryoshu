@@ -2,7 +2,9 @@ import asyncio
 import importlib.metadata
 import json
 import os
-import sqlite3
+import sqlcipher3 as sqlite3
+import time
+from urllib.parse import quote
 import tempfile
 import threading
 import zipfile
@@ -14,13 +16,14 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from fastapi.exceptions import RequestValidationError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import __version__, config
 from .accounting import amounts, csv_export, journal, summary
 from .exports import PROFILES, TAX_CHOICES, build_export
-from .pipeline import local_models, process, validate_file
+from .pipeline import local_models, process, validate_file, ModelSafetyError
 from .schemas import Draft, SaveRequest, VersionRequest, confirmation_errors
 from .store import Conflict, Missing, Store, now
 from .workflow import ledger_records, review_before_ledger, recover_queue, export_tax_mode
@@ -31,37 +34,56 @@ from .backups import create_backup
 from .export_history import ExportHistory
 from starlette.background import BackgroundTask
 from .previews import ensure_preview
+from .protection import ProtectionError
+from .session import Sessions
+from .upload_limit import MemoryMultipartParser
 
 
 def create_app(data_dir=None, run_workers=True):
+    if config.MAX_REQUEST_BYTES>=MemoryMultipartParser.spool_max_size:
+        raise RuntimeError("取り込みサイズがメモリ内の上限を超えています。設定を確認してください。")
     store = Store(Path(data_dir or config.DATA_DIR))
-    importer = Importer(store)
-    export_history = ExportHistory(store)
+    importer = Importer(store) if store.ready else None
+    export_history = ExportHistory(store) if store.ready else None
+    sessions = Sessions(store.root, config.PORT)
+    setup_lock = threading.Lock()
+    retry_after = 0
+    upload_slots = asyncio.Semaphore(2)
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="receipt")
     import_lock = threading.Lock()
 
     @asynccontextmanager
     async def lifespan(app):
-        if run_workers:
+        sessions.publish()
+        if store.ready and run_workers:
             for receipt_id in recover_queue(store):
                 enqueue(receipt_id)
-        else:
+        elif store.ready:
             store.recover()
         yield
         executor.shutdown(wait=True, cancel_futures=True)
 
     app = FastAPI(title="Ryoshu", version=__version__, lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.store = store
+    app.state.sessions = sessions
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
     app.add_middleware(UploadSizeLimit, max_bytes=config.MAX_REQUEST_BYTES)
 
     @app.middleware("http")
     async def local_only(request: Request, call_next):
+        path = request.url.path
+        if path.startswith("/api/") and path not in {"/api/health", "/api/session"}:
+            if not sessions.authorized(request.headers.get("authorization")):
+                return JSONResponse({"detail":"起動リンクからアプリを開いてください。「Ryoshu.cmd」をもう一度起動すると開けます。"}, status_code=401,
+                                    headers={"Cache-Control":"no-store"})
+            if (not store.ready or importer is None or export_history is None) and not path.startswith("/api/security"):
+                return JSONResponse({"detail":"先に帳簿の保護を設定するか、復元用パスワードで開いてください。"}, status_code=423,
+                                    headers={"Cache-Control":"no-store"})
         if request.url.path.startswith("/api/") and request.headers.get("sec-fetch-site") == "cross-site":
             return JSONResponse({"detail": "このアプリの画面から操作してください"}, status_code=403)
         if request.url.path.startswith("/api/") and request.method not in ["GET", "HEAD"]:
             origin = request.headers.get("origin")
-            allowed = {f"http://127.0.0.1:{config.PORT}", f"http://localhost:{config.PORT}"}
+            allowed = {str(request.base_url).rstrip("/")}
             if request.headers.get("x-ledger-request") != "1" or (origin and origin not in allowed) or request.headers.get("sec-fetch-site") == "cross-site":
                 return JSONResponse({"detail": "このアプリの画面から操作してください"}, status_code=403)
         response = await call_next(request)
@@ -69,7 +91,7 @@ def create_app(data_dir=None, run_workers=True):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; frame-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'none'"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; frame-src 'self' blob:; frame-ancestors 'none'; form-action 'self'; base-uri 'none'"
         return response
 
     @app.exception_handler(Missing)
@@ -109,24 +131,130 @@ def create_app(data_dir=None, run_workers=True):
         return config.SAMPLE_DIR, "receipts-100", {"count": 100, "version": "receipts-100-v2", "description": "6モデルの独立した帳票設計。電子PDF、スキャン、薄い印字、FAX、斜め撮影、回転を含みます。"}
 
     @app.get("/api/health")
-    def health():
+    def health(request: Request):
+        public = {"app":"receipt-ledger", "app_version":__version__, "instance":sessions.instance}
+        if not sessions.authorized(request.headers.get("authorization")):
+            return public
+        model_issue=""
         try:
             models = local_models()
             installed = any(m.get("name") == config.MODEL for m in models)
             ollama = True
-        except Exception:
+        except Exception as exc:
             installed = ollama = False
+            if isinstance(exc,ModelSafetyError):model_issue=str(exc)
         return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": config.MODEL,
                 "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''), "source_dir": str(Path(__file__).resolve().parents[1]),
-                "model_ready": installed, "ollama_ready": ollama, "compute": "CPU", "data_dir": str(store.root),
-                "schema_version":2,"account_count":len(store.accounts(False)),"policy_count":len(store.policies()),
+                "model_ready": installed, "ollama_ready": ollama,"model_issue":model_issue, "compute": "CPU", "data_dir": str(store.root),
+                "schema_version":2,"account_count":len(store.accounts(False)) if store.ready else 0,"policy_count":len(store.policies()) if store.ready else 0,
+                "instance":sessions.instance,"protected":store.ready,"security_mode":store.keys.mode,
                 "privacy": "loopback-only; local OCR and local model; offline OCR cache"}
+
+    @app.post("/api/session")
+    def open_session(request: Request):
+        authorization = request.headers.get("authorization", "")
+        if not authorization.startswith("Bootstrap "):
+            raise HTTPException(401, "Ryoshu.cmdから開き直してください。")
+        try:
+            return {"token":sessions.exchange(authorization[10:])}
+        except ProtectionError as exc:
+            raise HTTPException(401, str(exc)) from None
+
+    @app.get("/api/security")
+    def security_status():
+        return {"ready":store.ready,"mode":store.keys.mode,"error":store.initialization_error,
+                "can_retry":store.keys.mode=="unlocked",
+                "migrate_legacy":(store.root / "ledger.sqlite3").is_file() and not (store.root / "ledger.enc.sqlite3").is_file()}
+
+    class ProtectionRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        password: SecretStr = Field(min_length=12,max_length=256)
+        confirmation: SecretStr | None = Field(default=None,min_length=12,max_length=256)
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_input(request, exc):
+        # Pydantic's default response includes the raw input, including passwords.
+        errors=[{k:v for k,v in item.items() if k in {"loc","msg","type"}} for item in exc.errors()]
+        return JSONResponse({"detail":errors},status_code=422)
+
+    @app.post("/api/security/open")
+    def protection_setup(body: ProtectionRequest):
+        nonlocal importer, export_history, retry_after
+        if store.ready:
+            raise HTTPException(409,"この帳簿は保護されています。")
+        if time.monotonic() < retry_after or not setup_lock.acquire(blocking=False):
+            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+        try:
+            password = body.password.get_secret_value()
+            if store.keys.mode == "new":
+                if body.confirmation is None or body.confirmation.get_secret_value() != password:
+                    raise ProtectionError("確認用のパスワードが一致しません。")
+                store.keys.setup(password)
+            else:
+                def validate(master, identity):
+                    from .database import CipherDatabase
+                    from .protection import LedgerKeys
+                    candidate = LedgerKeys.__new__(LedgerKeys)
+                    candidate.root, candidate.master, candidate.ledger_id, candidate.mode = store.root, master, identity, "unlocked"
+                    helper = CipherDatabase.__new__(CipherDatabase)
+                    helper.keys, helper.path = candidate, store.path
+                    if store.path.exists():
+                        with closing(helper.open(readonly=True)) as db:
+                            if db.execute("PRAGMA quick_check").fetchone()[0] != "ok":
+                                raise ProtectionError("帳簿の整合性を確認できません。")
+                store.keys.recover(password, validate)
+            store.initialize()
+            importer, export_history = Importer(store), ExportHistory(store)
+            for receipt_id in recover_queue(store) if run_workers else []:
+                enqueue(receipt_id)
+            return {"ready":True}
+        except ProtectionError as exc:
+            store.initialization_error=str(exc)
+            retry_after = time.monotonic() + 3
+            raise
+        finally:
+            setup_lock.release()
+
+    @app.post("/api/security/retry")
+    def retry_initialization():
+        nonlocal importer, export_history
+        if not setup_lock.acquire(blocking=False):
+            raise HTTPException(429,"帳簿を確認しています。少し待ってからやり直してください。")
+        try:
+            store.initialize()
+            importer,export_history=Importer(store),ExportHistory(store)
+            for receipt_id in recover_queue(store) if run_workers else []:
+                enqueue(receipt_id)
+            return {"ready":True}
+        except ProtectionError as exc:
+            store.initialization_error=str(exc)
+            raise
+        finally:
+            setup_lock.release()
+
+    @app.post("/api/security/password")
+    def change_recovery_password(body: ProtectionRequest):
+        nonlocal retry_after
+        if not store.ready:
+            raise HTTPException(423,"帳簿を開いてから変更してください。")
+        if time.monotonic()<retry_after or not setup_lock.acquire(blocking=False):
+            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+        try:
+            password=body.password.get_secret_value()
+            if body.confirmation is None or body.confirmation.get_secret_value()!=password:
+                raise ProtectionError("確認用のパスワードが一致しません。")
+            store.keys.reset_password(password)
+            return {"changed":True,"message":"復元用パスワードを変更しました。新しいバックアップを保存してください。以前のバックアップには以前のパスワードが必要です。"}
+        finally:
+            retry_after=time.monotonic()+3
+            setup_lock.release()
 
     @app.get("/api/config")
     def app_config():
         return {"accounts": store.accounts(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
                 "business_context": store.business_context(), "rules": store.rules(),
                 "review_before_ledger": review_before_ledger(store),
+                "storage_issues":store.storage_issues(),
                 "export_tax_mode": export_tax_mode(store),
                 "samples": sample_set()[2],
                 "export_profiles":PROFILES,"export_tax_choices":TAX_CHOICES,
@@ -236,9 +364,11 @@ def create_app(data_dir=None, run_workers=True):
 
     @app.post("/api/receipts")
     async def upload(request: Request):
-        # Starlette spools large files to the OS temp directory; bounded reads prevent unbounded RAM use.
+        # Bounded RAM avoids plaintext multipart spooling into the OS temp directory.
         try:
-            form = await request.form(max_files=config.MAX_FILES, max_fields=5, max_part_size=config.MAX_BYTES)
+            async with upload_slots:
+                parser = MemoryMultipartParser(request.headers, request.stream(), max_files=config.MAX_FILES, max_fields=5, max_part_size=config.MAX_BYTES)
+                form = await parser.parse()
         except UploadTooLarge:
             raise
         except Exception as exc:
@@ -339,7 +469,9 @@ def create_app(data_dir=None, run_workers=True):
     @app.get("/api/receipts/{receipt_id}/original")
     def original(receipt_id: str):
         row = store.get(receipt_id)
-        return FileResponse(store.folder(receipt_id) / ("original" + row["extension"]), filename=row["original_name"])
+        raw = store.keys.read_file(store.folder(receipt_id) / ("original" + row["extension"]))
+        return Response(raw, media_type="application/pdf" if row["extension"] == ".pdf" else "application/octet-stream",
+                        headers={"Content-Disposition":"attachment; filename*=utf-8''" + quote(row["original_name"])})
 
     @app.get("/api/receipts/{receipt_id}/source")
     def original_source(receipt_id: str, source: str = ""):
@@ -350,7 +482,8 @@ def create_app(data_dir=None, run_workers=True):
         path = importer.source_path(document["sha256"])
         if not path.is_file():
             raise HTTPException(404, "元PDFが見つかりません。バックアップを確認してください")
-        return FileResponse(path, filename=document["name"])
+        return Response(store.keys.read_file(path), media_type="application/pdf",
+                        headers={"Content-Disposition":"attachment; filename*=utf-8''" + quote(document["name"])})
 
     @app.get("/api/receipts/{receipt_id}/preview/{page}")
     def preview(receipt_id: str, page: int):
@@ -358,7 +491,7 @@ def create_app(data_dir=None, run_workers=True):
             raise HTTPException(404)
         row = store.get(receipt_id)
         path = ensure_preview(store, row, page)
-        return FileResponse(path, media_type="image/jpeg")
+        return Response(store.keys.read_file(path), media_type="image/jpeg")
 
     @app.get("/api/receipts/{receipt_id}/history")
     def history(receipt_id: str):
@@ -417,10 +550,20 @@ def create_app(data_dir=None, run_workers=True):
         encoding='shift_jis' if result.encoding=='cp932' else 'utf-8'
         return Response(content, media_type=f"text/csv; charset={encoding}", headers={"Content-Disposition": f'attachment; filename="{profile}-{kind}-{month or "all"}.csv"'})
 
-    @app.get("/api/backup")
-    def backup():
-        temporary, archive = create_backup(store, importer)
-        return FileResponse(archive, media_type="application/zip", filename="ryoshu-backup.zip", background=BackgroundTask(temporary.cleanup))
+    class BackupRequest(ProtectionRequest):
+        allow_missing:bool=Field(default=False,strict=True)
+
+    @app.post("/api/backup")
+    def backup(body: BackupRequest):
+        nonlocal retry_after
+        if time.monotonic()<retry_after or not setup_lock.acquire(blocking=False):
+            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+        try:
+            temporary,archive=create_backup(store,importer,body.password.get_secret_value(),allow_missing=body.allow_missing)
+            return FileResponse(archive,media_type="application/octet-stream",filename="ryoshu-backup-partial.ryoshubak" if body.allow_missing else "ryoshu-backup.ryoshubak",background=BackgroundTask(temporary.cleanup))
+        finally:
+            retry_after=time.monotonic()+3
+            setup_lock.release()
 
     app.mount("/evidence", StaticFiles(directory=config.APP_DIR / "docs/testing", html=True, check_dir=False), name="evidence")
     app.mount("/samples", StaticFiles(directory=config.APP_DIR / "samples", check_dir=False), name="samples")

@@ -1,5 +1,6 @@
 ﻿param([switch]$NoBrowser, [string]$DataDir)
 $ErrorActionPreference = 'Stop'
+$env:OLLAMA_NO_CLOUD = '1'
 $taskRoot = Join-Path $env:USERPROFILE 'StudioYebisu\ReceiptLedger'
 $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
 $appUrl = 'http://127.0.0.1:8766'
@@ -15,8 +16,10 @@ $selectedData = if ($DataDir) { [System.IO.Path]::GetFullPath($DataDir) } elseif
 if (($DataDir -or (Test-Path -LiteralPath $locationRecord)) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.sqlite3'))) {
     throw '選択した帳簿が見つかりません。保存先を移動していないか確認してください。新しい空の帳簿へ自動で切り替えることはありません。'
 }
-& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.maxsize>2**32 else 1)"
-if ($LASTEXITCODE -ne 0) { throw 'Python 3.12・64bitの実行環境が必要です。docs/INSTALL.mdの実行環境の再作成を確認してください。帳簿は変更していません。' }
+& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
+if ($LASTEXITCODE -ne 0) { & (Join-Path $PSScriptRoot 'setup.ps1') }
+& $pythonExe -c "import sqlcipher3,cryptography;assert cryptography.__version__=='50.0.2';assert sqlcipher3.sqlite_version_info>=(3,53,4)"
+if ($LASTEXITCODE -ne 0) { & (Join-Path $PSScriptRoot 'setup.ps1') }
 $sourceVersion = & $pythonExe -c "import sys;sys.path.insert(0,sys.argv[1]);from receipt_ledger import __version__;print(__version__)" $PSScriptRoot
 
 try { $runningApp = Invoke-RestMethod -Uri ($appUrl + '/api/health') -TimeoutSec 4 } catch { $runningApp = $null }
@@ -26,11 +29,17 @@ if ($runningApp -and $runningApp.app -eq 'receipt-ledger') {
     if (Test-Path -LiteralPath $serverRecord) { try { $previousRecord = Get-Content -LiteralPath $serverRecord -Raw | ConvertFrom-Json } catch {} }
     $existingServers = @(Get-RyoshuListener -PythonExe $pythonExe -Record $previousRecord)
     if ($existingServers.Count -ne 1) { throw '起動済みアプリの接続元を確認できません。しばらく待ってから、もう一度操作してください。' }
-    Save-RyoshuServerRecord -RuntimeDir $runtimeDir -Server $existingServers[0] -DataDir $runningApp.data_dir -SourceDir ([string]$runningApp.source_dir)
+    if (-not $runningApp.instance) { throw '旧版のRyoshuが起動しています。「停止.cmd」で終了してから起動してください。' }
+    $sessionJson = & $pythonExe (Join-Path $PSScriptRoot 'scripts\open_session.py') --data-dir $selectedData
+    if ($LASTEXITCODE -ne 0) { throw '起動中の帳簿の保護情報を確認できません。保存先と起動元を確認してください。' }
+    $session = $sessionJson | ConvertFrom-Json
+    if ($session.instance -ne $runningApp.instance -or [int]$session.pid -ne [int]$existingServers[0].ProcessId) { throw '起動情報と接続先が一致しません。Ryoshuを起動し直してください。' }
+    $runningApp = $session
+    Save-RyoshuServerRecord -RuntimeDir $runtimeDir -Server $existingServers[0] -DataDir $session.data_dir -SourceDir ([string]$session.source_dir)
     if ($runningApp.app_version -ne $sourceVersion) { throw '別の版のRyoshuが起動しています。「停止.cmd」で終了してから、もう一度起動してください。' }
     if ([System.IO.Path]::GetFullPath($runningApp.data_dir) -ine [System.IO.Path]::GetFullPath($selectedData)) { throw '別の保存先の帳簿が開いています。「停止.cmd」で終了してから起動してください。現在の帳簿は変更していません。' }
     if ($runningApp.source_dir -and ([System.IO.Path]::GetFullPath($runningApp.source_dir) -ine [System.IO.Path]::GetFullPath($PSScriptRoot))) { throw '別のフォルダーのRyoshuが起動しています。「停止.cmd」で終了してから起動してください。' }
-    if (-not $NoBrowser) { Start-Process $appUrl }
+    if (-not $NoBrowser) { Start-Process $session.url }
     Write-Host ('起動済みです： ' + $appUrl)
     exit 0
 }
@@ -50,7 +59,7 @@ for ($i = 0; $i -lt 30; $i++) {
     Start-Sleep -Milliseconds 500
     try {
         $runningApp = Invoke-RestMethod -Uri ($appUrl + '/api/health') -TimeoutSec 4
-        if ($runningApp.app -eq 'receipt-ledger' -and $runningApp.app_version -eq $sourceVersion -and ([System.IO.Path]::GetFullPath($runningApp.data_dir) -ieq [System.IO.Path]::GetFullPath($selectedData))) {
+        if ($runningApp.app -eq 'receipt-ledger' -and $runningApp.app_version -eq $sourceVersion -and $runningApp.instance) {
             $listeners = @(Get-RyoshuListener -PythonExe $pythonExe)
             if ($listeners.Count -eq 1 -and ($listeners[0].ProcessId -eq $serverProcess.Id -or $listeners[0].ParentProcessId -eq $serverProcess.Id)) { $appReady = $true; break }
         }
@@ -58,9 +67,13 @@ for ($i = 0; $i -lt 30; $i++) {
     if ($serverProcess.HasExited) { break }
 }
 if (-not $appReady) { throw ('起動できませんでした。次のログで詳細を確認してください： ' + (Join-Path $taskRoot 'runtime\stderr.log')) }
+$sessionJson = & $pythonExe (Join-Path $PSScriptRoot 'scripts\open_session.py') --data-dir $selectedData
+if ($LASTEXITCODE -ne 0) { throw '起動情報を確認できません。Ryoshuを起動し直してください。' }
+$session = $sessionJson | ConvertFrom-Json
+if ($session.instance -ne $runningApp.instance -or [int]$session.pid -ne [int]$listeners[0].ProcessId -or [System.IO.Path]::GetFullPath($session.data_dir) -ine [System.IO.Path]::GetFullPath($selectedData) -or [System.IO.Path]::GetFullPath($session.source_dir) -ine [System.IO.Path]::GetFullPath($PSScriptRoot)) { throw '起動情報と接続先が一致しません。帳簿は変更していません。' }
 Save-RyoshuServerRecord -RuntimeDir $runtimeDir -Server $listeners[0] -DataDir $selectedData -SourceDir $PSScriptRoot
 @{data_dir=$selectedData} | ConvertTo-Json | Set-Content -LiteralPath $locationRecord -Encoding UTF8
-if (-not $NoBrowser) { Start-Process $appUrl }
+if (-not $NoBrowser) { Start-Process $session.url }
 Write-Host ('起動しました： ' + $appUrl)
 Write-Host ('開いている帳簿： ' + $selectedData)
 } finally { $startupLock.Dispose() }

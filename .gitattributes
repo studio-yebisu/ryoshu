@@ -8,6 +8,8 @@
 *.cjs text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+*.sql text eol=lf
+requirements*.txt text eol=lf
 *.css text eol=lf
 *.ps1 text eol=crlf
 *.cmd text eol=crlf

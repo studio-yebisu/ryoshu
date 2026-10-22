@@ -1,0 +1,81 @@
+{
+  "scenario": "架空の免税個人事業主。6件を原本の期待値で手動確認した出力検証。OCR・AIの正答率とは別集計。",
+  "records": [
+    {
+      "case_id": "V001",
+      "business": 1760,
+      "private": 0
+    },
+    {
+      "case_id": "V021",
+      "business": 3280,
+      "private": 0
+    },
+    {
+      "case_id": "V005",
+      "business": 11008,
+      "private": 0
+    },
+    {
+      "case_id": "V042",
+      "business": 2219,
+      "private": 2218
+    },
+    {
+      "case_id": "V061",
+      "business": 187330,
+      "private": 0
+    },
+    {
+      "case_id": "V004",
+      "business": 91280,
+      "private": 0
+    }
+  ],
+  "expected_gross": 299095,
+  "exports": [
+    {
+      "profile": "generic",
+      "file": "qa-exempt-generic-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "76c4575a859ee6a4da2c63c723d49fbc7fd126471bd895d89ff8216a8a5dff1b"
+    },
+    {
+      "profile": "freee",
+      "file": "qa-exempt-freee-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "70ab4fd09b8e274caecfd048700d46b656f340bd0f005248680147a4cf1d0510"
+    },
+    {
+      "profile": "mf",
+      "file": "qa-exempt-mf-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "utf-8-sig",
+      "sha256": "596a3591713cb7cb5ea4c7e007b75fe09923e97d7e1aa6d36adc8db616c6d232"
+    },
+    {
+      "profile": "yayoi",
+      "file": "qa-exempt-yayoi-journal.csv",
+      "receipts": 6,
+      "rows": 7,
+      "debit": 299095,
+      "credit": 299095,
+      "encoding": "cp932",
+      "sha256": "8d60fb1c7abd8d7c32b94356c29a8474d101d688dffb450b6d9e58bce8604c12"
+    }
+  ],
+  "unit": "JPY",
+  "source": "actual /api/receipts, /save, /export-preview, /export endpoints; test client; workers disabled",
+  "vendor_account_import": "未確認：各会計ソフトの実アカウントへの取り込みは未実施。"
+}

@@ -1,11 +1,11 @@
 import httpx
 import pytest
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 
 from receipt_ledger import pipeline
 from receipt_ledger.schemas import Draft
-from receipt_ledger.server import create_app
-from receipt_ledger.store import Store
+from support import ready_app as create_app
+from support import ready_store as Store
 
 
 @pytest.mark.parametrize("key", ["native_pdf_text", "initial_text", "page_initial"])

@@ -1,0 +1,54 @@
+{
+  "python": "3.12.15",
+  "python_ssl": "OpenSSL 3.5.9 29 Sep 2026",
+  "sqlcipher3": "0.6.4",
+  "sqlcipher": "4.19.0 community",
+  "sqlite": "3.53.4",
+  "sqlcipher_crypto": "OpenSSL 3.6.0 1 Oct 2025",
+  "sqlcipher_binary_sha256": "ffefcb986c47f8e2a747acd5f381e4ea6590e414f52dddf9f9289a5f6668616a",
+  "cryptography": "50.0.2",
+  "cryptography_ssl": "OpenSSL 4.0.3 29 Sep 2026",
+  "pdfium": "156.0.8076.0",
+  "pyrage_installed": false,
+  "sqlcipher_source": {
+    "url": "https://files.pythonhosted.org/packages/ce/8a/284f2daec79883151172f3f2f3e35505c90dc48feb081602b4f5c35331d1/sqlcipher3-0.6.4.tar.gz",
+    "sdist_sha256": "b02a3edfc554c9197d63ab4c38a30f7682eec65b10e5be2c9285a0d6ffb7a29a",
+    "vendor_sha256": "f6d54c906fefdc09124c845cb8f45145a8049aee32c0e5aad95c042b9e4dc8d3",
+    "reviewed_provider_functions": 5,
+    "crypto_api_symbols": [
+      "EVP_CIPHER_CTX_free(",
+      "EVP_CIPHER_CTX_new(",
+      "EVP_CIPHER_CTX_set_padding(",
+      "EVP_CipherFinal_ex(",
+      "EVP_CipherInit_ex(",
+      "EVP_CipherUpdate(",
+      "EVP_MAC_CTX_free(",
+      "EVP_MAC_CTX_new(",
+      "EVP_MAC_fetch(",
+      "EVP_MAC_final(",
+      "EVP_MAC_free(",
+      "EVP_MAC_init(",
+      "EVP_MAC_update(",
+      "EVP_sha1(",
+      "EVP_sha256(",
+      "EVP_sha512(",
+      "PKCS5_PBKDF2_HMAC(",
+      "RAND_add(",
+      "RAND_bytes("
+    ],
+    "evaluation": "Static provider call-scope assessment only; known OpenSSL advisories are not globally cleared or runtime-exploit-tested."
+  },
+  "checked_on": "2026-10-22",
+  "assessment": {
+    "overall_vulnerability_free_claim": false,
+    "status": "remaining limitation",
+    "sqlcipher_openssl": "同梱OpenSSL 3.6.0の既知告知全体が解消された構成ではない。更新済みネイティブ依存への置換は未実施。",
+    "static_scope": "公開providerソースのAES-CBC・HMAC・PBKDF・乱数経路を静的に点検。TLS/CMS/PKCS/X509/EC/OCB/SIV/CFBのAPIはこのDB経路で利用しないという評価。",
+    "limits": "この評価は脆弱性全体の無害化、バイナリ全体の監査、実行時の悪用再現、将来の告知への保証ではない。crypto_api_symbolsは抽出対象関数内の一覧で、完全なSBOMではない。",
+    "sources": [
+      "https://openssl-library.org/news/vulnerabilities/",
+      "https://github.com/coleifer/sqlcipher3/tree/0.6.4",
+      "https://www.zetetic.net/sqlcipher/sqlcipher-api/"
+    ]
+  }
+}

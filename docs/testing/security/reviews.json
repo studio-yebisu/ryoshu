@@ -1,0 +1,206 @@
+{
+  "scope": "生のCLI会話、認証情報、利用者データは公開せず、出力ハッシュ・確認範囲・対応を記録。モデルの完了文だけでは修正済みと判定しない。",
+  "records": [
+    {
+      "reviewer": "kimi",
+      "requested_model": "kimi-code/k3",
+      "round": "initial",
+      "response_recorded": true,
+      "reported_models": [],
+      "raw_response_sha256": "0841b2460635d02c08d26578ef26ff01ac0ce6ee46e4db5b4427b8cf141237f9",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。"
+    },
+    {
+      "reviewer": "kimi",
+      "requested_model": "kimi-code/k3",
+      "round": "implementation",
+      "response_recorded": true,
+      "reported_models": [],
+      "raw_response_sha256": "66c866e2cd01d5a308cedfcbc0bf25de92ca713edc2ec55f9aae454c8c681494",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。"
+    },
+    {
+      "reviewer": "kimi",
+      "requested_model": "kimi-code/k3",
+      "round": "delta-v2",
+      "response_recorded": true,
+      "reported_models": [],
+      "raw_response_sha256": "c126431465048448e338800d12c4e99070ad08b357c7293e39d43977e72948d8",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。",
+      "reviewed_source_hashes": {
+        "receipt_ledger/backups.py": "ee2e115bc212358e13b57e109f264046d9801ec6f5c1b664a364ef4b9e7ae504",
+        "receipt_ledger/restore_encrypted.py": "39675cabac870a8707a7a8a5a76877b7e719b2e2d0251a19aa2c4452a5822864",
+        "receipt_ledger/restore.py": "ecbaa8162fd6bf2aa791595a97783855197426bc562b92e22675d834a7158af5",
+        "receipt_ledger/database.py": "b33fe8584408f84af741afc24b481f9d48e903bca60ef581c5ace3e261b52169",
+        "receipt_ledger/protection.py": "78ef03bc789626977e5dec24ab6a2b6a618c98522a80d66817e97e1ea921e847"
+      }
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "initial",
+      "response_recorded": true,
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "2c0dcd8ac6130db5648c1e15357f05f6aa79e844899d6ffbbc49eae60aae07c3",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。"
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "implementation",
+      "response_recorded": true,
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "0d930c55b0e2e9f1715a2c1c8651fff93df0ede3a08a27e6b346498e1c6774eb",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。"
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "delta-v2",
+      "response_recorded": true,
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "raw_response_sha256": "79ca7881085f3e22c80b96d37e58bb513944838bd3df06c8440ef510d9909511",
+      "scope": "指定した公開ソースの読み取りレビュー。実行試験・法的意見・公開承認ではない。",
+      "reviewed_source_hashes": {
+        "receipt_ledger/backups.py": "ee2e115bc212358e13b57e109f264046d9801ec6f5c1b664a364ef4b9e7ae504",
+        "receipt_ledger/restore_encrypted.py": "39675cabac870a8707a7a8a5a76877b7e719b2e2d0251a19aa2c4452a5822864",
+        "receipt_ledger/restore.py": "ecbaa8162fd6bf2aa791595a97783855197426bc562b92e22675d834a7158af5",
+        "receipt_ledger/database.py": "b33fe8584408f84af741afc24b481f9d48e903bca60ef581c5ace3e261b52169",
+        "receipt_ledger/protection.py": "78ef03bc789626977e5dec24ab6a2b6a618c98522a80d66817e97e1ea921e847"
+      }
+    },
+    {
+      "reviewer": "Antigravity CLI",
+      "requested_model": "gemini-3.8-flash-high",
+      "round": "security-copy",
+      "response_recorded": true,
+      "reported_models": [],
+      "raw_response_sha256": "187989d6030f51826f25c4d78db75b42650c823da22aaae9ab81b526cec7f9a4",
+      "scope": "README・導入文書・ヘルプ等の日本語。ソースレビューであり実行試験ではない。"
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "UI design consultation",
+      "response_recorded": true,
+      "raw_response_sha256": "35e0d4a2f2af93f76eee5afd2ad4bc50f03cd7bab10975e25ae7fc2e1abfc827",
+      "scope": "Public code/copy only; source review, not test execution or public release approval."
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "Full public UI source review",
+      "response_recorded": true,
+      "raw_response_sha256": "4f9862da60e52e5f1e8890771d75912c41dc074488a28c32cceeb8a5149a4426",
+      "scope": "Public code/copy only; source review, not test execution or public release approval.",
+      "reviewed_source_hashes": {
+        "web/index.html": "cc88b514e564e60a733f61b0466cdfd25687a1cc3d5758490dbd8ebecd4b1fe5",
+        "web/import.js": "e65ca5235bbf793ae9355151aaf4ef620b2713a742d4e8404cf1a9f5ccecd991",
+        "web/app.js": "cc59eae5ac1e6c20e5845a412177f8c74383d4af25969ea35b839bf08f6a0983",
+        "web/security.js": "dcdb1ea02ed2975542274c61fb7ccbcc49169973c131225cb463d2842e588d51",
+        "web/style.css": "e96907ed90511faded72d382f61f97765da462674065340436a4554e5fb7a395"
+      }
+    },
+    {
+      "reviewer": "opus",
+      "requested_model": "claude-opus-5-5",
+      "round": "Bounded UI delta review",
+      "response_recorded": true,
+      "raw_response_sha256": "4bc1144706010860ad863df13b079aea7fddf40f93227757c300fd2c3c64cc89",
+      "scope": "Public code/copy only; source review, not test execution or public release approval.",
+      "reviewed_source_hashes": {
+        "web/app.js": "23b620e383fdd6c89fc16f6579e1ea0d575983319c51fc29a7b3c7d682e24415",
+        "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+        "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+        "web/style.css": "485869ddc4c9b4c412033d6547266cd12af67ab0e899e505fae10a836b86efbb",
+        "web/import.js": "e65ca5235bbf793ae9355151aaf4ef620b2713a742d4e8404cf1a9f5ccecd991"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "topic": "未認証APIと外向きUDP",
+      "raised_by": [
+        "initial reviews"
+      ],
+      "disposition": "Bearer認証・起動リンク交換、UDP/DNS監査を追加。HTTP負例とsecurity_guardsで確認。",
+      "status": "implemented; execution evidence linked"
+    },
+    {
+      "topic": "旧原本の欠損検出がDB切替後になる",
+      "raised_by": [
+        "Opus implementation"
+      ],
+      "disposition": "原本存在/SHAを切替前に検査し、旧DB保持と再試行を追加。実プロセス中断を含む回帰検査。",
+      "status": "implemented; Python suite passed"
+    },
+    {
+      "topic": "復元用PWを忘れた後のバックアップ不能",
+      "raised_by": [
+        "Opus implementation"
+      ],
+      "disposition": "Windows鍵で開ける間のPW再設定、旧ZIPの新PW確認入力を追加。",
+      "status": "implemented; Python suite passed"
+    },
+    {
+      "topic": "大量の不足原本一覧が状態ファイル上限を超える",
+      "raised_by": [
+        "Opus delta-v2"
+      ],
+      "disposition": "不足件数だけを保存し、復元先を開けることをmarker解除前に検証するよう修正。300件の原本欠損を復元・再起動する回帰検査が成功。",
+      "status": "implemented and verified by actual300missing restore/reopen regression; no claim of post-fix model approval"
+    },
+    {
+      "topic": "失敗した復元先の再起動拒否",
+      "raised_by": [
+        "Kimi delta-v2 (call-site unconfirmed)"
+      ],
+      "disposition": "Storeの起動時にRESTORE_FAILED/RESTORE_IN_PROGRESSを拒否する契約がある。提示範囲外の確認事項として扱い、security_guardsで検査。",
+      "status": "implemented; Python suite passed"
+    },
+    {
+      "topic": "旧ZIPは作成者の真正性を証明しない",
+      "raised_by": [
+        "Kimi delta-v2"
+      ],
+      "disposition": "旧形式は件数・DB・原本の自己一貫性のみ。自分で作成した旧バックアップを復元する制約を文書化。",
+      "status": "format limitation retained"
+    },
+    {
+      "topic": "日本語の保護範囲と復元手順",
+      "raised_by": [
+        "Gemini 3.8 Flash via Antigravity"
+      ],
+      "disposition": "双方の鍵喪失、CSV非暗号化、過去バックアップのPW不変、救出用バックアップの限界、スマホ未対応を明記。永久に原本を失うという過大表現は採用しない。",
+      "status": "copy fixes implemented and browser workflow verified; latest narrow Japanese review recorded separately"
+    }
+  ],
+  "ui_dispositions": [
+    {
+      "topic": "Repeated results rebuild loses focus, OCR and previews",
+      "disposition": "Keyed incremental rows and viewport-based authenticated image loading; actual held-worker regression passed."
+    },
+    {
+      "topic": "Version mismatch permits anchor navigation",
+      "disposition": "uiReady guard, inert navigation and init readiness after detail load; restart compatibility regression passed."
+    },
+    {
+      "topic": "Completed records without preview labelled processing",
+      "disposition": "Busy/completed labels separated; original remains available in review screen."
+    },
+    {
+      "topic": "Conditional stale held row after last job, or eviction across page/filter",
+      "disposition": "Focusout, OCR close and zoom close refresh from saved state; defer interaction eviction including empty results. Dedicated last-job and empty-filter browser regressions passed."
+    },
+    {
+      "topic": "Zoom scale, duplicate CSV save, skip link and repeated home announcement",
+      "disposition": "Natural pixel zoom, single-flight CSV with captured filename, main-workspace skip link, stable home/pager DOM. These are implemented changes, not a blanket model quality approval."
+    }
+  ]
+}

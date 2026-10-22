@@ -1,10 +1,11 @@
+from support import PASSWORD, backup_files
 import io
 from pathlib import Path
 
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 
 from receipt_ledger.schemas import Draft
-from receipt_ledger.server import create_app
+from support import ready_app as create_app
 
 HEADERS = {"X-Ledger-Request": "1"}
 
@@ -72,16 +73,17 @@ def test_pending_csv_history_includes_unknown_dates_and_excluded_rows(tmp_path):
         assert client.get("/api/export-preview?" + query).json()["receipt_count"] == 0
 
 
-def test_backup_does_not_read_whole_archive_or_original_into_memory(tmp_path, monkeypatch):
+def test_backup_streams_archive_and_database_and_bounds_each_original(tmp_path, monkeypatch):
     app = create_app(tmp_path, run_workers=False)
     with TestClient(app) as client:
         analyzed(app.state.store)
         def forbidden(self):
             raise AssertionError("Backup must stream files instead of Path.read_bytes")
         monkeypatch.setattr(Path, "read_bytes", forbidden)
-        result = client.get("/api/backup")
+        result = client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD})
         result.raise_for_status()
-        assert result.content.startswith(b"PK")
+        from receipt_ledger.backups import MAGIC
+        assert result.content.startswith(MAGIC)
 
 
 def test_export_tax_preference_is_explicit_and_survives_restart(tmp_path):

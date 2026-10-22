@@ -45,6 +45,20 @@
     ]
   },
   {
+    "name": "cffi",
+    "version": "2.1.1",
+    "license": "MIT-0",
+    "home": "",
+    "urls": [
+      "Documentation, https://cffi.readthedocs.io/",
+      "Changelog, https://cffi.readthedocs.io/en/latest/whatsnew.html",
+      "Download, https://github.com/python-cffi/cffi/releases",
+      "Contact, https://groups.google.com/forum/#!forum/python-cffi",
+      "Source Code, https://github.com/python-cffi/cffi",
+      "Issue Tracker, https://github.com/python-cffi/cffi/issues"
+    ]
+  },
+  {
     "name": "click",
     "version": "8.5.0",
     "license": "BSD-3-Clause",
@@ -64,6 +78,19 @@
     "home": "",
     "urls": [
       "Homepage, https://github.com/tartley/colorama"
+    ]
+  },
+  {
+    "name": "cryptography",
+    "version": "50.0.2",
+    "license": "Apache-2.0 OR BSD-3-Clause",
+    "home": "",
+    "urls": [
+      "changelog, https://cryptography.io/en/latest/changelog/",
+      "documentation, https://cryptography.io/",
+      "homepage, https://github.com/pyca/cryptography",
+      "issues, https://github.com/pyca/cryptography/issues",
+      "source, https://github.com/pyca/cryptography/"
     ]
   },
   {
@@ -302,6 +329,15 @@
     "urls": []
   },
   {
+    "name": "pycparser",
+    "version": "3.11",
+    "license": "BSD-3-Clause",
+    "home": "",
+    "urls": [
+      "Homepage, https://github.com/eliben/pycparser"
+    ]
+  },
+  {
     "name": "pydantic",
     "version": "2.14.1",
     "license": "MIT",
@@ -390,6 +426,15 @@
     ]
   },
   {
+    "name": "sqlcipher3",
+    "version": "0.6.4",
+    "license": "zlib (installed LICENSE)",
+    "home": "",
+    "urls": [
+      "Repository, https://github.com/coleifer/sqlcipher3"
+    ]
+  },
+  {
     "name": "starlette",
     "version": "1.9.0",
     "license": "BSD-3-Clause",
@@ -425,6 +470,18 @@
     ]
   },
   {
+    "name": "typing-inspection",
+    "version": "0.4.4",
+    "license": "MIT",
+    "home": "",
+    "urls": [
+      "Homepage, https://github.com/pydantic/typing-inspection",
+      "Documentation, https://pydantic.github.io/typing-inspection/dev/",
+      "Source, https://github.com/pydantic/typing-inspection",
+      "Changelog, https://github.com/pydantic/typing-inspection/blob/main/HISTORY.md"
+    ]
+  },
+  {
     "name": "typing_extensions",
     "version": "4.16.0",
     "license": "PSF-2.0",
@@ -436,18 +493,6 @@
       "Home, https://github.com/python/typing_extensions",
       "Q & A, https://github.com/python/typing/discussions",
       "Repository, https://github.com/python/typing_extensions"
-    ]
-  },
-  {
-    "name": "typing-inspection",
-    "version": "0.4.4",
-    "license": "MIT",
-    "home": "",
-    "urls": [
-      "Homepage, https://github.com/pydantic/typing-inspection",
-      "Documentation, https://pydantic.github.io/typing-inspection/dev/",
-      "Source, https://github.com/pydantic/typing-inspection",
-      "Changelog, https://github.com/pydantic/typing-inspection/blob/main/HISTORY.md"
     ]
   },
   {

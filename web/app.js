@@ -5,8 +5,9 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const yen = value => value == null ? '—' : '¥' + Number(value).toLocaleString('ja-JP');
 const localMonth = () => {const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;};
 const statusNames = {queued:'順番待ち',processing:'読み取り中',review:'未確認',confirmed:'確認済み',excluded:'対象外',error:'読み取りに失敗'};
-const state = {view:'ledger',config:null,catalog:null,health:null,records:[],active:null,detail:null,sourceTab:'image',page:0,history:null,queueFilter:'pending',queuePage:0,queuePageAnchor:null,month:'',drafts:new Map(),busy:false,ledgerFilter:'all',ledgerSearch:'',ledgerPage:0,selected:new Map(),batch:{},batchReport:null,batchOnlyIssues:false,exportMapDrafts:new Map()};
+const state = {view:'home',config:null,catalog:null,health:null,records:[],active:null,detail:null,sourceTab:'image',page:0,history:null,queueFilter:'pending',queuePage:0,queuePageAnchor:null,month:'',drafts:new Map(),busy:false,ledgerFilter:'all',ledgerSearch:'',ledgerPage:0,selected:new Map(),batch:{},batchReport:null,batchOnlyIssues:false,exportMapDrafts:new Map()};
 let toastTimer, pollTimer, searchTimer;
+Object.assign(state,{resultsPage:0,resultsOnlyPending:false});
 let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
 
@@ -25,7 +26,7 @@ function validationMessage(error){
 }
 
 async function api(path, options = {}) {
-  let response;try{response = await fetch('/api' + path, {...options, headers:{'X-Ledger-Request':'1', ...(options.body instanceof FormData ? {} : {'Content-Type':'application/json'}), ...options.headers}});}catch(error){throw new Error('アプリに接続できません。「Ryoshu.cmd」で起動しているか確認し、もう一度操作してください。',{cause:error});}
+  let response;try{response = await RyoshuSecurity.fetch('/api' + path, {...options, headers:{'X-Ledger-Request':'1', ...(options.body instanceof FormData ? {} : {'Content-Type':'application/json'}), ...options.headers}});}catch(error){throw new Error('アプリに接続できません。「Ryoshu.cmd」で起動しているか確認し、もう一度操作してください。',{cause:error});}
   if (!response.ok) {
     let result; try {result = await response.json();} catch {result = {};}
     let message = result.detail || '処理に失敗しました。もう一度お試しください。';
@@ -62,10 +63,15 @@ function render() {
   rememberLedgerInputs();
   $$('.nav-item').forEach(el => el.classList.toggle('active',el.dataset.view===state.view));
   $('#pending-count').textContent = state.records.filter(isPending).length;
-  const titles = {inbox:['領収書の確認','帳簿の明細を原本と見比べて、あとから確認・修正できます。'],ledger:['経費帳',state.config.review_before_ledger?'確認済みの支出を見返せます。':'取り込むだけで帳簿を作成。確認・修正はあとからまとめて。'],accounts:['科目別の集計','何に、どれくらい使ったかを見渡す。'],settings:['設定・保存','事業のことと、このPCでの保存について。']};
+  const titles = {home:['領収書を読み取る','PDFや画像をまとめて読み込み、CSVに。'],results:['読み取り結果','原本・読み取った内容・勘定科目を見比べられます。'],inbox:['領収書の確認','帳簿の明細を原本と見比べて、あとから確認・修正できます。'],ledger:['CSV出力','内容を確認して、使う会計ソフトの形式で保存します。'],accounts:['科目別の集計','何に、どれくらい使ったかを見渡す。'],settings:['設定・保存','事業のことと、このPCでの保存について。']};
   titles.catalog=['勘定科目一覧','科目・用途・確認ポイントを、このPCのデータベースで管理します。'];
   $('#page-title').textContent=titles[state.view][0]; $('#page-description').textContent=titles[state.view][1];
+  $('#home-view').classList.toggle('hidden',state.view!=='home');
+  $('#upload-top').classList.toggle('hidden',state.view==='home');
+  RyoshuImport.setHome(state.view==='home');
   const content = $('#main-content');
+  if(state.view==='home'){content.innerHTML='';renderHome();}
+  if(state.view==='results')renderResults(content);
   if (state.view==='inbox') renderInbox(content);
   if (state.view==='ledger') renderLedger(content);
   if (state.view==='accounts') renderAccounts(content);
@@ -73,6 +79,59 @@ function render() {
   if (state.view==='catalog') renderCatalog(content);
   renderProcessing();
 }
+
+
+function renderHome(){
+  const done=state.records.filter(r=>!busyRecord(r)),pending=state.records.filter(isPending).length;
+  const html=state.records.length?`<a class="result-link" href="#results" data-view="results">読み取り結果を見る <strong>${done.length} / ${state.records.length}件</strong></a><span class="field-hint">未確認 ${pending}件</span>`:'';
+  const resultLink=$('#home-result-link .result-link');
+  if(state.records.length&&resultLink){resultLink.querySelector('strong').textContent=`${done.length} / ${state.records.length}件`;$('#home-result-link>.field-hint').textContent=`未確認 ${pending}件`;}
+  else if($('#home-result-link').innerHTML!==html)$('#home-result-link').innerHTML=html;
+}
+function renderResults(content, incremental=false){
+  const all=orderedReceipts(state.records.filter(r=>!state.resultsOnlyPending||isPending(r))),pages=Math.max(1,Math.ceil(all.length/100));
+  state.resultsPage=Math.max(0,Math.min(state.resultsPage,pages-1));
+  const rows=all.slice(state.resultsPage*100,(state.resultsPage+1)*100),pending=state.records.filter(isPending).length;
+  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="120" height="156" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span>${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
+  if(!incremental||!$('.results-table',content)){content.innerHTML=markup;return;}
+  const fresh=document.createElement('div');fresh.innerHTML=markup;
+  const body=$('.results-table tbody',content),nextBody=$('.results-table tbody',fresh);
+  if(!nextBody){
+    if($$('[data-result-row]',body).some(row=>row.contains(document.activeElement)||$('.result-ocr[open]',row)||zoomReceipt?.id===row.dataset.resultRow))return;
+    content.innerHTML=markup;return;
+  }
+  const old=new Map($$('[data-result-row]',body).map(row=>[row.dataset.resultRow,row]));
+  const nextIds=new Set([...nextBody.children].map(row=>row.dataset.resultRow));
+  if([...old.values()].some(row=>!nextIds.has(row.dataset.resultRow)&&(row.contains(document.activeElement)||$('.result-ocr[open]',row)||zoomReceipt?.id===row.dataset.resultRow)))return;
+  let position=body.firstElementChild;
+  for(const next of [...nextBody.children]){
+    const previous=old.get(next.dataset.resultRow);old.delete(next.dataset.resultRow);
+    const keep=previous&&(previous.dataset.resultVersion===next.dataset.resultVersion||$('.result-ocr[open]',previous)||previous.contains(document.activeElement)||zoomReceipt?.id===next.dataset.resultRow);
+    const row=keep?previous:next;
+    if(row!==position)body.insertBefore(row,position);
+    if(previous&&!keep)previous.remove();
+    position=row.nextElementSibling;
+  }
+  for(const row of old.values())row.remove();
+  const summary=$('.results-summary',content),nextSummary=$('.results-summary',fresh);
+  if(summary.textContent!==nextSummary.textContent)summary.textContent=nextSummary.textContent;
+  const pager=$('.pagination',content),nextPager=$('.pagination',fresh);
+  $('span',pager).textContent=$('span',nextPager).textContent;
+  for(const button of $$('button',pager))button.disabled=$(`[data-action="${button.dataset.action}"]`,nextPager).disabled;
+}
+let zoomReturn,zoomReceipt,zoomPage=0;
+function paintZoom(){
+  const r=zoomReceipt,count=r.preview_count||0,dialog=$('#image-dialog');
+  dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>${esc(r.original_name)}</h2><button class="button" autofocus>閉じる</button></form><div class="zoom-controls"><button class="button small" data-action="zoom-prev" ${zoomPage?'':'disabled'}>前のページ</button><span>${zoomPage+1} / ${count}</span><button class="button small" data-action="zoom-next" ${zoomPage<count-1?'':'disabled'}>次のページ</button><label>表示倍率 <select id="zoom-scale"><option value="fit">画面に合わせる</option><option value="100">100%</option><option value="150">150%</option><option value="200">200%</option></select></label></div><div class="zoom-image-wrap"><img width="1400" height="1800" data-private-src="/api/receipts/${r.id}/preview/${zoomPage}" alt="${esc(r.original_name)}の原本 ${zoomPage+1}ページ"></div>`;
+}
+function openZoom(id,trigger){
+  const r=state.records.find(r=>r.id===id);if(!r?.preview_count)return;
+  zoomReturn=trigger;zoomReceipt=r;zoomPage=0;paintZoom();$('#image-dialog').showModal();
+}
+function refreshReleasedResult(){queueMicrotask(()=>{if(state.view==='results')renderResults($('#main-content'),true);});}
+document.addEventListener('focusout',event=>{if(event.target.closest('.results-table'))refreshReleasedResult();});
+document.addEventListener('toggle',event=>{if(event.target.matches('.result-ocr')&&!event.target.open)refreshReleasedResult();},true);
+$('#image-dialog').addEventListener('close',()=>{$('#image-dialog').innerHTML='';const target=zoomReturn?.isConnected?zoomReturn:$('#main-content');target.focus({preventScroll:true});zoomReceipt=null;refreshReleasedResult();});
 
 function rememberLedgerInputs(){
   for(const key of ['purpose','percent','payment','tax']){const el=$('#batch-'+key);if(el)state.batch[key]=el.value;}
@@ -113,7 +172,7 @@ function renderQueue() {
   if(state.queuePageAnchor!==state.active){const index=all.findIndex(r=>r.id===state.active);if(index>=0)state.queuePage=Math.floor(index/100);state.queuePageAnchor=state.active;}
   state.queuePage=Math.max(0,Math.min(state.queuePage,pages-1));
   if($('#queue-pages'))$('#queue-pages').innerHTML=pages>1?`<button class="text-button" data-action="queue-prev" ${state.queuePage?'':'disabled'}>前へ</button><span>${state.queuePage+1} / ${pages}ページ</span><button class="text-button" data-action="queue-next" ${state.queuePage<pages-1?'':'disabled'}>次へ</button>`:'';
-  el.innerHTML=all.slice(state.queuePage*100,(state.queuePage+1)*100).map(r=>`<button class="queue-item ${state.active===r.id?'selected':''}" data-receipt="${esc(r.id)}"><${r.preview_count?'img':'span'} loading="lazy" class="receipt-thumb ${r.preview_count?'':'thumb-placeholder'}" ${r.preview_count?`src="/api/receipts/${r.id}/preview/0" alt=""`:'aria-hidden="true"'}>${r.preview_count?'':'▤</span>'}<div class="queue-item-info"><div class="queue-item-name">${esc(r.draft.merchant || r.original_name)}</div><div class="queue-item-meta">${esc(r.draft.date || '日付を確認')}</div><div class="queue-item-amount">${yen(r.draft.total)}</div><div class="queue-badge">${badge(r.status)}${state.drafts.has(r.id)?'<span class="unsaved"> · 未保存</span>':''}</div></div></button>`).join('') || '<div class="empty-queue">この条件の領収書はありません</div>';
+  el.innerHTML=all.slice(state.queuePage*100,(state.queuePage+1)*100).map(r=>`<button class="queue-item ${state.active===r.id?'selected':''}" data-receipt="${esc(r.id)}"><${r.preview_count?'img':'span'} loading="lazy" class="receipt-thumb ${r.preview_count?'':'thumb-placeholder'}" ${r.preview_count?`data-private-src="/api/receipts/${r.id}/preview/0" alt=""`:'aria-hidden="true"'}>${r.preview_count?'':'▤</span>'}<div class="queue-item-info"><div class="queue-item-name">${esc(r.draft.merchant || r.original_name)}</div><div class="queue-item-meta">${esc(r.draft.date || '日付を確認')}</div><div class="queue-item-amount">${yen(r.draft.total)}</div><div class="queue-badge">${badge(r.status)}${state.drafts.has(r.id)?'<span class="unsaved"> · 未保存</span>':''}</div></div></button>`).join('') || '<div class="empty-queue">この条件の領収書はありません</div>';
   el.scrollTop=scroll;el.scrollLeft=left;
 }
 
@@ -132,7 +191,7 @@ function renderDetail() {
   if(!r || r.id!==state.active){el.innerHTML='<div class="preview-empty">左の領収書を選んで、内容を確認できます。</div>';return;}
   const d=currentDraft(),s=r.suggestion;
   const name=r.draft.merchant || r.original_name;
-  const top=`<div class="review-top"><div><button class="text-button" type="button" data-action="back-to-ledger">← 経費帳に戻る</button><h2>${esc(name)}</h2><div class="review-subtitle">${esc(r.original_name)} · ${esc(r.id.slice(0,8).toUpperCase())}</div></div>${badge(r.status)}</div>`;
+  const top=`<div class="review-top"><div><button class="text-button" type="button" data-action="back-to-ledger">← 読み取り結果に戻る</button><h2>${esc(name)}</h2><div class="review-subtitle">${esc(r.original_name)} · ${esc(r.id.slice(0,8).toUpperCase())}</div></div>${badge(r.status)}</div>`;
   if(busyRecord(r)) {el.innerHTML=top+`<div class="processing-box"><span class="spinner"></span><h3>${r.stage==='model'?'購入内容と科目の候補を確認中':'領収書の文字を読み取り中'}</h3><p>${r.stage==='model'?'ローカルAIが日付・金額・科目を整理しています。':'順番に処理します。そのままお待ちください。'}<br>完了すると、この画面に候補が表示されます。</p></div>`;return;}
   el.innerHTML=top+`<div class="review-body"><div class="source-panel"><div class="source-tabs"><button class="source-tab ${state.sourceTab==='image'?'active':''}" data-source-tab="image">原本</button><button class="source-tab ${state.sourceTab==='ocr'?'active':''}" data-source-tab="ocr">OCR本文</button><button class="source-tab ${state.sourceTab==='history'?'active':''}" data-source-tab="history">変更履歴</button></div><div id="source-content"></div></div><div class="form-panel">${r.possible_duplicate_ids?.length?`<div class="warning-list" id="detail-duplicates"><p>同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p><p>関連候補（最大10件）：${r.possible_duplicate_ids.map(id=>`<button type="button" class="text-button" data-open-receipt="${esc(id)}">${esc(state.records.find(other=>other.id===id)?.original_name||'関連明細')} · ${esc(id.slice(0,8).toUpperCase())}</button>`).join(' / ')}</p></div>`:''}${r.status==='excluded'?'<div class="warning-list">この領収書は集計の対象外です。保存すると確認待ちに戻ります。</div>':''}${r.error?`<div class="error-box">${esc(r.error)}</div>`:''}${s?`<div class="suggestion-card"><div class="suggestion-label"><span>${s.origin==='merchant_rule'?'支払先ルールの候補':s.model?(s.retrieval?.length?'品目辞書・AIの候補':'AIによる科目候補'):'手入力で確認'}</span><span>${s.model?(s.account?'AI自己評価：'+({high:'高',medium:'中',low:'低'}[s.raw_model_candidate?.confidence||s.confidence]||'低'):'要確認'):''}</span></div><h3>${esc(s.account||'用途・科目を確認してください')}</h3><p>${esc(s.reason)}</p>${s.review_questions?.length?`<details class="candidate-questions"><summary>この候補の確認ポイント</summary><p>${s.review_questions.map(esc).join(' / ')}</p></details>`:''}${s.model?'<button class="text-button" data-action="use-suggestion">AI候補を入力欄へ戻す</button>':''}</div>`:''}${s?.warnings?.length?`<div class="warning-list">${s.warnings.map(w=>`<p>· ${esc(w)}</p>`).join('')}</div>`:''}<form id="review-form" novalidate><div class="form-row">${field('date','取引日','date',{required:true})}${field('total','領収書の合計（税込・円）','number',{required:true,placeholder:'原本の合計金額'})}</div>${field('merchant','支払先','text',{required:true,placeholder:'店舗名・取引先名',maxlength:200})}${field('account','勘定科目','select',{required:true,items:[['','科目を選択してください'],...state.config.accounts.map(a=>[a.name,a.name])]})}${field('description','購入内容・摘要','text',{placeholder:'例：制作資料の書籍',maxlength:1000})}${field('purpose','業務での用途','textarea',{required:true,placeholder:'例：案件Aの調査資料として使用'})}<div class="form-row">${field('business_percent','事業に使った割合（%）','number',{required:true,placeholder:'例：100',hint:'仕事専用なら100%。私用と共用なら、使用時間や面積などに基づく仕事の割合を入力'})}${field('payment','支払方法','select',{required:true,items:[['','支払元を選択'],...Object.entries(state.config.payments).map(([k,v])=>[k,v.label])]})}</div><div class="business-result"><span>帳簿に入れる事業分</span><strong id="business-amount">${d.total!=null&&d.business_percent!=null?yen(Math.round(d.total*d.business_percent/100)):'—'}</strong></div><details class="tax-details"><summary>税区分・税額・登録番号（会計ソフトへの出力前に確認）</summary>${field('tax_rate','記載されている税率','select',{items:Object.entries(state.config.tax_rates)})}${field('tax_amount','記載消費税（円）','number',{placeholder:'書かれている場合のみ'})}${field('invoice_number','記載登録番号','text',{placeholder:'T と13桁の数字',maxlength:14,hint:'番号の記録のみ。登録事業者の照会は行いません。'})}</details><label class="checkbox-line"><input name="remember_account" type="checkbox" ${state.drafts.get(r.id)?.remember_account?'checked':''}>この支払先の科目を次回の候補にする</label><div id="form-errors" class="error-box hidden" role="alert"></div><p class="field-hint">原本の金額・科目・用途は必ずご自身で確認してください。税務上の最終判断は税理士に確認してください。</p><div class="form-actions"><button class="button" type="button" data-action="save-draft">変更を保存（未確認のまま）</button><button class="button primary" type="submit" ${s?.blocking_reasons?.length?'disabled title="この取引は別途の仕訳確認が必要です"':''}>${r.status==='confirmed'?'修正を確認済みにする':'この明細を確認済みにする'} <span>✓</span></button></div><div id="save-status" class="${state.drafts.has(r.id)?'unsaved':'field-hint'}">${state.drafts.has(r.id)?'変更はまだ保存していません。':r.status==='confirmed'?'登録済み。下書き保存すると確認待ちに戻ります。':'帳簿には保存済みです。原本・科目・用途を確かめて確認済みにできます。'}</div><div class="journal-preview" id="journal-preview"></div><div class="secondary-actions"><button class="text-button" type="button" data-action="confirm-next" ${s?.blocking_reasons?.length?'disabled title="この取引は個別の仕訳確認が必要です"':''}>確認済みにして次へ →</button><button class="text-button" type="button" data-action="retry">再読取・AIを再実行</button><button class="text-button" type="button" data-action="${r.status==='excluded'?'restore':'exclude'}">${r.status==='excluded'?'確認待ちへ戻す':'経費の対象外にする'}</button></div></form></div></div>`;
   $('.tax-details',el)?.insertAdjacentHTML('beforeend',field('export_tax','会計ソフトへ出す消費税区分','select',{items:Object.entries(state.config.export_tax_choices||{'':'未確認'}),hint:'会計ソフト向けCSVで使います。税率やT番号だけでは自動選択しません。税額は取込先で計算します。'}));
@@ -152,7 +211,7 @@ function renderSource() {
   const r=state.detail;
   if(state.sourceTab==='image') {
     const count=r.preview_count||0;state.page=Math.max(0,Math.min(state.page,count-1));
-    el.innerHTML=`<div class="preview-toolbar"><span class="page-pager"><button data-action="prev-page" aria-label="前のページ" ${state.page===0?'disabled':''}>‹</button>${count?state.page+1:0} / ${count}<button data-action="next-page" aria-label="次のページ" ${state.page>=count-1?'disabled':''}>›</button></span><a href="/api/receipts/${r.id}/original">原本を保存 ↗</a></div>${(r.source_documents||[r.source_document]).filter(Boolean).map(source=>`<p class="source-caption">${esc(source.name)} の ${source.page} / ${source.page_count}ページから作成 · <a href="/api/receipts/${r.id}/source?source=${source.sha256}">分割前の元PDFを保存 ↗</a></p>`).join('')}${count?`<div class="preview-wrap"><img src="/api/receipts/${r.id}/preview/${state.page}" alt="取り込んだ領収書の原本プレビュー"></div>`:'<div class="preview-empty">プレビューを作成できませんでした。<br>原本ファイルを開いて確認できます。</div>'}<div class="source-caption">${r.ocr?`Indra OCR ${esc(r.ocr.version)} · ${r.ocr.page_count}ページ · OCR ${r.ocr.seconds??'未計測'}秒${r.suggestion?.seconds?' / AI '+r.suggestion.seconds+'秒':''}<br>`:''}原本のSHA-256：${esc(r.sha256.slice(0,16))}…</div>`;
+    el.innerHTML=`<div class="preview-toolbar"><span class="page-pager"><button data-action="prev-page" aria-label="前のページ" ${state.page===0?'disabled':''}>‹</button>${count?state.page+1:0} / ${count}<button data-action="next-page" aria-label="次のページ" ${state.page>=count-1?'disabled':''}>›</button></span><a href="/api/receipts/${r.id}/original">原本を保存 ↗</a></div>${(r.source_documents||[r.source_document]).filter(Boolean).map(source=>`<p class="source-caption">${esc(source.name)} の ${source.page} / ${source.page_count}ページから作成 · <a href="/api/receipts/${r.id}/source?source=${source.sha256}">分割前の元PDFを保存 ↗</a></p>`).join('')}${count?`<div class="preview-wrap"><img data-private-src="/api/receipts/${r.id}/preview/${state.page}" alt="取り込んだ領収書の原本プレビュー"></div>`:'<div class="preview-empty">プレビューを作成できませんでした。<br>原本ファイルを開いて確認できます。</div>'}<div class="source-caption">${r.ocr?`Indra OCR ${esc(r.ocr.version)} · ${r.ocr.page_count}ページ · OCR ${r.ocr.seconds??'未計測'}秒${r.suggestion?.seconds?' / AI '+r.suggestion.seconds+'秒':''}<br>`:''}原本のSHA-256：${esc(r.sha256.slice(0,16))}…</div>`;
   }else if(state.sourceTab==='ocr') {
     const evidence=r.suggestion?.evidence||{};
     el.innerHTML=`${Object.keys(evidence).length?`<div class="source-caption">候補の根拠</div><div class="journal-preview">${Object.entries(evidence).map(([k,v])=>`<p><strong>${esc({date:'日付',merchant:'支払先',total:'金額'}[k])}</strong>：${esc(v)}</p>`).join('')}</div>`:''}<pre class="ocr-text">${esc(r.ocr?.text||'OCR本文がありません。原本を見ながら入力できます。')}</pre><div class="source-caption">OCRの誤読は原本を見ながら入力欄で修正してください。</div>`;
@@ -208,6 +267,7 @@ function renderLedger(content) {
   $('#ledger-filter').value=state.ledgerFilter;
   renderBatchReport();
   if(state.batchOnlyIssues)$('#ledger-count').insertAdjacentHTML('afterend','<button class="text-button" data-action="clear-issue-filter">残った明細の絞り込みを解除</button>');
+  content.prepend($('#export-panel'));
   for(const key of ['purpose','percent','payment','tax'])if(state.batch[key]!=null)$('#batch-'+key).value=state.batch[key];
   updateExportPreview();
 }
@@ -228,7 +288,7 @@ function openBatchReview(){
   rememberLedgerInputs();
   const rows=[...state.selected.keys()].map(id=>state.records.find(r=>r.id===id)).filter(Boolean),dialog=$('#review-dialog');
   const missingCount=rows.filter(r=>batchMissing(r).length).length;
-  dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>選択した${rows.length}件の内容を確認</h2><button class="button small">戻る</button></form><p>以下の原本・金額・科目と、入力した用途・仕事の割合・支払元を確認してください。未確認の候補をそのまま確定しないようご注意ください。</p>${missingCount?`<div class="warning-list" id="batch-missing-warning" role="alert">${missingCount}件に入力の不足があります。必要な項目がそろった明細だけを確認済みにし、不足した明細は未確認のまま残します。「戻る」から共通項目を入力するか、下の明細を個別に修正してください。</div>`:''}<div class="review-check-list">${rows.map(r=>`<article>${r.preview_count?`<img loading="lazy" src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:''}<div><strong>${esc(r.draft.merchant||r.original_name)} · ${yen(r.draft.total)}</strong><p>${esc(r.draft.date||'日付未確定')} / ${esc(r.draft.account||'科目未確定')}</p><p>用途：${esc(r.draft.purpose||state.batch.purpose||'未入力')} / 仕事の割合：${esc(r.draft.business_percent??state.batch.percent??'未入力')}% / 支払元：${esc(state.config.payments[r.draft.payment||state.batch.payment]?.label||'未入力')}</p>${batchMissing(r).length?`<p class="review-warning">不足：${batchMissing(r).map(esc).join('・')}</p>`:''}${r.suggestion?.warnings?.length?`<p class="review-warning">${r.suggestion.warnings.map(esc).join(' / ')}</p>`:''}${r.possible_duplicate_ids?.length?'<p class="review-warning">同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p>':''}<button class="text-button" data-review-open="${r.id}">個別に確認・修正する</button></div></article>`).join('')}</div><label class="checkbox-line"><input id="review-ack" type="checkbox">上記の原本と照合し、金額・科目・用途を自分で確認しました（チェックすると下のボタンを押せます）</label><button class="button primary" id="confirm-batch" data-action="confirm-batch" disabled>確認して保存（最大${rows.length}件）</button><p class="field-hint">不足や競合がある明細は、理由を表示して未確認のまま残します。税務上の最終判断は、申告前に税理士に確認してください。</p>`;
+  dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>選択した${rows.length}件の内容を確認</h2><button class="button small">戻る</button></form><p>以下の原本・金額・科目と、入力した用途・仕事の割合・支払元を確認してください。未確認の候補をそのまま確定しないようご注意ください。</p>${missingCount?`<div class="warning-list" id="batch-missing-warning" role="alert">${missingCount}件に入力の不足があります。必要な項目がそろった明細だけを確認済みにし、不足した明細は未確認のまま残します。「戻る」から共通項目を入力するか、下の明細を個別に修正してください。</div>`:''}<div class="review-check-list">${rows.map(r=>`<article>${r.preview_count?`<img loading="lazy" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:''}<div><strong>${esc(r.draft.merchant||r.original_name)} · ${yen(r.draft.total)}</strong><p>${esc(r.draft.date||'日付未確定')} / ${esc(r.draft.account||'科目未確定')}</p><p>用途：${esc(r.draft.purpose||state.batch.purpose||'未入力')} / 仕事の割合：${esc(r.draft.business_percent??state.batch.percent??'未入力')}% / 支払元：${esc(state.config.payments[r.draft.payment||state.batch.payment]?.label||'未入力')}</p>${batchMissing(r).length?`<p class="review-warning">不足：${batchMissing(r).map(esc).join('・')}</p>`:''}${r.suggestion?.warnings?.length?`<p class="review-warning">${r.suggestion.warnings.map(esc).join(' / ')}</p>`:''}${r.possible_duplicate_ids?.length?'<p class="review-warning">同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p>':''}<button class="text-button" data-review-open="${r.id}">個別に確認・修正する</button></div></article>`).join('')}</div><label class="checkbox-line"><input id="review-ack" type="checkbox">上記の原本と照合し、金額・科目・用途を自分で確認しました（チェックすると下のボタンを押せます）</label><button class="button primary" id="confirm-batch" data-action="confirm-batch" disabled>確認して保存（最大${rows.length}件）</button><p class="field-hint">不足や競合がある明細は、理由を表示して未確認のまま残します。税務上の最終判断は、申告前に税理士に確認してください。</p>`;
   dialog.showModal();
 }
 
@@ -287,19 +347,25 @@ async function updateExportPreview(){
     const expanded=$('#export-result .export-sample')?.open;
     const result=await api('/export-preview?'+exportQuery());
     if(revision!==state.exportRevision||!$('#export-result'))return;
-    $('#download-csv').disabled=!result.ready||!result.receipt_count;
+    $('#download-csv').disabled=!result.ready||!result.receipt_count||!!state.csvSaving;
     $('#export-result').innerHTML=`${result.csv_history?.last_created_at?`<p class="field-hint">この形式の前回CSV作成：${esc(new Date(result.csv_history.last_created_at).toLocaleString('ja-JP'))}${state.exportNewOnly?' / 作成済みの版を除外しています':''}</p>`:''}<div class="export-totals"><strong>${result.receipt_count}件 / ${result.row_count}行</strong>${state.exportProfile!=='generic'?`<span>借方 ${yen(result.debit_total)} / 貸方 ${yen(result.credit_total)}</span>`:''}<span>${state.month?esc(state.month):'全期間'}</span></div>${result.issues.length?`<div class="error-box"><strong>出力前に${result.issues.length}点の確認が必要です</strong>${result.issues.map(v=>`<p><button class="text-button" data-fix-export="${esc(v.id)}">${esc(v.file)} ↗</button> ${esc(v.message)}</p>`).join('')}</div>`:''}${state.exportProfile!=='generic'&&state.records.some(r=>isPending(r))?'<p class="warning-list">会計ソフト向けCSVには確認済みの明細だけが入ります。未確認を含めて保存する場合は「汎用CSV」→「作成した帳簿（未確認を含む）」を選んでください。</p>':''}${result.warnings.map(v=>`<p class="ledger-note">${esc(v)}</p>`).join('')}${result.rows.length?`<details class="export-sample"><summary>CSVの先頭${result.rows.length}行を確認する</summary><div class="table-scroll"><table><thead><tr>${result.columns.map(v=>`<th>${esc(v)}</th>`).join('')}</tr></thead><tbody>${result.rows.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`:`<p class="ledger-note">${state.exportProfile==='generic'&&state.exportKind==='review'?'この期間に出力できる明細がありません。期間やCSV作成済みの除外設定を確認してください。':'この条件で出力できる確認済み明細がありません。原本と内容を確認して「確認済み」にするか、期間・CSV作成済みの除外設定を変えてください。'}</p>`}`;
     if(expanded&&$('#export-result .export-sample'))$('#export-result .export-sample').open=true;
   }catch(error){if(revision===state.exportRevision&&$('#export-result')){if($('#download-csv'))$('#download-csv').disabled=true;$('#export-result').innerHTML=`<div class="error-box">${esc(error.message)}</div>`;}}
 }
 
 async function downloadCsv(){
+  if(state.csvSaving)return;
+  state.csvSaving=true;
+  const button=$('#download-csv'),profile=state.exportProfile,month=state.month;
+  if(button)button.disabled=true;
+  try{
   const query=exportQuery(), kind=query.get('kind');
-  const response=await fetch(`/api/export/${kind}?${query}`,{method:"POST",headers:{"X-Ledger-Request":"1"}});
+  const response=await RyoshuSecurity.fetch(`/api/export/${kind}?${query}`,{method:"POST",headers:{"X-Ledger-Request":"1"}});
   if(!response.ok){const result=await response.json();throw new Error(result.detail||'CSVを作成できませんでした');}
   const url=URL.createObjectURL(await response.blob()),link=document.createElement('a');
-  link.href=url;link.download=`${state.exportProfile}-${kind}-${state.month||'all'}.csv`;link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
-  updateExportPreview();toast('CSVを作成しました。ダウンロードと、取込先での件数・金額を確認してください。');
+  link.href=url;link.download=`${profile}-${kind}-${month||'all'}.csv`;link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  toast('CSVを作成しました。ダウンロードと、取込先での件数・金額を確認してください。');
+  }finally{state.csvSaving=false;if($('#download-csv'))updateExportPreview();}
 }
 
 function renderAccounts(content) {
@@ -311,9 +377,9 @@ function renderAccounts(content) {
 
 function renderSettings(content) {
   const h=state.health,c=state.config;
-  content.innerHTML=`<div class="settings-layout"><div><section class="panel settings-card"><h2>どんなお仕事ですか？</h2><p>事業内容を添えると、購入内容と仕事の関係をAIが考える材料になります。取引先の秘密や個人情報は書かずに概要だけで十分です。</p><label><span class="field-label">事業の概要（任意）</span><textarea class="settings-textarea" id="business-context" maxlength="1500" placeholder="例：ゲーム制作・イラスト制作。資料書籍や制作ソフトを使用。">${esc(c.business_context)}</textarea></label><button class="button primary" data-action="save-settings">保存する</button><div class="field-hint">次回の読み取りから使います。既存の候補を更新するには再読取してください。</div></section><section class="panel settings-card"><h2>保存した支払先の科目</h2><p>登録時にチェックした支払先だけ、科目を次回の候補に使います。</p>${c.rules.map(r=>`<div class="rule-row"><span>${esc(r.merchant)}<small>${esc(r.account)}</small></span><button class="text-button" data-remove-rule="${esc(r.merchant)}">解除</button></div>`).join('')||'<p>まだルールはありません。</p>'}</section><section class="panel settings-card"><h2>バックアップ</h2><p>領収書の原本、OCR本文、AI候補、修正履歴、帳簿と設定をZIPにまとめます。モデル本体は含みません。</p><div class="storage-path">${esc(h?.data_dir||'')}</div><a class="button" href="/api/backup">バックアップを保存 ↓</a><p class="field-hint">復元はアプリフォルダーの「バックアップから復元.cmd」でZIPを選びます。元の帳簿は上書きしません。件数が多いと作成に数分かかることがあります。ブラウザーのダウンロード状態を確認してください。ZIPにも領収書の内容が含まれます。</p></section></div><div><section class="panel settings-card"><h2>ローカルの実行環境</h2><div class="system-row"><span>文字の読み取り</span><strong>Indra OCR ${esc(h?.ocr_version||'—')}</strong></div><div class="system-row"><span>内容の判断</span><strong>Qwen3 4B</strong></div><div class="system-row"><span>モデルの状態</span><strong>${h?.model_ready?'準備できています':'Ollama・モデルを確認してください'}</strong></div><div class="system-row"><span>実行デバイス</span><strong>CPU</strong></div><div class="system-row"><span>帳簿の保存</span><strong>SQLite / このPC内</strong></div><div class="system-row"><span>アプリ</span><strong>${esc(h?.app_version||'確認できません')}</strong></div><p class="ledger-note">読み取り時は画像も本文も外部へ送りません。初回セットアップでOCRとAIのモデルをダウンロードします。</p></section><section class="panel settings-card"><h2>帳簿を作る順序</h2><p>デフォルトは、取り込み後に未確認の帳簿を作り、あとから一覧で確認する流れです。</p><label class="checkbox-line"><input id="review-before-ledger" type="checkbox" ${state.config.review_before_ledger?'checked':''}>1件ずつ確認してから帳簿へ並べる</label><p class="field-hint">チェックの変更は自動で保存します。</p></section><section class="panel settings-card"><h2>この初版でできること</h2><p>個人事業主の支出の整理、科目候補の確認、税込の経費帳・経費仕訳CSVの作成が対象です。</p><p>確定申告書の作成、売上・口座照合、固定資産台帳、消費税の計算は含みません。電子帳簿保存法への対応を認証・保証する製品ではありません。</p><p>科目の用途や経費になるかは、業務の実態に合わせて確認して登録してください。</p></section></div></div>`;
+  content.innerHTML=`<div class="settings-layout"><div><section class="panel settings-card"><h2>どんなお仕事ですか？</h2><p>事業内容を添えると、購入内容と仕事の関係をAIが考える材料になります。取引先の秘密や個人情報は書かずに概要だけで十分です。</p><label><span class="field-label">事業の概要（任意）</span><textarea class="settings-textarea" id="business-context" maxlength="1500" placeholder="例：ゲーム制作・イラスト制作。資料書籍や制作ソフトを使用。">${esc(c.business_context)}</textarea></label><button class="button primary" data-action="save-settings">保存する</button><div class="field-hint">次回の読み取りから使います。既存の候補を更新するには再読取してください。</div></section><details class="panel settings-card"><summary>保存した支払先の科目</summary><p>登録時にチェックした支払先だけ、科目を次回の候補に使います。</p>${c.rules.map(r=>`<div class="rule-row"><span>${esc(r.merchant)}<small>${esc(r.account)}</small></span><button class="text-button" data-remove-rule="${esc(r.merchant)}">解除</button></div>`).join('')||'<p>まだルールはありません。</p>'}</details><section class="panel settings-card"><h2>バックアップ</h2><p>帳簿・原本・読み取り結果・修正履歴を、復元用パスワードで暗号化して保存します。</p><details><summary>帳簿の保存先を見る</summary><div class="storage-path">${esc(h?.data_dir||'')}</div></details><button class="button" data-action="backup">暗号化バックアップを保存 ↓</button><p><button class="text-button" data-action="change-password">復元用パスワードを忘れた・変更したい</button></p><p class="field-hint">復元は「バックアップから復元.cmd」で .ryoshubak を選び、パスワードを入力します。元の帳簿は上書きしません。CSVや自分で保存した原本は暗号化されないため、保存先を管理してください。</p></section></div><div><section class="panel settings-card"><h2>処理はこのPCの中で</h2><p>外部AIのアカウントやAPIキーは不要です。領収書の画像・内容を外部AIへ送信する機能はありません。</p><p>初回準備後は、読み取り・科目候補の作成・CSV出力をローカルで行います。</p><p>帳簿DB・原本・プレビューは暗号化して保存します。CSVと自分で保存した原本は、保存先と渡す相手をご自身で管理してください。</p></section><details class="panel settings-card"><summary>ローカルの実行環境</summary><div class="system-row"><span>文字の読み取り</span><strong>Indra OCR ${esc(h?.ocr_version||'—')}</strong></div><div class="system-row"><span>内容の判断</span><strong>Qwen3 4B</strong></div><div class="system-row"><span>モデルの状態</span><strong>${h?.model_ready?'準備できています':'Ollama・モデルを確認してください'}</strong></div><div class="system-row"><span>実行デバイス</span><strong>CPU</strong></div><div class="system-row"><span>帳簿の保存</span><strong>SQLCipher / 暗号化</strong></div><div class="system-row"><span>アプリ</span><strong>${esc(h?.app_version||'確認できません')}</strong></div><p class="ledger-note">読み取り時は画像も本文も外部へ送りません。初回セットアップでOCRとAIのモデルをダウンロードします。</p></details><details class="panel settings-card"><summary>帳簿を作る順序</summary><p>デフォルトは、取り込み後に未確認の帳簿を作り、あとから一覧で確認する流れです。</p><label class="checkbox-line"><input id="review-before-ledger" type="checkbox" ${state.config.review_before_ledger?'checked':''}>1件ずつ確認してから帳簿へ並べる</label><p class="field-hint">チェックの変更は自動で保存します。</p></details><details class="panel settings-card"><summary>この初版でできること</summary><p>個人事業主の支出の整理、科目候補の確認、税込の経費帳・経費仕訳CSVの作成が対象です。</p><p>確定申告書の作成、売上・口座照合、固定資産台帳、消費税の計算は含みません。電子帳簿保存法への対応を認証・保証する製品ではありません。</p><p>科目の用途や経費になるかは、業務の実態に合わせて確認して登録してください。</p></details></div></div>`;
   const samples=state.config.samples||{count:100,description:'架空の領収書で取込を試せます。'};
-  $('.settings-layout > div',content)?.insertAdjacentHTML('beforeend',`<section class="panel settings-card"><h2>${samples.count}種類の架空領収書</h2><p><a href="/evidence/">テスト画像・期待値・100件の結果を見る ↗</a></p><p>${esc(samples.description)} 実際の取引ではありません。</p><div class="sample-actions">${samples.count===100?'<a class="button" href="/samples/receipts-100-v2/gallery.html">100パターンを一覧で見る ↗</a>':''}<a class="button" href="/api/samples/zip">個別PDF ${samples.count}件を保存 ↓</a><a class="button" href="/api/samples/review">${samples.count}ページの合本を見る ↗</a></div><p class="field-hint">ZIPを展開して、個別PDFのフォルダーごと選択できます。合本は「1ページずつ別の領収書」で取り込めます。期待値・業務背景・作成モデルの記録を別添しています。</p></section>`);
+  $('.settings-layout > div',content)?.insertAdjacentHTML('beforeend',`<details class="panel settings-card"><summary>${samples.count}種類の架空領収書</summary><p><a href="/evidence/security/">テスト画像・期待値・100件の結果を見る ↗</a></p><p>${esc(samples.description)} 実際の取引ではありません。</p><div class="sample-actions">${samples.count===100?'<a class="button" href="/samples/receipts-100-v2/gallery.html">100パターンを一覧で見る ↗</a>':''}<a class="button" href="/api/samples/zip">個別PDF ${samples.count}件を保存 ↓</a><a class="button" href="/api/samples/review">${samples.count}ページの合本を見る ↗</a></div><p class="field-hint">ZIPを展開して、個別PDFのフォルダーごと選択できます。合本は「1ページずつ別の領収書」で取り込めます。期待値・業務背景・作成モデルの記録を別添しています。</p></details>`);
 }
 
 const kindLabels={expense:'経費',asset:'資産',cash:'支払元',bank:'支払元',liability:'負債',equity:'事業主勘定'};
@@ -386,6 +452,7 @@ async function save(confirm,next=false) {
 let importRefreshTimer;
 function beginImport(){
   if(state.view==='inbox'&&state.drafts.size)return;
+  if(state.view==='home'){renderHome();return;}
   state.view=state.config.review_before_ledger?'inbox':'ledger';state.month='';state.ledgerFilter='all';state.ledgerSearch='';state.ledgerPage=0;render();
 }
 async function refreshImported(){
@@ -393,7 +460,7 @@ async function refreshImported(){
     await loadReceipts();renderProcessing();
     if(state.config.review_before_ledger&&state.view==='inbox'&&!state.active&&state.records.length){await selectReceipt(state.records[0].id);}
     else if(state.view==='ledger'&&!$('#review-dialog').open){if(!$('#ledger-table'))render();else{refreshLedgerDisplay();updateExportPreview();}}
-    else{state.ledgerNeedsRefresh=true;if(state.view==='inbox')renderQueue();}
+    else{state.ledgerNeedsRefresh=true;if(state.view==='inbox')renderQueue();if(state.view==='home')renderHome();if(state.view==='results')renderResults($('#main-content'),true);}
     schedulePoll();
   }catch{toast('原本は保存しました。一覧を更新できなかったため、接続を確認して再読み込みしてください。',true);}
 }
@@ -426,22 +493,26 @@ async function poll(){
     if(updated&&(busyRecord(state.detail)||updated.version!==state.detail?.version)&&!state.drafts.has(state.active)){state.detail=await api('/receipts/'+state.active);if(state.view==='inbox')render();}
     else if(state.view==='inbox')renderQueue();
     if(state.view==='ledger'&&!$('#review-dialog').open)refreshLedgerDisplay();
+    if(state.view==='home')renderHome();
+    if(state.view==='results')renderResults($('#main-content'),true);
   }catch(error){toast('ローカルアプリとの接続を確認してください。',true);}
   schedulePoll();
 }
 
 document.addEventListener('click',async event=>{
-  const target=event.target.closest('button,a,[data-action]');if(!target)return;
+  const target=event.target.closest('button,a,[data-action],summary[data-ocr-receipt]');if(!target)return;
   try{
-    if(target.dataset.view){const revision=++detailRevision;if(target.dataset.view==='catalog'){const catalog=await api('/catalog');if(revision!==detailRevision)return;state.catalog=catalog;}state.view=target.dataset.view;render();return;}
+    if(target.dataset.view){event.preventDefault();if(!state.uiReady)return;const revision=++detailRevision;if(target.dataset.view==='catalog'){const catalog=await api('/catalog');if(revision!==detailRevision)return;state.catalog=catalog;}state.view=target.dataset.view;history.replaceState(null,'','#'+state.view);$('.more-nav').open=false;render();return;}
     if(target.dataset.reviewOpen){$('#review-dialog').close();state.queueFilter='all';await selectReceipt(target.dataset.reviewOpen);return;}
+    if(target.dataset.zoomReceipt){openZoom(target.dataset.zoomReceipt,target);return;}
+    if(target.dataset.ocrReceipt){const details=target.closest('details');if(!details.open&&!details.dataset.loaded){const r=await api('/receipts/'+target.dataset.ocrReceipt);if(details.isConnected){details.querySelector('pre').textContent=r.ocr?.text||'読み取った本文がありません。原本を確認してください。';details.dataset.loaded='1';}}return;}
     if(target.dataset.receipt){await selectReceipt(target.dataset.receipt);return;}
     if(target.dataset.openReceipt){state.queueFilter='all';await selectReceipt(target.dataset.openReceipt);return;}
     if(target.dataset.fixExport){state.queueFilter='all';if(await selectReceipt(target.dataset.fixExport)){$('.tax-details')?.setAttribute('open','');$('[name="export_tax"]')?.focus();}return;}
     if(target.dataset.sourceTab){state.sourceTab=target.dataset.sourceTab;if(state.sourceTab==='history')state.history=(await api(`/receipts/${state.active}/history`)).history;renderDetail();return;}
     if(target.dataset.removeRule){await api('/rules/remove',{method:'POST',body:JSON.stringify({merchant:target.dataset.removeRule})});state.config=await api('/config');render();toast('科目のルールを解除しました。');return;}
     const action=target.dataset.action;
-    if(action==='back-to-ledger'){++detailRevision;state.view='ledger';render();return;}
+    if(action==='back-to-ledger'){++detailRevision;state.view='results';render();return;}
     if(action==='save-export-map'){
       const names={};
       for(const line of $('#export-account-map').value.split('\n').filter(v=>v.trim())){
@@ -456,6 +527,8 @@ document.addEventListener('click',async event=>{
     if(action==='retry-errors'){target.disabled=true;try{await retryErrors();}finally{target.disabled=false;}return;}
     if(action==='queue-prev'||action==='queue-next'){state.queuePage+=action==='queue-next'?1:-1;$('#queue-list').scrollTop=0;renderQueue();return;}
     if(action==='ledger-prev'||action==='ledger-next'){state.ledgerPage+=action==='ledger-next'?1:-1;updateLedgerTable(true);return;}
+    if(action==='results-prev'||action==='results-next'){state.resultsPage+=action==='results-next'?1:-1;renderResults($('#main-content'));return;}
+    if(action==='zoom-prev'||action==='zoom-next'){zoomPage+=action==='zoom-next'?1:-1;paintZoom();return;}
     if(action==='download-csv'){await downloadCsv();return;}
     if(action==='upload'||target.id==='upload-top'){RyoshuImport.open();return;}
     if(action==='exclude-selected'||action==='restore-selected'){target.disabled=true;try{await setSelectedStatus(action==='exclude-selected'?'exclude':'restore');}finally{target.disabled=false;}return;}
@@ -484,6 +557,8 @@ document.addEventListener('click',async event=>{
 document.addEventListener('submit',event=>{if(event.target.id==='review-form'){event.preventDefault();save(true);}if(event.target.id==='account-form'){event.preventDefault();addAccount(event.target);}});
 document.addEventListener('input',event=>{if(event.target.id==='ledger-search'){state.ledgerSearch=event.target.value;state.ledgerPage=0;if(!event.isComposing&&!state.searchComposing){clearTimeout(searchTimer);searchTimer=setTimeout(()=>updateLedgerTable(true),180);}}if(event.target.closest('#review-form'))trackEdit();if(event.target.id==='catalog-search')renderCatalogRows(event.target.value);});
 document.addEventListener('change',event=>{
+  if(event.target.id==='results-pending'){state.resultsOnlyPending=event.target.checked;state.resultsPage=0;renderResults($('#main-content'));}
+  if(event.target.id==='zoom-scale'){const img=$('.zoom-image-wrap img');img.style.width=event.target.value==='fit'?'100%':Math.round(img.naturalWidth*Number(event.target.value)/100)+'px';img.style.maxWidth=event.target.value==='fit'?'100%':'none';}
   if(event.target.id==='export-profile'){rememberLedgerInputs();state.exportProfile=event.target.value;$('#export-panel').outerHTML=exportPanel();updateExportPreview();}
   if(event.target.id==='export-new-only'){state.exportNewOnly=event.target.checked;updateExportPreview();}
   if(event.target.id==='export-kind'){state.exportKind=event.target.value;updateExportPreview();}
@@ -503,17 +578,20 @@ window.addEventListener('beforeunload',event=>{if(state.drafts.size||RyoshuImpor
 
 async function init(){
   try{
+    await RyoshuSecurity.prepare();
     const [config,health,receipts]=await Promise.all([api('/config'),api('/health'),api('/receipts')]);
     state.config=config;state.health=health;state.records=receipts.receipts;
-    if(!config.limits?.max_split_pages){$('#upload-top').disabled=true;$$('.nav-item').forEach(el=>{if(el.tagName==='BUTTON')el.disabled=true;});$('#main-content').innerHTML='<section class="panel settings-card"><h2>アプリ本体を再起動してください</h2><p>画面とアプリ本体の版が違います。「停止.cmd」で終了してから「Ryoshu.cmd」を起動してください。帳簿と原本は保存されています。</p></section>';return;}
+    if(!config.limits?.max_split_pages){state.uiReady=false;$('.sidebar nav').inert=true;$('#upload-top').disabled=true;$$('.nav-item').forEach(el=>{if(el.tagName==='BUTTON')el.disabled=true;});$('#main-content').innerHTML='<section class="panel settings-card"><h2>アプリ本体を再起動してください</h2><p>画面とアプリ本体の版が違います。「停止.cmd」で終了してから「Ryoshu.cmd」を起動してください。帳簿と原本は保存されています。</p></section>';return;}
 
     RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});
-    state.exportTaxMode=config.export_tax_mode||'reviewed';state.view=config.review_before_ledger?'inbox':'ledger';state.exportKind=config.review_before_ledger?'expenses':'review';
+    state.exportTaxMode=config.export_tax_mode||'reviewed';state.view=['home','results','ledger','settings','accounts'].includes(location.hash.slice(1))?location.hash.slice(1):'home';state.exportKind=config.review_before_ledger?'expenses':'review';
     if(health.environment_label){$('#connection-banner').textContent=health.environment_label+'。実際の帳簿とは別のデータベースです。';$('#connection-banner').classList.remove('hidden');}
     $('#app-version').textContent=health.app_version;$('#engine-status').textContent=`Indra ${health.ocr_version} / Qwen3 4B`;
-    if(!health.model_ready){$('#connection-banner').textContent=(health.environment_label?health.environment_label+'。 ':'')+'科目判断のAIに接続できません。Ollamaアプリを起動してください。初回準備がまだの場合は「初回セットアップ.cmd」を実行します。読み取れた本文を見ながら手入力することもできます。';$('#connection-banner').classList.remove('hidden');}
+    if(!health.model_ready){$('#connection-banner').textContent=(health.environment_label?health.environment_label+'。 ':'')+(health.model_issue||'科目判断のAIに接続できません。Ollamaアプリを起動してください。初回準備がまだの場合は「初回セットアップ.cmd」を実行します。読み取れた本文を見ながら手入力することもできます。');$('#connection-banner').classList.remove('hidden');}
+    const storage=config.storage_issues||{};
+    if(storage.missing_originals||storage.missing_source_pdfs){const banner=$('#connection-banner');banner.textContent+=(banner.textContent?' ':'')+`不足している原本 ${storage.missing_originals||0}件・元PDF ${storage.missing_source_pdfs||0}件があります。帳簿は開けますが、原本を確認してください。同じ原本を取り込み直すと修復できます。`;banner.classList.remove('hidden');}
     const first=state.records.find(isPending)||state.records[0];if(first){state.active=first.id;state.detail=await api('/receipts/'+first.id);}
-    render();schedulePoll();
+    state.uiReady=true;render();schedulePoll();
   }catch(error){$('#main-content').innerHTML=`<section class="panel settings-card"><h2>アプリに接続できませんでした</h2><p>${esc(error.message)}</p><button class="button" data-action="reload">再読み込み</button></section>`;}
 }
 document.addEventListener('click',event=>{if(event.target.closest('[data-action="reload"]'))location.reload();});

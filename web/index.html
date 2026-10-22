@@ -7,41 +7,39 @@
   <title>Ryoshu — 領収書OCRとAIによる勘定科目候補</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
+  <script src="/security.js" defer></script>
   <script src="/import.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#inbox" aria-label="Ryoshu ホーム"><img src="/icon.svg" alt="" width="38" height="38"><span>Ryoshu<small>ローカル経費帳</small></span></a>
-      <div class="workspace-label">個人事業主のワークスペース</div>
+    <header class="sidebar">
+      <a class="brand" href="#home" data-view="home" aria-label="Ryoshu ホーム"><img src="/icon.svg" alt="" width="34" height="34"><span>Ryoshu<small>ローカル領収書整理</small></span></a>
       <nav aria-label="メインメニュー">
-        <button class="nav-item active" data-view="inbox"><span class="nav-symbol">▤</span>領収書の確認<span id="pending-count" class="nav-count">0</span></button>
-        <button class="nav-item" data-view="ledger"><span class="nav-symbol">▦</span>経費帳</button>
-        <button class="nav-item" data-view="accounts"><span class="nav-symbol">◴</span>科目別の集計</button>
-        <button class="nav-item" data-view="catalog"><span class="nav-symbol">≡</span>勘定科目</button>
-        <div class="nav-divider"></div>
-        <button class="nav-item" data-view="settings"><span class="nav-symbol">⚙</span>設定・保存</button>
-        <a class="nav-item" href="/help.html" target="_blank" rel="noreferrer"><span class="nav-symbol">?</span>使い方</a>
+        <a class="nav-item active" href="#home" data-view="home">読み込む</a>
+        <a class="nav-item" href="#results" data-view="results">読み取り結果<span id="pending-count" class="nav-count">0</span></a>
+        <a class="nav-item" href="#ledger" data-view="ledger">CSV出力</a>
+        <details class="more-nav"><summary>その他</summary><div><a class="nav-item" href="#accounts" data-view="accounts">科目別の集計</a><a class="nav-item" href="#catalog" data-view="catalog">勘定科目一覧</a><a class="nav-item" href="#settings" data-view="settings">設定・バックアップ</a><a class="nav-item" href="/help.html" target="_blank" rel="noreferrer">使い方</a></div></details>
       </nav>
-      <div class="sidebar-note"><span class="small-leaf">↳</span>ためていた領収書を、<br>ひとつずつ整えよう。</div>
       <div class="local-status"><span class="status-dot"></span><div>このPC内で処理<small id="engine-status">エンジンを確認中</small></div></div>
-      <div class="sidebar-version">Ryoshu <span id="app-version">1.0.0</span></div>
-    </aside>
-    <main>
-      <header class="page-header"><div><div class="eyebrow">日々の経費整理</div><h1 id="page-title">経費帳</h1><p id="page-description">領収書をまとめて取り込み、あとから確認。</p></div><button class="button primary" id="upload-top"><span>＋</span> 領収書を取り込む</button></header>
+    </header>
+    <a class="skip-link" href="#main-workspace">本文へ移動</a>
+    <main id="main-workspace" tabindex="-1">
+      <header class="page-header"><div><h1 id="page-title">領収書を読み取る</h1><p id="page-description">PDFや画像をまとめて読み込み、CSVに。</p></div><button class="button" id="upload-top">ファイルを追加</button></header>
       <div id="connection-banner" class="banner hidden" role="status"></div>
       <p class="usage-guidance" id="usage-guidance">AIの読取・科目は候補です。金額・科目・用途は必ずご自身で確認し、税務上の最終判断は税理士に確認してください。<a href="/help.html#tax-review" target="_blank" rel="noreferrer">確認の方針</a></p>
       <section id="import-progress" class="panel import-progress hidden" aria-live="polite"></section>
       <section id="processing-status" class="processing-status hidden" aria-live="polite"></section>
-      <div id="main-content"></div>
-      <footer class="main-footer"><span>原本はそのまま。判断は、あなたの手元に。</span><span>INDRA OCR × LOCAL AI</span></footer>
+      <section id="home-view" class="hidden"><div id="home-import"></div><div id="home-result-link" aria-live="polite"></div><p class="privacy-note">領収書の画像・内容を外部AIへ送らず、このPC内で読み取ります。</p></section>
+      <div id="main-content" tabindex="-1"></div>
+      <footer class="main-footer"><span>Ryoshu <span id="app-version">1.1.0</span></span><span>原本と候補を確認して、CSVへ。</span></footer>
     </main>
   </div>
   <input id="file-input" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple aria-label="領収書ファイルを選ぶ">
   <input id="folder-input" class="visually-hidden" type="file" webkitdirectory multiple aria-label="領収書のフォルダーを選ぶ">
   <dialog id="import-dialog" aria-label="領収書の取り込み"></dialog>
   <dialog id="review-dialog" aria-label="選択した明細の確認"></dialog>
+  <dialog id="image-dialog" aria-label="領収書の拡大画像"></dialog>
   <div id="toast" class="toast hidden" role="status"></div>
   <div id="upload-overlay" class="upload-overlay hidden"><div>＋<strong>ここに領収書をドロップ</strong><span>JPG・PNG・WebP・PDF</span></div></div>
 </body>

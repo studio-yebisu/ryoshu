@@ -8,7 +8,7 @@ LOOPBACK = {"127.0.0.1", "::1", "localhost", b"127.0.0.1", b"::1", b"localhost"}
 
 
 def _audit(event, args):
-    if event == "socket.connect":
+    if event in {"socket.connect", "socket.sendto", "socket.sendmsg"}:
         address = args[1]
         if isinstance(address, tuple) and address[0] not in LOOPBACK:
             raise PermissionError("Ryoshuは外部ネットワークへ接続しません")
