@@ -61,9 +61,8 @@ function stats(month = '') {
 
 function renderPendingCount(){
   const count=state.records.filter(isPending).length,el=$('#pending-count');
-  el.textContent=count?String(count):'';
+  el.innerHTML=count?`<span class="visually-hidden">未確認 </span>${count}<span class="visually-hidden">件</span>`:'';
   el.title=`未確認 ${count}件`;
-  el.setAttribute('aria-label',`未確認 ${count}件`);
 }
 function render() {
   rememberLedgerInputs();
@@ -254,7 +253,7 @@ function ledgerPaging(pages){return pages>1?`<div class="pagination"><button cla
 function refreshMonth(){
   if(state.view!=='ledger'){render();return;}
   const input=$('#month-filter');if(input&&input.value!==state.month)input.value=state.month;
-  $('[data-action="all-months"]').setAttribute('aria-pressed',String(!state.month));
+  $('[data-action="all-months"]')?.setAttribute('aria-pressed',String(!state.month));
   const context=$('#main-content .ledger-context');if(context)context.outerHTML=ledgerContext();
   updateLedgerTable(true);updateExportPreview();
 }
@@ -265,11 +264,10 @@ function focusPager(selector,action){
 }
 function ledgerContext(){
   const rows=ledgerRows(state.month),pending=state.records.filter(r=>isPending(r)&&(!state.month||!r.draft.date||r.draft.date.startsWith(state.month))).length;
-  return `<div class="ledger-context" aria-label="帳簿全体の集計"><span>帳簿の明細 <strong>${rows.length}件</strong></span><span>未確認 <strong>${pending}件</strong></span><span>確認済みの経費 <strong>${yen(summaryFor(state.month).expenses)}</strong><small>事業分・税込、資産候補を除く</small></span></div>`;
+  return `<div class="ledger-context"><span>帳簿の明細 <strong>${rows.length}件</strong></span><span>未確認 <strong>${pending}件</strong></span><span>確認済みの経費 <strong>${yen(summaryFor(state.month).expenses)}</strong><small>事業分・税込、資産候補を除く</small></span></div>`;
 }
 function refreshLedgerDisplay(){
   if(state.view!=='ledger')return;
-  const summary=$('#main-content .summary-grid');if(summary)summary.outerHTML=stats(state.month);
   const context=$('#main-content .ledger-context');if(context)context.outerHTML=ledgerContext();
   if(!state.searchComposing&&!state.selected.size){updateLedgerTable();state.ledgerNeedsRefresh=false;}else state.ledgerNeedsRefresh=true;
 }
