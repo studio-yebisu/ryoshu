@@ -55,6 +55,53 @@ def amount_on_line(line):
     return candidates[0] if candidates and len(set(candidates))==1 else None
 
 
+TAX_LABEL = re.compile(r"(?:(?:合計|総額)\s*)?(?:うち|内)?(?:消費税(?:等|額)?|内税|税額)(?:\s*(?:の)?(?:合計|総額))?")
+TAX_RATE = re.compile(r"(?<![\d.])(8|10)\s*[%％]")
+
+
+def printed_tax(text, mixed=False, total=None):
+    """Read an existing tax amount only when its scope is the selected receipt.
+
+    Equal amounts can be separate line taxes. They are not a document total just
+    because a set happens to contain one value. Reconciliation below only checks
+    whether repeated observations describe the same total; it never invents tax.
+    """
+    records=[]
+    normalized=unicodedata.normalize('NFKC',text)
+    for line in normalized.splitlines():
+        labels=list(TAX_LABEL.finditer(line))
+        for index,label in enumerate(labels):
+            tail=line[label.end():labels[index+1].start() if index+1<len(labels) else len(line)]
+            # A parenthetical description can contain the taxable gross, not the
+            # tax: 「うち消費税（手数料税込660円の内数）60円」.
+            annotation=re.match(r'^\s*[:：]?\s*\(([^()]*)\)',tail)
+            if annotation and re.search(r'%|内数|税率|税込|税抜|対象',annotation[1]):
+                tail=tail[annotation.end():]
+            tail=re.split(r'税(?:込|抜)(?:合計|総額|金額)|総合計|報酬総額|回線合計|(?<!税)合計',tail,maxsplit=1)[0]
+            amount=amount_on_line(tail)
+            if amount is None:continue
+            prefix=line[:label.start()]
+            current=bool(re.search(r'今回.*(?:領収|受領|入金|支払|決済)',prefix))
+            current=current and total is not None and total in [value for value,_,_ in money_tokens(prefix)]
+            other=bool(re.search(r'前回|前月|前受|着手金|予約金|契約(?:金額|額)|(?:回線|部門|商品|品目|明細)[A-Z0-9一二三四五六七八九十甲乙]|回線別|部門別|品目別|明細別',prefix)) and not current
+            records.append({'amount':amount,'aggregate':bool(re.search(r'合計|総額',label.group())),
+                            'current':current,'other_scope':other})
+    if not records:return None
+    current=[r['amount'] for r in records if r['current']]
+    if current:return current[0] if len(set(current))==1 else None
+    aggregates=[r['amount'] for r in records if r['aggregate'] and not r['other_scope']]
+    if aggregates:return aggregates[0] if len(set(aggregates))==1 else None
+    if mixed:return None
+    if len(records)==1:return None if records[0]['other_scope'] else records[0]['amount']
+    values={r['amount'] for r in records}
+    if len(values)!=1 or any(r['other_scope'] for r in records) or total is None:return None
+    amount=next(iter(values))
+    rates={int(rate) for rate in TAX_RATE.findall(normalized)} or {8,10}
+    # Two copies of an entire receipt/stub may repeat its tax. A per-line tax
+    # such as 653+653 on a discounted invoice does not reconcile with its gross.
+    return amount if any(abs(amount*(100+rate)-total*rate)<=100+rate for rate in rates) else None
+
+
 def total_candidates(text):
     lines=[l.strip() for l in unicodedata.normalize('NFKC',text).splitlines() if l.strip()]
     found=[]
