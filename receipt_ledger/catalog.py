@@ -42,10 +42,14 @@ def resolve_account(value, accounts):
     key = account_key(value)
     if not key:
         return None
-    # A newly supported formal name can also be an older account's alias.
-    # Explicit names/codes always win; existing canonical postings keep their code.
+    # A previously valid custom name can equal a newly added seed code.
+    # Names take precedence, followed by codes, then historical aliases.
+    # Draft.account stores formal names, so expanding the seed cannot retarget it.
     for account in accounts:
-        if key in {account_key(account["code"]), account_key(account["name"])}:
+        if key == account_key(account["name"]):
+            return account
+    for account in accounts:
+        if key == account_key(account["code"]):
             return account
     for account in accounts:
         if key in {account_key(v) for v in account.get("aliases", [])}:

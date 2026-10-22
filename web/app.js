@@ -210,7 +210,7 @@ function findAccount(value){
   const key=String(value||'').normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase();
   if(!key)return undefined;
   const accounts=selectableAccounts(),matches=v=>String(v||'').normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()===key;
-  return accounts.find(a=>[a.name,a.code].some(matches))||accounts.find(a=>(a.aliases||[]).some(matches));
+  return accounts.find(a=>matches(a.name))||accounts.find(a=>matches(a.code))||accounts.find(a=>(a.aliases||[]).some(matches));
 }
 function accountCategories(accounts=selectableAccounts()){
   const used=new Set(accounts.map(accountCategoryId));
