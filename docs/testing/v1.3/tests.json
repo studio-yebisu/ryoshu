@@ -1,0 +1,36 @@
+{
+  "python_full": {
+    "passed": 256,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 163.075,
+    "scope": "Full final Python regression; protected fictional ledgers and schema2/3 restore/migration."
+  },
+  "javascript": {
+    "passed": 5,
+    "scope": "Folder traversal and canonical/custom-name resolution regressions."
+  },
+  "browser_workflow": {
+    "passed": 28,
+    "record": "browser-workflow.json"
+  },
+  "browser_security_and_simple_ui": {
+    "passed": 10,
+    "record": "security-ui-workflow.json"
+  },
+  "browser_ux": {
+    "passed": 8,
+    "record": "ux-workflow.json"
+  },
+  "browser_account_workflow": {
+    "passed": 8,
+    "record": "account-workflow.json"
+  },
+  "csv_profiles": {
+    "passed": 4,
+    "record": "csv-verification.json"
+  },
+  "new_fictional_ocr_ai_receipts": 100,
+  "scope": "Local executed checks. GitHub CI and exact release ZIP are separate gates. Browser datasets replay saved observations; only the separate frozen100 is new inference."
+}

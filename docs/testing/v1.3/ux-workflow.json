@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "scope": "Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI. First-use viewport checks set only model readiness/banner fields in the health response to reproduce the appearance after setup, including on CI without local models. Actual health response is restored before importing.",
+  "checks": [
+    "first-use file selection and Start fit the initial1366x768 and125%-equivalent1093x614 viewports",
+    "five PDFs remain staged until Start, then results present originals/read contents/accounts",
+    "month input keeps focus and the CSV preview and ledger share the selected period",
+    "format changes preserve keyboard focus and the selected accounting period",
+    "additional import from CSV returns to results and preserves the previous CSV/list period",
+    "all-period control exposes its selected state, retains focus and updates the six-row preview",
+    "result filter retains focus and the result navigation stays current while editing",
+    "home/results/CSV avoid body overflow at375/850/851/1000/1001px with44px primary navigation targets"
+  ],
+  "errors": [],
+  "receipt_count": 6,
+  "breakpoint_widths": [
+    375,
+    850,
+    851,
+    1000,
+    1001
+  ],
+  "source_sha256": {
+    "web/app.js": "4c6f87bc5509db0ad8cb7157e2c03a77eb5064893a0cc0599fca6bced13f7045",
+    "web/import.js": "452bbf1ab2496f2bf11854d53a0196ffeb94413f2b1869d6f366c23977a8706f",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "94e6a0d93c5e9c00dc2f6c89d8bec5170b078cddc3ecbafbc461d4cbbd5fcff1",
+    "web/style.css": "c5e167aece64a870a37611675107543a8f9776ccc5f2d19b8501a0479a81f757",
+    "receipt_ledger/server.py": "f968d0eed813359b27dc0ddbc3155b6a8902546415a0ea0eb3d9888f5defbef7",
+    "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
+    "scripts/ux_workflow_smoke.mjs": "b99835bb0aca82e7123184cc517795d4bafff7ff1b75b93730b6e48fc237a9e1"
+  }
+}

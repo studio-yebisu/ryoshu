@@ -1,0 +1,44 @@
+{
+  "scope": "Public source review during development. No external AI is integrated into the runtime; no personal ledger data was sent.",
+  "opus": {
+    "requested_model": "claude-opus-5-5",
+    "confirmed_models": [
+      "claude-opus-5-5"
+    ],
+    "raw_response_sha256": "5fb164712eb3450d3cfe4ae917e90b32ebe14545a5612fbab1ef6ba65ea3e5f0",
+    "reviewed_raw_source_sha256": {
+      "web/app.js": "e7e6761edff31d7cc1ffe6eaa01e2079164b654a5b3d94386612e420c39275a8",
+      "web/index.html": "94e6a0d93c5e9c00dc2f6c89d8bec5170b078cddc3ecbafbc461d4cbbd5fcff1",
+      "web/style.css": "c5e167aece64a870a37611675107543a8f9776ccc5f2d19b8501a0479a81f757",
+      "receipt_ledger/catalog.py": "6496c1efc50ebe0e4d4d7236f47345fca37fdb5b0b36d2ab49cf75d56ee66b09",
+      "receipt_ledger/store.py": "71c276cf5d37284e56828d7fb596a0be105dd5b9b60b38714d569440a563bb70",
+      "receipt_ledger/server.py": "f968d0eed813359b27dc0ddbc3155b6a8902546415a0ea0eb3d9888f5defbef7"
+    },
+    "finding": "No P1/P2 identified within the supplied first-candidate diff. Source-only, no tools/browser/tests executed by reviewer. This is not blanket final approval."
+  },
+  "independent_review": {
+    "finding": "P2: a legacy custom formal name equal to a new seed code could resolve to the seed account.",
+    "status": "fixed",
+    "resolution": "Resolve all formal names before all codes, then aliases, in backend and frontend. Preserve existing custom code/posting on migration.",
+    "regressions": [
+      "tests/test_account_categories.py: legacy E129/A106 custom-name migration and posting preservation",
+      "tests/account-choice.test.cjs: actual frontend resolver with a legacy custom-name collision"
+    ]
+  },
+  "browser_discovery": {
+    "finding": "A newly formalized account name could still resolve to an older alias on the frontend.",
+    "status": "fixed",
+    "regressions": [
+      "scripts/account_workflow_smoke.mjs: confirmed account change retains the newly chosen formal account"
+    ]
+  },
+  "scope_after_opus": "The independent custom-name/code correction followed the Opus diff review and was verified by targeted regressions, full256 Python tests and the final browser workflows. No additional blanket model approval is claimed.",
+  "visual_review": {
+    "surfaces": [
+      "1366px desktop native dialog",
+      "375px stacked selectors and buttons",
+      "actual100 results and readonly account dialog"
+    ],
+    "limit": "Local visual inspection and functional browser regressions, not a representative user study or complete accessibility certification."
+  }
+}

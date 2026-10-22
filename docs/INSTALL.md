@@ -5,7 +5,7 @@
 ## 初回だけ行うこと
 
 1. [Ollama Windows版](https://ollama.com/download)を導入します。PC内でAIを動かすために使います。
-2. [Ryoshuの配布ZIP](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.1.0)を新しいフォルダーに展開します。
+2. [Ryoshuの配布ZIP](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.0)を新しいフォルダーに展開します。
 3. `Ryoshu.cmd`をダブルクリックします。コマンド画面でモデルの利用条件を確認して続行すると、必要な実行環境とモデルを自動で準備します。
 4. 準備が終わるとブラウザーが開きます。復元用パスワードを2回入力して設定し、安全な場所に保管します。次回以降はWindowsが自動で帳簿を開くため、毎回の入力は不要です。
 

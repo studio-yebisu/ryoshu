@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "scope": "Real browser setup, Windows DPAPI/SQLCipher, original and CSV IO, password reset, encrypted backup/restore. OCR/model saved-observation replay. Native OS save dialog replaced with real browser OPFS FileSystemFileHandle.",
+  "checks": [
+    "actual first-run setup: masked confirmation, mismatch blocks setup, key creation and no password in browser storage",
+    "PDF stays staged until Start; results show original/text/account, authenticated thumbnail, zoom200%, Escape focus return and OCR disclosure",
+    "held background job: poll and import refresh preserve unchanged image DOM/focus, open zoom, and expanded OCR body while another row updates",
+    "after the last job, a focused stale row stays stable and refreshes from saved state on blur without another poll",
+    "filter eviction, including an empty result set, defers replacing active zoom or expanded OCR until interaction is released",
+    "correction persists and the result screen links directly to actual generic CSV download",
+    "fallback download produces a real encrypted backup that restores successfully",
+    "password reset requires confirmation; old password rejected for new backup while existing backup still restores with old password",
+    "File System Access streaming uses native OPFS writable and yields a restorable encrypted backup; OS save dialog itself is outside this automated proof",
+    "375px results keep horizontal scrolling within the result table"
+  ],
+  "errors": [],
+  "receipt_count": 2,
+  "source_sha256": {
+    "web/app.js": "4c6f87bc5509db0ad8cb7157e2c03a77eb5064893a0cc0599fca6bced13f7045",
+    "web/import.js": "452bbf1ab2496f2bf11854d53a0196ffeb94413f2b1869d6f366c23977a8706f",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "94e6a0d93c5e9c00dc2f6c89d8bec5170b078cddc3ecbafbc461d4cbbd5fcff1",
+    "web/style.css": "c5e167aece64a870a37611675107543a8f9776ccc5f2d19b8501a0479a81f757",
+    "receipt_ledger/server.py": "f968d0eed813359b27dc0ddbc3155b6a8902546415a0ea0eb3d9888f5defbef7",
+    "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
+    "scripts/security_ui_smoke.mjs": "628f052fddb03ba228c6608e1148e900265e04d566b70c33355bd4730454763e"
+  }
+}
