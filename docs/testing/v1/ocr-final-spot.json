@@ -1,0 +1,192 @@
+{
+  "status": "complete",
+  "scope": "Fresh original PDF HTTP upload, local OCR and model inference on the final catalog; three targeted regression cases, not a second final-version100-case inference claim.",
+  "started_at": "2026-10-22T00:27:11.981629+00:00",
+  "finished_at": "2026-10-22T00:27:58.166444+00:00",
+  "runtime": {
+    "ollama": "0.40.7",
+    "source_commit": "524776a8b937a5b439363fb4a7493f9e253f9a15",
+    "source_clean": true,
+    "model": {
+      "name": "qwen3:4b",
+      "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "size": 2497293931
+    }
+  },
+  "catalog_version": "2026-10-22.2",
+  "source_sha256": {
+    "data/account-catalog.json": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+    "receipt_ledger/accounting.py": "92f5f5c8c683bc6fef085b0c4d8daaefec30a270c536c0fadb6bee86aa262001",
+    "receipt_ledger/backups.py": "086b68bda52c38d99afd6d4fccff361002ab302ea5237d78ec7215a245653db9",
+    "receipt_ledger/catalog.py": "8e09913b0bb562c9cd8d26bd8fd3c320bd2e183fb34d5e72eab6c026e8509498",
+    "receipt_ledger/config.py": "7795a5fc6be43b43bf2c3ccdf57da3b8d630fba5eefb782d0cf489fcefed9804",
+    "receipt_ledger/evidence.py": "f48f4eda2dac9a0cafa58db21f52eca733982344b0f874530c1ef62bb1f9312d",
+    "receipt_ledger/exports.py": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f",
+    "receipt_ledger/export_history.py": "a4b3637f066efe9e7744bdbb6a56e4e68d58a8d575ab189933acb5114a64c0a8",
+    "receipt_ledger/extraction.py": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705",
+    "receipt_ledger/importing.py": "a740479764c99a7a48b5a618d0487030d6a4f40238281e6802b4f678fa372739",
+    "receipt_ledger/listing.py": "3afe765a5345731bd4b627408c01e19976e25adcab4af18ed86e420e607c2c1f",
+    "receipt_ledger/ocr_focus.py": "fad178563bc0bc21bf05cb6c77067ddd1eaaac9faa112e2c398f2a33fdeed94e",
+    "receipt_ledger/pdf_runtime.py": "077aa84350ae27bd994c7cf13bed4ae31fc7fe37333a54c6e2c1b6e85c75c400",
+    "receipt_ledger/pipeline.py": "80ca6b7e041ea740b6aeef6a2358c01c0b19397068615cb345c82205474814f9",
+    "receipt_ledger/previews.py": "eb9edec8dfb7099d31a629352a0290ce164e5b3abe15799341708dfb2768d396",
+    "receipt_ledger/privacy.py": "6f2b15fd7e3986590b3317da0c1505d513742045c0f556eb18bae1e08f358600",
+    "receipt_ledger/restore.py": "02f4a76f360fa8b37e2451ca3cca8a126fd49458a288178d7ddc2936dbf9062f",
+    "receipt_ledger/schemas.py": "e5843a2dccf77f644f86576ddeb4e303a301516f9ace9f9d3e0ab2d2b58549b8",
+    "receipt_ledger/semantic.py": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59",
+    "receipt_ledger/server.py": "4ed53ed23d18caf5babb681cd9a284253b2b5643276905339eca06a4c28d7624",
+    "receipt_ledger/store.py": "840a0eff98173f36a684977cac698f4424c082504f07b6fe1d9f2306741b0b27",
+    "receipt_ledger/upload_limit.py": "a182f552ef5052824a70468d971ed798672c10351709ea07275d30f40aaa1c4d",
+    "receipt_ledger/workflow.py": "edc06a17f97e20c60bc6d80c0fb86459c920f2c422cd9a73fc03a12adac8f5f0",
+    "receipt_ledger/__init__.py": "ad0dcd70ccdf46f3c68b29be0912fea2f2bdf9f105b79739295b7aa0f23181ab",
+    "receipt_ledger/__main__.py": "12270bb508bf7f5a1281bbbb6c7a1c668fd7cdcd6e88d8d90221b59256b0b89d",
+    "web/app.js": "d51396c63d544599623cf5b062adce3be55e1c0e1e826fed2f0d733b7058c4d9",
+    "web/help.html": "ccbef86485ceb9b959b4843208572ff713e36d72f39338f716c4a06630dd1093",
+    "web/icon.svg": "98a09af37f9a7d8a3b83c74e90773944a627a25b42d55f7faf65f2a329133c54",
+    "web/import.js": "84fac1f3aeb96adc801c17d2f36af7ecd7a971914e0747b2ecf29ceccadce517",
+    "web/index.html": "a3d41402a9772877103b17460471ea68bda35a8495a6baffb7ca811a4408d1dd",
+    "web/style.css": "796cfa56054208ea15704f9520a85c6dc097bb49bd994edb8a1c5b7d71540386",
+    "data/catalog-history/2026-10-21.2.json": "5266354295157ade777241fe103e0d59ac8e546b461ebbc6bf72d019b2bc43a9",
+    "data/catalog-history/2026-10-21.3.json": "df5c1d3b65d6b6e459399eea073adabf6c3833e32ecc7dfe32768409043de63c",
+    "data/catalog-history/2026-10-21.4.json": "547688464ffd395bd29a7bd78f9df4bb336564cdf43fdce07356bcea64240be1",
+    "data/catalog-history/2026-10-21.5.json": "d5bdb076124354705a332f550d59494b78770e71c8d222d6fd691161b29785c6",
+    "data/catalog-history/2026-10-21.6.json": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+    "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923"
+  },
+  "fixture_manifest_sha256": "1b9e40688cc730724328923c7f3b5ce1cd7941fb102fdf369dd58968d3b151c7",
+  "summary": {
+    "ocr_completed": 3,
+    "model_completed": 3,
+    "total_exact": 3,
+    "date_exact": 3,
+    "merchant_exact": 3,
+    "account_or_decision_exact": 3,
+    "decision_exact": 3,
+    "account_exact": 2,
+    "completed": 3,
+    "total": 3,
+    "elapsed_s": 45.1,
+    "active_stages": {}
+  },
+  "cases": [
+    {
+      "id": "V052",
+      "expected": {
+        "merchant": "架空住宅管理サービス（架空）",
+        "date": "2024-06-27",
+        "total": 16800,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空住宅管理サービス（架空）",
+        "date": "2024-06-27",
+        "total": 16800,
+        "account": "",
+        "reason": "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。",
+        "decision": "hold",
+        "model": "qwen3:4b",
+        "policy_matches": [
+          {
+            "code": "P_RESIDENTIAL_RENT",
+            "title": "居住用家賃の用途確認",
+            "action": "hold",
+            "message": "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ]
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      }
+    },
+    {
+      "id": "V053",
+      "expected": {
+        "merchant": "テスト損害保険株式会社",
+        "date": "2024-03-25",
+        "total": 54000,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト損害保険株式会社",
+        "date": "2024-03-25",
+        "total": 54000,
+        "account": "損害保険料",
+        "reason": "損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "decision": "propose",
+        "model": "qwen3:4b",
+        "policy_matches": []
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "V054",
+      "expected": {
+        "merchant": "テストモーター保険株式会社",
+        "date": "2024-05-28",
+        "total": 66200,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料",
+          "車両費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストモーター保険株式会社",
+        "date": "2024-05-28",
+        "total": 66200,
+        "account": "損害保険料",
+        "reason": "損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "decision": "propose",
+        "model": "qwen3:4b",
+        "policy_matches": []
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      }
+    }
+  ]
+}

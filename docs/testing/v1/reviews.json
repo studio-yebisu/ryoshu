@@ -243,6 +243,32 @@
         "claude-opus-5-5"
       ],
       "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T23:41:13.057854+00:00",
+      "finished_at": "2026-10-21T23:44:48.599727+00:00",
+      "exit_code": 1,
+      "stdout_sha256": "e08658946da4786dc810855a6eebb5f6dfbc5b1333127bc853829583b470eb65",
+      "round": "imozuru-collection",
+      "status": "incomplete_turn_limit",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "skill_sha256": "bdf8d742aecd82af324ac81298ff498fe4fc13cf44cff3183ba1c7bd94a2891a"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T23:46:38.950225+00:00",
+      "finished_at": "2026-10-21T23:48:22.660133+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "8aca97afb9fc28c581484a6e5a8d1fb64906e30ecf3c7367ad288ab8ebdb1441",
+      "round": "imozuru-finish",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "skill_sha256": "bdf8d742aecd82af324ac81298ff498fe4fc13cf44cff3183ba1c7bd94a2891a"
     }
   ]
 }
