@@ -3,7 +3,6 @@ import hashlib
 import io
 from pathlib import Path
 from contextlib import closing
-import sqlite3
 import uuid
 
 from . import config
@@ -19,8 +18,7 @@ class Importer:
             if any(column["name"] == "receipt_id" and column["pk"] for column in columns):
                 backup = store.root / "backups" / ("before-source-provenance-v2-" + uuid.uuid4().hex + ".sqlite3")
                 backup.parent.mkdir(exist_ok=True)
-                with closing(sqlite3.connect(backup)) as target:
-                    db.backup(target)
+                store.database.snapshot(backup, source=db)
                 db.execute("BEGIN IMMEDIATE")
                 db.execute("ALTER TABLE receipt_import_sources RENAME TO receipt_import_sources_old")
             db.execute("""CREATE TABLE IF NOT EXISTS receipt_import_sources (
@@ -77,10 +75,10 @@ class Importer:
                 original = self.source_path(digest)
                 original.parent.mkdir(parents=True, exist_ok=True)
                 if original.exists():
-                    if hashlib.sha256(original.read_bytes()).hexdigest() != digest:
+                    if hashlib.sha256(self.store.keys.read_file(original)).hexdigest() != digest:
                         raise ValueError("保存済みの元PDFが変更されています。バックアップを確認してください")
                 else:
-                    self._atomic_write(original, raw)
+                    self.store.keys.write_file(original, raw)
                 for index in range(count):
                     with self.store.connect() as db:
                         existing = db.execute("SELECT receipt_id FROM receipt_import_sources WHERE source_sha256=? AND page=?", (digest, index + 1)).fetchone()
@@ -96,10 +94,10 @@ class Importer:
                             page.import_pages(document, [index])
                             output = io.BytesIO()
                             page.save(output)
-                        self._atomic_write(page_file, output.getvalue())
+                        self.store.keys.write_file(page_file, output.getvalue())
                     if count > 1:
                         # Cached page bytes keep SHA-based duplicate detection stable on retry.
-                        page_raw = page_file.read_bytes()
+                        page_raw = self.store.keys.read_file(page_file)
                     validate_file(page_raw)
                     label = f"{Path(name).stem[:170]} — {index + 1}ページ.pdf"
                     row, duplicate = self.store.add(label, ".pdf", page_raw)
@@ -109,9 +107,3 @@ class Importer:
                     yield row, duplicate
         except pdfium.PdfiumError as exc:
             raise ValueError("PDFの一部を分割できません。破損やパスワード設定を確認し、別のPDFとして保存し直してください。取り込み済みのページは保持しています。") from exc
-
-    @staticmethod
-    def _atomic_write(path, raw):
-        temporary = path.with_suffix(path.suffix + ".tmp")
-        temporary.write_bytes(raw)
-        temporary.replace(path)

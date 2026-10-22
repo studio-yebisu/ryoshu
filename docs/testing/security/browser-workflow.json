@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "scope": "Real browser/HTTP/persistence/CSV; OCR and model observations replayed by QA test double, not new inference",
+  "checks": [
+    "personal and tax-professional review policy visible in app and local help",
+    "100 PDFs selected once, explicit start with default document mode, pause/resume, saved and read to ledger",
+    "accounting CSV explains why unreviewed rows cannot be exported",
+    "ledger search",
+    "batch review warns about missing inputs before any confirmation request",
+    "explicit batch review acknowledgement, missing amount stays pending, only valid row posted",
+    "receipt detail returns to the ledger and retains batch results",
+    "named batch failures persist after opening a receipt and can filter the remaining rows",
+    "freee CSV download and version-aware CSV creation history",
+    "CSV preview network failure disables save and explains recovery in Japanese",
+    "persistent individual import errors and exact duplicate skip",
+    "100-page PDF split, immutable source download, 100-row pagination",
+    "duplicate warning remains visible in receipt details and opens related originals",
+    "a pending receipt response cannot override navigation or a newer receipt selection",
+    "delayed saves preserve same/other receipt edits and report saved state even if refresh fails",
+    "Japanese composition preserves the input node, focus, and rows until composition ends",
+    "confirm-and-next follows page1 to page2 within the same split PDF",
+    "bulk exclude and restore are reversible and retain originals",
+    "refund confirmation is disabled with the exact reason visible on the form",
+    "folder selection includes nested files and explains unsupported formats",
+    "file drop stages until explicit start and skips the existing original",
+    "375px mobile layout and import dialog",
+    "optional review-first setting automatically persists",
+    "a failed second100-row batch retains saved rows, reports partial success and names remaining rows",
+    "missing date in a simulated legacy confirmed row does not crash summaries",
+    "a delayed old receipt response cannot overwrite a newer refresh",
+    "old backend compatibility guard guides a restart before allowing uploads",
+    "2000-file result rendering is lazy and paged to100; this is not a2000-document OCR test"
+  ],
+  "errors": [],
+  "receipt_count": 202,
+  "render_stress": {
+    "milliseconds": 114.79999995231628,
+    "closedRows": 0
+  },
+  "source_sha256": {
+    "web/app.js": "037d6f81e30329795abd82e5e40c56e831b11cf0ada8840c52657322c85080d2",
+    "web/import.js": "e65ca5235bbf793ae9355151aaf4ef620b2713a742d4e8404cf1a9f5ccecd991",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+    "web/style.css": "485869ddc4c9b4c412033d6547266cd12af67ab0e899e505fae10a836b86efbb",
+    "receipt_ledger/server.py": "dd6dc9f060235c33c84b2444a04032642b5238fffa2787ac818edfa9c8c71117",
+    "scripts/serve_browser_qa.py": "d41aef85541beb2407c8cd9717206b2858a4c1dde44d19e08a6d36356385f39e",
+    "scripts/browser_smoke.mjs": "90b79d3c457bddb44bfc397798c6e044856b4feb849a7c27e79db36dac6489c1"
+  },
+  "private_raw_record_sha256": "1eed1ccd2e85dc3db0f9f626f4f463834bc365a0fa1a798d793f740d117c2e4d",
+  "line_ending_scope": "Observed source hashes are the exact bytes run locally. Git text files are normalized to LF for distribution; canonical mapping is added after staging preparation. No logic changes are made by this normalization.",
+  "canonical_distribution_source_sha256": {
+    "web/app.js": "6705a399b0c68887a4f83db347fef89516e7c8e7a6388706b1b469f7bac04c11",
+    "web/import.js": "486c20604308bedd9fe7b3753d7dbc173dcd4e34fd29a66a7995d71287c21bda",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+    "web/style.css": "5a454b4ff2e3db95c910ae351d5b26ad602f42ba60b43a825df3574acdb4a254",
+    "receipt_ledger/server.py": "dd6dc9f060235c33c84b2444a04032642b5238fffa2787ac818edfa9c8c71117",
+    "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
+    "scripts/browser_smoke.mjs": "160e73c3a876d316c79a9b5f592df635e61e40d993b0285f1248b0a4cdfe6100"
+  },
+  "line_ending_only_changed_paths": [
+    "web/app.js",
+    "web/import.js",
+    "web/style.css",
+    "scripts/serve_browser_qa.py",
+    "scripts/browser_smoke.mjs"
+  ],
+  "canonical_hashing": "Git text blob SHA-256 per .gitattributes; local observed hashes remain exact raw run bytes."
+}

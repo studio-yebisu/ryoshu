@@ -1,3 +1,4 @@
+from support import PASSWORD, backup_files
 import csv
 import hashlib
 import io
@@ -5,14 +6,15 @@ import json
 import zipfile
 
 import pytest
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 from PIL import Image
 
 from receipt_ledger.accounting import amounts, csv_export, journal
 from receipt_ledger.pipeline import dates_in, ground, validate_file
 from receipt_ledger.schemas import Draft, confirmation_errors
-from receipt_ledger.server import create_app
-from receipt_ledger.store import Conflict, Store
+from support import ready_app as create_app
+from receipt_ledger.store import Conflict
+from support import ready_store as Store
 
 
 def draft(**changes):
@@ -61,7 +63,7 @@ def test_original_deduplication_and_stale_version(tmp_path):
         store.save(row["id"], row["version"], draft())
     assert saved["status"] == "confirmed"
     assert len(store.rules()) == 1
-    assert (store.folder(row["id"]) / "original.png").read_bytes() == image_bytes()
+    assert store.keys.read_file(store.folder(row["id"]) / "original.png") == image_bytes()
     assert store.history(row["id"])[0]["action"] == "confirm"
 
 
@@ -143,9 +145,10 @@ def test_api_manual_confirmation_security_backup_and_export(tmp_path):
         assert result.json()["business_amount"] == 825
         assert client.get("/api/summary").json()["expense_total"] == 825
         assert b"825" in client.get("/api/export/journal").content
-        backup = client.get("/api/backup")
+        backup = client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD})
         assert backup.status_code == 200
-        with zipfile.ZipFile(io.BytesIO(backup.content)) as bundle:
-            assert "data/ledger.sqlite3" in bundle.namelist()
-            assert hashlib.sha256(bundle.read(f"data/receipts/{rid}/original.png")).hexdigest() == row["sha256"]
+        files = backup_files(backup.content)
+        assert "data/ledger.enc.sqlite3" in files
+        assert not files["data/ledger.enc.sqlite3"].startswith(b"SQLite format 3")
+        assert hashlib.sha256(files[f"data/receipts/{rid}/original.png"]).hexdigest() == row["sha256"]
         assert client.get("/api/receipts/not-an-id/original").status_code == 404

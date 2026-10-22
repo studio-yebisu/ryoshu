@@ -1,12 +1,12 @@
 # 開発と検証
 
-Python 3.12を使います。依存の固定版は`requirements.lock.txt`です。アプリの通常データを使わず、検査ごとに独立した一時フォルダーを指定してください。
+Windows・Python 3.12.15以降の3.12系を使います。暗号化・DPAPIは実際のWindows APIで検査します。依存の固定版は`requirements.lock.txt`です。アプリの通常データを使わず、検査ごとに独立した一時フォルダーを指定してください。
 
 ## モデル不要の検査
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.lock.txt
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe scripts/check_publication.py
 ```
@@ -57,3 +57,7 @@ CPUで多数の推論をするため、時間がかかります。出力にはOC
 科目初期値の変更では利用者が編集した科目・確定済み仕訳を保持します。私用分、返金、外貨、用途不明の飲食、資産、混在税率を通常の経費へ黙って丸めないでください。CSVの対応先や税区分を変更する場合は各社の一次資料と拒否条件を更新します。
 
 不具合報告には再現手順、OS・Python・アプリ版、架空の最小サンプルを使います。実際の領収書やDB、バックアップ、秘密情報は添付しないでください。公開直前のローカル検査と、GitHub Actionsで実行された検査は区別して報告します。
+
+## 暗号化・認証を変更する場合
+
+[仕様](docs/SECURITY-DESIGN.md)と[最新の点検](docs/testing/security/README.md)を確認してください。鍵なしの平文保存や、テスト用の認証無効フラグを本番コードへ追加しないでください。テストは明示的に保護設定した架空データを使います。旧版の固定SQLと公開PDFを使い、全行・仕訳・原本・異常終了・負例を照合します。実際の利用者の帳簿や認証ファイルをレビュー用モデルへ渡してはいけません。

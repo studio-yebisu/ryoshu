@@ -1,11 +1,13 @@
 import hashlib
 import json
-import sqlite3
+import re
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .protection import LedgerKeys, ProtectionError
+from .database import CipherDatabase
 from .schemas import Draft
 from .catalog import account_key, apply_account_policies, resolve_account, seed_catalog
 
@@ -29,9 +31,37 @@ def dumps(value):
 class Store:
     def __init__(self, root: Path):
         self.root = root
+        if any((base / marker).is_file() for base in [root, root.parent] for marker in ['RESTORE_FAILED.txt', 'RESTORE_IN_PROGRESS.txt']):
+            raise ValueError('復元が完了していない保存先です。元の帳簿か、正常に復元した帳簿を選んでください。')
         root.mkdir(parents=True, exist_ok=True)
-        (root / "receipts").mkdir(exist_ok=True)
-        self.path = root / "ledger.sqlite3"
+        self.root = root.resolve()
+        self.keys = LedgerKeys(self.root)
+        self.ready = False
+        self.database = None
+        self.path = self.root / "ledger.enc.sqlite3"
+        self.initialization_error = ""
+        self._initializing = False
+        if self.keys.mode == "unlocked":
+            try:
+                self.initialize()
+            except ProtectionError as exc:
+                self.initialization_error = str(exc)
+
+    def initialize(self):
+        self.ready = False
+        self.database = CipherDatabase(self.root, self.keys)
+        self.database.protect_legacy_files()
+        (self.root / "receipts").mkdir(exist_ok=True)
+        self._initializing = True
+        try:
+            self._initialize_schema()
+        finally:
+            self._initializing = False
+        self.ready = True
+        self.initialization_error = ""
+
+    def _initialize_schema(self):
+        root = self.root
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
             if version > 2:
@@ -39,11 +69,7 @@ class Store:
             if version == 1:
                 backup_dir = root / "backups"
                 backup_dir.mkdir(exist_ok=True)
-                backup = sqlite3.connect(backup_dir / ("before-catalog-v2-" + uuid.uuid4().hex[:12] + ".sqlite3"))
-                try:
-                    db.backup(backup)
-                finally:
-                    backup.close()
+                self.database.snapshot(backup_dir / ("before-catalog-v2-" + uuid.uuid4().hex[:12] + ".sqlite3"), source=db)
             db.execute("PRAGMA journal_mode=WAL")
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS receipts (
@@ -72,9 +98,9 @@ class Store:
 
     @contextmanager
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=15)
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA foreign_keys=ON")
+        if not (self.ready or self._initializing) or self.database is None:
+            raise ProtectionError("先に帳簿の保護を設定するか、復元用パスワードで開いてください。")
+        db = self.database.open()
         try:
             with db:
                 yield db
@@ -146,6 +172,8 @@ class Store:
         row=db.execute("SELECT value FROM catalog_meta WHERE key='seed_version'").fetchone()
         version=row['value'] if row else ''
         if version==seed['version']:return
+        if version and (not isinstance(version,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}',version)):
+            raise ValueError('科目データの識別情報が正しくありません。バックアップと保存先を確認してください。')
         old_path=Path(__file__).resolve().parents[1]/'data/catalog-history'/(version+'.json')
         if not old_path.is_file():
             # An unknown seed may contain local edits. Add new defaults, never replace it.
@@ -303,6 +331,14 @@ class Store:
         with self.connect() as db:
             return [self.decode(r,db) for r in db.execute("SELECT r.*,a.code AS account_code,a.kind AS account_kind FROM receipts r LEFT JOIN account_master a ON a.name=json_extract(r.draft_json,'$.account') ORDER BY r.created_at DESC,r.id").fetchall()]
 
+    def storage_issues(self):
+        with self.connect() as db:
+            missing=sum(not (self.root/"receipts"/r["id"]/("original"+r["extension"])).is_file() for r in db.execute("SELECT id,extension FROM receipts"))
+            source_missing=0
+            if db.execute("SELECT 1 FROM sqlite_master WHERE name='receipt_import_sources'").fetchone():
+                source_missing=sum(not (self.root/"imports"/r[0]/"source.pdf").is_file() for r in db.execute("SELECT DISTINCT source_sha256 FROM receipt_import_sources"))
+        return {"missing_originals":missing,"missing_source_pdfs":source_missing}
+
     def folder(self, receipt_id):
         # IDs are always generated locally and looked up before file access.
         self.get(receipt_id)
@@ -313,15 +349,26 @@ class Store:
         db.execute("INSERT INTO audit(receipt_id,at,action,detail_json) VALUES(?,?,?,?)", (receipt_id, now(), action, dumps(detail)))
 
     def add(self, name: str, extension: str, content: bytes):
+        if extension not in {".pdf", ".jpg", ".png", ".webp"}:
+            raise ValueError("対応していない原本の形式です。")
         digest = hashlib.sha256(content).hexdigest()
         with self.connect() as db:
             existing = db.execute("SELECT id FROM receipts WHERE sha256=?", (digest,)).fetchone()
             if existing:
-                return self.get(existing["id"], db), True
+                current=self.get(existing["id"],db)
+                original=self.root/"receipts"/current["id"]/("original"+current["extension"])
+                try:
+                    intact=hashlib.sha256(self.keys.read_file(original)).hexdigest()==digest
+                except (ProtectionError,OSError):
+                    intact=False
+                if not intact:
+                    self.keys.write_file(original,content)
+                    self.audit(db,current["id"],"repair_original",{"sha256":digest,"same_bytes_reimported":True})
+                return current, True
             receipt_id = uuid.uuid4().hex
             folder = self.root / "receipts" / receipt_id
             folder.mkdir()
-            (folder / ("original" + extension)).write_bytes(content)
+            self.keys.write_file(folder / ("original" + extension), content)
             stamp = now()
             db.execute("""INSERT INTO receipts(id,sha256,original_name,extension,created_at,updated_at,status,draft_json)
                          VALUES(?,?,?,?,?,?,'queued',?)""", (receipt_id, digest, name, extension, stamp, stamp, dumps(Draft().model_dump())))

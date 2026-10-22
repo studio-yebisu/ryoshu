@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import getpass
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from receipt_ledger.restore import restore_backup
@@ -13,7 +14,12 @@ if __name__ == "__main__":
     parser.add_argument("destination", type=Path)
     args = parser.parse_args()
     try:
-        result = restore_backup(args.archive, args.destination)
+        if sys.stdin.isatty():
+            password = getpass.getpass("復元用パスワード（画面には表示されません）：")
+        else:
+            # The native password dialog sends it over stdin, never argv/env or logs.
+            password = sys.stdin.buffer.readline(4096).decode("utf-8").rstrip("\r\n")
+        result = restore_backup(args.archive, args.destination, password=password)
     except Exception as exc:
         print("バックアップを復元できませんでした：" + str(exc), file=sys.stderr)
         raise SystemExit(1)

@@ -20,8 +20,13 @@ def reviewed_ocr(cid):
         return json.loads((args.fields/cid/'ocr.json').read_text(encoding='utf8'))
     return {'text':'Fictional manually reviewed CSV scenario; no OCR or model inference.', 'pages':[], 'verification_only':True}
 scenario=[('V001','消耗品費','owner',100),('V021','旅費交通費','bank',100),('V005','消耗品費','cash',100),('V042','水道光熱費','cash',50),('V061','印刷製本費','bank',100),('V004','工具器具備品','owner',100)]
+from receipt_ledger.protection import LedgerKeys
+keys=LedgerKeys(args.out/'data');keys.setup('fictional CSV verification recovery password')
 app=create_app(args.out/'data',run_workers=False);headers={'X-Ledger-Request':'1'};proof=[]
 with TestClient(app) as client:
+    bootstrap=app.state.sessions.mint_bootstrap()
+    result=client.post('/api/session',headers={**headers,'Authorization':'Bootstrap '+bootstrap});result.raise_for_status()
+    client.headers['Authorization']='Bearer '+result.json()['token']
     for cid,account,payment,percent in scenario:
         c=cases[cid];path=fixtures/c['file'];original=path.read_bytes()
         assert hashlib.sha256(original).hexdigest()==c['sha256']

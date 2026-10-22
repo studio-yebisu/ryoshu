@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "scope": "Real browser setup, Windows DPAPI/SQLCipher, original and CSV IO, password reset, encrypted backup/restore. OCR/model saved-observation replay. Native OS save dialog replaced with real browser OPFS FileSystemFileHandle.",
+  "checks": [
+    "actual first-run setup: masked confirmation, mismatch blocks setup, key creation and no password in browser storage",
+    "PDF stays staged until Start; results show original/text/account, authenticated thumbnail, zoom200%, Escape focus return and OCR disclosure",
+    "held background job: poll and import refresh preserve unchanged image DOM/focus, open zoom, and expanded OCR body while another row updates",
+    "after the last job, a focused stale row stays stable and refreshes from saved state on blur without another poll",
+    "filter eviction, including an empty result set, defers replacing active zoom or expanded OCR until interaction is released",
+    "correction persists and the result screen links directly to actual generic CSV download",
+    "fallback download produces a real encrypted backup that restores successfully",
+    "password reset requires confirmation; old password rejected for new backup while existing backup still restores with old password",
+    "File System Access streaming uses native OPFS writable and yields a restorable encrypted backup; OS save dialog itself is outside this automated proof",
+    "375px results keep horizontal scrolling within the result table"
+  ],
+  "errors": [],
+  "receipt_count": 2,
+  "source_sha256": {
+    "web/app.js": "037d6f81e30329795abd82e5e40c56e831b11cf0ada8840c52657322c85080d2",
+    "web/import.js": "e65ca5235bbf793ae9355151aaf4ef620b2713a742d4e8404cf1a9f5ccecd991",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+    "web/style.css": "485869ddc4c9b4c412033d6547266cd12af67ab0e899e505fae10a836b86efbb",
+    "receipt_ledger/server.py": "dd6dc9f060235c33c84b2444a04032642b5238fffa2787ac818edfa9c8c71117",
+    "scripts/serve_browser_qa.py": "d41aef85541beb2407c8cd9717206b2858a4c1dde44d19e08a6d36356385f39e",
+    "scripts/security_ui_smoke.mjs": "628f052fddb03ba228c6608e1148e900265e04d566b70c33355bd4730454763e"
+  },
+  "private_raw_record_sha256": "fe1e06dc0c48050a64684a8d002a4203f1abbb94527e99c9140ae1463f476e15",
+  "line_ending_scope": "Observed source hashes are the exact bytes run locally. Git text files are normalized to LF for distribution; canonical mapping is added after staging preparation. No logic changes are made by this normalization.",
+  "canonical_distribution_source_sha256": {
+    "web/app.js": "6705a399b0c68887a4f83db347fef89516e7c8e7a6388706b1b469f7bac04c11",
+    "web/import.js": "486c20604308bedd9fe7b3753d7dbc173dcd4e34fd29a66a7995d71287c21bda",
+    "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+    "web/index.html": "99814f769e1e3320e6710e308747a08d3d1ae0d8a1bcb04ad4f5d83438febf9e",
+    "web/style.css": "5a454b4ff2e3db95c910ae351d5b26ad602f42ba60b43a825df3574acdb4a254",
+    "receipt_ledger/server.py": "dd6dc9f060235c33c84b2444a04032642b5238fffa2787ac818edfa9c8c71117",
+    "scripts/serve_browser_qa.py": "3b493b3eadbeba681c12c10a38545939d95e6b46195d907a936bb6a98d2e8c51",
+    "scripts/security_ui_smoke.mjs": "628f052fddb03ba228c6608e1148e900265e04d566b70c33355bd4730454763e"
+  },
+  "line_ending_only_changed_paths": [
+    "web/app.js",
+    "web/import.js",
+    "web/style.css",
+    "scripts/serve_browser_qa.py"
+  ],
+  "canonical_hashing": "Git text blob SHA-256 per .gitattributes; local observed hashes remain exact raw run bytes."
+}

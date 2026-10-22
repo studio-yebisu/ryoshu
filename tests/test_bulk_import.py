@@ -1,3 +1,4 @@
+from support import PASSWORD, backup_files
 import concurrent.futures
 import hashlib
 import io
@@ -5,13 +6,13 @@ import json
 import threading
 import zipfile
 
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 import pypdfium2 as pdfium
 from PIL import Image
 
 from receipt_ledger import config
-from receipt_ledger.server import create_app
-from receipt_ledger.store import Store
+from support import ready_app as create_app
+from support import ready_store as Store
 from receipt_ledger.workflow import recover_queue
 
 HEADERS = {"X-Ledger-Request": "1"}
@@ -51,12 +52,15 @@ def test_page_split_preserves_source_provenance_and_duplicate_identity_after_res
         original = client.get(f"/api/receipts/{first}/original").content
         with pdfium.PdfDocument(original) as page:
             assert len(page) == 1
-        bundle = client.get("/api/backup")
+        bundle = client.post("/api/backup",headers={"X-Ledger-Request":"1"},json={"password":PASSWORD})
         bundle.raise_for_status()
-        with zipfile.ZipFile(io.BytesIO(bundle.content)) as archive:
-            assert archive.read(f"data/imports/{hashlib.sha256(raw).hexdigest()}/source.pdf") == raw
-            restored = tmp_path / "restored"
-            archive.extractall(restored)
+        files = backup_files(bundle.content)
+        assert files[f"data/imports/{hashlib.sha256(raw).hexdigest()}/source.pdf"] == raw
+        from receipt_ledger.restore import restore_backup
+        backup_path = tmp_path / 'test.ryoshubak'
+        backup_path.write_bytes(bundle.content)
+        restored = tmp_path / "restored"
+        restore_backup(backup_path,restored,PASSWORD)
         restored_app = create_app(restored / "data", run_workers=False)
         with TestClient(restored_app) as other:
             repeated = upload(other, raw).json()
@@ -123,7 +127,7 @@ def test_interrupted_processing_restarts_automatically_without_losing_draft(tmp_
     with TestClient(app):
         assert finished.wait(3)
         assert store.get(row["id"])["status"] == "review"
-        assert (store.folder(row["id"]) / "original.png").read_bytes() == png()
+        assert store.keys.read_file(store.folder(row["id"]) / "original.png") == png()
 
 
 def test_batch_retry_is_versioned_preserves_inputs_and_does_not_touch_confirmed(tmp_path):

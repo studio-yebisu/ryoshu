@@ -1,4 +1,5 @@
 """Regenerate display images from immutable originals, without OCR or the model."""
+import io
 from pathlib import Path
 import uuid
 
@@ -33,21 +34,27 @@ def ensure_preview(store, row, index):
         original = folder / ("original" + row["extension"])
         if row["extension"] == ".pdf":
             import pypdfium2 as pdfium
-            with pdfium.PdfDocument(original) as document:
+            with pdfium.PdfDocument(store.keys.read_file(original)) as document:
                 if index >= len(document):
                     raise ValueError("このページはありません")
                 page = document[index]
                 bitmap = page.render(scale=min(2, 2048 / max(page.get_size())))
                 try:
-                    save_preview(bitmap.to_pil().convert("RGB"), target, 88)
+                    save_protected_preview(store, bitmap.to_pil().convert("RGB"), target, 88)
                 finally:
                     bitmap.close()
                     page.close()
         else:
             if index:
                 raise ValueError("画像は1ページです")
-            with Image.open(original) as raw:
+            with Image.open(io.BytesIO(store.keys.read_file(original))) as raw:
                 image = ImageOps.exif_transpose(raw).convert("RGB")
                 image.thumbnail((1800, 2400))
-                save_preview(image, target, 90)
+                save_protected_preview(store, image, target, 90)
         return target
+
+
+def save_protected_preview(store, image, target, quality):
+    output = io.BytesIO()
+    image.save(output, format="JPEG", quality=quality)
+    store.keys.write_file(target, output.getvalue())

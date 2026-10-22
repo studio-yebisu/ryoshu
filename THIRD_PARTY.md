@@ -1,6 +1,6 @@
 # 使用コンポーネントと出典
 
-2026-10-21に公式の配布情報とインストール済み環境を確認。
+2026-10-22に公式の配布情報とインストール済み環境を確認。
 
 | 用途 | コンポーネント | 出典・条件 |
 | --- | --- | --- |
@@ -9,12 +9,14 @@
 | 意味判断 | Qwen3 4B / Q4_K_M | [Qwen公式モデル](https://huggingface.co/Qwen/Qwen3-4B)、[Ollama配布タグ](https://ollama.com/library/qwen3:4b)。Apache-2.0、約2.5GB |
 | ローカル推論 | Ollama | [公式ソース](https://github.com/ollama/ollama)、[構造化出力](https://docs.ollama.com/capabilities/structured-outputs) |
 | API・画面配信 | FastAPI、Uvicorn | 依存の固定版は `requirements.lock.txt`。画面はバンドル不要のHTML/CSS/JS |
-| 保存 | Python SQLite | SQLiteスナップショットでバックアップ。原本を別ファイルで保持 |
+| 帳簿DB | sqlcipher3 0.6.4 / SQLCipher 4.19.0 | Pythonバインディングは[zlib](https://github.com/coleifer/sqlcipher3/blob/0.6.4/LICENSE)、SQLCipher本体は[BSD-3-Clause](https://github.com/sqlcipher/sqlcipher/blob/master/LICENSE.md)。Windows配布wheelの同梱ライブラリも各条件に従う |
+| 原本・バックアップ暗号化 | cryptography 50.0.2 | [公式ライセンス](https://github.com/pyca/cryptography/blob/50.0.2/LICENSE)。Apache-2.0 OR BSD-3-Clause。依存するOpenSSL等にも各条件がある |
+| 初回の環境準備 | uv 0.13.5 | [公式配布](https://github.com/astral-sh/uv/releases/tag/0.13.5)、[MIT](https://github.com/astral-sh/uv/blob/0.13.5/LICENSE-MIT) OR [Apache-2.0](https://github.com/astral-sh/uv/blob/0.13.5/LICENSE-APACHE)。ZIPと実行ファイルのSHA-256を固定・照合して取得 |
 | 経費の考え方 | 国税庁 必要経費の知識 | [No.2210](https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2210.htm)。個別支出の適否を自動確定する根拠には使わない |
 
 Indraの重みは、コードのApache-2.0と異なる **AI Pubs Open RAIL-M (Modified)** です。[検証に使った固定revisionの原文](https://huggingface.co/datalab-to/indra-ocr/blob/bd02167fdf2005a19962cc15188f8496a2c87d3b/LICENSE)のAttachment Aには、前年売上がUS$20,000,000を超える事業者、累計の株式・負債による調達額がUS$20,000,000を超える事業者の商用利用や、提供元・関連会社と競合する製品・サービスを提供する場合等の制限があります。売上・調達額の条項には個人・研究用途の例外があります。ここでの説明は全文や個別の利用可否判断の代わりにはなりません。導入・再配布・事業化の前に原文と現在の条件を確認してください。アプリのMIT Licenseでこれらの制限は解除されません。
 
-このソースフォルダーと配布ZIPにはOCR・LLMの重みを同梱していません。セットアップ時に公式配布元から取得します。コードを公開できることと、任意の利用者・競合サービスがその重みを使えることは別の条件です。
+このソースフォルダーと配布ZIPにはOCR・LLMの重みを同梱していません。セットアップ時に公式配布元から取得します。Python・uv・依存ライブラリの実行ファイルも初回準備で取得します。取得物に含まれるライセンス・著作権表示は各配布物のものを保持してください。コードを公開できることと、任意の利用者・競合サービスがその重みを使えることは別の条件です。
 
 取得したIndraソースのmainは `0e96b93c6810f17cf8352acbb4487cc9e45b66d5`、OCRキャッシュのモデルrevisionは `bd02167fdf2005a19962cc15188f8496a2c87d3b`。
 

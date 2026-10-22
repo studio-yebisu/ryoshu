@@ -1,11 +1,11 @@
 import csv
 import io
 import pytest
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 from receipt_ledger.exports import build_export, tax_labels, transition_percent
-from receipt_ledger.server import create_app
+from support import ready_app as create_app
 from receipt_ledger.schemas import Draft
-from receipt_ledger.store import Store
+from support import ready_store as Store
 
 
 def posted(store, **changes):

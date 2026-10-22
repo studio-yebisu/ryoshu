@@ -1,7 +1,8 @@
 ﻿param([switch]$AcceptModelLicense)
 $ErrorActionPreference = 'Stop'
+$env:OLLAMA_NO_CLOUD = '1'
 Write-Host 'Ryoshu — 領収書を読み取り、勘定科目の候補を作ります。'
-Write-Host '初回準備では、Pythonの依存ライブラリ、OCRモデル、約2.5GBのAIモデルを取得します。ネット接続と数GB以上の空き容量が必要です。'
+Write-Host '初回準備では、準備ツール・Python・依存ライブラリ、OCRモデル、約2.5GBのAIモデルを取得します。ネット接続と数GB以上の空き容量が必要です。'
 Write-Host 'IndraのOCR重みには、事業規模・資金調達額・競合用途などの利用制限があります。'
 Write-Host 'THIRD_PARTY.mdと次のモデル利用条件を確認してください：'
 Write-Host 'https://huggingface.co/datalab-to/indra-ocr/blob/bd02167fdf2005a19962cc15188f8496a2c87d3b/LICENSE'
@@ -16,26 +17,33 @@ if (-not $AcceptModelLicense -and -not (Test-Path -LiteralPath $licenseRecord)) 
 }
 @{license='Indra modified OpenRAIL-M'; accepted_at=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $licenseRecord -Encoding UTF8
 
-if (-not (Test-Path -LiteralPath $pythonExe)) {
-    if (Get-Command uv -ErrorAction SilentlyContinue) {
-        & uv venv --python 3.12 (Join-Path $taskRoot 'venv')
-    } elseif (Get-Command py -ErrorAction SilentlyContinue) {
-        & py -3.12 -m venv (Join-Path $taskRoot 'venv')
-    } else {
-        & python -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.maxsize>2**32 else 1)"
-        if ($LASTEXITCODE -ne 0) { throw 'Python 3.12・64bitが必要です。Python公式サイトから導入するか、uvを用意して実行し直してください。' }
-        & python -m venv (Join-Path $taskRoot 'venv')
+if (Test-Path -LiteralPath $pythonExe) {
+    & $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
+    if ($LASTEXITCODE -ne 0) {
+        if (Get-NetTCPConnection -LocalPort 8766 -State Listen -ErrorAction SilentlyContinue) { throw '先に「停止.cmd」でRyoshuを終了してから、初回セットアップを実行してください。帳簿は変更していません。' }
+        $oldEnvironment = [System.IO.Path]::GetFullPath((Join-Path $taskRoot 'venv'))
+        $savedEnvironment = [System.IO.Path]::GetFullPath((Join-Path $taskRoot ('venv-before-update-' + (Get-Date -Format 'yyyyMMddHHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8))))
+        $workspacePrefix = [System.IO.Path]::GetFullPath($taskRoot).TrimEnd('\') + '\'
+        if (-not $oldEnvironment.StartsWith($workspacePrefix,[StringComparison]::OrdinalIgnoreCase) -or -not $savedEnvironment.StartsWith($workspacePrefix,[StringComparison]::OrdinalIgnoreCase)) { throw '実行環境の保存先を確認できません。' }
+        Move-Item -LiteralPath $oldEnvironment -Destination $savedEnvironment
+        Write-Host '以前の実行環境を残して、セキュリティ更新済みの環境を準備します。帳簿と原本はそのままです。'
     }
-    if ($LASTEXITCODE -ne 0) { throw 'Python実行環境を作成できませんでした。Python 3.12・64bitまたはuvの導入と、保存先の空き容量を確認してください。' }
 }
-& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.maxsize>2**32 else 1)"
-if ($LASTEXITCODE -ne 0) { throw '保存済みの実行環境がPython 3.12・64bitではありません。帳簿はそのまま残っています。docs/INSTALL.mdの実行環境の再作成を確認してください。' }
+. (Join-Path $PSScriptRoot 'scripts\bootstrap-uv.ps1')
+$uvExe = Get-RyoshuUv (Join-Path $taskRoot 'tools\uv-0.13.5')
+if (-not (Test-Path -LiteralPath $pythonExe)) {
+    Write-Host 'Python 3.12.15を、このアプリ専用の保存先に準備します。'
+    $pythonHome = Join-Path $taskRoot 'python'
+    & $uvExe python install 3.12.15 --install-dir $pythonHome
+    if ($LASTEXITCODE -ne 0) { throw 'Pythonを取得できませんでした。接続と空き容量を確認してください。' }
+    $managedPython = Join-Path $pythonHome 'cpython-3.12.15-windows-x86_64-none\python.exe'
+    & $uvExe venv --python $managedPython (Join-Path $taskRoot 'venv')
+    if ($LASTEXITCODE -ne 0) { throw '実行環境を作成できませんでした。保存先と空き容量を確認してください。' }
+}
+& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
+if ($LASTEXITCODE -ne 0) { throw 'Python 3.12.15以降の3.12系・64bitが必要です。帳簿はそのまま残っています。docs/INSTALL.mdの実行環境の再作成を確認してください。' }
 Write-Host '1/3 必要なライブラリを準備しています。'
-if (Get-Command uv -ErrorAction SilentlyContinue) {
-    & uv pip install --python $pythonExe -r (Join-Path $PSScriptRoot 'requirements.lock.txt')
-} else {
-    & $pythonExe -m pip install -r (Join-Path $PSScriptRoot 'requirements.lock.txt')
-}
+& $uvExe pip install --python $pythonExe --require-hashes -r (Join-Path $PSScriptRoot 'requirements.lock.txt')
 if ($LASTEXITCODE -ne 0) { throw '必要なライブラリを取得できませんでした。直前の詳細とネット接続・空き容量を確認し、初回セットアップを実行し直してください。' }
 $env:PYTHONUTF8 = '1'
 Write-Host '2/3 文字読み取りモデルを準備しています。'

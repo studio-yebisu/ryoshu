@@ -5,7 +5,7 @@ import pytest
 
 from receipt_ledger.catalog import apply_account_policies
 from receipt_ledger.schemas import Draft
-from receipt_ledger.store import Store
+from support import ready_store as Store
 
 
 @pytest.mark.parametrize('text', [

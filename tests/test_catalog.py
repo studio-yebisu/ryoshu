@@ -4,15 +4,15 @@ import sqlite3
 import zipfile
 
 import pytest
-from fastapi.testclient import TestClient
+from support import LedgerClient as TestClient
 
 from receipt_ledger.accounting import csv_export, summary
 from receipt_ledger.catalog import apply_account_policies, default_accounts, retrieve_accounts
 from receipt_ledger.pipeline import ground,row_ordered_text,money_in
 from test_ledger import candidate
 from receipt_ledger.schemas import Draft
-from receipt_ledger.server import create_app
-from receipt_ledger.store import Store
+from support import ready_app as create_app
+from support import ready_store as Store
 
 
 def ready(store, text="合計 1650円"):
@@ -68,7 +68,7 @@ def test_posting_is_balanced_normalized_and_foreign_keys_are_enforced(tmp_path):
     assert sum(l["amount"] for l in lines if l["side"]=="credit")==1650
     assert {l["account_code"] for l in lines}=={"E101","O102","B102"}
     with store.connect() as db:
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(__import__("sqlcipher3").IntegrityError):
             db.execute("INSERT INTO journal_lines VALUES(?,99,'UNKNOWN','debit',1)",(row["posting"]["id"],))
 
 
@@ -132,19 +132,23 @@ def test_v1_migration_backs_up_and_preserves_confirmed_data_and_rules(tmp_path):
         CREATE TABLE settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);
         PRAGMA user_version=1;
     """)
-    db.execute("INSERT INTO receipts(id,sha256,original_name,extension,created_at,updated_at,status,draft_json) VALUES('legacy','original-hash','keep.pdf','.pdf','2026-10-20','2026-10-20','confirmed',?)",(json.dumps(value,ensure_ascii=False),))
+    raw_original=b'fictional legacy original'
+    import hashlib
+    digest=hashlib.sha256(raw_original).hexdigest()
+    folder=tmp_path/'receipts/legacy';folder.mkdir(parents=True);(folder/'original.pdf').write_bytes(raw_original)
+    db.execute("INSERT INTO receipts(id,sha256,original_name,extension,created_at,updated_at,status,draft_json) VALUES('legacy',?,'keep.pdf','.pdf','2026-10-20','2026-10-20','confirmed',?)",(digest,json.dumps(value,ensure_ascii=False)))
     db.execute("INSERT INTO merchant_rules VALUES('架空取引先','消耗品費','2026-10-20')")
     db.execute("INSERT INTO settings VALUES('business_context','既存の事業内容')")
     db.commit();db.close()
     store=Store(tmp_path)
     migrated=store.get("legacy")
-    assert migrated["draft"]==value and migrated["sha256"]=="original-hash"
+    assert migrated["draft"]==value and migrated["sha256"]==digest
     assert migrated["posting"] and migrated["status"]=="confirmed"
     assert store.rules()[0]["account_code"]=="E101"
     assert store.business_context()=="既存の事業内容"
     backups=list((tmp_path/"backups").glob("before-catalog-v2-*.sqlite3"))
     assert len(backups)==1
-    connection=sqlite3.connect(backups[0])
+    connection=store.database.open(backups[0],readonly=True)
     try:
         assert connection.execute("PRAGMA user_version").fetchone()[0]==1
         assert connection.execute("SELECT draft_json FROM receipts").fetchone()[0]==json.dumps(value,ensure_ascii=False)
