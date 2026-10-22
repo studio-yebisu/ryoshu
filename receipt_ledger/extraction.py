@@ -55,16 +55,17 @@ def amount_on_line(line):
     return candidates[0] if candidates and len(set(candidates))==1 else None
 
 
-TAX_LABEL = re.compile(r"(?:(?:合計|総額)\s*)?(?:うち|内)?(?:消費税(?:等|額)?|内税|税額)(?:\s*(?:の)?(?:合計|総額))?")
+TAX_LABEL = re.compile(r"(?:(?:合計|総額)\s*)?(?:うち|内)?(?:消費税(?:等|額)?|内税(?:額)?|外税(?:額)?|税額)(?:\s*(?:の)?(?:合計|総額))?")
 TAX_RATE = re.compile(r"(?<![\d.])(8|10)\s*[%％]")
 
 
 def _tax_scope_amount(text):
     """The last monetary anchor, excluding rates, quantities and dates."""
+    if re.search(r'お預[りか]|お釣|釣銭|おつり',text):return None
     values=[]
     for value,start,end in money_tokens(text):
         before=text[:start];after=text[end:]
-        if re.match(r'\s*(?:%|年|月|日|個|本|点|枚|名|人|L\b|回\b|[-/:])',after,re.I):continue
+        if re.match(r'\s*(?:%|年|月|日|個|本|点|枚|名|人|台|件|部|袋|箱|L\b|回(?:目)?|[-/:])',after,re.I):continue
         written=text[start:end]
         if not (',' in written or re.match(r'\s*円',after) or re.search(r'[¥￥$]\s*$',before)
                 or re.search(r'合計|総額|金額|税抜|小計|対象|領収|受領|入金|支払|振込',before)):
@@ -108,8 +109,8 @@ def printed_tax(text, mixed=False, total=None):
         return any(abs(tax*(100+rate)-gross*rate)<=100+rate for rate in rates)
     def adjusted(gross):
         return total is not None and (gross==total or any(gross-deduction==total for deduction in deductions))
-    context=None;in_section=False
-    for line in lines:
+    context=None;in_section=False;anchors=[]
+    for line_index,line in enumerate(lines):
         match=heading.fullmatch(line)
         if match and match[1].strip() in section_stems:in_section=True;context=None
         labels=list(TAX_LABEL.finditer(line))
@@ -117,7 +118,7 @@ def printed_tax(text, mixed=False, total=None):
         for index,label in enumerate(labels):
             prefix=line[:label.start()]
             for start,end in previous_fields:prefix=prefix[:start]+' '*(end-start)+prefix[end:]
-            if '消費税' not in label.group() and '内税' not in label.group() and re.search(r'[\w一-龥ぁ-んァ-ヶ]\s*$',prefix) and not re.search(r'消費\s*$',prefix):
+            if not re.search(r'消費税|内税|外税',label.group()) and re.search(r'[\w一-龥ぁ-んァ-ヶ]\s*$',prefix) and not re.search(r'消費\s*$',prefix):
                 continue
             tail=line[label.end():labels[index+1].start() if index+1<len(labels) else len(line)]
             if re.match(r'\s*(?:対象|課税)',tail):continue
@@ -127,7 +128,7 @@ def printed_tax(text, mixed=False, total=None):
             offset=0
             if annotation and re.search(r'%|内数|税率|税込|税抜|対象',annotation[1]):
                 offset=annotation.end();tail=tail[offset:]
-            tail=re.split(r'税(?:込|抜)(?:合計|総額|金額)|総合計|報酬総額|回線合計|(?<!税)合計',tail,maxsplit=1)[0]
+            tail=re.split(r'税(?:込|抜)(?:合計|総額|金額)|(?<!税)(?:合計|総額)',tail,maxsplit=1)[0]
             amount=amount_on_line(tail)
             if amount is None:continue
             amount_token=next(((start,end) for value,start,end in money_tokens(tail) if value==amount and not re.match(r'\s*%',tail[end:])),None)
@@ -147,17 +148,30 @@ def printed_tax(text, mixed=False, total=None):
                 compatible=anchor['kind']=='taxable' or adjusted(anchor['value']) or adjusted(anchor['value']+amount)
                 if not compatible:other=True
             if not own_anchor and not in_section and total is not None and matches_gross(amount,total):other=False
-            records.append({'amount':amount,'aggregate':bool(re.search(r'合計|総額',label.group())),
-                            'current':current,'other_scope':other})
+            local_rate=bool(TAX_RATE.search(prefix+label.group()+tail))
+            aggregate=bool(re.search(r'合計|総額',label.group())) or bool(anchor and anchor['kind']=='gross' and adjusted(anchor['value']) and not local_rate)
+            records.append({'amount':amount,'aggregate':aggregate,'current':current,'other_scope':other,
+                            'line':line_index,'unanchored':anchor is None,'local_rate':local_rate})
         # Tax values are not monetary scope anchors for subsequent lines.
         without_tax=line
         for start,end in previous_fields:without_tax=without_tax[:start]+' '*(end-start)+without_tax[end:]
         if labels and not previous_fields:without_tax=line[:labels[0].start()]
         anchor=_tax_scope_amount(without_tax)
         if anchor:
+            anchors.append((line_index,anchor))
             context=anchor
             if anchor['value']==total and anchor['kind']=='gross':in_section=False
     if not records:return None
+    for record in records:
+        if not record['unanchored'] or total is None:continue
+        following=next((anchor for line_index,anchor in anchors if line_index>=record['line']),None)
+        if following:
+            compatible=following['kind']=='taxable' or adjusted(following['value']) or adjusted(following['value']+record['amount'])
+            if not compatible:record['other_scope']=True
+            elif not record['other_scope']:
+                record['aggregate']|=following['kind']=='gross' and adjusted(following['value']) and not record['local_rate']
+                record['current']|=following['current'] and following['value']==total
+        elif not matches_gross(record['amount'],total):record['other_scope']=True
     records=[r for r in records if not r['other_scope']]
     if not records:return None
     current=[r['amount'] for r in records if r['current']]
@@ -179,19 +193,19 @@ def total_candidates(text):
     found=[]
     for i,line in enumerate(lines):
         key=compact(line)
-        matches=list(TOTAL_LABEL.finditer(key));match=matches[-1] if matches else None
+        tax_labels=list(TAX_LABEL.finditer(key))
+        matches=[match for match in TOTAL_LABEL.finditer(key) if not any(tax.start()<=match.start()<tax.end() for tax in tax_labels)]
+        match=matches[-1] if matches else None
         if not match:continue
-        if any(tax.start()<=match.start()<tax.end() for tax in TAX_LABEL.finditer(key)):continue
         before=key[max(0,match.start()-12):match.start()]
         if re.search(r'小計$|税抜$|消費税$|課税(?:分|対象)?$|対象(?:額)?$|前回|繰越',before):continue
         if re.search('返品について|返品の際|返品規定',key):continue
-        tail=key[match.end():]
+        tax_start=next((tax.start() for tax in tax_labels if tax.start()>=match.end()),len(key))
+        tail=key[match.end():tax_start]
         # Avoid taking a reference conversion of a foreign currency as a yen payment.
         if re.search(r"usd|eur|参考|換算",key):continue
         # Multiple monetary fields on one row: use the suffix belonging to this label.
-        label=match
-        normalized_line=unicodedata.normalize('NFKC',line)
-        value=amount_on_line(normalized_line) if label is None else amount_on_line(compact(line)[label.end():])
+        value=amount_on_line(tail)
         evidence=line
         if value is None:
             for offset in [1,-1,2]:
