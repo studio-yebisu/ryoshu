@@ -19,6 +19,7 @@ import time
 import httpx
 
 SOURCE=Path(__file__).resolve().parents[1]
+DEFAULT_BUSINESS_CONTEXT='個人事業主。ソフトウェア・ゲーム制作、デザイン業。科目は暫定候補で、実際の業務用途・事業割合・支払方法は本人が確認する。'
 
 def now():return datetime.now(timezone.utc).isoformat()
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -51,6 +52,7 @@ def evaluate(truth,row,accounts):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--fixtures',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--port',type=int,default=8767);ap.add_argument('--cases',default='');ap.add_argument('--reuse-ocr',type=Path);ap.add_argument('--source',type=Path,default=SOURCE);ap.add_argument('--resume',action='store_true');ap.add_argument('--keep-server',action='store_true');ap.add_argument('--allow-model-offline',action='store_true',help='Diagnostic run only; never label offline fallback as successful AI inference')
+    ap.add_argument('--business-context',default=DEFAULT_BUSINESS_CONTEXT,help='One global business description; empty string reproduces the default app without a business description. Never supply per-receipt expected context.')
     args=ap.parse_args();output=args.output.resolve()
     if (output/'run.json').exists() and not args.resume:raise SystemExit('Use a fresh run directory; previous evidence is immutable.')
     if args.port == 0:
@@ -70,6 +72,7 @@ def main():
     meta={'started_at':now(),'app_source':str(args.source),'snapshot':str(snapshot),'source_hashes':source_hashes,
           'fixture_manifest_sha256':sha(args.fixtures/'manifest.json'),'selected':[c['case_id'] for c in cases],
           'data_dir':str(output/'data'),'port':args.port,'status':'starting','pid':None,'ocr_reuse':str(args.reuse_ocr) if args.reuse_ocr else None,
+          'business_context':args.business_context,
           'model_input_policy':'PDF bytes and one global business description only; no truth, IDs or human context supplied to classification'}
     completed={}
     if args.resume:
@@ -77,6 +80,7 @@ def main():
         assert meta['source_hashes']==source_hashes, 'Frozen source changed'
         assert meta['fixture_manifest_sha256']==sha(args.fixtures/'manifest.json'), 'Fixture changed'
         assert meta['selected']==[c['case_id'] for c in cases], 'Case selection changed'
+        assert meta.get('business_context',DEFAULT_BUSINESS_CONTEXT)==args.business_context, 'Global business context changed'
         if (output/'observations.jsonl').exists():
             for line in (output/'observations.jsonl').read_text(encoding='utf-8').splitlines():
                 item=json.loads(line);completed[item['case_id']]=item
@@ -126,7 +130,7 @@ def main():
                 opened.raise_for_status();del password
             response=get('/api/config')
             account_list=response.json()['accounts']
-            response=client.post('/api/settings',headers={'X-Ledger-Request':'1'},json={'business_context':'個人事業主。ソフトウェア・ゲーム制作、デザイン業。科目は暫定候補で、実際の業務用途・事業割合・支払方法は本人が確認する。'});response.raise_for_status()
+            response=client.post('/api/settings',headers={'X-Ledger-Request':'1'},json={'business_context':args.business_context});response.raise_for_status()
             mapping=meta.get('receipt_ids',{}) if args.resume else {}
             if args.resume:
                 existing={r['id']:r for r in get('/api/receipts').json()['receipts']}
@@ -163,6 +167,8 @@ def main():
                 if time.monotonic()-started>4*3600:raise TimeoutError('Run exceeded four hours; results retained.')
             meta['status']='complete';meta['finished_at']=now();meta['summary']=summary
             (output/'run.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
+            final_report={**meta,'cases':[completed[c['case_id']] for c in cases]}
+            (output/'report.json').write_text(json.dumps(final_report,ensure_ascii=False,indent=2),encoding='utf-8')
             print(json.dumps({'complete':summary},ensure_ascii=False),flush=True)
     except Exception as exc:
         meta['status']='interrupted';meta['interruption']=type(exc).__name__+': '+str(exc)

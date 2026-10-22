@@ -1,0 +1,76 @@
+{
+  "data/account-catalog.json": {
+    "baseline": "docs/testing/baseline/account-catalog.json",
+    "before_sha256": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+    "after_sha256": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+    "scope": "実OCR・AI100件の再実行で、居住用家賃を0円の駐車場明細から旅費交通費と提案する誤りを確認。居住用家賃の明示を用途・按分確認まで保留する一般条件を追加。原本・元の期待値・当初の100件の点数は保持。 住宅向け火災保険等への誤検知を避けるため、賃貸だけでは家賃扱いせず家賃・賃料の記載を必要とする。",
+    "regression_tests": [
+      "tests/test_catalog.py",
+      "tests/test_residential_rent.py"
+    ],
+    "previous_release_sha256": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf"
+  },
+  "receipt_ledger/extraction.py": {
+    "baseline": "docs/testing/baseline/extraction.py",
+    "before_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705",
+    "scope": "v1.2: 税額の範囲を共通抽出。括弧内の税込金額・内訳行・今回領収分・契約全体を区別し、印字されていない税額を計算しない。",
+    "regression_tests": [
+      "tests/test_tax_scope.py",
+      "tests/test_extraction.py"
+    ],
+    "after_sha256": "a6432721cedc8ba23c55fb07e2e2769b028399b2a800cf4d68ad804e7fa63f5d",
+    "previous_release_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705"
+  },
+  "receipt_ledger/exports.py": {
+    "baseline": "docs/testing/baseline/exports.py",
+    "before_sha256": "bb260d209d668c8ed75fd0f0d6a4feda84b377911a377bfe150ad3826fbf8a92",
+    "after_sha256": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f",
+    "scope": "混在税率のエラー案内を修正。未実装の品目分割入力を案内せず、汎用CSVと原本を用いた会計ソフト側の内訳処理へ案内する。CSV列・生成ロジックとOCR・AI分類は変更しない。 freeeの取引先タグ新規登録に関する警告を追記。",
+    "regression_tests": [
+      "tests/test_exports.py"
+    ],
+    "previous_release_sha256": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f"
+  },
+  "receipt_ledger/pipeline.py": {
+    "baseline": "docs/testing/baseline/pipeline.py",
+    "before_sha256": "ae4a7febd4c18b56b1d869d4b3f929ac37c4d16eec9bc9179341fe4ff56e98bb",
+    "after_sha256": "cdda304ea14b6540705bfa59f6729c52ad2fbf9386c681be17ddcac000de6b7d",
+    "scope": "AI停止時もPDF文字層・補正前OCRを確認条件に使用。PDFiumのプロセス内排他、プレビューの安全な再生成、PDFページ数・画像画素数の案内を追加。抽出・科目モデルの判定アルゴリズムと元の100件の数値は変更しない。 v1.1候補では原本・プレビューの暗号化と専用一時領域、本文送信前のローカルモデル確認を追加。抽出・科目モデルの判定アルゴリズムは変更せず、固定候補で100件を新規実行。 v1.2: 税額の根拠確認にも同じ範囲判定を適用し、複数の根拠層を連結して税額の重複と誤認しない。",
+    "regression_tests": [
+      "tests/test_retained_evidence.py",
+      "tests/test_bulk_import.py",
+      "tests/test_v1_quality.py",
+      "tests/test_local_model_guard.py",
+      "tests/test_encryption_migration_files.py",
+      "tests/test_tax_scope.py",
+      "tests/test_extraction.py"
+    ],
+    "previous_release_sha256": "9662048a1ab2f992b5f6de490d852552f41eb00e77358516607f8190f6ccd893"
+  },
+  "receipt_ledger/semantic.py": {
+    "baseline": "docs/testing/baseline/semantic.py",
+    "before_sha256": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59",
+    "scope": "v1.2: 単独の帳票注記と購入内容を分離し、支出の種類と実際の業務用途の確認を分ける。小数割合の末尾を8%税率と誤認しない。",
+    "regression_tests": [
+      "tests/test_tax_scope.py",
+      "tests/test_extraction.py"
+    ],
+    "after_sha256": "a89805329ccd6141c61ec1713d22f6696bc8a11902b54a3488e7b500feded232",
+    "previous_release_sha256": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59"
+  },
+  "receipt_ledger/store.py": {
+    "baseline": "docs/testing/baseline/store.py",
+    "before_sha256": "22f58470c1e97ba59aab8a9705833e4e508cf2ec2556dd9158982eabf4a229c4",
+    "after_sha256": "f0facf4a580ffdd9386948334bb1ea504d2a5b52aa9e846080630da6ed99af2c",
+    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。 対象外以外の明細を復帰操作で未確認へ変えないよう制限。 シード更新時、既存の未確認明細に新しく合致した確認条件を候補と注意事項へ反映。元の解析は監査履歴に残し、利用者の入力・確認済み仕訳は変更しない。 v1.1候補では暗号化DB・保護設定の起動ゲート、原本修復と保護済み保存を追加。固定候補で100件を新規実行。",
+    "regression_tests": [
+      "tests/test_retained_evidence.py",
+      "tests/test_v1_quality.py",
+      "tests/test_residential_rent.py",
+      "tests/test_database_protection.py",
+      "tests/test_security_recovery_regressions.py",
+      "tests/test_session_security.py"
+    ],
+    "previous_release_sha256": "f0facf4a580ffdd9386948334bb1ea504d2a5b52aa9e846080630da6ed99af2c"
+  }
+}

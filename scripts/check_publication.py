@@ -102,7 +102,9 @@ for item in meta['exports']:
 critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt_ledger/catalog.py',
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
-changes_path = ROOT / 'docs/testing/security/source-changes.json'
+changes_path = ROOT / 'docs/testing/v1.2/source-changes.json'
+if not changes_path.is_file():
+    changes_path = ROOT / 'docs/testing/security/source-changes.json'
 if not changes_path.is_file():
     changes_path = ROOT / 'docs/testing/v1/source-changes.json'
 changes = json.loads(changes_path.read_text('utf-8')) if changes_path.is_file() else {}
@@ -149,9 +151,21 @@ if (security / 'results-100.json').is_file():
         require(item['receipts'] == 6 and item['rows'] == 7 and item['debit'] == item['credit'] == 299095, f"Security CSV totals differ: {item['profile']}")
     finalization = json.loads((security / 'finalization.json').read_text('utf-8'))
     if finalization.get('status') in {'passed','complete','completed'}:
-        snapshot = json.loads((security / 'source-hashes.json').read_text('utf-8'))['current_snapshot']
-        for name, expected_hash in snapshot.items():
-            require(distribution_sha(ROOT / name) == expected_hash, f'Final security source snapshot is stale: {name}')
+        recorded_sources = json.loads((security / 'source-hashes.json').read_text('utf-8'))
+        snapshot = recorded_sources['current_snapshot']
+        archive_info = recorded_sources.get('historical_source_archive')
+        if archive_info:
+            archive = security / archive_info['file']
+            require(archive.resolve().is_relative_to(security) and archive.is_file(), 'Missing historical security source archive')
+            if archive.is_file():
+                require(sha(archive) == archive_info['sha256'], 'Historical security source archive changed')
+                with zipfile.ZipFile(archive) as source_zip:
+                    require(source_zip.testzip() is None and set(source_zip.namelist()) == set(snapshot), 'Historical security source archive scope differs')
+                    for name, expected_hash in snapshot.items():
+                        require(hashlib.sha256(source_zip.read(name)).hexdigest() == expected_hash, f'Historical security source differs: {name}')
+        else:
+            for name, expected_hash in snapshot.items():
+                require(distribution_sha(ROOT / name) == expected_hash, f'Final security source snapshot is stale: {name}')
 
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
