@@ -1,0 +1,38 @@
+{
+  "before": "ocr-ai-100-before-fix.json",
+  "after": "ocr-ai-100.json",
+  "changed_checks": [
+    {
+      "id": "V052",
+      "check_changes": {
+        "account_or_decision_exact": {
+          "before": false,
+          "after": true
+        },
+        "decision_exact": {
+          "before": false,
+          "after": true
+        },
+        "actual_decision": {
+          "before": "propose",
+          "after": "hold"
+        },
+        "abstained": {
+          "before": false,
+          "after": true
+        }
+      }
+    }
+  ],
+  "cause": "V052: a zero-JPY parking line narrowed retrieval to travel expense on a residential-rent receipt. Added a general residential rent hold policy, requiring purpose and business-use review. Expectations and receipt PDFs unchanged.",
+  "policy_delta_audit": {
+    "scope": "Reapply policy function only to100 saved actual OCR evidence texts and candidates; not new OCR or model inference.",
+    "old_version": "2026-10-22.1",
+    "new_version": "2026-10-22.2",
+    "old_sha256": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
+    "new_sha256": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+    "cases": 100,
+    "different_results": 0,
+    "change": "Require explicit rent wording in addition to residential wording, so residential fire insurance alone does not cause a rent hold."
+  }
+}

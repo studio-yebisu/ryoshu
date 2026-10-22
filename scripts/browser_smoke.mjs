@@ -56,6 +56,11 @@ try{
   page=await browser.newPage({viewport:{width:1365,height:1000}});page.on('pageerror',error=>errors.push(error.message));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.locator('.dropzone').waitFor();assert.equal(await page.locator('#page-title').innerText(),'経費帳');
+  assert.match(await page.locator('#usage-guidance').innerText(),/必ずご自身で確認/);
+  assert.match(await page.locator('#usage-guidance').innerText(),/税理士に確認/);
+  const help=await page.request.get(base+'/help.html');assert.equal(help.status(),200);
+  assert.match(await help.text(),/税理士の承認や税法への適合を表すものではありません/);
+  checks.push('personal and tax-professional review policy visible in app and local help');
   await snapshot('01-empty-ledger');
   await page.locator('#upload-top').click();assert.equal(await page.locator('[name="pdf-mode"]:checked').count(),0);
   await page.locator('#file-input').setInputFiles(manifest.cases.map(c=>root+'/samples/receipts-100-v2/'+c.file));
@@ -76,6 +81,13 @@ try{
   checks.push('ledger search');
   let rows=(await api('receipts')).receipts;
   for(const name of ['V001.pdf','V038.pdf']){const row=rows.find(r=>r.original_name===name);assert.ok(row);await page.locator(`[data-ledger-select="${row.id}"]`).check();}
+  await page.locator('[data-action="review-ledger"]').click();
+  assert.match(await page.locator('#batch-missing-warning').innerText(),/2件に入力の不足/);
+  assert.match(await page.locator('#review-dialog').innerText(),/不足：.*業務での用途/);
+  assert.equal(await page.locator('#confirm-batch').isDisabled(),true);
+  await page.locator('#review-dialog .dialog-heading button').click();
+  assert.equal((await api('receipts')).receipts.filter(r=>r.status==='confirmed').length,0);
+  checks.push('batch review warns about missing inputs before any confirmation request');
   await page.locator('#batch-purpose').fill('制作業務のために使用');await page.locator('#batch-percent').fill('100');await page.locator('#batch-payment').selectOption('owner');await page.locator('#batch-tax').selectOption('outside');
   await page.locator('[data-action="review-ledger"]').click();assert.equal(await page.locator('#confirm-batch').isDisabled(),true);await snapshot('04-batch-review');
   await page.locator('#review-ack').check();await page.locator('#confirm-batch').click();
@@ -84,8 +96,10 @@ try{
   checks.push('explicit batch review acknowledgement, missing amount stays pending, only valid row posted');
 
   assert.match(await page.locator('#batch-result').innerText(),/V038.pdf/);
-  await page.locator('#batch-result [data-open-receipt]').click();await page.locator('[data-view="ledger"]').click();
+  await page.locator('#batch-result [data-open-receipt]').click();
+  await page.locator('[data-action="back-to-ledger"]').click();
   assert.match(await page.locator('#batch-result').innerText(),/V038.pdf/);
+  checks.push('receipt detail returns to the ledger and retains batch results');
   await page.locator('[data-action="filter-batch-issues"]').click();assert.equal(await page.locator('#ledger-rows tr').count(),1);
   await page.locator('[data-action="clear-issue-filter"]').click();assert.equal(await page.locator('#ledger-rows tr').count(),100);
   checks.push('named batch failures persist after opening a receipt and can filter the remaining rows');
@@ -115,6 +129,18 @@ try{
   const source=await page.request.get(`${base}/api/receipts/${split.id}/source`);assert.equal((await source.body()).compare(await fs.readFile(root+'/samples/receipts-100-v2/receipts-100-review.pdf')),0);
   checks.push('100-page PDF split, immutable source download, 100-row pagination');
   await snapshot('05-ledger-200');
+
+  const duplicate=rows.find(r=>r.possible_duplicate_ids?.length);assert.ok(duplicate);
+  await page.locator('#ledger-search').fill(duplicate.original_name);
+  await page.locator(`[data-open-receipt="${duplicate.id}"]`).click();
+  assert.match(await page.locator('#detail-duplicates').innerText(),/別の支出か、二重取り込みか/);
+  const related=duplicate.possible_duplicate_ids[0];
+  await page.locator(`#detail-duplicates [data-open-receipt="${related}"]`).click();
+  await page.waitForFunction(id=>state.active===id,related);
+  await page.locator('[data-action="back-to-ledger"]').click();
+  await page.locator('#ledger-search').fill('');
+  await page.waitForFunction(()=>document.querySelectorAll('#ledger-rows tr').length===100);
+  checks.push('duplicate warning remains visible in receipt details and opens related originals');
 
   // Composition events exercise real DOM replacement/focus behavior, without an OS IME.
   const composing=await page.evaluate(async()=>{
@@ -169,6 +195,33 @@ try{
   await page.setViewportSize({width:1365,height:1000});await page.locator('[data-view="settings"]').click();await page.locator('#review-before-ledger').check();await page.waitForFunction(async()=>(await(await fetch('/api/config')).json()).review_before_ledger);await page.reload({waitUntil:'networkidle'});assert.equal(await page.locator('#page-title').innerText(),'領収書の確認');
   await page.locator('[data-view="settings"]').click();await page.locator('#review-before-ledger').uncheck();await page.waitForFunction(async()=>!(await(await fetch('/api/config')).json()).review_before_ledger);
   checks.push('optional review-first setting automatically persists');
+
+  await page.locator('[data-view="ledger"]').click();
+  if(await page.locator('[data-action="clear-selection"]').isVisible())await page.locator('[data-action="clear-selection"]').click();
+  if(await page.locator('[data-action="clear-issue-filter"]').isVisible())await page.locator('[data-action="clear-issue-filter"]').click();
+  await page.locator('#ledger-search').fill('');await page.locator('#ledger-filter').selectOption('all');
+  await page.locator('#select-ledger-all').check();
+  await page.locator('[data-action="ledger-next"]').click();await page.locator('#select-ledger-all').check();
+  assert.ok(await page.evaluate(()=>state.selected.size)>100);
+  await page.locator('#batch-purpose').fill('制作業務で使用');await page.locator('#batch-percent').fill('100');
+  await page.locator('#batch-payment').selectOption('owner');await page.locator('#batch-tax').selectOption('outside');
+  const beforeBatch=(await api('receipts')).receipts.filter(r=>r.status==='confirmed').length;
+  let reviewCalls=0;
+  await page.route('**/api/ledger/review',async route=>{
+    if(++reviewCalls===2)return route.abort();
+    await route.continue();
+  });
+  await page.locator('[data-action="review-ledger"]').click();await page.locator('#review-ack').check();await page.locator('#confirm-batch').click();
+  await page.waitForFunction(()=>document.querySelector('#batch-result').innerText.includes('通信が中断したため'));
+  await page.unroute('**/api/ledger/review');
+  assert.equal(reviewCalls,2);assert.equal(await page.locator('#review-dialog').isVisible(),false);
+  assert.ok(await page.evaluate(()=>state.batchReport.count)>0);
+  assert.ok((await api('receipts')).receipts.filter(r=>r.status==='confirmed').length>beforeBatch);
+  assert.ok(await page.evaluate(()=>state.selected.size)>0);
+  assert.ok(await page.locator('#batch-result .batch-issue').count()>0);
+  assert.equal((await api('receipts')).receipts.length,202);
+  await snapshot('07b-interrupted-batch');await page.locator('[data-action="clear-selection"]').click();
+  checks.push('a failed second100-row batch retains saved rows, reports partial success and names remaining rows');
 
   if(await page.locator('[data-import-action="dismiss"]').isVisible())await page.locator('[data-import-action="dismiss"]').click();
 

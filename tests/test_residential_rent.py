@@ -26,6 +26,7 @@ def test_residential_rent_never_keeps_a_forced_travel_candidate(text):
     ('事務所賃料 70,000円 駐車場使用料0円', '地代家賃'),
     ('出張先ホテル 宿泊料金 12,000円', '旅費交通費'),
     ('住居用 火災保険 保険料 20,000円', '損害保険料'),
+    ('住居用・賃貸住宅向け 火災保険料 20,000円', '損害保険料'),
 ])
 def test_non_residential_rent_is_not_held_by_the_new_policy(text, account):
     result = apply_account_policies({'account': account, 'total': 12000}, text)
@@ -59,3 +60,37 @@ def test_owner_can_confirm_real_business_use_after_the_candidate_was_held(tmp_pa
     assert confirmed['status'] == 'confirmed'
     assert {line['name'] for line in confirmed['posting']['lines']} == {'地代家賃', '事業主貸', '普通預金'}
     assert sum(line['amount'] for line in confirmed['posting']['lines'] if line['side'] == 'credit') == 70000
+
+
+def test_seed_upgrade_refreshes_pending_warning_but_keeps_owner_input_and_confirmed_entries(tmp_path, monkeypatch):
+    import receipt_ledger.store as module
+    old = json.loads((Path(__file__).parents[1] / 'data/catalog-history/2026-10-21.6.json').read_text('utf-8'))
+    text = '居住用賃貸住宅の家賃70,000円 駐車場使用料0円'
+    with monkeypatch.context() as patch:
+        patch.setattr(module, 'seed_catalog', lambda: old)
+        store = Store(tmp_path)
+        pending, _ = store.add('未確認の架空家賃.pdf', '.pdf', b'pending-residential-rent')
+        store.complete(pending['id'], {'text': text}, {'account': '旅費交通費', 'total': 70000, 'warnings': [], 'policy_matches': []})
+        pending = store.get(pending['id'])
+        owner = Draft(**{**pending['draft'], 'description': '利用者が記録した内容', 'purpose': '業務用の場所は未確認'})
+        pending = store.save(pending['id'], pending['version'], owner)
+        posted, _ = store.add('確認した架空家賃.pdf', '.pdf', b'confirmed-residential-rent')
+        store.complete(posted['id'], {'text': text}, None)
+        posted = store.get(posted['id'])
+        posted = store.save(posted['id'], posted['version'], Draft(date='2024-06-27', merchant='架空の貸主',
+            total=70000, account='地代家賃', purpose='面積に基づく事業分', payment='bank', business_percent=20), confirm=True)
+    upgraded = Store(tmp_path)
+    after = upgraded.get(pending['id'])
+    assert after['draft'] == pending['draft']
+    assert after['version'] == pending['version'] + 1
+    assert after['suggestion']['account'] == ''
+    assert after['suggestion']['decision'] == 'hold'
+    assert any(p['code'] == 'P_RESIDENTIAL_RENT' for p in after['suggestion']['policy_matches'])
+    assert '事業で使う割合と根拠' in after['suggestion']['review_questions']
+    assert any('居住用の家賃' in warning for warning in after['suggestion']['warnings'])
+    assert upgraded.get(posted['id']) == posted
+    with upgraded.connect() as db:
+        audit = json.loads(db.execute("SELECT detail_json FROM audit WHERE receipt_id=? AND action='policy_refresh'", (pending['id'],)).fetchone()[0])
+    assert audit['before']['account'] == '旅費交通費' and audit['owner_input_preserved']
+    reopened = Store(tmp_path)
+    assert reopened.get(pending['id'])['version'] == after['version']

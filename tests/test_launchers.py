@@ -1,5 +1,6 @@
 """PowerShell launcher control with fake processes only; never stops a real app."""
 import json
+import base64
 import os
 from pathlib import Path
 import shutil
@@ -8,6 +9,39 @@ import subprocess
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.mark.skipif(os.name != 'nt' or not shutil.which('powershell'), reason='Windows PowerShell launcher')
+def test_restored_ledger_launcher_passes_literal_japanese_paths_and_never_overwrites(tmp_path):
+    source = tmp_path / "日本語 ' & %PATH% source"
+    data = tmp_path / "帳簿 ' & %PATH% data"
+    output = tmp_path / 'restored'
+    for folder in [source, data, output]:
+        folder.mkdir()
+    (data / 'ledger.sqlite3').write_bytes(b'fixture-not-opened')
+    (source / 'start.ps1').write_text('param([string]$DataDir)\n[System.IO.File]::WriteAllText($env:RYOSHU_TEST_RESULT,$DataDir)\n', 'utf-8')
+    result_file = tmp_path / 'received.txt'
+    script = r'''
+$ErrorActionPreference = 'Stop'
+. $env:RYOSHU_TEST_LIBRARY
+$launcher = New-RyoshuLedgerLauncher -SourceDir $env:RYOSHU_TEST_SOURCE -DataDir $env:RYOSHU_TEST_DATA -OutputDir $env:RYOSHU_TEST_OUTPUT
+$before = [System.IO.File]::ReadAllText($launcher)
+$rejected = $false
+try { New-RyoshuLedgerLauncher -SourceDir $env:RYOSHU_TEST_SOURCE -DataDir $env:RYOSHU_TEST_DATA -OutputDir $env:RYOSHU_TEST_OUTPUT }
+catch { $rejected = $true }
+if (-not $rejected -or [System.IO.File]::ReadAllText($launcher) -cne $before) { throw 'existing launcher was overwritten' }
+'''
+    run_ps_fixture(tmp_path, script, {'RYOSHU_TEST_LIBRARY': str(ROOT/'scripts/launcher-process.ps1'),
+        'RYOSHU_TEST_SOURCE': str(source), 'RYOSHU_TEST_DATA': str(data), 'RYOSHU_TEST_OUTPUT': str(output)})
+    launcher = output / 'この帳簿を開く.cmd'
+    text = launcher.read_text('ascii')
+    encoded = text.split('-EncodedCommand ', 1)[1].strip()
+    decoded = base64.b64decode(encoded).decode('utf-16-le')
+    assert str(data).replace("'", "''") in decoded
+    result = subprocess.run(['powershell', '-NoProfile', '-EncodedCommand', encoded],
+        env={**os.environ, 'RYOSHU_TEST_RESULT': str(result_file)}, capture_output=True, timeout=20)
+    assert result.returncode == 0, result.stderr.decode('utf-8', errors='replace')
+    assert result_file.read_text('utf-8-sig') == str(data)
 
 
 @pytest.mark.skipif(os.name != "nt" or not shutil.which("powershell"), reason="Windows PowerShell launcher")

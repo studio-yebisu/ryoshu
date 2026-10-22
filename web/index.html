@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f5f5ef">
-  <title>Ryoshu — 領収書OCRとAIによる勘定科目判断</title>
+  <title>Ryoshu — 領収書OCRとAIによる勘定科目候補</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
   <script src="/import.js" defer></script>
@@ -31,6 +31,7 @@
     <main>
       <header class="page-header"><div><div class="eyebrow">日々の経費整理</div><h1 id="page-title">経費帳</h1><p id="page-description">領収書をまとめて取り込み、あとから確認。</p></div><button class="button primary" id="upload-top"><span>＋</span> 領収書を取り込む</button></header>
       <div id="connection-banner" class="banner hidden" role="status"></div>
+      <p class="usage-guidance" id="usage-guidance">AIの読取・科目は候補です。金額・科目・用途は必ずご自身で確認し、税務上の最終判断は税理士に確認してください。<a href="/help.html#tax-review" target="_blank" rel="noreferrer">確認の方針</a></p>
       <section id="import-progress" class="panel import-progress hidden" aria-live="polite"></section>
       <section id="processing-status" class="processing-status hidden" aria-live="polite"></section>
       <div id="main-content"></div>

@@ -1,12 +1,14 @@
 # Ryoshu
 
-**領収書OCRとAIによる勘定科目判断アプリ（各種CSV対応）**
+**領収書OCRとAIによる勘定科目候補の作成アプリ（各種CSV対応）**
 
 個人事業主・フリーランス向けの、ローカルで動く領収書整理・経費帳アプリです。Indra OCR 1.1.2で画像やPDFを読み取り、別のローカルモデルQwen3 4Bが勘定科目の候補を提案します。デフォルトは、取り込んだ内容から未確認の帳簿を先に作り、あとから一覧で確認・修正する流れです。汎用CSVは未確認の明細も出力でき、確認後はfreee・MFクラウド・弥生へ取り込む形式で出力できます。
 
+**AIの読取・科目は候補です。原本・金額・科目・用途は必ずご自身で確認し、税務上の最終判断は税理士に確認してください。** 「確認済み」は利用者による確認操作の状態で、税理士の承認や税法への適合を表すものではありません。[確認方針と提供範囲](docs/REVIEW-POLICY.md)
+
 **v1.0.0に向けて公開前の検証中**です。Windows / Python 3.12 / CPUで確認しています。
 
-**[テスト画像と100件の検証結果](docs/testing/README.md)** · **[全100件の画像一覧](docs/testing/gallery.md)** · [v1.0.0の改善・レビュー・検証](docs/testing/v1/README.md) · [動作要件](docs/REQUIREMENTS.md) · [使い方](docs/GUIDE.md) · [科目の細分化と対応範囲](docs/ACCOUNTS.md) · [CSV仕様](docs/CSV-EXPORT.md)
+**[テスト画像と100件の検証結果](docs/testing/README.md)** · **[全100件の画像一覧](docs/testing/gallery.md)** · [v1.0.0の改善・レビュー・検証](docs/testing/v1/README.md) · [動作要件](docs/REQUIREMENTS.md) · [使い方](docs/GUIDE.md) · [収録38科目と分類範囲](docs/ACCOUNTS.md) · [CSV仕様](docs/CSV-EXPORT.md)
 
 ![Ryoshuの確認画面](docs/images/ryoshu.png)
 

@@ -1,5 +1,5 @@
 {
-  "scope": "Source reviews only, not UI/OCR/AI or SaaS execution. Raw responses are retained privately and hash-recorded. Requested model is distinct from response identity: some CLIs return no model identity field. Final Gemini/Kimi/Opus delta reports found no new reproducible code blocker. Document counts in frozen review inputs were updated after the snapshots and verified by119 tests and current CI.",
+  "scope": "Source reviews, distinct from execution, visual QA and legal advice. Requested model and response identity are recorded separately. Frozen review counts are historical snapshots; fixes are verified by the linked current tests.",
   "records": [
     {
       "requested_model": "gemini-3.8-flash-medium",
@@ -183,6 +183,66 @@
       ],
       "terminal_reason": "completed",
       "frozen_source_manifest_sha256": "9532bd93dab8b09360c4e7df5fd46738a5ec3f971c56e5327aeb9cb2c49365c8"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T23:48:15.146676+00:00",
+      "finished_at": "2026-10-21T23:53:40.603762+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "a13d5aae2b45dcc2ae801c7827dde47ba73a4987e250e7c2e5dc62d349112695",
+      "round": "gemini-accounts1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "f62a9c4d816ff2f09017ed6ff4c0e6af97ca6083c777b1e3e9bef4e7a71bfd6a"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T23:53:45.655466+00:00",
+      "finished_at": "2026-10-22T00:04:21.901530+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "490101ed96d5a8bf1618cc83125fe57dd9c8b0f298b5869ab2d4ea80a25ef30c",
+      "round": "kimi-accounts2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "22df79c46cea61eeb1db831c60026301ffebcf57a368507c4bafdc68b0596078"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-22T00:13:37.280264+00:00",
+      "finished_at": "2026-10-22T00:15:17.570203+00:00",
+      "exit_code": 0,
+      "prompt_characters": 19833,
+      "stdout_sha256": "be907ee91286dca3390751a21498a49db891bad11f220b4504977a529aa181b7",
+      "round": "kimi-policy-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-22T00:13:37.294890+00:00",
+      "finished_at": "2026-10-22T00:16:10.199417+00:00",
+      "exit_code": 0,
+      "prompt_characters": 14875,
+      "stdout_sha256": "52e155f26425ab45b34eb16e05dfca0f6b88c3bad148606af7f1d84a3c934db5",
+      "round": "gemini-policy-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-22T00:15:54.401898+00:00",
+      "finished_at": "2026-10-22T00:16:46.670400+00:00",
+      "exit_code": 0,
+      "prompt_characters": 29742,
+      "stdout_sha256": "97bd08e3ec20e0c4e0250abb1b79b910a819134cb71321fad94fc9f5c9383ccf",
+      "round": "opus-policy-final2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
     }
   ]
 }

@@ -33,5 +33,6 @@ data/account-catalog.json -text
 docs/testing/baseline/*.py -text
 docs/testing/baseline/*.json -text
 data/catalog-history/2026-10-21.6.json -text
+data/catalog-history/2026-10-22.1.json -text
 # Archived generator bytes correspond to generator_sha256 in the manifest.
 samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace

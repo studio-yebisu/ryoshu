@@ -178,6 +178,30 @@ class Store:
                         db.execute(f'UPDATE account_policies SET {column}=? WHERE code=?',(dumps(p[key]) if column.endswith('_json') else p[key],p['code']))
         db.execute("UPDATE catalog_meta SET value=? WHERE key='seed_version'",(seed['version'],))
         self.audit(db,'catalog','seed_update',{'from':version,'to':seed['version'],'preserved_manual_edits':True})
+        self._refresh_pending_policies(db, seed['version'])
+
+    def _refresh_pending_policies(self, db, seed_version):
+        """Refresh AI guidance after a seed upgrade; keep owner input and posted journals."""
+        from .evidence import evidence_text
+        accounts, policies = self.accounts(True, db), self.policies(db)
+        rows = db.execute("SELECT id,suggestion_json,ocr_json FROM receipts WHERE status='review' AND suggestion_json IS NOT NULL AND ocr_json IS NOT NULL")
+        for row in rows:
+            original = json.loads(row['suggestion_json'])
+            checked = apply_account_policies(original, evidence_text(json.loads(row['ocr_json'])), accounts, policies)
+            known = {p['code'] for p in original.get('policy_matches', [])}
+            added = [p for p in checked['policy_matches'] if p['code'] not in known]
+            if not added:
+                continue
+            if checked['blocking_reasons']:
+                checked['decision'] = 'block'
+            elif not checked['account']:
+                checked['decision'] = 'hold'
+            checked['policy_catalog_version'] = seed_version
+            db.execute("UPDATE receipts SET suggestion_json=?,version=version+1,updated_at=? WHERE id=?",
+                       (dumps(checked), now(), row['id']))
+            self.audit(db, row['id'], 'policy_refresh', {'catalog_version': seed_version,
+                       'added_conditions': [p['code'] for p in added], 'before': original,
+                       'after': checked, 'owner_input_preserved': True})
 
     def accounts(self, selectable=True, db=None):
         if db is None:

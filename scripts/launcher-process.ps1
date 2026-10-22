@@ -39,3 +39,24 @@ function Save-RyoshuServerRecord {
     [System.IO.File]::WriteAllText($temporary, $json, (New-Object System.Text.UTF8Encoding($true)))
     Move-Item -LiteralPath $temporary -Destination (Join-Path $RuntimeDir 'server.json') -Force
 }
+
+function New-RyoshuLedgerLauncher {
+    param([string]$SourceDir, [string]$DataDir, [string]$OutputDir)
+    $startFile = Join-Path ([System.IO.Path]::GetFullPath($SourceDir)) 'start.ps1'
+    $ledgerPath = [System.IO.Path]::GetFullPath($DataDir)
+    if (-not (Test-Path -LiteralPath $startFile) -or -not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.sqlite3'))) {
+        throw '起動ファイルまたは復元した帳簿が見つかりません。復元先は変更していません。'
+    }
+    $quotedStart = $startFile.Replace("'", "''")
+    $quotedData = $ledgerPath.Replace("'", "''")
+    $launchCommand = "`$ErrorActionPreference='Stop'; try { & '$quotedStart' -DataDir '$quotedData' } catch { Write-Host `$_.Exception.Message; Read-Host 'Enterで閉じます'; exit 1 }"
+    $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($launchCommand))
+    $launcherPath = Join-Path $OutputDir 'この帳簿を開く.cmd'
+    $content = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encodedCommand`r`n"
+    $stream = [System.IO.File]::Open($launcherPath, 'CreateNew', 'Write', 'None')
+    try {
+        $bytes = [System.Text.Encoding]::ASCII.GetBytes($content)
+        $stream.Write($bytes, 0, $bytes.Length)
+    } finally { $stream.Dispose() }
+    return $launcherPath
+}

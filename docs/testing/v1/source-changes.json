@@ -2,11 +2,12 @@
   "receipt_ledger/store.py": {
     "baseline": "docs/testing/baseline/store.py",
     "before_sha256": "22f58470c1e97ba59aab8a9705833e4e508cf2ec2556dd9158982eabf4a229c4",
-    "after_sha256": "fbbcdc80564a01e182fef9080924724acd9f514a806e1aa48612c3112da74ae2",
-    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。 対象外以外の明細を復帰操作で未確認へ変えないよう制限。",
+    "after_sha256": "840a0eff98173f36a684977cac698f4424c082504f07b6fe1d9f2306741b0b27",
+    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。 対象外以外の明細を復帰操作で未確認へ変えないよう制限。 シード更新時、既存の未確認明細に新しく合致した確認条件を候補と注意事項へ反映。元の解析は監査履歴に残し、利用者の入力・確認済み仕訳は変更しない。",
     "regression_tests": [
       "tests/test_retained_evidence.py",
-      "tests/test_v1_quality.py"
+      "tests/test_v1_quality.py",
+      "tests/test_residential_rent.py"
     ]
   },
   "receipt_ledger/pipeline.py": {
@@ -32,8 +33,8 @@
   "data/account-catalog.json": {
     "baseline": "docs/testing/baseline/account-catalog.json",
     "before_sha256": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
-    "after_sha256": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
-    "scope": "実OCR・AI100件の再実行で、居住用家賃を0円の駐車場明細から旅費交通費と提案する誤りを確認。居住用家賃の明示を用途・按分確認まで保留する一般条件を追加。原本・元の期待値・当初の100件の点数は保持。",
+    "after_sha256": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+    "scope": "実OCR・AI100件の再実行で、居住用家賃を0円の駐車場明細から旅費交通費と提案する誤りを確認。居住用家賃の明示を用途・按分確認まで保留する一般条件を追加。原本・元の期待値・当初の100件の点数は保持。 住宅向け火災保険等への誤検知を避けるため、賃貸だけでは家賃扱いせず家賃・賃料の記載を必要とする。",
     "regression_tests": [
       "tests/test_catalog.py",
       "tests/test_residential_rent.py"

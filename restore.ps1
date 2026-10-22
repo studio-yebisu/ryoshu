@@ -14,6 +14,10 @@ $resultJson = & $pythonExe (Join-Path $PSScriptRoot 'scripts\restore_backup.py')
 if ($LASTEXITCODE -ne 0) { throw '復元を完了できませんでした。元の帳簿は変更していません。表示された理由を確認してください。' }
 $restored = $resultJson | ConvertFrom-Json
 Write-Host ('復元しました：' + $restored.receipts + '件 / ' + $restored.restored_data)
+. (Join-Path $PSScriptRoot 'scripts\launcher-process.ps1')
+$restoredLauncher = New-RyoshuLedgerLauncher -SourceDir $PSScriptRoot -DataDir $restored.restored_data -OutputDir $restoreRoot
+Write-Host ('後から開く場合：' + $restoredLauncher)
+Write-Host '別の帳簿が起動中なら、元のアプリフォルダーにある「停止.cmd」で終了し、上の「この帳簿を開く.cmd」をダブルクリックしてください。'
 $answer = Read-Host '復元した帳簿に切り替えて起動しますか？ 元の帳簿は保存されています [y/N]'
 if ($answer -match '^[yY]$') {
     & (Join-Path $PSScriptRoot 'stop.ps1')

@@ -21,3 +21,5 @@
 
 .badge.warning{background:var(--orange-soft);color:#805029}
 .batch-issue { overflow-wrap:anywhere; }
+/* Static guidance stays visible while receipt processing and editing continue. */
+.usage-guidance{font-size:13px;line-height:1.7;padding:12px 14px;margin:0 0 20px;border:1px solid #dce2d8;border-radius:10px;background:#f4f7f0;color:#43503f;overflow-wrap:anywhere}.usage-guidance a{margin-left:.5em;text-decoration:underline}
