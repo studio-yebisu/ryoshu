@@ -85,7 +85,7 @@ def restore_encrypted(archive, destination, password, receipt_pattern, source_pa
                         with pending.open("xb") as target:
                             shutil.copyfileobj(source,target,1024**2)
                         with closing(database.open(pending,key=backup_key,readonly=True)) as db:
-                            if db.execute("PRAGMA quick_check").fetchone()[0] != "ok" or db.execute("PRAGMA foreign_key_check").fetchone() or db.execute("PRAGMA user_version").fetchone()[0] > 2:
+                            if db.execute("PRAGMA quick_check").fetchone()[0] != "ok" or db.execute("PRAGMA foreign_key_check").fetchone() or db.execute("PRAGMA user_version").fetchone()[0] > 3:
                                 raise ValueError("帳簿の整合性または対応する版を確認できません。")
                             receipts = db.execute("SELECT id,extension,sha256 FROM receipts").fetchall()
                             if len(receipts) != manifest["receipts"]:

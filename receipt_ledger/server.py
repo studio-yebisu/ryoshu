@@ -22,6 +22,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import __version__, config
 from .accounting import amounts, csv_export, journal, summary
+from .catalog import account_categories
 from .exports import PROFILES, TAX_CHOICES, build_export
 from .pipeline import local_models, process, validate_file, ModelSafetyError
 from .schemas import Draft, SaveRequest, VersionRequest, confirmation_errors
@@ -146,7 +147,7 @@ def create_app(data_dir=None, run_workers=True):
         return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": config.MODEL,
                 "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''), "source_dir": str(Path(__file__).resolve().parents[1]),
                 "model_ready": installed, "ollama_ready": ollama,"model_issue":model_issue, "compute": "CPU", "data_dir": str(store.root),
-                "schema_version":2,"account_count":len(store.accounts(False)) if store.ready else 0,"policy_count":len(store.policies()) if store.ready else 0,
+                "schema_version":3,"account_count":len(store.accounts(False)) if store.ready else 0,"policy_count":len(store.policies()) if store.ready else 0,
                 "instance":sessions.instance,"protected":store.ready,"security_mode":store.keys.mode,
                 "privacy": "loopback-only; local OCR and local model; offline OCR cache"}
 
@@ -251,7 +252,7 @@ def create_app(data_dir=None, run_workers=True):
 
     @app.get("/api/config")
     def app_config():
-        return {"accounts": store.accounts(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
+        return {"accounts": store.accounts(), "account_categories": account_categories(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
                 "business_context": store.business_context(), "rules": store.rules(),
                 "review_before_ledger": review_before_ledger(store),
                 "storage_issues":store.storage_issues(),
@@ -270,6 +271,7 @@ def create_app(data_dir=None, run_workers=True):
         model_config=ConfigDict(extra="forbid")
         name:str=Field(min_length=1,max_length=100)
         kind:Literal["expense","asset"]="expense"
+        category_id:str | None=Field(default=None,max_length=100)
         description:str=Field(default="",max_length=1000)
         aliases:list[str]=Field(default_factory=list,max_length=10)
         review_questions:list[str]=Field(default_factory=list,max_length=10)
@@ -279,7 +281,7 @@ def create_app(data_dir=None, run_workers=True):
     def add_account(body:AccountRequest):
         if any(len(s)>200 for s in body.aliases+body.review_questions+body.keywords):
             raise ValueError("別名・確認事項は各200文字以内で入力してください")
-        return store.add_account(body.name,body.kind,body.description,body.aliases,body.review_questions,body.keywords)
+        return store.add_account(body.name,body.kind,body.description,body.aliases,body.review_questions,body.keywords,body.category_id)
 
     @app.get("/api/samples/{kind}")
     def sample_download(kind:str):

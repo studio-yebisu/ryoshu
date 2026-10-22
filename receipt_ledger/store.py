@@ -9,7 +9,7 @@ from pathlib import Path
 from .protection import LedgerKeys, ProtectionError
 from .database import CipherDatabase
 from .schemas import Draft
-from .catalog import account_key, apply_account_policies, resolve_account, seed_catalog
+from .catalog import account_categories, account_key, apply_account_policies, category_for, resolve_account, seed_catalog
 
 
 class Conflict(Exception):
@@ -64,12 +64,16 @@ class Store:
         root = self.root
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 2:
+            if version > 3:
                 raise RuntimeError("このアプリより新しいデータベースです。更新版で開いてください")
             if version == 1:
                 backup_dir = root / "backups"
                 backup_dir.mkdir(exist_ok=True)
                 self.database.snapshot(backup_dir / ("before-catalog-v2-" + uuid.uuid4().hex[:12] + ".sqlite3"), source=db)
+            if version == 2:
+                backup_dir = root / "backups"
+                backup_dir.mkdir(exist_ok=True)
+                self.database.snapshot(backup_dir / ("before-account-categories-v3-" + uuid.uuid4().hex[:12] + ".sqlite3"), source=db)
             db.execute("PRAGMA journal_mode=WAL")
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS receipts (
@@ -155,6 +159,13 @@ class Store:
             db.execute("ALTER TABLE account_master ADD COLUMN hints_json TEXT NOT NULL DEFAULT '{}' ")
             for account in seed_catalog()["accounts"]:
                 db.execute("UPDATE account_master SET hints_json=? WHERE code=? AND seeded=1",(dumps(account.get("hints",{})),account["code"]))
+        if "category_id" not in master_columns:
+            db.execute("ALTER TABLE account_master ADD COLUMN category_id TEXT NOT NULL DEFAULT ''")
+            seed_accounts = {a["code"]: a for a in seed_catalog()["accounts"]}
+            for row in db.execute("SELECT code,kind,seeded FROM account_master").fetchall():
+                account = seed_accounts.get(row["code"]) if row["seeded"] else None
+                category_id = category_for(row["kind"], account.get("category_id") if account else None)
+                db.execute("UPDATE account_master SET category_id=? WHERE code=?", (category_id, row["code"]))
         self._update_seed(db)
         columns = {r["name"] for r in db.execute("PRAGMA table_info(merchant_rules)")}
         if "item_hint" not in columns:
@@ -164,7 +175,7 @@ class Store:
             db.execute("UPDATE merchant_rules SET account_code=(SELECT code FROM account_master WHERE name=merchant_rules.account)")
         for row in db.execute("SELECT id FROM receipts WHERE status='confirmed' AND id NOT IN (SELECT receipt_id FROM journal_entries WHERE status='posted')").fetchall():
             self._post(db, self.get(row["id"],db))
-        db.execute("PRAGMA user_version=2")
+        db.execute("PRAGMA user_version=3")
 
     def _update_seed(self, db):
         """Update unchanged defaults only; user definitions and edited fields survive."""
@@ -180,18 +191,28 @@ class Store:
             previous={'accounts':[],'policies':[]}
         else:previous=json.loads(old_path.read_text(encoding='utf-8'))
         old_accounts={a['code']:a for a in previous['accounts']}
-        columns={'description':'description','aliases':'aliases_json','review_questions':'questions_json','sources':'sources_json','hints':'hints_json'}
+        old_sources = {source['id']: source for source in previous.get('sources', [])}
+        for source in seed['sources']:
+            stored = db.execute('SELECT * FROM account_sources WHERE id=?', (source['id'],)).fetchone()
+            if stored is None:
+                db.execute('INSERT INTO account_sources VALUES(?,?,?,?,?)', tuple(source[k] for k in ['id','title','url','checked_at','scope']))
+            elif source['id'] in old_sources:
+                for field in ['title','url','checked_at','scope']:
+                    if stored[field] == old_sources[source['id']][field] and stored[field] != source[field]:
+                        db.execute(f'UPDATE account_sources SET {field}=? WHERE id=?', (source[field], source['id']))
+        columns={'description':'description','aliases':'aliases_json','review_questions':'questions_json','sources':'sources_json','hints':'hints_json','category_id':'category_id'}
         for a in seed['accounts']:
             stored=db.execute('SELECT * FROM account_master WHERE code=?',(a['code'],)).fetchone()
             if stored is None:
-                db.execute('INSERT OR IGNORE INTO account_master(code,name,name_key,kind,description,aliases_json,questions_json,sources_json,selectable,active,seeded,updated_at,hints_json) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                           (a['code'],a['name'],account_key(a['name']),a['kind'],a['description'],dumps(a['aliases']),dumps(a['review_questions']),dumps(a['sources']),int(a['selectable']),int(a['active']),1,now(),dumps(a.get('hints',{}))))
+                db.execute('INSERT OR IGNORE INTO account_master(code,name,name_key,kind,description,aliases_json,questions_json,sources_json,selectable,active,seeded,updated_at,hints_json,category_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                           (a['code'],a['name'],account_key(a['name']),a['kind'],a['description'],dumps(a['aliases']),dumps(a['review_questions']),dumps(a['sources']),int(a['selectable']),int(a['active']),1,now(),dumps(a.get('hints',{})),category_for(a['kind'],a.get('category_id'))))
             elif stored['seeded'] and a['code'] in old_accounts:
                 old=old_accounts[a['code']]
                 for key,column in columns.items():
                     current=json.loads(stored[column]) if column.endswith('_json') else stored[column]
-                    if current==old.get(key,{}) and current!=a.get(key,{}):
-                        value=dumps(a.get(key,{})) if column.endswith('_json') else a[key]
+                    default = '' if key == 'category_id' else {}
+                    if current==old.get(key,default) and current!=a.get(key,default):
+                        value=dumps(a.get(key,default)) if column.endswith('_json') else a[key]
                         db.execute(f'UPDATE account_master SET {column}=?,updated_at=? WHERE code=?',(value,now(),a['code']))
         old_policies={p['code']:p for p in previous['policies']}
         for p in seed['policies']:
@@ -235,7 +256,7 @@ class Store:
         if db is None:
             with self.connect() as conn:
                 return self.accounts(selectable,conn)
-        query="SELECT * FROM account_master WHERE active=1"+(" AND selectable=1" if selectable else "")+" ORDER BY code"
+        query="SELECT * FROM account_master WHERE active=1"+(" AND selectable=1 AND kind IN ('expense','asset')" if selectable else "")+" ORDER BY code"
         result=[]
         for row in db.execute(query):
             data=dict(row)
@@ -244,6 +265,11 @@ class Store:
             data["example"]=data["description"]
             data["asset"]=data["kind"]=="asset"
             data["hints"]=json.loads(data.pop("hints_json"))
+            # Unknown metadata from a direct DB edit must not hide a usable account.
+            try:
+                data['category_id'] = category_for(data['kind'], data['category_id'])
+            except ValueError:
+                data['category_id'] = category_for(data['kind'])
             result.append(data)
         return result
 
@@ -263,13 +289,14 @@ class Store:
         with self.connect() as db:
             return {"schema_version":db.execute("PRAGMA user_version").fetchone()[0],
                     "seed_version":db.execute("SELECT value FROM catalog_meta WHERE key='seed_version'").fetchone()[0],
-                    "accounts":self.accounts(False,db),"policies":self.policies(db),
+                    "accounts":self.accounts(False,db),"account_categories":account_categories(),"policies":self.policies(db),
                     "sources":[dict(r) for r in db.execute("SELECT * FROM account_sources ORDER BY id")]}
 
-    def add_account(self, name, kind, description, aliases, questions, keywords=None):
+    def add_account(self, name, kind, description, aliases, questions, keywords=None, category_id=None):
         name=name.strip()
         if kind not in {"expense","asset"} or not name:
             raise ValueError("経費または資産の科目名を入力してください")
+        category_id = category_for(kind, category_id)
         aliases=list(dict.fromkeys(a.strip() for a in aliases if a.strip()))
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -278,9 +305,9 @@ class Store:
                 if resolve_account(value,existing):
                     raise ValueError("同じ名前・別名の科目が既にあります："+value)
             code="U"+uuid.uuid4().hex[:10].upper()
-            db.execute("INSERT INTO account_master(code,name,name_key,kind,description,aliases_json,questions_json,sources_json,selectable,active,seeded,updated_at,hints_json) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                       (code,name,account_key(name),kind,description.strip(),dumps(aliases),dumps(questions),dumps([]),1,1,0,now(),dumps({"any":keywords or [],"unless_any":[]})))
-            self.audit(db,"catalog","account_add",{"code":code,"name":name,"kind":kind})
+            db.execute("INSERT INTO account_master(code,name,name_key,kind,description,aliases_json,questions_json,sources_json,selectable,active,seeded,updated_at,hints_json,category_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                       (code,name,account_key(name),kind,description.strip(),dumps(aliases),dumps(questions),dumps([]),1,1,0,now(),dumps({"any":keywords or [],"unless_any":[]}),category_id))
+            self.audit(db,"catalog","account_add",{"code":code,"name":name,"kind":kind,"category_id":category_id})
             return next(a for a in self.accounts(False,db) if a["code"]==code)
 
     def _void_posting(self, db, receipt_id):

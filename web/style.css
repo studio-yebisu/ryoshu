@@ -837,6 +837,37 @@ input[type=checkbox],input[type=radio] {
   display:table;
   margin-bottom:16px
 }
+.result-account-actions {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px
+}
+.result-account-actions .text-button {
+  padding:0;
+  font-size:13px
+}
+.account-picker {
+  margin-bottom:20px
+}
+.account-picker .form-row {
+  margin-bottom:0
+}
+.account-picker .field {
+  min-width:0
+}
+.account-picker-help {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  overflow-wrap:anywhere
+}
+.account-picker-help p+p {
+  margin-top:6px
+}
+#catalog-category {
+  max-width:240px
+}
 .result-ocr {
   grid-column:1/-1;
   margin-top:12px
@@ -1802,6 +1833,44 @@ dialog::backdrop {
 }
 #review-dialog {
   width:min(860px,calc(100vw - 32px))
+}
+#account-change-dialog {
+  width:min(560px,calc(100vw - 32px))
+}
+.account-change-source {
+  font-weight:600;
+  overflow-wrap:anywhere
+}
+.account-change-source span {
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400
+}
+.account-change-notice {
+  margin:16px 0 20px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7
+}
+.account-change-fields {
+  min-width:0;
+  padding:0;
+  border:0
+}
+.account-change-actions {
+  display:flex;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:24px
+}
+#account-change-error {
+  margin-top:16px
+}
+#account-change-reload {
+  margin-top:12px
 }
 .review-check-list {
   max-height:45vh;

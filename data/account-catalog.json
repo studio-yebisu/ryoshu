@@ -1,20 +1,27 @@
 {
-  "version": "2026-10-22.2",
+  "version": "2026-10-23.1",
   "description": "個人事業主向けの初期科目・確認条件。科目例はアプリの編集データであり、税務上の自動判定表ではない。",
   "sources": [
     {
       "id": "necessary_expenses",
       "title": "国税庁 No.2210 必要経費の知識",
       "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2210.htm",
-      "checked_at": "2026-10-21",
+      "checked_at": "2026-10-23",
       "scope": "業務との関係、家事関連費、必要経費にならない支出、期間の考え方"
     },
     {
       "id": "depreciation",
       "title": "国税庁 No.2100 減価償却のあらまし",
       "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm",
-      "checked_at": "2026-10-21",
+      "checked_at": "2026-10-23",
       "scope": "資産、取得価額、経理方式、条件により異なる少額資産の取扱い。特例の適用は自動判定しない"
+    },
+    {
+      "id": "freee_account_items",
+      "title": "freee 取引入力ナビ 勘定科目の一覧",
+      "url": "https://navi.freee.co.jp/account_items",
+      "checked_at": "2026-10-23",
+      "scope": "科目名の参考。個人事業主の支出に関する科目を選び、カテゴリー・用途例・確認事項は本アプリで作成。freeeの分類や税務判断との同一性は保証しない"
     }
   ],
   "accounts": [
@@ -70,7 +77,8 @@
           "返品",
           "返金"
         ]
-      }
+      },
+      "category_id": "supplies"
     },
     {
       "code": "E102",
@@ -112,7 +120,8 @@
           "ロードバランサー"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "it"
     },
     {
       "code": "E103",
@@ -155,7 +164,8 @@
           "料金所"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "travel"
     },
     {
       "code": "E104",
@@ -182,7 +192,8 @@
           "商談"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "sales"
     },
     {
       "code": "E105",
@@ -210,7 +221,8 @@
           "会食"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "sales"
     },
     {
       "code": "E106",
@@ -243,7 +255,8 @@
           "検索連動型"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "sales"
     },
     {
       "code": "E107",
@@ -277,7 +290,8 @@
           "入門書"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "learning"
     },
     {
       "code": "E108",
@@ -306,7 +320,8 @@
           "コワーキング"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "office"
     },
     {
       "code": "E109",
@@ -335,7 +350,8 @@
           "電力料金"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "office"
     },
     {
       "code": "E110",
@@ -368,7 +384,8 @@
           "1年分",
           "年払い"
         ]
-      }
+      },
+      "category_id": "tax_finance"
     },
     {
       "code": "E111",
@@ -408,7 +425,8 @@
           "ウェブサイト制作"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "outsourcing"
     },
     {
       "code": "E112",
@@ -437,7 +455,8 @@
           "発送用梱包"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "sales"
     },
     {
       "code": "E113",
@@ -467,7 +486,8 @@
           "洗浄"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "office"
     },
     {
       "code": "E114",
@@ -494,7 +514,8 @@
           "火災保険"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "tax_finance"
     },
     {
       "code": "E115",
@@ -521,7 +542,8 @@
           "登録免許税"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "tax_finance"
     },
     {
       "code": "E116",
@@ -551,7 +573,8 @@
           "研修プラン"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "learning"
     },
     {
       "code": "E117",
@@ -579,7 +602,8 @@
           "諸会費"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "other"
     },
     {
       "code": "E118",
@@ -613,7 +637,8 @@
         "unless_any": [
           "レンタルサーバー"
         ]
-      }
+      },
+      "category_id": "office"
     },
     {
       "code": "E119",
@@ -634,7 +659,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "other"
     },
     {
       "code": "E120",
@@ -662,7 +688,8 @@
           "専門家報酬"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "outsourcing"
     },
     {
       "code": "E121",
@@ -687,7 +714,8 @@
           "従業員慶弔"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "staff"
     },
     {
       "code": "E122",
@@ -714,7 +742,8 @@
           "賃金"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "staff"
     },
     {
       "code": "E123",
@@ -741,7 +770,8 @@
           "支払利息"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "tax_finance"
     },
     {
       "code": "E124",
@@ -766,7 +796,8 @@
           "試作材料"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "learning"
     },
     {
       "code": "E125",
@@ -792,7 +823,8 @@
           "製造用材料"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "purchases"
     },
     {
       "code": "A101",
@@ -839,7 +871,8 @@
           "返金",
           "部品交換"
         ]
-      }
+      },
+      "category_id": "assets"
     },
     {
       "code": "A102",
@@ -865,7 +898,8 @@
           "ソフトウェア買切"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "assets"
     },
     {
       "code": "A103",
@@ -890,7 +924,8 @@
           "営業用自動車"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "assets"
     },
     {
       "code": "A104",
@@ -919,7 +954,8 @@
           "年間契約"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "assets"
     },
     {
       "code": "B101",
@@ -937,7 +973,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "settlement"
     },
     {
       "code": "B102",
@@ -955,7 +992,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "settlement"
     },
     {
       "code": "L101",
@@ -973,7 +1011,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "settlement"
     },
     {
       "code": "O101",
@@ -991,7 +1030,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "settlement"
     },
     {
       "code": "O102",
@@ -1009,7 +1049,8 @@
       "hints": {
         "any": [],
         "unless_any": []
-      }
+      },
+      "category_id": "settlement"
     },
     {
       "code": "E126",
@@ -1040,7 +1081,8 @@
           "車検"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "travel"
     },
     {
       "code": "E127",
@@ -1075,7 +1117,8 @@
           "チラシ"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "sales"
     },
     {
       "code": "E128",
@@ -1104,7 +1147,8 @@
           "製造材料"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "purchases"
     },
     {
       "code": "A105",
@@ -1128,7 +1172,1041 @@
           "長期前払"
         ],
         "unless_any": []
-      }
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "E129",
+      "name": "事務用品費",
+      "kind": "expense",
+      "description": "事務で使う用紙・筆記具等の購入",
+      "example": "事務で使う用紙・筆記具等の購入",
+      "aliases": [],
+      "review_questions": [
+        "事務用品を他の消耗品と区別して管理するか",
+        "機器等は資産としての検討が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "事務用品費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "supplies"
+    },
+    {
+      "code": "E130",
+      "name": "販売促進費",
+      "kind": "expense",
+      "description": "販売促進のためのキャンペーン・販促物等",
+      "example": "販売促進のためのキャンペーン・販促物等",
+      "aliases": [],
+      "review_questions": [
+        "事業の販売促進のための支出か",
+        "広告宣伝費等との区分を継続して扱うか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "販売促進費",
+          "販促物"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "sales"
+    },
+    {
+      "code": "E131",
+      "name": "外注費",
+      "kind": "expense",
+      "description": "外部事業者に委託した作業等への対価",
+      "example": "外部事業者に委託した作業等への対価",
+      "aliases": [],
+      "review_questions": [
+        "委託した業務の内容・期間",
+        "給与・資産取得・源泉徴収等の確認が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "外注費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "outsourcing"
+    },
+    {
+      "code": "E132",
+      "name": "支払利息",
+      "kind": "expense",
+      "description": "事業の借入金等について支払う利息",
+      "example": "事業の借入金等について支払う利息",
+      "aliases": [],
+      "review_questions": [
+        "事業のための借入か",
+        "元本の返済と利息を分けたか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "支払利息"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "tax_finance"
+    },
+    {
+      "code": "E133",
+      "name": "リース料",
+      "kind": "expense",
+      "description": "事業用の物品・設備のリース契約に基づく支払",
+      "example": "事業用の物品・設備のリース契約に基づく支払",
+      "aliases": [],
+      "review_questions": [
+        "契約の対象・期間",
+        "資産計上を含む契約の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "リース料"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "office"
+    },
+    {
+      "code": "E134",
+      "name": "衛生費",
+      "kind": "expense",
+      "description": "事業所等の衛生維持に関する支出",
+      "example": "事業所等の衛生維持に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "事業用の衛生管理か",
+        "材料・消耗品等との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "衛生費",
+          "衛生管理"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "office"
+    },
+    {
+      "code": "E135",
+      "name": "管理費",
+      "kind": "expense",
+      "description": "事業所等の管理契約に関する支払",
+      "example": "事業所等の管理契約に関する支払",
+      "aliases": [],
+      "review_questions": [
+        "契約の対象・期間",
+        "家事共用や保証金等が含まれないか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "管理費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "office"
+    },
+    {
+      "code": "E136",
+      "name": "雑給",
+      "kind": "expense",
+      "description": "臨時雇用等に対して支払う給与",
+      "example": "臨時雇用等に対して支払う給与",
+      "aliases": [],
+      "review_questions": [
+        "雇用・支払の対象者と対象期間",
+        "給与台帳・源泉徴収等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "雑給",
+          "臨時雇用"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E137",
+      "name": "採用教育費",
+      "kind": "expense",
+      "description": "従業員の募集・採用・教育に関する支出",
+      "example": "従業員の募集・採用・教育に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "従業員の採用・教育に関する支出か",
+        "給与や研修費等との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "採用教育費",
+          "採用広告"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E138",
+      "name": "取材費",
+      "kind": "expense",
+      "description": "事業の取材・調査に直接関係する支出",
+      "example": "事業の取材・調査に直接関係する支出",
+      "aliases": [],
+      "review_questions": [
+        "取材・調査の目的と業務との関係",
+        "交通費・飲食費等との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "取材費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "learning"
+    },
+    {
+      "code": "E139",
+      "name": "賞与",
+      "kind": "expense",
+      "description": "従業員に支給する賞与",
+      "example": "従業員に支給する賞与",
+      "aliases": [],
+      "review_questions": [
+        "支給対象者・対象期間",
+        "給与台帳・源泉徴収等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "賞与"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E140",
+      "name": "専従者給与",
+      "kind": "expense",
+      "description": "事業専従者への給与として検討する支払",
+      "example": "事業専従者への給与として検討する支払",
+      "aliases": [],
+      "review_questions": [
+        "青色事業専従者給与等の要件・届出・金額を確認したか",
+        "通常の家族への支払と区別し税理士へ確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "専従者給与"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E141",
+      "name": "退職金",
+      "kind": "expense",
+      "description": "従業員の退職に伴う支払",
+      "example": "従業員の退職に伴う支払",
+      "aliases": [],
+      "review_questions": [
+        "退職の事実・支給規程・対象者",
+        "源泉徴収等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "退職金"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E142",
+      "name": "退職金掛金",
+      "kind": "expense",
+      "description": "従業員の退職金制度等に関する掛金",
+      "example": "従業員の退職金制度等に関する掛金",
+      "aliases": [],
+      "review_questions": [
+        "制度の種類・対象者・支払期間",
+        "事業主本人の所得控除等との違いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "退職金掛金"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E143",
+      "name": "燃料費",
+      "kind": "expense",
+      "description": "事業用の車両や機器等に使用する燃料",
+      "example": "事業用の車両や機器等に使用する燃料",
+      "aliases": [],
+      "review_questions": [
+        "事業用の燃料か",
+        "車両費等との区分と家事按分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "燃料費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "travel"
+    },
+    {
+      "code": "E144",
+      "name": "販売手数料",
+      "kind": "expense",
+      "description": "販売に伴う仲介・決済・販売委託等の手数料",
+      "example": "販売に伴う仲介・決済・販売委託等の手数料",
+      "aliases": [],
+      "review_questions": [
+        "手数料の対象となる取引",
+        "売上との相殺や二重計上がないか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "販売手数料"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "sales"
+    },
+    {
+      "code": "E145",
+      "name": "法定福利費",
+      "kind": "expense",
+      "description": "事業主が負担する従業員の社会保険料等",
+      "example": "事業主が負担する従業員の社会保険料等",
+      "aliases": [],
+      "review_questions": [
+        "従業員負担分の預り金と区別したか",
+        "事業主本人の社会保険料等と区別したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "法定福利費",
+          "事業主負担分"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "staff"
+    },
+    {
+      "code": "E146",
+      "name": "種苗費",
+      "kind": "expense",
+      "description": "栽培等に使う種・苗の購入",
+      "example": "栽培等に使う種・苗の購入",
+      "aliases": [],
+      "review_questions": [
+        "農業の事業用か",
+        "育成する資産等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "種苗費",
+          "種苗"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "agriculture"
+    },
+    {
+      "code": "E147",
+      "name": "肥料費",
+      "kind": "expense",
+      "description": "農業の事業に使う肥料等の購入",
+      "example": "農業の事業に使う肥料等の購入",
+      "aliases": [],
+      "review_questions": [
+        "農業の事業用か",
+        "期末在庫等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "肥料費",
+          "肥料"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "agriculture"
+    },
+    {
+      "code": "E148",
+      "name": "農薬衛生費",
+      "kind": "expense",
+      "description": "農業の事業に使う農薬・衛生資材等",
+      "example": "農業の事業に使う農薬・衛生資材等",
+      "aliases": [],
+      "review_questions": [
+        "農業の事業用か",
+        "対象期間と期末在庫等の扱いを確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "農薬衛生費",
+          "農薬"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "agriculture"
+    },
+    {
+      "code": "E149",
+      "name": "農具費",
+      "kind": "expense",
+      "description": "農業の事業に使う農具等の購入",
+      "example": "農業の事業に使う農具等の購入",
+      "aliases": [],
+      "review_questions": [
+        "農業の事業用か",
+        "機械・高額な農具は資産計上の検討が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "農具費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "agriculture"
+    },
+    {
+      "code": "A106",
+      "name": "一括償却資産",
+      "kind": "asset",
+      "description": "一括償却の取扱いを検討する事業用資産",
+      "example": "一括償却の取扱いを検討する事業用資産",
+      "aliases": [],
+      "review_questions": [
+        "対象資産・取得価額・取得時期",
+        "適用する経理方法と制度の要件を専門家へ確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "一括償却資産"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A107",
+      "name": "開業費",
+      "kind": "asset",
+      "description": "開業準備の支出として繰延資産の扱いを検討するもの",
+      "example": "開業準備の支出として繰延資産の扱いを検討するもの",
+      "aliases": [],
+      "review_questions": [
+        "開業日と支出内容・時期",
+        "通常の経費や固定資産等との区別を専門家へ確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "開業費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A108",
+      "name": "開発費",
+      "kind": "asset",
+      "description": "開発等の支出について繰延資産の扱いを検討するもの",
+      "example": "開発等の支出について繰延資産の扱いを検討するもの",
+      "aliases": [],
+      "review_questions": [
+        "支出内容・対象期間",
+        "当期費用や固定資産等との区別を専門家へ確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "開発費"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A109",
+      "name": "建物",
+      "kind": "asset",
+      "description": "事業用建物の取得・建設に関する支出",
+      "example": "事業用建物の取得・建設に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "取得対象と事業使用割合",
+        "土地・附属設備・諸費用の区分と償却を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "建物売買",
+          "新築工事"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A110",
+      "name": "建物附属設備",
+      "kind": "asset",
+      "description": "建物に附属する設備等の取得に関する支出",
+      "example": "建物に附属する設備等の取得に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "建物・設備のどちらの取得か",
+        "修繕との区分・事業割合・償却を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "建物附属設備"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A111",
+      "name": "構築物",
+      "kind": "asset",
+      "description": "事業用の構築物等の取得・建設に関する支出",
+      "example": "事業用の構築物等の取得・建設に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "取得する構築物の内容",
+        "修繕との区分・事業割合・償却を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "構築物"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A112",
+      "name": "機械装置",
+      "kind": "asset",
+      "description": "事業用の機械・装置等の取得に関する支出",
+      "example": "事業用の機械・装置等の取得に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "事業用の取得か",
+        "設置費等の取得価額と償却を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "機械装置"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A113",
+      "name": "土地",
+      "kind": "asset",
+      "description": "事業用の土地の取得に関する支出",
+      "example": "事業用の土地の取得に関する支出",
+      "aliases": [],
+      "review_questions": [
+        "事業用の取得か",
+        "建物・諸費用との区分を確認したか。土地は減価償却の対象外"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "土地売買",
+          "土地取得"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A114",
+      "name": "敷金",
+      "kind": "asset",
+      "description": "賃貸等の契約で差し入れる敷金",
+      "example": "賃貸等の契約で差し入れる敷金",
+      "aliases": [],
+      "review_questions": [
+        "返還される部分と返還されない部分",
+        "家賃・権利金等との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "敷金"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A115",
+      "name": "差入保証金",
+      "kind": "asset",
+      "description": "契約等に基づき差し入れる保証金",
+      "example": "契約等に基づき差し入れる保証金",
+      "aliases": [],
+      "review_questions": [
+        "契約の対象と返還条件",
+        "返還されない部分や経費との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "差入保証金"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A116",
+      "name": "前払金",
+      "kind": "asset",
+      "description": "商品・サービスの提供前に支払う代金等",
+      "example": "商品・サービスの提供前に支払う代金等",
+      "aliases": [],
+      "review_questions": [
+        "納品・役務提供が済んでいるか",
+        "前払費用や当期費用との区分を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "前払金"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A117",
+      "name": "商品",
+      "kind": "asset",
+      "description": "販売目的で保有する商品の購入",
+      "example": "販売目的で保有する商品の購入",
+      "aliases": [],
+      "review_questions": [
+        "販売用の商品か",
+        "仕入高との扱い・期末棚卸の整理を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "商品仕入"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A118",
+      "name": "原材料",
+      "kind": "asset",
+      "description": "製品の製造等に使う原材料の購入",
+      "example": "製品の製造等に使う原材料の購入",
+      "aliases": [],
+      "review_questions": [
+        "事業で製造等に使う材料か",
+        "材料費との扱い・期末棚卸の整理を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "原材料"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A119",
+      "name": "仕掛品",
+      "kind": "asset",
+      "description": "製造・制作等の途中段階にあるものの原価",
+      "example": "製造・制作等の途中段階にあるものの原価",
+      "aliases": [],
+      "review_questions": [
+        "未完成の対象と対応する原価",
+        "当期費用・完成品との区分や棚卸を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "仕掛品"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
+    },
+    {
+      "code": "A120",
+      "name": "貯蔵品",
+      "kind": "asset",
+      "description": "未使用の消耗品・資材等として管理するもの",
+      "example": "未使用の消耗品・資材等として管理するもの",
+      "aliases": [],
+      "review_questions": [
+        "未使用の内容・数量・取得価額",
+        "使用済みの経費との区分や棚卸を確認したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation",
+        "freee_account_items"
+      ],
+      "hints": {
+        "any": [
+          "貯蔵品"
+        ],
+        "unless_any": [
+          "返品",
+          "返金"
+        ]
+      },
+      "category_id": "assets"
     }
   ],
   "policies": [
@@ -1554,6 +2632,123 @@
       ],
       "sources": [
         "necessary_expenses"
+      ]
+    }
+  ],
+  "account_categories": [
+    {
+      "id": "supplies",
+      "label": "文具・備品",
+      "description": "文具や日常の事務用品の支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "it",
+      "label": "通信・IT",
+      "description": "電話・通信回線・オンラインサービスの支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "travel",
+      "label": "交通・車両",
+      "description": "出張・移動・事業用車両に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "office",
+      "label": "家賃・設備",
+      "description": "事業所の利用・維持・修繕に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "sales",
+      "label": "営業・販売",
+      "description": "営業活動・広告・販売・発送に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "learning",
+      "label": "資料・学習",
+      "description": "書籍・取材・研修・研究に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "outsourcing",
+      "label": "外注・専門家",
+      "description": "外部への作業委託や専門家への報酬",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "staff",
+      "label": "人件費・福利厚生",
+      "description": "従業員への給与・福利厚生等に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "tax_finance",
+      "label": "税金・保険・金融",
+      "description": "事業に関する税・保険・利息・手数料",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "purchases",
+      "label": "仕入・製造",
+      "description": "販売する商品や製造材料の仕入れ",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "agriculture",
+      "label": "農業",
+      "description": "種苗・肥料等の農業に関する支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "assets",
+      "label": "資産・開業",
+      "description": "設備・在庫・前払・保証金・開業等の資産候補",
+      "kinds": [
+        "asset"
+      ]
+    },
+    {
+      "id": "other",
+      "label": "その他の経費",
+      "description": "上記のカテゴリーに含まれない事業上の支出",
+      "kinds": [
+        "expense"
+      ]
+    },
+    {
+      "id": "settlement",
+      "label": "支払元・事業主",
+      "description": "支払方法から仕訳の相手科目に使う勘定",
+      "kinds": [
+        "cash",
+        "bank",
+        "liability",
+        "equity"
       ]
     }
   ]

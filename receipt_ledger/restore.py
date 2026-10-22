@@ -100,7 +100,7 @@ def _restore_legacy(archive, destination, password):
                     raise ValueError("帳簿データが破損しています。別のバックアップを選んでください")
                 if db.execute("PRAGMA foreign_key_check").fetchone():
                     raise ValueError("帳簿内の参照に不整合があります。別のバックアップを選んでください")
-                if db.execute("PRAGMA user_version").fetchone()[0] > 2:
+                if db.execute("PRAGMA user_version").fetchone()[0] > 3:
                     raise ValueError("新しい版の帳簿です。Ryoshuを更新してから復元してください")
                 receipts = db.execute("SELECT id,extension,sha256 FROM receipts").fetchall()
                 if manifest.get("receipts") != len(receipts):
