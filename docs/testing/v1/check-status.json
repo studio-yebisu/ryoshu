@@ -1,0 +1,26 @@
+{
+  "source_commit": "1025426d5fe7afe262e64dd8bbe637ebada36d47",
+  "local_python_tests": 119,
+  "local_folder_tests": 3,
+  "browser_checks": 21,
+  "browser_inference": "saved observation replay",
+  "powershell_syntax_files": 5,
+  "github_checks": [
+    {
+      "status": "success",
+      "url": "https://github.com/studio-yebisu/ryoshu/actions/runs/39670725891"
+    },
+    {
+      "status": "success",
+      "url": "https://github.com/studio-yebisu/ryoshu/actions/runs/39670716600"
+    }
+  ],
+  "normal_ai_100_rerun": "pending: local Ollama service not ready",
+  "release": "candidate: not tagged or merged to main",
+  "scope": "Snapshot of candidate1025426; not a current release-status API.",
+  "recorded_on": "2026-10-22",
+  "remaining_validation": [
+    "normal local OCR/AI100 run after Ollama is available",
+    "real Windows launcher start/stop smoke with the prepared local environment"
+  ]
+}

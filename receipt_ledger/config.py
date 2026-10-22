@@ -13,6 +13,8 @@ PORT = int(os.environ.get("RECEIPT_LEDGER_PORT", "8766"))
 MAX_BYTES = 20 * 1024 * 1024
 MAX_PAGES = 10
 MAX_FILES = 50
+MAX_SPLIT_PAGES = 300
+MAX_REQUEST_BYTES = 64 * 1024 * 1024
 
 # No credentials, telemetry, or remote inference are used by this application.
 os.environ["HF_HOME"] = str(CACHE_DIR / "huggingface")

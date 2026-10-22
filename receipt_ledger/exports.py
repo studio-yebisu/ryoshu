@@ -107,7 +107,7 @@ def build_export(records, profile="generic", month="", kind="journal", tax_mode=
     result = Export(columns, [], [], [], "cp932" if profile == "yayoi" else "utf-8-sig", profile != "yayoi")
     if tax_mode == "exempt": result.warnings.append("免税事業者の税込記帳として、全行の消費税区分を対象外で出力します。")
     result.warnings.append("同じCSVを再取り込みすると重複することがあります。取込先で件数・借貸合計・科目の対応を確認してください。")
-    if profile == "freee": result.warnings.append("振替伝票として取り込みます。取込設定で名称列と税込金額を選択してください。口座・科目の対応はfreeeで確認します。")
+    if profile == "freee": result.warnings.append("振替伝票として取り込みます。名称列と税込金額を選択し、口座・科目の対応を確認してください。取引先列には支払先名を出力します。freeeでは未登録の取引先が新しいタグとして登録されます。")
     if profile == "yayoi": result.warnings.append("25項目・ヘッダーなし。摘要は半角64桁、仕訳メモは半角180桁までです。長い内容は証憑IDを残して短縮します。")
     def issue(r, message): result.issues.append({"id":r["id"], "file":r["original_name"], "message":message})
     for number, r in enumerate(confirmed(records, month), 1):
@@ -122,7 +122,7 @@ def build_export(records, profile="generic", month="", kind="journal", tax_mode=
         try: tax=tax_labels("outside" if tax_mode=="exempt" else d.get("export_tax", ""), d["date"])
         except ValueError as exc: issue(r,str(exc));continue
         if d.get("tax_rate")=="mixed" and d.get("export_tax") not in {"outside", "non_taxable"} and tax_mode!="exempt":
-            issue(r,"8%と10%が混在しています。単一の税区分では出力できません。内訳を分けてから登録してください");continue
+            issue(r,"8%と10%が混在しています。汎用CSVと原本を使い、会計ソフト側で内訳を分けてください");continue
         mapped={}
         failed=False
         for line in debit+credit:

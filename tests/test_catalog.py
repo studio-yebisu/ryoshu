@@ -30,7 +30,7 @@ def test_master_is_persistent_and_user_definitions_are_not_reseeded(tmp_path):
     store=Store(tmp_path)
     assert len(store.accounts(False))==38
     assert len(store.accounts())==33
-    assert len(store.policies())==14
+    assert len(store.policies())==15
     with store.connect() as db:
         assert db.execute("PRAGMA foreign_keys").fetchone()[0]==1
         db.execute("UPDATE account_master SET description='手動で決めた独自の説明' WHERE code='E101'")
@@ -56,7 +56,7 @@ def test_seed_upgrade_preserves_manual_fields_and_existing_journal(tmp_path,monk
     refund=next(p for p in upgraded.policies() if p['code']=='P_REFUND')
     assert refund['message']=='独自の確認文' and refund['match']=={'document_flag':'refund'}
     assert upgraded.get(r['id'])['posting']==r['posting']
-    assert len(upgraded.accounts(False))==38 and len(upgraded.policies())==14
+    assert len(upgraded.accounts(False))==38 and len(upgraded.policies())==15
 
 
 def test_posting_is_balanced_normalized_and_foreign_keys_are_enforced(tmp_path):

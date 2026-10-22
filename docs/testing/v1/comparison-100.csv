@@ -1,0 +1,101 @@
+﻿id,expected_date,actual_date,expected_merchant,actual_merchant,expected_total,actual_total,expected_accounts,actual_account,expected_decision,actual_decision,amount_exact,date_exact,merchant_exact,account_or_decision_exact,decision_exact
+V001,2023-11-02,2023-11-02,コンビニ みちのく,コンビニ みちのく,1760,1760,消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V002,2024-03-16,2024-03-16,スーパー いちばん星,スーパー いちばん星 テスト市店,6964,6964,,,hold,hold,True,True,False,True,True
+V003,2021-06-30,2021-06-30,本と文具 ことば舎,本と文具 ことば舎,4290,4290,図書費 / 研修費,新聞図書費,hold,propose,True,True,True,False,False
+V004,2022-12-14,2022-12-14,電器専門店 デンキノハコ,電器専門店 デンキノハコ,91280,91280,,工具器具備品,asset_review,asset_review,True,True,True,True,True
+V005,2020-08-24,2020-08-24,資材センター たてものや,資材センター たてものや,11008,11008,修繕費 / 消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V006,,,画材 ときわ堂,画材ときわ堂,9000,9000,,消耗品費,hold,hold,True,True,True,False,True
+V007,2019-05-07,2019-05-07,文具 ほしぞら堂,文具 ほしぞら堂,4422,4422,消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V008,2024-09-09,2024-09-09,ベーカリー ひだまり,ベーカリー ひだまり,2276,2276,,,hold,hold,True,True,True,True,True
+V009,2025-01-12,2025-01-12,カフェ つきよみ,カフェ つきよみ,3052,3052,,,hold,hold,True,True,True,True,True
+V010,2023-04-05,2023-04-05,ワーク&タウン みらい店,ワーク&タウン みらい店,10500,10500,,,hold,hold,True,True,True,True,True
+V011,2024-05-22,2024-05-20,フラワー&グリーン しきさい,フラワー&グリーン しきさい,6600,6600,,,block,block,True,False,True,True,True
+V012,2024-10-03,2024-10-03,八百屋 あづまや,八百屋 あづまや,3534,3534,,,hold,hold,True,True,True,True,True
+V013,2023-08-11,2023-08-11,スタンド ながれやま給油所,スタンド ながれやま給油所,6091,6091,車両費,車両費,hold,propose,True,True,True,False,False
+V014,2021-11-19,2021-11-19,中古機器 りさいくる市場,中古機器 りさいくる市場,60000,60000,,,asset_review,asset_review,True,True,True,True,True
+V015,2024-09-30,2024-09-30,卸売 オフィスサプライ山川,卸売 オフィスサプライ山川,81840,81840,消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V016,2024-07-18,2024-07-18,テストショップ(架空EC),テストショップ運営(架空),7610,7610,消耗品費 / 印刷製本費,印刷製本費,propose,propose,True,True,False,True,True
+V017,2022-06-30,2022-06-30,ドラッグストア くすりのもり,ドラッグストア くすりのもり,1690,1690,消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V018,2025-02-14,2025-02-14,ホームセンター きぼう館,ホームセンター きぼう館,3274,3274,消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V019,2024-07-25,2024-07-25,電器専門店 デンキノハコ,電器専門店 デンキノハコ,-1480,1480,,,block,block,,True,True,True,True
+V020,,,八百 たなか,八百 たなか,970,970,,,hold,hold,True,True,True,True,True
+V021,2023-11-08,2023-11-08,みずほ架空交通,みずほ架空交通,3280,3280,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V022,2024-06-14,2024-06-14,こはくタクシー,こはくタクシー,4600,4600,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V023,2022-04-03,2022-04-03,空想沿岸鉄道 テスト中央駅,空想沿岸鉄道 テスト中央駅,1180,1180,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V024,2025-02-20,2025-02-20,空想高速鉄道,空想高速鉄道,18240,18240,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V025,2024-07-10,2024-07-10,AOZORA FICTION AIR,AOZORA FICTION AIR,32900,32900,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V026,2021-12-09,2021-12-09,空想道路サービス,空想道路サービス,860,860,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V027,2026-01-17,2026-01-17,そよかぜ架空パーキング,そよかぜ架空パーキング,1400,1400,旅費交通費,旅費交通費,propose,propose,True,True,True,True,True
+V028,2025-09-12,2025-09-12,ホテル架空庭,ホテル架空庭,14500,14500,,,hold,hold,True,True,True,True,True
+V029,2023-10-22,2023-10-22,旅館 つきの架空庵,旅館 つきの架空庵,16000,16000,旅費交通費,旅費交通費,hold,propose,True,True,True,False,False
+V030,2024-05-08,2024-05-08,架空ワークラウンジ,架空ワークラウンジ,2200,2200,賃借料 / 会議費,賃借料,propose,propose,True,True,True,True,True
+V031,2025-06-19,2025-06-19,架空スペース管理合同会社,架空スペース管理合同会社,8100,8100,会議費 / 賃借料,会議費,propose,propose,True,True,True,True,True
+V032,2024-12-25,2024-12-25,架空デザイン室,架空デザイン室,66000,66000,外注費,外注工賃,propose,propose,True,True,True,True,True
+V033,2025-04-16,2025-04-16,架空みどり法律事務所,架空みどり法律事務所,29937,29937,,,hold,hold,True,True,True,True,True
+V034,2023-08-01,2023-08-01,学びの架空社,学びの架空社,5000,5000,研修費,研修費,propose,propose,True,True,True,True,True
+V035,2022-11-03,2022-11-03,テスト市文化交流会（架空団体）,テスト市文化交流会（架空団体）,1800,1800,,,hold,hold,True,True,True,True,True
+V036,2026-02-06,2026-02-06,STUDIO 空想光,STUDIO 空想光,18150,18150,賃借料 / 外注費,賃借料,propose,propose,True,True,True,True,True
+V037,2024-03-12,2024-03-12,架空便,架空便,1450,1450,荷造運賃,荷造運賃,propose,propose,True,True,True,True,True
+V038,2025-10-03,2025-10-03,FICTION CLOUD STUDIO,FICTION CLOUD STUDIO,,,,,hold,hold,True,True,True,True,True
+V039,2022-05-16,2022-05-16,架空ことば研究会,架空ことば研究会,20000,20000,,,hold,hold,True,True,True,True,True
+V040,2026-03-02,2026-03-02,架空調査パートナーズ,架空調査パートナーズ,88000,88000,,,block,block,True,True,True,True,True
+V041,2024-06-03,2024-06-03,テスト電力株式会社,テスト電力株式会社,25968,25968,,,block,block,True,True,True,True,True
+V042,2024-05-14,2024-05-14,テスト都市ガス株式会社,テスト都市ガス株式会社,4437,4437,水道光熱費,水道光熱費,propose,propose,True,True,True,True,True
+V043,2024-06-18,2024-06-18,テスト市水道局（架空）,テスト市水道局,3410,3410,水道光熱費,水道光熱費,propose,propose,True,True,False,True,True
+V044,2024-06-27,2024-06-27,架空モバイル通信株式会社,架空モバイル通信株式会社,13479,13479,通信費,通信費,propose,propose,True,True,True,True,True
+V045,2024-04-08,2024-04-08,テスト光ネットワーク株式会社,テスト光ネットワーク株式会社,8980,8980,通信費,通信費,propose,propose,True,True,True,True,True
+V046,2024-06-01,2024-06-01,TEST CLOUD（架空クラウド事業者）,TEST CLOUD,30162,30162,通信費 / 支払手数料,通信費,propose,propose,True,True,False,True,True
+V047,2024-03-18,2024-03-18,テストネームサービス株式会社,テストネームサービス株式会社,1122,1122,通信費 / 租税公課,通信費,propose,propose,True,True,True,True,True
+V048,2028-03-05,2028-03-05,テストソフトウェア株式会社,テストソフトウェア株式会社,682000,682000,,,hold,hold,True,True,True,True,True
+V049,2024-02-28,2024-02-28,テスト計測システム株式会社,テスト計測システム株式会社,550000,550000,消耗品費 / 工具器具備品 / 長期前払費用,ソフトウェア,asset_review,asset_review,True,True,True,True,True
+V050,2024-03-05,2024-03-05,テストリース株式会社,テストリース株式会社,28000,28000,リース料 / 地代家賃 / 消耗品費,賃借料,propose,propose,True,True,True,True,True
+V051,2024-06-20,2024-06-20,テスト不動産株式会社,テスト不動産株式会社 / 架空町管理部,165000,165000,地代家賃,地代家賃,propose,propose,True,True,False,True,True
+V052,2024-06-27,2024-06-27,架空住宅管理サービス（架空）,架空住宅管理サービス（架空）,16800,16800,,,hold,hold,True,True,True,True,True
+V053,2024-03-25,2024-03-25,テスト損害保険株式会社,テスト損害保険株式会社,54000,54000,保険料 / 損害保険料,損害保険料,propose,propose,True,True,True,True,True
+V054,2024-05-28,2024-05-28,テストモーター保険株式会社,テストモーター保険株式会社,66200,66200,保険料 / 損害保険料 / 車両費,損害保険料,propose,propose,True,True,True,True,True
+V055,2024-07-01,2024-07-01,TEST BANK 架空支店（架空銀行）,TEST BANK 架空支店,660,660,支払手数料,支払手数料,propose,propose,True,True,False,True,True
+V056,2024-06-27,2024-06-27,テストローン株式会社（架空金融）,テストローン,83900,83900,,,hold,hold,True,True,False,True,True
+V057,2024-06-10,2024-06-10,テスト郵便局（架空）,テスト郵便局,7000,7000,租税公課 / 印刷費,租税公課,propose,propose,True,True,False,True,True
+V058,2024-07-03,2024-07-03,テスト市役所架空町支所（架空）,テスト市役所 架空町支所,300,300,租税公課 / 事務用品費,,hold,hold,True,True,False,True,True
+V059,2024-07-25,2024-07-25,テスト税務署（架空）,テスト税務署,92400,92400,,,hold,block,True,True,False,False,False
+V060,2024-05-20,2024-05-20,テスト市架空町 会計課（架空）,テスト市架空町 会計課,12000,12000,,,hold,block,True,True,False,False,False
+V061,2026-02-03,2026-02-03,イラスト印刷工房 こもれび,イラスト印刷工房 こもれび,187330,187330,印刷費 / 広告宣伝費 / 販売促進費,印刷製本費,propose,propose,True,True,True,True,True
+V062,2027-05-28,2027-05-28,さくら製版印刷 株式会社,さくら製版印刷 株式会社,64900,64900,,,block,block,True,True,True,True,True
+V063,2025-11-11,2025-11-11,パソコン修理 みつばち電機,パソコン修理 みつばち電機,39380,39380,修繕費,修繕費,propose,propose,True,True,True,True,True
+V064,2024-03-09,2024-03-09,架空パーツ館 テスト店,架空パーツ館 テスト店,284130,284130,工具器具備品 / 備品費,工具器具備品,asset_review,asset_review,True,True,True,True,True
+V065,2023-09-21,2023-09-21,テスト市家具 リビング館,テスト市家具 リビング館,273900,273900,工具器具備品 / 備品費,,asset_review,asset_review,True,True,True,True,True
+V066,2024-04-10,2024-04-10,架空撮影機材 テスト市レンタル,架空撮影機材 テスト市レンタル,73590,73590,賃借料 / レンタル料,賃借料,propose,propose,True,True,True,True,True
+V067,2022-12-20,2022-12-20,架空スタジオ 音色,架空スタジオ 音色,291280,291280,賃借料 / 外注費,外注工賃,propose,propose,True,True,True,True,True
+V068,2025-08-25,2025-08-25,架空広告代理店 ネクストテスト,架空広告代理店 ネクストテスト,1342000,1342000,広告宣伝費 / 販売促進費 / 雑費,広告宣伝費,propose,propose,True,True,True,True,True
+V069,2024-02-20,2024-02-20,架空物産卸 株式会社,架空物産卸 株式会社,230340,230340,仕入高 / 消耗品費,消耗品費,propose,propose,True,True,True,True,True
+V070,2025-06-03,2025-06-03,かんぷパッケージ テスト店,かんぶパッケージ テスト店,7370,7370,消耗品費 / 荷造運賃,消耗品費,propose,propose,True,True,False,True,True
+V071,2024-06-14,2024-06-14,架空電子 部品センター テスト支店,架空電子 部品センター テスト支店,587290,587290,,,block,block,True,True,True,True,True
+V072,2025-12-18,2025-12-18,架空製作 株式会社 出版部,架空製作 株式会社 出版部,440000,440000,,,block,block,True,True,True,True,True
+V073,2024-04-01,2024-04-01,学習ラボ オンライン,学習ラボ オンライン,39600,39600,研修費 / 教育研修費,,propose,hold,True,True,True,False,False
+V074,,,架空専門職 協会,架空専門職 協会,18000,18000,諸会費,諸会費,hold,hold,True,True,True,False,True
+V075,2025-03-02,2025-03-02,架空こども支援基金,架空こども支援基金,30000,30000,,,hold,hold,True,True,True,True,True
+V076,2024-12-24,2024-12-24,架空百貨店 テスト店,架空百貨店 テスト店,16650,16650,,,hold,hold,True,True,True,True,True
+V077,2023-06-30,2023-06-30,架空デリ クッキングテスト,架空デリ クッキングテスト,310200,310200,,,hold,hold,True,True,True,True,True
+V078,,,,,13450,13450,,,hold,block,True,True,True,False,False
+V079,2023-08-30,2023-08-30,架空リゾート テストヴィラ,架空リゾート テストヴィラ,0,0,,,block,block,True,True,True,True,True
+V080,2025-02-14,2025-02-14,架空ストア テスト店,架空ストア テスト店,-14850,14850,,,block,block,,True,True,True,True
+V081,2025-11-14,2025-11-14,酒肴ごちそう みなと亭,酒肴ごちそう みなと亭,8910,8910,,,hold,hold,True,True,True,True,True
+V082,2024-03-08,2024-03-08,架空町モータース,架空町モータース,15950,15950,修繕費 / 車両費,車両費,propose,propose,True,True,True,True,True
+V083,2026-02-19,2026-02-19,架空町セルフSS,架空町セルフSS,6050,6050,車両費 / 旅費交通費,車両費,propose,propose,True,True,True,True,True
+V084,2025-10-03,2025-10-03,Harborlight Digital Ltd.,Harborlight Digital Ltd.,,,,,hold,hold,True,True,True,True,True
+V085,2025-07-22,2025-07-22,テストパーキング架空町第3,テストパーキング架空町第3,1400,1400,旅費交通費 / 車両費,旅費交通費,propose,propose,True,True,True,True,True
+V086,2025-12-05,2025-12-05,ミナトクラウド株式会社,ミナトクラウド株式会社,3850,3850,通信費,通信費,propose,propose,True,True,True,True,True
+V087,,,架空町商店会 青年部,架空町商店会 青年部,5000,5000,諸会費 / 交際費,接待交際費,hold,hold,True,True,True,False,True
+V088,2025-12-20,2025-12-20,特定非営利活動法人 テスト市みらい食堂,テスト市みらい食堂,10000,10000,寄付金,,hold,hold,True,True,False,True,True
+V089,2026-03-14,2026-03-14,スーパーみなと市場 架空町店,スーパーみなと市場 架空町店,3791,3791,,,hold,hold,True,True,True,True,True
+V090,2026-01-31,2026-01-31,言葉舎 水野,言葉舎 水野,99790,99790,外注費,,hold,hold,True,True,True,True,True
+V091,2024-11-14,2024-11-14,ホテル架空ベイテラス,ホテル架空ベイテラス,27900,27900,,,hold,hold,True,True,True,True,True
+V092,2024-03-08,2024-03-08,テスト文具店 架空町本店,テスト文具店 架空町本店,1078,1078,消耗品費 / 事務用品費,消耗品費,propose,propose,True,True,True,True,True
+V093,2023-09-29,2023-09-29,合同会社架空デザイン工房,合同会社架空デザイン工房,132000,132000,外注費 / 広告宣伝費 / 支払手数料,外注工賃,propose,propose,True,True,True,True,True
+V094,2025-02-14,2025-02-14,株式会社テスト電子商会,株式会社テスト電子商会,150106,150106,工具器具備品 / 消耗品費,,asset_review,asset_review,True,True,True,True,True
+V095,,,架空町リサイクル工具,架空町リサイクル工具,6500,6500,工具器具備品 / 消耗品費,消耗品費,hold,hold,True,True,True,False,True
+V096,2025-04-01,2025-04-01,クラウド帳票テスト株式会社,クラウド帳票テスト株式会社,118800,118800,通信費 / 支払手数料 / 前払費用,,hold,hold,True,True,True,True,True
+V097,2025-06-20,2025-06-20,テスト事務機オンライン,テスト事務機オンライン,-11000,33000,,,block,block,,True,True,True,True
+V098,2022-01-31,2022-01-31,架空町空調サービス,架空町空調サービス,55000,55000,修繕費 / 雑費,修繕費,propose,propose,True,True,True,True,True
+V099,2023-12-09,2023-12-09,スーパーテストマート 架空町店,スーパー テス ストマート,2094,2094,,,hold,hold,True,True,False,True,True
+V100,2025-05-17,2025-05-17,一般社団法人テスト経営研究会,一般社団法人テスト経営研究会,16500,16500,研修費 / 教育研修費,研修費,propose,propose,True,True,True,True,True

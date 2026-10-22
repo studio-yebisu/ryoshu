@@ -1,0 +1,13 @@
+{
+  "name": "ryoshu-browser-checks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Optional development checks; Node.js is not required to run Ryoshu.",
+  "scripts": {
+    "test": "node --test tests/import-ui.test.cjs",
+    "test:browser": "node scripts/browser_smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "scope": "Synthetic SQLite dataset and ASGI requests; no OCR or AI; not an import speed benchmark",
+  "count": 2000,
+  "ocr_json_bytes_per_receipt": 103569,
+  "routes": {
+    "list": {
+      "milliseconds": [
+        211.9,
+        250.7,
+        391.1
+      ],
+      "median_ms": 250.7,
+      "response_bytes": 1608014
+    },
+    "detail": {
+      "milliseconds": [
+        48.3,
+        68.2,
+        54.1
+      ],
+      "median_ms": 54.1,
+      "response_bytes": 104390
+    }
+  },
+  "source_sha256": {
+    "receipt_ledger/listing.py": "3afe765a5345731bd4b627408c01e19976e25adcab4af18ed86e420e607c2c1f",
+    "receipt_ledger/server.py": "ea6ffc89927569c523376c0921fc577da63f26f523ce78cbe785fbdeadd6ea07",
+    "scripts/measure_listing.py": "5cfc6d0d809aba67b32de2dbaea34763f4811f6ed9929da317198a4d69d81882"
+  }
+}

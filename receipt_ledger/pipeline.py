@@ -14,6 +14,8 @@ from PIL import Image, ImageOps
 
 from . import config
 from .schemas import Draft, Suggestion
+from .pdf_runtime import serialized
+from .previews import save_preview
 from .catalog import account_key, apply_account_policies, default_accounts, resolve_account, retrieve_accounts
 from .extraction import amount_on_line, compact, document_flags, extract_total, kanji_amount, money_tokens, total_candidates, vertical_text
 
@@ -38,20 +40,31 @@ def row_ordered_text(lines):
     return "\n".join(" ".join(line["text"] for line in sorted(row["lines"],key=lambda l:l["box"][0])) for row in rows)
 
 
+class PdfPageLimit(ValueError):
+    code = "split_required"
+
+
+@serialized
+def validate_pdf(content: bytes):
+    import pypdfium2 as pdfium
+    try:
+        with pdfium.PdfDocument(content) as pdf:
+            if len(pdf) == 0:
+                raise ValueError("PDFにページが見つかりません。空のPDFでないか確認し、パスワード付きの場合は解除してから取り込んでください")
+            if len(pdf) > config.MAX_PAGES:
+                raise PdfPageLimit("11ページ以上のPDFは「1ページずつ、別の領収書にする」を選んで取り込み直してください。1つの取引の続きの場合は、10ページ以下のPDFに分けてください")
+    except ValueError:
+        raise
+    except Exception as exc:
+        raise ValueError("PDFを開けません。破損やパスワード設定を確認してください") from exc
+    return ".pdf"
+
+
 def validate_file(content: bytes):
     if not content or len(content) > config.MAX_BYTES:
         raise ValueError("1ファイル20MBまでの画像・PDFを選んでください")
     if content.startswith(b"%PDF-"):
-        import pypdfium2 as pdfium
-        try:
-            with pdfium.PdfDocument(content) as pdf:
-                if not 1 <= len(pdf) <= config.MAX_PAGES:
-                    raise ValueError("PDFは1〜10ページに分けて取り込んでください")
-        except ValueError:
-            raise
-        except Exception as exc:
-            raise ValueError("PDFを開けません。破損やパスワード設定を確認してください") from exc
-        return ".pdf"
+        return validate_pdf(content)
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
@@ -66,10 +79,13 @@ def validate_file(content: bytes):
                 return extension
     except ValueError:
         raise
+    except (Image.DecompressionBombWarning, Image.DecompressionBombError) as exc:
+        raise ValueError("画像は2500万画素以下に縮小してください") from exc
     except Exception as exc:
         raise ValueError("画像を開けません。JPG・PNG・WebP・PDFに対応しています") from exc
 
 
+@serialized
 def read_receipt(folder: Path, extension: str):
     global _converter
     original = folder / ("original" + extension)
@@ -79,7 +95,7 @@ def read_receipt(folder: Path, extension: str):
             for i, page in enumerate(pdf):
                 bitmap = page.render(scale=min(2, 2048 / max(page.get_size())))
                 try:
-                    bitmap.to_pil().convert("RGB").save(folder / f"preview-{i}.jpg", quality=88)
+                    save_preview(bitmap.to_pil().convert("RGB"), folder / f"preview-{i}.jpg", 88)
                 finally:
                     bitmap.close()
                     page.close()
@@ -90,7 +106,7 @@ def read_receipt(folder: Path, extension: str):
             ocr_input = folder / "normalized.png"
             image.save(ocr_input)
             image.thumbnail((1800, 2400))
-            image.save(folder / "preview-0.jpg", quality=90)
+            save_preview(image, folder / "preview-0.jpg", 90)
     # Setup performs the public model download. Receipt processing uses the cache only.
     import os
     os.environ["HF_HUB_OFFLINE"] = "1"
@@ -303,5 +319,6 @@ def process(store, receipt_id):
             error = "意味判断モデルが時間内に完了しませんでした。再読取するか、OCR本文から入力できます。"
         else:
             error = str(exc)[:500]
-        suggestion=apply_account_policies(fallback(ocr["text"]),ocr["text"],store.accounts(),store.policies()) if ocr else None
+        from .evidence import evidence_text
+        suggestion=apply_account_policies(fallback(ocr["text"]),evidence_text(ocr),store.accounts(),store.policies()) if ocr else None
         store.complete(receipt_id, ocr, suggestion, error)

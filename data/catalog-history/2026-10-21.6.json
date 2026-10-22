@@ -1,0 +1,1530 @@
+{
+  "version": "2026-10-21.6",
+  "description": "個人事業主向けの初期科目・確認条件。科目例はアプリの編集データであり、税務上の自動判定表ではない。",
+  "sources": [
+    {
+      "id": "necessary_expenses",
+      "title": "国税庁 No.2210 必要経費の知識",
+      "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2210.htm",
+      "checked_at": "2026-10-21",
+      "scope": "業務との関係、家事関連費、必要経費にならない支出、期間の考え方"
+    },
+    {
+      "id": "depreciation",
+      "title": "国税庁 No.2100 減価償却のあらまし",
+      "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm",
+      "checked_at": "2026-10-21",
+      "scope": "資産、取得価額、経理方式、条件により異なる少額資産の取扱い。特例の適用は自動判定しない"
+    }
+  ],
+  "accounts": [
+    {
+      "code": "E101",
+      "name": "消耗品費",
+      "kind": "expense",
+      "description": "文具、用紙、少額の事務用品",
+      "example": "文具、用紙、少額の事務用品",
+      "aliases": [
+        "事務用品費"
+      ],
+      "review_questions": [
+        "購入内容が事業用か",
+        "機器は資産計上の検討が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "コピー用紙",
+          "ボールペン",
+          "文具",
+          "事務用品",
+          "プリンター用紙",
+          "インク",
+          "トナー",
+          "ノート",
+          "画材",
+          "絵具",
+          "キャンバス",
+          "封筒",
+          "朱肉",
+          "ゴム印",
+          "のり",
+          "軍手",
+          "梱包テープ",
+          "乾電池",
+          "ゴミ袋",
+          "クリアファイル",
+          "洗剤",
+          "植物",
+          "木ネジ",
+          "ペンキ",
+          "家具",
+          "椅子"
+        ],
+        "unless_any": [
+          "ノートPC",
+          "返品",
+          "返金"
+        ]
+      }
+    },
+    {
+      "code": "E102",
+      "name": "通信費",
+      "kind": "expense",
+      "description": "電話、インターネット、レンタルサーバー",
+      "example": "電話、インターネット、レンタルサーバー",
+      "aliases": [
+        "電話代",
+        "インターネット代"
+      ],
+      "review_questions": [
+        "対象期間",
+        "私用と共用なら事業割合の根拠"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "携帯電話",
+          "電話料金",
+          "インターネット",
+          "光回線",
+          "レンタルサーバー",
+          "ホスティング",
+          "通信料金",
+          "サーバー",
+          "ドメイン",
+          "クラウドサービス",
+          "SaaS",
+          "ライセンス月額",
+          "vCPU",
+          "コンピューティング",
+          "クラウド月額",
+          "クラウド利用",
+          "ロードバランサー"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E103",
+      "name": "旅費交通費",
+      "kind": "expense",
+      "description": "業務の電車、バス、タクシー、出張宿泊",
+      "example": "業務の電車、バス、タクシー、出張宿泊",
+      "aliases": [
+        "交通費",
+        "旅費"
+      ],
+      "review_questions": [
+        "出張・移動の業務目的と行先"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "タクシー",
+          "乗車券",
+          "鉄道",
+          "電車",
+          "バス運賃",
+          "宿泊料金",
+          "ホテル宿泊",
+          "航空券",
+          "新幹線",
+          "旅客運賃",
+          "運賃",
+          "駐車",
+          "高速道路",
+          "宿泊",
+          "ホテル",
+          "旅館",
+          "ETC",
+          "有料道路",
+          "料金所"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E104",
+      "name": "会議費",
+      "kind": "expense",
+      "description": "業務の打合せ、会議室、会議に伴う飲食",
+      "example": "業務の打合せ、会議室、会議に伴う飲食",
+      "aliases": [],
+      "review_questions": [
+        "打合せの目的",
+        "相手と人数",
+        "私的な飲食ではないか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "打合せ",
+          "打ち合わせ",
+          "会議",
+          "商談"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E105",
+      "name": "接待交際費",
+      "kind": "expense",
+      "description": "取引先との会食、贈答、懇親",
+      "example": "取引先との会食、贈答、懇親",
+      "aliases": [
+        "交際費"
+      ],
+      "review_questions": [
+        "相手と事業上の関係",
+        "会食・贈答の目的"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "贈答",
+          "接待",
+          "懇親会",
+          "会食"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E106",
+      "name": "広告宣伝費",
+      "kind": "expense",
+      "description": "広告掲載、販促物、サービスの宣伝",
+      "example": "広告掲載、販促物、サービスの宣伝",
+      "aliases": [
+        "広告費",
+        "販売促進費"
+      ],
+      "review_questions": [
+        "広告した事業・案件と掲載期間"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "広告",
+          "販促",
+          "チラシ印刷",
+          "広告出稿",
+          "広告掲載",
+          "会社案内",
+          "パンフレット",
+          "SNS動画広告",
+          "検索連動型"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E107",
+      "name": "新聞図書費",
+      "kind": "expense",
+      "description": "業務用の専門書、新聞、調査資料",
+      "example": "業務用の専門書、新聞、調査資料",
+      "aliases": [
+        "図書費",
+        "書籍代"
+      ],
+      "review_questions": [
+        "書籍と業務の関係"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "書籍",
+          "技術書",
+          "専門書",
+          "参考書",
+          "新聞",
+          "電子書籍",
+          "資料集",
+          "雑誌",
+          "書名",
+          "入門書"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E108",
+      "name": "地代家賃",
+      "kind": "expense",
+      "description": "事務所、作業場、コワーキングの賃料",
+      "example": "事務所、作業場、コワーキングの賃料",
+      "aliases": [
+        "家賃"
+      ],
+      "review_questions": [
+        "賃借した期間と場所",
+        "共用なら事業割合の根拠"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "事務所賃料",
+          "事務所家賃",
+          "地代",
+          "作業場賃料",
+          "コワーキング"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E109",
+      "name": "水道光熱費",
+      "kind": "expense",
+      "description": "業務で使った電気、ガス、水道",
+      "example": "業務で使った電気、ガス、水道",
+      "aliases": [
+        "光熱費",
+        "電気代"
+      ],
+      "review_questions": [
+        "利用期間",
+        "共用なら事業割合の根拠"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "電気料金",
+          "ガス料金",
+          "水道料金",
+          "電力料金"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E110",
+      "name": "支払手数料",
+      "kind": "expense",
+      "description": "振込・決済手数料、月額SaaS等のサービス料",
+      "example": "振込・決済手数料、月額SaaS等のサービス料",
+      "aliases": [
+        "手数料"
+      ],
+      "review_questions": [
+        "サービスの内容と期間",
+        "買切り資産・前払ではないか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "振込手数料",
+          "決済手数料",
+          "月額SaaS",
+          "SaaS利用料",
+          "制作サービス月額"
+        ],
+        "unless_any": [
+          "年額",
+          "1年分",
+          "年払い"
+        ]
+      }
+    },
+    {
+      "code": "E111",
+      "name": "外注工賃",
+      "kind": "expense",
+      "description": "制作、デザイン、プログラム等の業務委託",
+      "example": "制作、デザイン、プログラム等の業務委託",
+      "aliases": [
+        "外注費",
+        "業務委託費",
+        "委託料"
+      ],
+      "review_questions": [
+        "委託内容と完了日",
+        "源泉徴収等の別処理の有無"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "デザイン制作委託",
+          "イラスト制作委託",
+          "開発委託",
+          "業務委託",
+          "外注",
+          "制作委託",
+          "翻訳",
+          "ロゴ制作",
+          "デザイン制作",
+          "ミックス",
+          "版下制作",
+          "デザイン料",
+          "制作料",
+          "ウェブサイト制作"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E112",
+      "name": "荷造運賃",
+      "kind": "expense",
+      "description": "発送、梱包、配送料",
+      "example": "発送、梱包、配送料",
+      "aliases": [
+        "荷造運賃費",
+        "発送費",
+        "送料"
+      ],
+      "review_questions": [
+        "発送した業務上の物品と相手"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "送料",
+          "配送料",
+          "宅配便",
+          "発送用梱包"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E113",
+      "name": "修繕費",
+      "kind": "expense",
+      "description": "業務設備の修理・通常の保守",
+      "example": "業務設備の修理・通常の保守",
+      "aliases": [
+        "修理費"
+      ],
+      "review_questions": [
+        "原状回復か、機能向上や資産取得か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "修理",
+          "部品交換",
+          "修繕",
+          "保守点検",
+          "木ネジ",
+          "補修",
+          "洗浄"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E114",
+      "name": "損害保険料",
+      "kind": "expense",
+      "description": "業務用の損害保険・賠償責任保険",
+      "example": "業務用の損害保険・賠償責任保険",
+      "aliases": [
+        "保険料"
+      ],
+      "review_questions": [
+        "補償対象、契約期間、事業使用部分"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "損害保険",
+          "賠償責任保険",
+          "自動車保険",
+          "火災保険"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E115",
+      "name": "租税公課",
+      "kind": "expense",
+      "description": "事業に関する税・公的負担・使用した収入印紙等",
+      "example": "事業に関する税・公的負担・使用した収入印紙等",
+      "aliases": [],
+      "review_questions": [
+        "税の種類",
+        "所得税・住民税・罰金等ではないか",
+        "印紙等を業務で使用したか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "収入印紙",
+          "事業税",
+          "固定資産税",
+          "登録免許税"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E116",
+      "name": "研修費",
+      "kind": "expense",
+      "description": "業務に関する講座、セミナー、研修",
+      "example": "業務に関する講座、セミナー、研修",
+      "aliases": [
+        "教育研修費"
+      ],
+      "review_questions": [
+        "講座内容と業務の関係"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "セミナー",
+          "研修",
+          "技術講座",
+          "受講料",
+          "受講枠",
+          "eラーニング",
+          "研修プラン"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E117",
+      "name": "諸会費",
+      "kind": "expense",
+      "description": "業務上の団体、職能団体等の会費",
+      "example": "業務上の団体、職能団体等の会費",
+      "aliases": [
+        "会費"
+      ],
+      "review_questions": [
+        "団体と事業の関係",
+        "会費の内容と税の記載"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "会員会費",
+          "年会費",
+          "団体会費",
+          "諸会費"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E118",
+      "name": "賃借料",
+      "kind": "expense",
+      "description": "機材・設備等の短期レンタル",
+      "example": "機材・設備等の短期レンタル",
+      "aliases": [
+        "レンタル料",
+        "リース料"
+      ],
+      "review_questions": [
+        "契約期間",
+        "購入・リース資産の処理が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "レンタル",
+          "賃借",
+          "機材リース",
+          "コワーキング",
+          "フリー席",
+          "ワークラウンジ",
+          "リース料"
+        ],
+        "unless_any": [
+          "レンタルサーバー"
+        ]
+      }
+    },
+    {
+      "code": "E119",
+      "name": "雑費",
+      "kind": "expense",
+      "description": "他の科目に該当しない業務上の少額費用",
+      "example": "他の科目に該当しない業務上の少額費用",
+      "aliases": [],
+      "review_questions": [
+        "他の具体的な科目がないか",
+        "継続する費用なら科目を分けるか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E120",
+      "name": "支払報酬料",
+      "kind": "expense",
+      "description": "税理士、弁護士など専門家への報酬",
+      "example": "税理士、弁護士など専門家への報酬",
+      "aliases": [
+        "支払報酬",
+        "報酬料金"
+      ],
+      "review_questions": [
+        "役務と業務の関係",
+        "源泉徴収等の別処理の有無"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "税理士報酬",
+          "弁護士報酬",
+          "専門家報酬"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E121",
+      "name": "福利厚生費",
+      "kind": "expense",
+      "description": "従業員向けの福利厚生",
+      "example": "従業員向けの福利厚生",
+      "aliases": [],
+      "review_questions": [
+        "本人や家族の私用ではないか",
+        "対象者と社内の取扱い"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "従業員福利厚生",
+          "従業員健康診断",
+          "従業員慶弔"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E122",
+      "name": "給料賃金",
+      "kind": "expense",
+      "description": "従業員の給与・賃金",
+      "example": "従業員の給与・賃金",
+      "aliases": [
+        "給与賃金",
+        "人件費"
+      ],
+      "review_questions": [
+        "給与台帳、源泉徴収、専従者等の処理が必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "給与",
+          "給料",
+          "賃金"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E123",
+      "name": "利子割引料",
+      "kind": "expense",
+      "description": "事業の借入利息等。元本返済とは分ける",
+      "example": "事業の借入利息等。元本返済とは分ける",
+      "aliases": [
+        "支払利息"
+      ],
+      "review_questions": [
+        "事業借入か",
+        "元本返済との区分"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "借入利息",
+          "融資利息",
+          "支払利息"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E124",
+      "name": "研究開発費",
+      "kind": "expense",
+      "description": "事業に関する調査、研究、試作",
+      "example": "事業に関する調査、研究、試作",
+      "aliases": [],
+      "review_questions": [
+        "事業との関係",
+        "固定資産や別の制作原価に該当しないか"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "研究試作",
+          "研究開発",
+          "試作材料"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E125",
+      "name": "仕入高",
+      "kind": "expense",
+      "description": "販売・製造のための商品・材料の購入",
+      "example": "販売・製造のための商品・材料の購入",
+      "aliases": [
+        "仕入"
+      ],
+      "review_questions": [
+        "棚卸や売上原価の計算が別途必要か"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "商品仕入",
+          "販売用仕入",
+          "製造用材料"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "A101",
+      "name": "工具器具備品",
+      "kind": "asset",
+      "description": "PC、モニター、業務用の機器・備品の資産候補",
+      "example": "PC、モニター、業務用の機器・備品の資産候補",
+      "aliases": [
+        "器具備品",
+        "備品",
+        "備品費"
+      ],
+      "review_questions": [
+        "取得価額、利用開始日、経理方式",
+        "耐用年数や少額資産の取扱い"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation"
+      ],
+      "hints": {
+        "any": [
+          "パソコン",
+          "ノートPC",
+          "デスクトップ",
+          "業務用モニター",
+          "プリンター本体",
+          "カメラ本体",
+          "オシロスコープ",
+          "自作PC",
+          "会議用テーブル",
+          "中古プリンタ",
+          "業務用モニタ",
+          "ワークチェア",
+          "レーザープリンタ",
+          "オフィスチェア"
+        ],
+        "unless_any": [
+          "修理",
+          "レンタル",
+          "返品",
+          "返金",
+          "部品交換"
+        ]
+      }
+    },
+    {
+      "code": "A102",
+      "name": "ソフトウェア",
+      "kind": "asset",
+      "description": "買切りソフトウェア等の無形資産候補",
+      "example": "買切りソフトウェア等の無形資産候補",
+      "aliases": [],
+      "review_questions": [
+        "買切りか継続サービスか",
+        "取得価額、利用期間、償却の扱い"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation"
+      ],
+      "hints": {
+        "any": [
+          "買切りソフト",
+          "永久ライセンス",
+          "ソフトウェア買切"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "A103",
+      "name": "車両運搬具",
+      "kind": "asset",
+      "description": "業務用の車両等の資産候補",
+      "example": "業務用の車両等の資産候補",
+      "aliases": [],
+      "review_questions": [
+        "事業割合",
+        "取得価額、利用開始日、償却の扱い"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses",
+        "depreciation"
+      ],
+      "hints": {
+        "any": [
+          "車両購入",
+          "営業用自動車"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "A104",
+      "name": "前払費用",
+      "kind": "asset",
+      "description": "未経過期間のサービス料・保険料等",
+      "example": "未経過期間のサービス料・保険料等",
+      "aliases": [
+        "前払い費用"
+      ],
+      "review_questions": [
+        "サービス提供期間",
+        "当期分と翌期分の区分や適用条件"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "年額",
+          "年払い",
+          "前払い",
+          "1年分",
+          "年間契約"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "B101",
+      "name": "現金",
+      "kind": "cash",
+      "description": "事業用の現金",
+      "example": "事業用の現金",
+      "aliases": [],
+      "review_questions": [],
+      "selectable": false,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "B102",
+      "name": "普通預金",
+      "kind": "bank",
+      "description": "事業用の普通預金",
+      "example": "事業用の普通預金",
+      "aliases": [],
+      "review_questions": [],
+      "selectable": false,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "L101",
+      "name": "未払金",
+      "kind": "liability",
+      "description": "事業用カード等の支払前の債務",
+      "example": "事業用カード等の支払前の債務",
+      "aliases": [],
+      "review_questions": [],
+      "selectable": false,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "O101",
+      "name": "事業主借",
+      "kind": "equity",
+      "description": "個人のお金で立て替えた事業分等",
+      "example": "個人のお金で立て替えた事業分等",
+      "aliases": [],
+      "review_questions": [],
+      "selectable": false,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "O102",
+      "name": "事業主貸",
+      "kind": "equity",
+      "description": "事業のお金で支払った私用分等",
+      "example": "事業のお金で支払った私用分等",
+      "aliases": [],
+      "review_questions": [],
+      "selectable": false,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E126",
+      "name": "車両費",
+      "kind": "expense",
+      "description": "事業用車両の燃料・洗車・整備等",
+      "example": "事業用車両の燃料・洗車・整備等",
+      "aliases": [
+        "自動車費"
+      ],
+      "review_questions": [
+        "業務との関係",
+        "私用分・期間配分・資産処理の要否"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "ガソリン",
+          "ハイオク",
+          "レギュラー",
+          "給油",
+          "洗車",
+          "タイヤ",
+          "車検"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E127",
+      "name": "印刷製本費",
+      "kind": "expense",
+      "description": "名刺・業務資料等の印刷製本",
+      "example": "名刺・業務資料等の印刷製本",
+      "aliases": [
+        "印刷費"
+      ],
+      "review_questions": [
+        "業務との関係",
+        "私用分・期間配分・資産処理の要否"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "名刺印刷",
+          "製本",
+          "チラシ印刷",
+          "冊子印刷",
+          "オンデマンド印刷",
+          "名刺",
+          "会社案内",
+          "パンフレット",
+          "印刷",
+          "印刷工房",
+          "チラシ"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "E128",
+      "name": "材料費",
+      "kind": "expense",
+      "description": "製造・試作のための材料",
+      "example": "製造・試作のための材料",
+      "aliases": [
+        "製造原価"
+      ],
+      "review_questions": [
+        "業務との関係",
+        "私用分・期間配分・資産処理の要否"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "試作部品",
+          "電子部品",
+          "抵抗器",
+          "コンデンサ",
+          "製造材料"
+        ],
+        "unless_any": []
+      }
+    },
+    {
+      "code": "A105",
+      "name": "長期前払費用",
+      "kind": "asset",
+      "description": "複数年にわたるサービス等の前払",
+      "example": "複数年にわたるサービス等の前払",
+      "aliases": [],
+      "review_questions": [
+        "業務との関係",
+        "私用分・期間配分・資産処理の要否"
+      ],
+      "selectable": true,
+      "active": true,
+      "sources": [
+        "necessary_expenses"
+      ],
+      "hints": {
+        "any": [
+          "複数年契約",
+          "長期前払"
+        ],
+        "unless_any": []
+      }
+    }
+  ],
+  "policies": [
+    {
+      "code": "P_REFUND",
+      "title": "返品・返金・取消",
+      "priority": 10,
+      "action": "block",
+      "match": {
+        "document_flag": "refund"
+      },
+      "message": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+      "questions": [
+        "元の取引と返金額",
+        "入金・カード返金の実際"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_PERSONAL_TAX",
+      "title": "必要経費に含めない税・罰金等",
+      "priority": 20,
+      "action": "block",
+      "match": {
+        "any": [
+          "所得税",
+          "住民税",
+          "罰金",
+          "反則金",
+          "過料"
+        ],
+        "unless_any": [
+          "源泉"
+        ]
+      },
+      "message": "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。",
+      "questions": [
+        "税や支出の正式名称"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_WITHHOLDING",
+      "title": "源泉徴収を伴う支払",
+      "priority": 25,
+      "action": "hold",
+      "match": {
+        "any": [
+          "源泉所得税",
+          "源泉徴収",
+          "源泉税"
+        ]
+      },
+      "message": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+      "questions": [
+        "税込報酬総額",
+        "源泉徴収額",
+        "実際の支払額"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_MIXED_ITEMS",
+      "title": "複数用途の商品が混在",
+      "priority": 30,
+      "action": "hold",
+      "match": {
+        "all_groups": [
+          [
+            "コピー用紙",
+            "ボールペン",
+            "文具ノート",
+            "リングノート"
+          ],
+          [
+            "食品",
+            "おにぎり",
+            "パン",
+            "弁当",
+            "コーヒー"
+          ]
+        ],
+        "scope": "purchases",
+        "ignore_phrases": [
+          "食品保存容器",
+          "食品用容器",
+          "食品用ラップ"
+        ]
+      },
+      "message": "事務用品と飲食品等が混在しています。単一科目にまとめられるか、私用分や別科目への分割が必要か確認してください。",
+      "questions": [
+        "商品ごとの業務用途と金額",
+        "私用分の有無"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_FOOD_CONTEXT",
+      "title": "飲食の業務目的が不明",
+      "priority": 40,
+      "action": "hold",
+      "match": {
+        "any": [
+          "コーヒー",
+          "珈琲",
+          "喫茶",
+          "カフェ",
+          "レストラン",
+          "飲食",
+          "居酒屋",
+          "弁当",
+          "ランチ",
+          "ディナー",
+          "ビール",
+          "ワイン",
+          "食事",
+          "ベーカリー",
+          "コーヒ",
+          "食パン",
+          "あんぱん",
+          "青果",
+          "みかん",
+          "りんご",
+          "牛乳",
+          "たまご",
+          "食品",
+          "バナナ",
+          "ケータリング",
+          "ミニバー",
+          "朝食",
+          "野菜",
+          "ごぼう",
+          "みょうが",
+          "青梅"
+        ],
+        "unless_any": [
+          "会議室",
+          "商談",
+          "会議",
+          "打合せ",
+          "打ち合わせ",
+          "取引先",
+          "接待"
+        ],
+        "scope": "purchases",
+        "ignore_phrases": [
+          "食品保存容器",
+          "食品用容器",
+          "食品用ラップ"
+        ]
+      },
+      "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+      "questions": [
+        "利用目的",
+        "相手と人数",
+        "事業との関係"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_ASSET",
+      "title": "機器・備品の資産検討",
+      "priority": 50,
+      "action": "asset_review",
+      "match": {
+        "any": [
+          "パソコン",
+          "ノートPC",
+          "デスクトップ",
+          "カメラ",
+          "モニター",
+          "業務用機器",
+          "買切りソフト",
+          "家具",
+          "テーブル",
+          "チェア",
+          "オシロスコープ",
+          "プリンタ",
+          "PCパーツ",
+          "業務用モニタ"
+        ],
+        "min_total": 50000,
+        "unless_any": [
+          "修理",
+          "レンタル",
+          "分解洗浄"
+        ]
+      },
+      "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+      "questions": [
+        "取得価額と経理方式",
+        "利用開始日",
+        "資産・少額資産等の適用条件"
+      ],
+      "sources": [
+        "depreciation"
+      ]
+    },
+    {
+      "code": "P_PREPAID",
+      "title": "年払・複数期間の支払",
+      "priority": 60,
+      "action": "hold",
+      "match": {
+        "any": [
+          "年額",
+          "年間契約",
+          "1年分",
+          "一年分",
+          "前払い",
+          "年払い"
+        ],
+        "unless_any": [
+          "永久ライセンス",
+          "買切",
+          "買い切"
+        ]
+      },
+      "message": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+      "questions": [
+        "サービス開始日と終了日",
+        "当期分・翌期分の処理"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_SHARED",
+      "title": "家事関連費の確認",
+      "priority": 70,
+      "action": "review",
+      "match": {
+        "any": [
+          "携帯電話",
+          "インターネット",
+          "光回線",
+          "電気料金",
+          "ガス料金",
+          "水道料金",
+          "自宅兼"
+        ]
+      },
+      "message": "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。",
+      "questions": [
+        "事業で使った割合",
+        "その割合の根拠"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_MIXED_TAX",
+      "title": "軽減税率と標準税率の混在",
+      "priority": 80,
+      "action": "review",
+      "match": {
+        "all_groups": [
+          [
+            "8%",
+            "8％"
+          ],
+          [
+            "10%",
+            "10％"
+          ]
+        ]
+      },
+      "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+      "questions": [
+        "税率ごとの対象額と記載税額"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_UNPAID",
+      "title": "未払い・見積・内部資料",
+      "priority": 15,
+      "action": "block",
+      "match": {
+        "document_flag": "unpaid"
+      },
+      "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+      "questions": [
+        "実際の支払日と支払額",
+        "支払済みの証憑"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_FOREIGN",
+      "title": "外貨の円額が未確定",
+      "priority": 35,
+      "action": "hold",
+      "match": {
+        "document_flag": "foreign"
+      },
+      "message": "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。",
+      "questions": [
+        "円建て確定額と換算根拠"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_PRIVATE_GOODS",
+      "title": "用途で取扱いが変わる購入",
+      "priority": 45,
+      "action": "hold",
+      "match": {
+        "any": [
+          "ロゴ無",
+          "カジュアル衣料",
+          "寄附",
+          "寄付",
+          "家族",
+          "私用",
+          "元金",
+          "金券",
+          "商品券",
+          "住民票"
+        ]
+      },
+      "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+      "questions": [
+        "業務用途と私用の区分",
+        "経費以外の金額"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_EVENT_PURPOSE",
+      "title": "入場・参加目的の確認",
+      "priority": 42,
+      "action": "hold",
+      "match": {
+        "any": [
+          "入場料",
+          "イベント参加費",
+          "イベントチケット"
+        ],
+        "unless_any": [
+          "研修",
+          "受講",
+          "商談",
+          "出展",
+          "展示会"
+        ]
+      },
+      "message": "入場・参加料の用途が原本から確定できません。業務との関係と私用分を確認してください。",
+      "questions": [
+        "参加目的と事業との関係"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_HONORARIUM",
+      "title": "謝礼・謝金の支払確認",
+      "priority": 26,
+      "action": "hold",
+      "match": {
+        "any": [
+          "出演謝礼",
+          "講演謝礼",
+          "謝礼",
+          "謝金"
+        ]
+      },
+      "message": "謝礼・謝金の記載があります。支払先の属性、報酬総額、源泉徴収の要否や別仕訳を確認してください。",
+      "questions": [
+        "支払先と役務内容",
+        "源泉徴収の要否と金額"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    }
+  ]
+}

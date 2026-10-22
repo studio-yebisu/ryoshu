@@ -1,0 +1,302 @@
+{
+  "scope": "Source reviews, distinct from execution, visual QA and legal advice. Requested model and response identity are recorded separately. Frozen review counts are historical snapshots; fixes are verified by the linked current tests.",
+  "records": [
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T17:41:11.010222+00:00",
+      "finished_at": "2026-10-21T17:43:33.864181+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "9aadefbeb93d900e24b55b491324c383f592f8f502dfeff8ca08d49a78698d56",
+      "round": "gemini-initial-cli2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "a96787b6fecf44dff3044bcfc3a5c2f0b862b5236131bc0937a6b748208c64a1"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T18:21:55.402494+00:00",
+      "finished_at": "2026-10-21T19:00:54.920742+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "08a54f034c18be2603af03f2c68d729df5a98fc277a78a04342f1299ea3a7517",
+      "round": "gemini-candidate1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "bd732bfa9ae1f222387e10a3556c4f727ce784fd99f435f1afbe335dc0e9bd54"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T19:35:52.823984+00:00",
+      "finished_at": "2026-10-21T19:42:44.417464+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "88f2209b0d931b450e1e7a33d257dc0a511e87b97ac89e8525030b79bba75952",
+      "round": "gemini-final1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "8c3b75bb28d63cd053cf6817c5b2dd553a900f84019f7d4cb0c87fec5125ff49"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T20:06:16.865882+00:00",
+      "finished_at": "2026-10-21T20:07:33.923991+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "a31697f03707daf8922610d31a1b30a0b49910a052c3f432220a1a52ff46d022",
+      "round": "gemini-delta1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "3d53376d2b018362b97df23cdaad12b66d149ef675d50a53dea53ec5182595fd"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T20:24:53.713545+00:00",
+      "finished_at": "2026-10-21T20:27:14.238086+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "d4f8780da06c14fde01ac36a9e0515a352422b4fcd9de78be333c0f681bf8dda",
+      "round": "gemini-delta2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "415ca95e14cea83f284a794b895588fe25fa6a34a03fa98d2a5ff8e9572682f5"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T17:42:46.340773+00:00",
+      "finished_at": "2026-10-21T17:49:48.603256+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "4b96ada0a2986825b6aa9deecfc22dc853cf63716ecac174d68780a77aaf8bce",
+      "round": "kimi-initial-cli3",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "4f2fd6e1e6e9b0a69d87bdfed119e530af45dcf1d311bfa3a492c3f2ecf9146d"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T18:21:55.425436+00:00",
+      "finished_at": "2026-10-21T18:34:57.049621+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "3eabde3d713edf2a7b1938e9d09b2a4c5ac6574ac33de7acd03a1382129bee05",
+      "round": "kimi-candidate1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "42450c447509453226c982144098a6222a643600d474795ff9842e8e41e5f791"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T19:36:02.945353+00:00",
+      "finished_at": "2026-10-21T19:59:00.225985+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "227cae3daec3be7d973e6e13fd5619f87f6b92f3d96ad259f7b4d78b27ccd768",
+      "round": "kimi-final1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "44246e826e15a91ddfd3f1acd5e4f148db283c09a9052ae118b445ef4e42c250"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T20:24:33.549633+00:00",
+      "finished_at": "2026-10-21T20:30:31.242351+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "55bb872370b32d5ad763d908e4c52222fbf354e3cee2e371923cefccec1508c2",
+      "round": "kimi-delta1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "9532bd93dab8b09360c4e7df5fd46738a5ec3f971c56e5327aeb9cb2c49365c8"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T17:40:24.375950+00:00",
+      "finished_at": "2026-10-21T17:45:40.858774+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "277601d8208b5345251c3bfaf7d87ae816d105fa4cf324d18dbe24392dd3ad09",
+      "round": "opus-initial",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "4f2fd6e1e6e9b0a69d87bdfed119e530af45dcf1d311bfa3a492c3f2ecf9146d"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T18:21:55.441585+00:00",
+      "finished_at": "2026-10-21T18:27:11.670651+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "0d7d3ce2e7262a3838e64fc4a24a197f975584c9fe1ebe9e10765d8db30b76ec",
+      "round": "opus-candidate1",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "42450c447509453226c982144098a6222a643600d474795ff9842e8e41e5f791"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T19:36:13.130003+00:00",
+      "finished_at": "2026-10-21T19:38:32.043540+00:00",
+      "exit_code": 1,
+      "stdout_sha256": "7a560a895513c93f32721f77501560a9e2711f6cff2a1d987878faccf28dbc4e",
+      "round": "opus-final1",
+      "status": "incomplete",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "max_turns",
+      "frozen_source_manifest_sha256": "44246e826e15a91ddfd3f1acd5e4f148db283c09a9052ae118b445ef4e42c250"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T19:41:29.886950+00:00",
+      "finished_at": "2026-10-21T19:45:52.040796+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "248582193ca007a76508297fa6f021e89d0287377e6809943ad99b38a604f0e8",
+      "round": "opus-final-inline2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "59beefdc95290810b7b679a3bf2c7fc93e82fd169bd0fa7d675e43358e744019"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T20:06:26.910225+00:00",
+      "finished_at": "2026-10-21T20:08:09.366555+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "4179c4a2a2952994caced0f29f6d04d728e1743240cf5c459a5812dea77905fd",
+      "round": "opus-delta1",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "9fb8cca1b7b24625cd0208f1d82369048450a0a9f8b8aeca9362c965f9ebbe73"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T20:24:43.608017+00:00",
+      "finished_at": "2026-10-21T20:40:29.686674+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "2593155fb17950bc3a60e7ec8db058b99fb325d707969c21d37e4ec51e0c11dd",
+      "round": "opus-delta2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "terminal_reason": "completed",
+      "frozen_source_manifest_sha256": "9532bd93dab8b09360c4e7df5fd46738a5ec3f971c56e5327aeb9cb2c49365c8"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-21T23:48:15.146676+00:00",
+      "finished_at": "2026-10-21T23:53:40.603762+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "a13d5aae2b45dcc2ae801c7827dde47ba73a4987e250e7c2e5dc62d349112695",
+      "round": "gemini-accounts1",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "f62a9c4d816ff2f09017ed6ff4c0e6af97ca6083c777b1e3e9bef4e7a71bfd6a"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-21T23:53:45.655466+00:00",
+      "finished_at": "2026-10-22T00:04:21.901530+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "490101ed96d5a8bf1618cc83125fe57dd9c8b0f298b5869ab2d4ea80a25ef30c",
+      "round": "kimi-accounts2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "22df79c46cea61eeb1db831c60026301ffebcf57a368507c4bafdc68b0596078"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-22T00:13:37.280264+00:00",
+      "finished_at": "2026-10-22T00:15:17.570203+00:00",
+      "exit_code": 0,
+      "prompt_characters": 19833,
+      "stdout_sha256": "be907ee91286dca3390751a21498a49db891bad11f220b4504977a529aa181b7",
+      "round": "kimi-policy-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-medium",
+      "started_at": "2026-10-22T00:13:37.294890+00:00",
+      "finished_at": "2026-10-22T00:16:10.199417+00:00",
+      "exit_code": 0,
+      "prompt_characters": 14875,
+      "stdout_sha256": "52e155f26425ab45b34eb16e05dfca0f6b88c3bad148606af7f1d84a3c934db5",
+      "round": "gemini-policy-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-22T00:15:54.401898+00:00",
+      "finished_at": "2026-10-22T00:16:46.670400+00:00",
+      "exit_code": 0,
+      "prompt_characters": 29742,
+      "stdout_sha256": "97bd08e3ec20e0c4e0250abb1b79b910a819134cb71321fad94fc9f5c9383ccf",
+      "round": "opus-policy-final2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "frozen_source_manifest_sha256": "cf85e0064e1cc49ad142fcafd7f743783830588e9bf86f5eeb1a584624c3fde8"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T23:41:13.057854+00:00",
+      "finished_at": "2026-10-21T23:44:48.599727+00:00",
+      "exit_code": 1,
+      "stdout_sha256": "e08658946da4786dc810855a6eebb5f6dfbc5b1333127bc853829583b470eb65",
+      "round": "imozuru-collection",
+      "status": "incomplete_turn_limit",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "skill_sha256": "bdf8d742aecd82af324ac81298ff498fe4fc13cf44cff3183ba1c7bd94a2891a"
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-21T23:46:38.950225+00:00",
+      "finished_at": "2026-10-21T23:48:22.660133+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "8aca97afb9fc28c581484a6e5a8d1fb64906e30ecf3c7367ad288ab8ebdb1441",
+      "round": "imozuru-finish",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "skill_sha256": "bdf8d742aecd82af324ac81298ff498fe4fc13cf44cff3183ba1c7bd94a2891a"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-22T00:42:09.814358+00:00",
+      "finished_at": "2026-10-22T00:43:56.592568+00:00",
+      "exit_code": 0,
+      "prompt_characters": 8406,
+      "stdout_sha256": "8f2a0b922d028b380c6bbb66ec174fdc7ae2ffb405e18bf264a442e9c2365509",
+      "round": "kimi-navigation-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "ce927ea767ef63c5dc9d4370ca571c81e86461df3799548a1be88ff04ed28ea8",
+      "scope": "Bounded source-only review of navigation/save response races. Findings fixed afterward; current28-browser evidence separately records the final implementation."
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-22T00:42:09.814358+00:00",
+      "finished_at": "2026-10-22T00:42:59.335154+00:00",
+      "exit_code": 0,
+      "prompt_characters": 8406,
+      "stdout_sha256": "114b904f49214cdae2d18fa495697c79121d13d26ee00d3b6e2a472c03edec1c",
+      "round": "opus-navigation-final2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "frozen_source_manifest_sha256": "ce927ea767ef63c5dc9d4370ca571c81e86461df3799548a1be88ff04ed28ea8",
+      "scope": "Bounded source-only review of navigation/save response races. Findings fixed afterward; current28-browser evidence separately records the final implementation."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "platform": "Windows11 x64 / Windows PowerShell5.1 / prepared Python3.12 environment",
+  "scope": "Actual isolated empty-ledger start, already-running detection, missing connection-record recovery, and owned-app stop. Separate from mocked launcher and restore tests.",
+  "normal_user_ledger_touched": false,
+  "ollama_preserved": true,
+  "separate_audit_app_preserved": true,
+  "not_verified": [
+    "First setup on an empty PC",
+    "Other operating systems",
+    "Minimum RAM"
+  ],
+  "private_observation_sha256": {
+    "first-start.json": "dea576eff5e0a60d77af5e4e4b310befe37643f867f21e32fc0bee6e8b72fe0d",
+    "record-recovery.json": "9f19249b5de4f34ecdd367354484e741107cc9cfab9390b5fb213bd883b6eedb",
+    "stop-result.json": "30aa31e533f4e8a3f36c3a8cdd1051c322f0a7802700a72e44d238a018791877"
+  }
+}

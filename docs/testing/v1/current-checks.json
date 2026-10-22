@@ -1,0 +1,29 @@
+{
+  "runtime_source_commit": "524776a8b937a5b439363fb4a7493f9e253f9a15",
+  "python_tests": {
+    "passed": 130,
+    "command": "python -m pytest -q",
+    "scope": "Local prepared Python3.12 environment; including6 mocked launcher cases"
+  },
+  "folder_javascript_tests": {
+    "passed": 3
+  },
+  "browser": {
+    "passed": 28,
+    "receipts": 202,
+    "inference": "saved observation replay; real HTTP/SQLite/CSV"
+  },
+  "powershell_syntax_and_utf8_bom": {
+    "passed": 5
+  },
+  "real_windows_launcher": "launcher-result.json",
+  "real_ocr_ai_100": "ocr-ai-100.json",
+  "final_catalog_inference_spot": "ocr-final-spot.json",
+  "limits": [
+    "Not tested on an empty PC",
+    "No real SaaS account import",
+    "No unseen-receipt accuracy estimate",
+    "No professional legal assessment"
+  ],
+  "runtime_source_commit_scope": "Frozen source for the three-case OCR/AI spot; current UI source hashes and all28 browser checks are in browser-result.json."
+}

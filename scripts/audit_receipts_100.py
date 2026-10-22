@@ -50,7 +50,7 @@ def evaluate(truth,row,accounts):
             'abstained':not actual,'error':row.get('error','')}
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--fixtures',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--port',type=int,default=8767);ap.add_argument('--cases',default='');ap.add_argument('--reuse-ocr',type=Path);ap.add_argument('--source',type=Path,default=SOURCE);ap.add_argument('--resume',action='store_true');ap.add_argument('--keep-server',action='store_true')
+    ap=argparse.ArgumentParser();ap.add_argument('--fixtures',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--port',type=int,default=8767);ap.add_argument('--cases',default='');ap.add_argument('--reuse-ocr',type=Path);ap.add_argument('--source',type=Path,default=SOURCE);ap.add_argument('--resume',action='store_true');ap.add_argument('--keep-server',action='store_true');ap.add_argument('--allow-model-offline',action='store_true',help='Diagnostic run only; never label offline fallback as successful AI inference')
     args=ap.parse_args();output=args.output.resolve()
     if (output/'run.json').exists() and not args.resume:raise SystemExit('Use a fresh run directory; previous evidence is immutable.')
     with socket.socket() as probe:
@@ -79,6 +79,10 @@ def main():
                 item=json.loads(line);completed[item['case_id']]=item
         meta.setdefault('resumes',[]).append({'at':now(),'completed':len(completed)})
     (output/'run.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
+    if args.resume and len(completed) == len(cases):
+        # A complete frozen run needs no new server, inference, or scoring.
+        print(json.dumps({'already_complete': True, 'completed': len(completed)}), flush=True)
+        return
     env=dict(os.environ);env['RECEIPT_LEDGER_DATA']=str(output/'data');env['RECEIPT_LEDGER_PORT']=str(args.port);env['PYTHONPATH']=str(snapshot);env['RECEIPT_LEDGER_ENV_LABEL']='検証用・架空の領収書データ'
     if args.reuse_ocr:env['RECEIPT_LEDGER_OCR_REUSE']=str(args.reuse_ocr)
     log=(output/'server.log').open('ab')
@@ -101,6 +105,9 @@ def main():
                     response=client.get('/api/config');response.raise_for_status();break
                 except httpx.ConnectError:time.sleep(1)
             else:raise RuntimeError('Owned app did not become ready')
+            health=get('/api/health').json()
+            if not args.allow_model_offline and not health.get('model_ready'):
+                raise RuntimeError('ローカルAIの準備ができていません。Ollamaとqwen3:4bを確認してください。PDFの取り込みは開始していません。')
             account_list=response.json()['accounts']
             response=client.post('/api/settings',headers={'X-Ledger-Request':'1'},json={'business_context':'個人事業主。ソフトウェア・ゲーム制作、デザイン業。科目は暫定候補で、実際の業務用途・事業割合・支払方法は本人が確認する。'});response.raise_for_status()
             mapping=meta.get('receipt_ids',{}) if args.resume else {}

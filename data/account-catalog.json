@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-21.6",
+  "version": "2026-10-22.2",
   "description": "個人事業主向けの初期科目・確認条件。科目例はアプリの編集データであり、税務上の自動判定表ではない。",
   "sources": [
     {
@@ -1521,6 +1521,36 @@
       "questions": [
         "支払先と役務内容",
         "源泉徴収の要否と金額"
+      ],
+      "sources": [
+        "necessary_expenses"
+      ]
+    },
+    {
+      "code": "P_RESIDENTIAL_RENT",
+      "title": "居住用家賃の用途確認",
+      "priority": 65,
+      "action": "hold",
+      "match": {
+        "scope": "purchases",
+        "all_groups": [
+          [
+            "居住用",
+            "住居用",
+            "住宅家賃",
+            "自宅家賃"
+          ],
+          [
+            "家賃",
+            "賃料"
+          ]
+        ]
+      },
+      "message": "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。",
+      "questions": [
+        "借りた場所の業務用途",
+        "事業で使う割合と根拠",
+        "今回の支払額と対象期間"
       ],
       "sources": [
         "necessary_expenses"

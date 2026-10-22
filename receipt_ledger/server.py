@@ -23,26 +23,42 @@ from .exports import PROFILES, TAX_CHOICES, build_export
 from .pipeline import local_models, process, validate_file
 from .schemas import Draft, SaveRequest, VersionRequest, confirmation_errors
 from .store import Conflict, Missing, Store, now
-from .workflow import ledger_records, review_before_ledger
+from .workflow import ledger_records, review_before_ledger, recover_queue, export_tax_mode
+from .importing import Importer
+from .upload_limit import UploadSizeLimit, UploadTooLarge
+from .listing import list_summaries, possible_duplicates, duplicate_warnings
+from .backups import create_backup
+from .export_history import ExportHistory
+from starlette.background import BackgroundTask
+from .previews import ensure_preview
 
 
 def create_app(data_dir=None, run_workers=True):
     store = Store(Path(data_dir or config.DATA_DIR))
+    importer = Importer(store)
+    export_history = ExportHistory(store)
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="receipt")
     import_lock = threading.Lock()
 
     @asynccontextmanager
     async def lifespan(app):
-        store.recover()
+        if run_workers:
+            for receipt_id in recover_queue(store):
+                enqueue(receipt_id)
+        else:
+            store.recover()
         yield
         executor.shutdown(wait=True, cancel_futures=True)
 
     app = FastAPI(title="Ryoshu", version=__version__, lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.store = store
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
+    app.add_middleware(UploadSizeLimit, max_bytes=config.MAX_REQUEST_BYTES)
 
     @app.middleware("http")
     async def local_only(request: Request, call_next):
+        if request.url.path.startswith("/api/") and request.headers.get("sec-fetch-site") == "cross-site":
+            return JSONResponse({"detail": "このアプリの画面から操作してください"}, status_code=403)
         if request.url.path.startswith("/api/") and request.method not in ["GET", "HEAD"]:
             origin = request.headers.get("origin")
             allowed = {f"http://127.0.0.1:{config.PORT}", f"http://localhost:{config.PORT}"}
@@ -52,6 +68,7 @@ def create_app(data_dir=None, run_workers=True):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; frame-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'none'"
         return response
 
@@ -71,10 +88,19 @@ def create_app(data_dir=None, run_workers=True):
         if run_workers:
             executor.submit(process, store, receipt_id)
 
-    def decorate(row, detail=True):
+    def decorate(row, detail=True, duplicate_map=None):
         row["business_amount"], row["private_amount"] = amounts(row["draft"])
+        if row["draft"]["total"] is None or row["draft"]["business_percent"] is None:
+            row["business_amount"] = row["private_amount"] = None
         row["journal"] = journal(row["draft"])
-        row["preview_count"] = len(list(store.folder(row["id"]).glob("preview-*.jpg")))
+        if "preview_count" not in row:
+            row["preview_count"] = (row.get("ocr") or {}).get("page_count") or 1
+        row["preview_count"] = max(1, min(config.MAX_PAGES, row["preview_count"]))
+        if "source_document" not in row:
+            row["source_document"] = importer.source(row["id"])
+        if detail:
+            row["source_documents"] = importer.sources(row["id"])
+        row["possible_duplicate_ids"] = (duplicate_map if duplicate_map is not None else duplicate_warnings(store)).get(row["id"], [])
         if not detail and row["ocr"]:
             row["ocr"] = {k: v for k, v in row["ocr"].items() if k not in ["text", "pages"]}
         return row
@@ -91,7 +117,7 @@ def create_app(data_dir=None, run_workers=True):
         except Exception:
             installed = ollama = False
         return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": config.MODEL,
-                "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''),
+                "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''), "source_dir": str(Path(__file__).resolve().parents[1]),
                 "model_ready": installed, "ollama_ready": ollama, "compute": "CPU", "data_dir": str(store.root),
                 "schema_version":2,"account_count":len(store.accounts(False)),"policy_count":len(store.policies()),
                 "privacy": "loopback-only; local OCR and local model; offline OCR cache"}
@@ -101,10 +127,12 @@ def create_app(data_dir=None, run_workers=True):
         return {"accounts": store.accounts(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
                 "business_context": store.business_context(), "rules": store.rules(),
                 "review_before_ledger": review_before_ledger(store),
+                "export_tax_mode": export_tax_mode(store),
                 "samples": sample_set()[2],
                 "export_profiles":PROFILES,"export_tax_choices":TAX_CHOICES,
                 "export_account_maps":{p:store.export_map(p) for p in ['freee','mf','yayoi']},
-                "limits":{"max_files":config.MAX_FILES,"max_bytes":config.MAX_BYTES,"max_pages":config.MAX_PAGES}}
+                "limits":{"max_files":config.MAX_FILES,"max_bytes":config.MAX_BYTES,"max_pages":config.MAX_PAGES,
+                          "max_split_pages":config.MAX_SPLIT_PAGES,"max_request_bytes":config.MAX_REQUEST_BYTES}}
 
     @app.get("/api/catalog")
     def catalog():
@@ -140,11 +168,13 @@ def create_app(data_dir=None, run_workers=True):
         model_config = ConfigDict(extra="forbid")
         business_context: str | None = Field(default=None, max_length=1500)
         review_before_ledger: bool | None = None
+        export_tax_mode: Literal["reviewed", "exempt"] | None = None
 
     @app.post("/api/settings")
     def settings(body: SettingsRequest):
         return {"business_context": store.business_context(body.business_context),
-                "review_before_ledger": review_before_ledger(store, body.review_before_ledger)}
+                "review_before_ledger": review_before_ledger(store, body.review_before_ledger),
+                "export_tax_mode": export_tax_mode(store, body.export_tax_mode)}
 
     class RuleRequest(BaseModel):
         merchant: str = Field(max_length=200)
@@ -156,13 +186,16 @@ def create_app(data_dir=None, run_workers=True):
 
     @app.get("/api/receipts")
     def receipts():
-        return {"receipts": [decorate(r, detail=False) for r in store.list()]}
+        rows = list_summaries(store)
+        duplicates = possible_duplicates(rows)
+        return {"receipts": [decorate(r, detail=False, duplicate_map=duplicates) for r in rows]}
 
     @app.get("/api/ledger")
     def ledger(month: str = ""):
         before = review_before_ledger(store)
-        rows = ledger_records(store.list(), month, before)
-        return {"rows": [decorate(r, detail=False) for r in rows],
+        rows = ledger_records(list_summaries(store), month, before)
+        duplicates = possible_duplicates(rows)
+        return {"rows": [decorate(r, detail=False, duplicate_map=duplicates) for r in rows],
                 "unreviewed_count": sum(r["status"] != "confirmed" for r in rows),
                 "review_before_ledger": before}
 
@@ -176,6 +209,7 @@ def create_app(data_dir=None, run_workers=True):
         purpose: str = Field(default="", max_length=1000)
         payment: Literal["", "owner", "cash", "bank", "card"] = ""
         business_percent: int | None = Field(default=None, ge=1, le=100, strict=True)
+        export_tax: Literal["", "outside", "non_taxable", "purchase10", "purchase8", "transition10", "transition8"] = ""
 
     @app.post("/api/ledger/review")
     def review_ledger(body: LedgerReviewRequest):
@@ -190,8 +224,10 @@ def create_app(data_dir=None, run_workers=True):
                     raise Conflict("既に確認済みです。画面を更新してください")
                 if row["status"] == "excluded":
                     raise Conflict("対象外の明細です。先に対象へ戻してください")
-                updates = {key: getattr(body, key) for key in ("purpose", "payment", "business_percent")
-                           if not getattr(draft, key) and getattr(body, key) not in (None, "")}
+                if body.export_tax and not draft.export_tax and draft.tax_rate == "mixed":
+                    raise ValueError("複数税率の明細は税区分をまとめて入力できません。原本と会計ソフトでの分割方法を個別に確認してください")
+                updates = {key: getattr(body, key) for key in ("purpose", "payment", "business_percent", "export_tax")
+                           if getattr(draft, key) in (None, "") and getattr(body, key) not in (None, "")}
                 saved = store.save(selected.id, selected.version, draft.model_copy(update=updates), confirm=True)
                 reviewed.append(saved["id"])
             except (Conflict, Missing, ValueError) as exc:
@@ -203,29 +239,81 @@ def create_app(data_dir=None, run_workers=True):
         # Starlette spools large files to the OS temp directory; bounded reads prevent unbounded RAM use.
         try:
             form = await request.form(max_files=config.MAX_FILES, max_fields=5, max_part_size=config.MAX_BYTES)
+        except UploadTooLarge:
+            raise
         except Exception as exc:
-            raise HTTPException(400, f"一度に{config.MAX_FILES}ファイルまで選んでください") from exc
+            if request.scope.get("ryoshu_upload_limit"):
+                raise HTTPException(413, "送信量が大きすぎます。ファイルを分けて取り込んでください。保存済みの原本は保持しています。") from exc
+            raise HTTPException(400, f"ファイルを受け取れませんでした。一度に{config.MAX_FILES}ファイルまでに分けて、選び直してください") from exc
         results, errors = [], []
-        files = form.getlist("files")
-        if not files:
-            raise HTTPException(400, "領収書の画像・PDFを選んでください")
-        for item in files:
-            if not hasattr(item, "read"):
+        try:
+            files = form.getlist("files")
+            mode = form.get("pdf_mode", "document")
+            if mode not in ("document", "pages"):
+                raise HTTPException(400, "PDFの取り込み方を選び直してください")
+            if not files or any(not hasattr(item, "read") for item in files):
+                raise HTTPException(400, "領収書の画像・PDFを選んでください")
+            for item in files:
+                name = (item.filename or "receipt").replace("\\", "/").split("/")[-1][:200]
+                try:
+                    raw = await item.read(config.MAX_BYTES + 1)
+                    def save_import():
+                        with import_lock:
+                            for row, duplicate in importer.add(name, raw, mode):
+                                if not duplicate:
+                                    enqueue(row["id"])
+                                results.append({"id": row["id"], "duplicate": duplicate, "name": row["original_name"]})
+                    await asyncio.to_thread(save_import)
+                except ValueError as exc:
+                    errors.append({"name": name, "message": str(exc), "code": getattr(exc, "code", "")})
+                except (OSError, sqlite3.OperationalError):
+                    errors.append({"name": name, "message": "保存できませんでした。保存先の空き容量と書き込み権限を確認して、もう一度取り込んでください。保存済みの原本は保持しています。"})
+            return {"imported": results, "errors": errors}
+        finally:
+            await form.close()
+
+    class RetryBatchRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        rows: list[ReviewRow] = Field(min_length=1, max_length=500)
+
+    @app.post("/api/processing/retry")
+    def retry_batch(body: RetryBatchRequest):
+        retried, issues, seen = [], [], set()
+        for selected in body.rows:
+            if selected.id in seen:
                 continue
-            name = (item.filename or "receipt").replace("\\", "/").split("/")[-1][:200]
+            seen.add(selected.id)
             try:
-                raw = await item.read(config.MAX_BYTES + 1)
-                extension = await asyncio.to_thread(validate_file, raw)
-                with import_lock:
-                    row, duplicate = store.add(name, extension, raw)
-                if not duplicate:
-                    enqueue(row["id"])
-                results.append({"id": row["id"], "duplicate": duplicate, "name": name})
-            except ValueError as exc:
-                errors.append({"name": name, "message": str(exc)})
-            finally:
-                await item.close()
-        return {"imported": results, "errors": errors}
+                current = store.get(selected.id)
+                if current["status"] != "error" and not (current["status"] == "review" and current["error"]):
+                    raise Conflict("読み取りに失敗した明細を選んでください")
+                store.set_status(selected.id, selected.version, "retry")
+                enqueue(selected.id)
+                retried.append(selected.id)
+            except (Conflict, Missing, ValueError) as exc:
+                issues.append({"id": selected.id, "message": str(exc) if not isinstance(exc, Missing) else "明細が見つかりません"})
+        return {"retried": retried, "issues": issues}
+
+    class ExcludeBatchRequest(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        rows: list[ReviewRow] = Field(min_length=1, max_length=500)
+        action: Literal["exclude", "restore"] = "exclude"
+
+    @app.post("/api/ledger/status")
+    def ledger_status(body: ExcludeBatchRequest):
+        changed, issues, seen = [], [], set()
+        for selected in body.rows:
+            if selected.id in seen:
+                continue
+            seen.add(selected.id)
+            try:
+                if body.action == "restore" and store.get(selected.id)["status"] != "excluded":
+                    raise Conflict("対象外の明細だけを選んでください")
+                store.set_status(selected.id, selected.version, body.action)
+                changed.append(selected.id)
+            except (Conflict, Missing, ValueError) as exc:
+                issues.append({"id": selected.id, "message": str(exc) if not isinstance(exc, Missing) else "明細が見つかりません"})
+        return {"changed": changed, "issues": issues}
 
     @app.get("/api/receipts/{receipt_id}")
     def receipt(receipt_id: str):
@@ -253,18 +341,38 @@ def create_app(data_dir=None, run_workers=True):
         row = store.get(receipt_id)
         return FileResponse(store.folder(receipt_id) / ("original" + row["extension"]), filename=row["original_name"])
 
+    @app.get("/api/receipts/{receipt_id}/source")
+    def original_source(receipt_id: str, source: str = ""):
+        store.get(receipt_id)
+        document = importer.source(receipt_id, source or None)
+        if document is None:
+            raise HTTPException(404, "この明細はページ分割で取り込まれていません")
+        path = importer.source_path(document["sha256"])
+        if not path.is_file():
+            raise HTTPException(404, "元PDFが見つかりません。バックアップを確認してください")
+        return FileResponse(path, filename=document["name"])
+
     @app.get("/api/receipts/{receipt_id}/preview/{page}")
     def preview(receipt_id: str, page: int):
         if not 0 <= page < config.MAX_PAGES:
             raise HTTPException(404)
-        path = store.folder(receipt_id) / f"preview-{page}.jpg"
-        if not path.exists():
-            raise HTTPException(404)
+        row = store.get(receipt_id)
+        path = ensure_preview(store, row, page)
         return FileResponse(path, media_type="image/jpeg")
 
     @app.get("/api/receipts/{receipt_id}/history")
     def history(receipt_id: str):
-        return {"history": store.history(receipt_id)}
+        rows = store.history(receipt_id)
+        for row in rows:
+            row.pop("detail_json", None)
+            if row["action"] == "analysis":
+                detail = row["detail"]
+                ocr = detail.get("ocr") or {}
+                suggestion = detail.get("suggestion") or {}
+                row["detail"] = {"model": detail.get("model"), "error": detail.get("error", ""),
+                                 "ocr_summary": {"page_count": ocr.get("page_count"), "seconds": ocr.get("seconds")},
+                                 "suggestion_summary": {k: suggestion.get(k) for k in ("date", "merchant", "total", "account")}}
+        return {"history": rows}
 
     def check_month(month):
         import re
@@ -274,12 +382,17 @@ def create_app(data_dir=None, run_workers=True):
     @app.get("/api/summary")
     def totals(month: str = ""):
         check_month(month)
-        return summary(store.list(), month)
+        return summary(list_summaries(store), month)
 
     @app.get("/api/export-preview")
-    def export_preview(profile:str='generic',kind:str='journal',month:str='',tax_mode:str='reviewed'):
+    def export_preview(profile:str='generic',kind:str='journal',month:str='',tax_mode:str='reviewed',new_only:bool=False):
         check_month(month)
-        return build_export(store.list(),profile,month,kind,tax_mode,store.export_map(profile)).preview()
+        rows, history = export_history.filter(list_summaries(store),profile,kind,new_only)
+        result = build_export(rows,profile,month,kind,tax_mode,store.export_map(profile)).preview()
+        duplicate_count = len(possible_duplicates(rows))
+        if duplicate_count:
+            result["warnings"].append(f"同じ日付・支払先・金額の明細が{duplicate_count}件あります。重複でないか原本を確認してください。自動では削除しません。")
+        return {**result,"csv_history":history}
 
     class ExportMapRequest(BaseModel):
         model_config=ConfigDict(extra='forbid')
@@ -291,39 +404,23 @@ def create_app(data_dir=None, run_workers=True):
         return {'names':store.export_map(body.profile,body.names)}
 
     @app.get("/api/export/{kind}")
-    def export(kind: str, month: str = "", profile:str='generic',tax_mode:str='reviewed'):
+    @app.post("/api/export/{kind}")
+    def export(kind: str, request: Request, month: str = "", profile:str='generic',tax_mode:str='reviewed',new_only:bool=False):
         check_month(month)
         if kind not in ["expenses", "journal", "review"]:
             raise HTTPException(404)
-        result=build_export(store.list(),profile,month,kind,tax_mode,store.export_map(profile))
+        rows, _ = export_history.filter(list_summaries(store),profile,kind,new_only)
+        result=build_export(rows,profile,month,kind,tax_mode,store.export_map(profile))
         content=result.content()
+        if request.method == "POST":
+            export_history.record(profile,kind,month,content,result,rows)
         encoding='shift_jis' if result.encoding=='cp932' else 'utf-8'
         return Response(content, media_type=f"text/csv; charset={encoding}", headers={"Content-Disposition": f'attachment; filename="{profile}-{kind}-{month or "all"}.csv"'})
 
     @app.get("/api/backup")
     def backup():
-        # Back up a consistent SQLite snapshot and immutable original files.
-        with tempfile.TemporaryDirectory(prefix="receipt-ledger-backup-") as temp:
-            snapshot = Path(temp) / "ledger.sqlite3"
-            with store.connect() as source:
-                target = sqlite3.connect(snapshot)
-                try:
-                    source.backup(target)
-                finally:
-                    target.close()
-            with closing(sqlite3.connect(snapshot)) as db:
-                originals = db.execute("SELECT id,extension,sha256 FROM receipts").fetchall()
-            archive = Path(temp) / "backup.zip"
-            with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
-                bundle.write(snapshot, "data/ledger.sqlite3")
-                for receipt_id, extension, digest in originals:
-                    original_path = store.root / "receipts" / receipt_id / ("original" + extension)
-                    import hashlib
-                    if hashlib.sha256(original_path.read_bytes()).hexdigest() != digest:
-                        raise HTTPException(409, "原本のハッシュが変わっています。保存先を確認してください")
-                    bundle.write(original_path, f"data/receipts/{receipt_id}/original{extension}")
-                bundle.writestr("manifest.json", json.dumps({"app": "Ryoshu", "version": __version__, "created_at": now(), "receipts": len(originals), "contains": "SQLite snapshot (OCR, suggestions, edits, rules, audit) and original receipts. Previews regenerate on retry."}, ensure_ascii=False, indent=2))
-            return Response(archive.read_bytes(), media_type="application/zip", headers={"Content-Disposition": 'attachment; filename="receipt-ledger-backup.zip"'})
+        temporary, archive = create_backup(store, importer)
+        return FileResponse(archive, media_type="application/zip", filename="ryoshu-backup.zip", background=BackgroundTask(temporary.cleanup))
 
     app.mount("/evidence", StaticFiles(directory=config.APP_DIR / "docs/testing", html=True, check_dir=False), name="evidence")
     app.mount("/samples", StaticFiles(directory=config.APP_DIR / "samples", check_dir=False), name="samples")
