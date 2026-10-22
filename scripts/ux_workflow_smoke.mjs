@@ -43,8 +43,24 @@ try{
   page=await browser.newPage({viewport:{width:1365,height:1000},acceptDownloads:true});
   page.on('pageerror',e=>errors.push(e.message));
   const hashes=await sourceHashes();
+  // The isolated server adds a test-only banner absent from normal first use.
+  // Verify the production appearance, then restore the label before importing.
+  await page.route('**/api/health',async route=>{
+    const response=await route.fetch();const data=await response.json();
+    await route.fulfill({response,json:{...data,environment_label:''}});
+  });
   await page.goto(address.open_url,{waitUntil:'networkidle'});
   await page.locator('#choose-files').waitFor();
+  for(const [width,height] of [[1366,768],[1093,614]]){
+    await page.setViewportSize({width,height});
+    const start=await page.locator('#start-import').boundingBox();
+    assert.ok(start&&start.y>=0&&start.y+start.height<=height,`${width}x${height} first-use Start requires scrolling`);
+    await snapshot(`first-use-${width}x${height}`);
+  }
+  checks.push('first-use file selection and Start fit the initial1366x768 and125%-equivalent1093x614 viewports');
+  await page.unroute('**/api/health');
+  await page.setViewportSize({width:1365,height:1000});
+  await page.reload({waitUntil:'networkidle'});
   const sample=id=>path.join(root,'samples/receipts-100-v2/individual',id+'.pdf');
   await page.locator('#file-input').setInputFiles(['V001','V021','V023','V044','V045'].map(sample));
   assert.equal((await api('receipts')).receipts.length,0);
@@ -97,7 +113,7 @@ try{
   assert.equal(await page.locator('.nav-item[data-view="results"]').getAttribute('aria-current'),'page');
   await go('results');
   checks.push('result filter retains focus and the result navigation stays current while editing');
-  const widths=[375,850,851,1000];
+  const widths=[375,850,851,1000,1001];
   for(const width of widths){
     await page.setViewportSize({width,height:1000});
     for(const view of ['home','results','ledger']){
@@ -107,10 +123,10 @@ try{
       await snapshot(`responsive-${width}-${view}`);
     }
   }
-  checks.push('home/results/CSV avoid body overflow at375/850/851/1000px with44px primary navigation targets');
+  checks.push('home/results/CSV avoid body overflow at375/850/851/1000/1001px with44px primary navigation targets');
   assert.deepEqual(await sourceHashes(),hashes,'UI source changed during run; rerun stable candidate');
   assert.deepEqual(errors,[]);
-  const proof={status:'passed',scope:'Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI.',checks,errors,receipt_count:6,breakpoint_widths:widths,source_sha256:hashes};
+  const proof={status:'passed',scope:'Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI. First-use viewport checks remove only the isolated server test label from health response to reproduce normal production appearance; label is restored before importing.',checks,errors,receipt_count:6,breakpoint_widths:widths,source_sha256:hashes};
   await fs.writeFile(path.join(out,'record.json'),JSON.stringify(proof,null,2)+'\n');
   console.log(JSON.stringify({status:proof.status,checks:checks.length,out}));
 }finally{
