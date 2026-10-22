@@ -1,0 +1,7 @@
+{
+  "file": "source-v1.2.0.zip",
+  "source_commit": "40dfac8dfd0d819c3979c98caa1d79c0091a22a7",
+  "sha256": "98d51505c64d13848fffab74d272be09971018e555330b0885a5b71f0a7a135c",
+  "files": 54,
+  "scope": "Exact canonical Git blobs recorded by v1.2 finalization. Historical tests and scores remain unchanged; newer source is verified separately."
+}

@@ -35,7 +35,7 @@ Gitはcloneする場合だけ必要です。ソースZIPから使う場合は不
 | Ollama | 0.40.7 |
 | OCR | Indra OCR 1.1.2 / CPUExecutionProvider |
 | 意味判断 | Qwen3 4B、Q4_K_M、`qwen3:4b` / CPU・6スレッド・コンテキスト8,192 |
-| 保存 | SQLCipher 4.19.0 / SQLite 3.53.4 / スキーマ2 |
+| 保存 | SQLCipher 4.19.0 / SQLite 3.53.4 / スキーマ3 |
 
 この検証機の構成は最低要件ではありません。小容量RAMのPC、他のCPU、Windows 10で同じ動作や速度を確認したものではありません。鍵保護はWindows専用で、macOS・Linuxはこの版の対象外です。OCRとモデルの識別子・100件の採点条件は[検証ページ](testing/README.md)にあります。
 

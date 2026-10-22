@@ -38,12 +38,13 @@ jobs:
       - run: node --check web/app.js
       - run: node --check web/import.js
       - run: node --check web/security.js
-      - run: node --test tests/import-ui.test.cjs
+      - run: node --test tests/import-ui.test.cjs tests/account-choice.test.cjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npx playwright install chromium
       - run: npm run test:browser
       - run: node scripts/security_ui_smoke.mjs
       - run: node scripts/ux_workflow_smoke.mjs
+      - run: node scripts/account_workflow_smoke.mjs
       - shell: powershell
         run: |
           foreach ($target in @('setup.ps1','start.ps1','stop.ps1','restore.ps1','scripts/launcher-process.ps1','scripts/bootstrap-uv.ps1')) {

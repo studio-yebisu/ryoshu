@@ -44,3 +44,9 @@ freeeの業務画面にある明快な操作・状態の区別、体系的な余
 - **第三者による分析**：[awesome-design-md-jpのfreee DESIGN.md](https://github.com/kzhrknt/awesome-design-md-jp/blob/707b40b68f534f7715a97077e5fb228d70859a85/design-md/freee/DESIGN.md)。公式ルールとは扱いません。企業サイトと業務UIの値が混在するため、企業サイト向けの見出しやWebフォントは採用していません。資料は[MIT](https://github.com/kzhrknt/awesome-design-md-jp/blob/707b40b68f534f7715a97077e5fb228d70859a85/LICENSE)（Copyright 2026 awesome-design-md-jp contributors）です。
 
 Claude Opus 5.5に参照資料と画面ソースを渡して設計を相談し、配色、文字、密度、3列内の金額位置、CSVの重複削減を反映しました。ソースの助言と実画面の検証は分け、実際の画面・操作・検査の結果は[v1.2の検証記録](docs/testing/v1.2/README.md)へ掲載します。
+
+## 科目の選択
+
+v1.3では結果の各行に「科目を変更」を置き、小さなダイアログでカテゴリー→勘定科目の順に選びます。カテゴリーを変えただけでは科目を自動選択しません。科目の説明・確認ポイントと保存ボタンを同じ画面に置き、変更を保存するまで入力を保持します。確認済みの明細は、保存すると未確認へ戻ることを先に伝えます。
+
+詳細フォームと独自科目の追加も同じカテゴリーを使います。[freeeの一覧](https://navi.freee.co.jp/account_items)は科目名の参照で、表示カテゴリーはRyoshu独自の整理です。
