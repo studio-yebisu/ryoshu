@@ -17,7 +17,7 @@
     "passed": 5
   },
   "real_windows_launcher": "launcher-result.json",
-  "real_ocr_ai_100": "ocr-ai-100.json",
+  "real_ocr_ai_100": "release-100.json",
   "final_catalog_inference_spot": "ocr-final-spot.json",
   "limits": [
     "Not tested on an empty PC",
@@ -25,5 +25,9 @@
     "No unseen-receipt accuracy estimate",
     "No professional legal assessment"
   ],
-  "runtime_source_commit_scope": "Frozen source for the three-case OCR/AI spot; current UI source hashes and all28 browser checks are in browser-result.json."
+  "runtime_source_commit_scope": "Frozen source for the three-case OCR/AI spot; current UI source hashes and all28 browser checks are in browser-result.json.",
+  "pre_release_ocr_ai_100": "ocr-ai-100.json",
+  "released100_source_commit": "448d5d201526b030fe3dc9bf5cf7e69e28b58b72",
+  "released100_catalog_version": "2026-10-22.2",
+  "released100_ocr_reuse": false
 }

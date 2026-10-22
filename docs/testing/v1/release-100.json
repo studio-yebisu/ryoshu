@@ -1,0 +1,6215 @@
+{
+  "status": "complete",
+  "source_tag": "v1.0.0",
+  "source_commit": "448d5d201526b030fe3dc9bf5cf7e69e28b58b72",
+  "source_archive": "https://github.com/studio-yebisu/ryoshu/releases/download/v1.0.0/Ryoshu-1.0.0-source.zip",
+  "source_archive_sha256": "e32519f343e654da21e6bd90686f5ae023e189499783be1b2b7400fc96a40e3c",
+  "source_origin": "Exact bytes extracted from the public release asset; no worktree source used.",
+  "catalog_version": "2026-10-22.2",
+  "started_at": "2026-10-22T01:42:54.483711+00:00",
+  "finished_at": "2026-10-22T02:01:59.253257+00:00",
+  "finished_at_jst": "2026-10-22T11:01:59.253257+09:00",
+  "runtime": {
+    "ollama": "0.40.7",
+    "model": {
+      "name": "qwen3:4b",
+      "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "size": 2497293931
+    },
+    "execution": "local CPU; temperature0, seed42,6threads"
+  },
+  "source_sha256": {
+    "data/account-catalog.json": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+    "receipt_ledger/accounting.py": "92f5f5c8c683bc6fef085b0c4d8daaefec30a270c536c0fadb6bee86aa262001",
+    "receipt_ledger/backups.py": "086b68bda52c38d99afd6d4fccff361002ab302ea5237d78ec7215a245653db9",
+    "receipt_ledger/catalog.py": "8e09913b0bb562c9cd8d26bd8fd3c320bd2e183fb34d5e72eab6c026e8509498",
+    "receipt_ledger/config.py": "7795a5fc6be43b43bf2c3ccdf57da3b8d630fba5eefb782d0cf489fcefed9804",
+    "receipt_ledger/evidence.py": "f48f4eda2dac9a0cafa58db21f52eca733982344b0f874530c1ef62bb1f9312d",
+    "receipt_ledger/exports.py": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f",
+    "receipt_ledger/export_history.py": "a4b3637f066efe9e7744bdbb6a56e4e68d58a8d575ab189933acb5114a64c0a8",
+    "receipt_ledger/extraction.py": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705",
+    "receipt_ledger/importing.py": "a740479764c99a7a48b5a618d0487030d6a4f40238281e6802b4f678fa372739",
+    "receipt_ledger/listing.py": "3afe765a5345731bd4b627408c01e19976e25adcab4af18ed86e420e607c2c1f",
+    "receipt_ledger/ocr_focus.py": "fad178563bc0bc21bf05cb6c77067ddd1eaaac9faa112e2c398f2a33fdeed94e",
+    "receipt_ledger/pdf_runtime.py": "077aa84350ae27bd994c7cf13bed4ae31fc7fe37333a54c6e2c1b6e85c75c400",
+    "receipt_ledger/pipeline.py": "80ca6b7e041ea740b6aeef6a2358c01c0b19397068615cb345c82205474814f9",
+    "receipt_ledger/previews.py": "eb9edec8dfb7099d31a629352a0290ce164e5b3abe15799341708dfb2768d396",
+    "receipt_ledger/privacy.py": "a75de729d1f9345f1cc5d26e86e2fea150b9fe702e7d96ca84d461e4780c4fb9",
+    "receipt_ledger/restore.py": "02f4a76f360fa8b37e2451ca3cca8a126fd49458a288178d7ddc2936dbf9062f",
+    "receipt_ledger/schemas.py": "e5843a2dccf77f644f86576ddeb4e303a301516f9ace9f9d3e0ab2d2b58549b8",
+    "receipt_ledger/semantic.py": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59",
+    "receipt_ledger/server.py": "4ed53ed23d18caf5babb681cd9a284253b2b5643276905339eca06a4c28d7624",
+    "receipt_ledger/store.py": "840a0eff98173f36a684977cac698f4424c082504f07b6fe1d9f2306741b0b27",
+    "receipt_ledger/upload_limit.py": "a182f552ef5052824a70468d971ed798672c10351709ea07275d30f40aaa1c4d",
+    "receipt_ledger/workflow.py": "edc06a17f97e20c60bc6d80c0fb86459c920f2c422cd9a73fc03a12adac8f5f0",
+    "receipt_ledger/__init__.py": "ad0dcd70ccdf46f3c68b29be0912fea2f2bdf9f105b79739295b7aa0f23181ab",
+    "receipt_ledger/__main__.py": "12270bb508bf7f5a1281bbbb6c7a1c668fd7cdcd6e88d8d90221b59256b0b89d",
+    "web/app.js": "3f187a75d88ddbd83ccd60cc6a3c9cfc35e5d40d7b7ed3c729165a45f879d01f",
+    "web/help.html": "fe6a1361bda4842bf23329a278176df440130bb6c27cb93b05852f9ca91f9433",
+    "web/icon.svg": "8e49c67a068cce4daa4d062d61eeef821de815f28f98b77ba5e3421d203689e9",
+    "web/import.js": "84fac1f3aeb96adc801c17d2f36af7ecd7a971914e0747b2ecf29ceccadce517",
+    "web/index.html": "a3d41402a9772877103b17460471ea68bda35a8495a6baffb7ca811a4408d1dd",
+    "web/style.css": "796cfa56054208ea15704f9520a85c6dc097bb49bd994edb8a1c5b7d71540386",
+    "data/catalog-history/2026-10-21.2.json": "4eec92d39162195a4d9fc70b5a704b73d8cd03eb172f32db5c9ae04460e3459a",
+    "data/catalog-history/2026-10-21.3.json": "20af6471862621f0cd773b93eefa2ef468a579fa6ff2a3c7e601c8557326dcdc",
+    "data/catalog-history/2026-10-21.4.json": "5bf6455399f28ae23cdb1d428cd0fd788b45973cee1bd1556f36a07879a09489",
+    "data/catalog-history/2026-10-21.5.json": "7f627ec49c829662e248392cfcaead02e097c7ccb1236ffd8314fa8edb1fd5b3",
+    "data/catalog-history/2026-10-21.6.json": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+    "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923"
+  },
+  "scorer_sha256": "82099c9976a6a92f795dc0e2ba572222672ad5fa0d9b64e8bfa224759ab3855a",
+  "fixture_manifest_sha256": "1b9e40688cc730724328923c7f3b5ce1cd7941fb102fdf369dd58968d3b151c7",
+  "scope": "All100 original fictional PDFs freshly uploaded through the released app HTTP API and processed by Indra OCR and local Qwen3. No saved OCR replay, prior candidates, expected answers or per-case context used by inference. Same development fixtures; not unseen accuracy.",
+  "ocr_reuse": false,
+  "metric_denominators": {
+    "total_exact": 97,
+    "date_exact": 100,
+    "merchant_exact": 100,
+    "account_or_decision_exact": 100,
+    "decision_exact": 100,
+    "account_exact": 48,
+    "ocr_completed": 100,
+    "model_completed": 100
+  },
+  "summary": {
+    "ocr_completed": 100,
+    "model_completed": 100,
+    "total_exact": 97,
+    "date_exact": 99,
+    "merchant_exact": 86,
+    "account_or_decision_exact": 89,
+    "decision_exact": 93,
+    "account_exact": 47,
+    "completed": 100,
+    "total": 100,
+    "elapsed_s": 1142.4
+  },
+  "amount_scope": "95 nonnegative JPY amounts plus2 correctly unknown JPY amounts; refund cases V019,V080,V097 excluded. Refund journals unsupported.",
+  "manual_corrections": 0,
+  "confirmed_receipts": 0,
+  "posted_journals": 0,
+  "decision_confusion": {
+    "propose": {
+      "propose": 47,
+      "hold": 1
+    },
+    "hold": {
+      "hold": 30,
+      "propose": 3,
+      "block": 3
+    },
+    "asset_review": {
+      "asset_review": 6
+    },
+    "block": {
+      "block": 10
+    }
+  },
+  "candidate_accounts": [
+    {
+      "acceptable_accounts": [
+        "仕入高",
+        "消耗品費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "消耗品費": 1
+      },
+      "case_ids": [
+        "V069"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "会議費",
+        "賃借料"
+      ],
+      "matched": 2,
+      "evaluated": 2,
+      "actual_accounts": {
+        "賃借料": 1,
+        "会議費": 1
+      },
+      "case_ids": [
+        "V030",
+        "V031"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "修繕費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "修繕費": 1
+      },
+      "case_ids": [
+        "V063"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "修繕費",
+        "消耗品費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "消耗品費": 1
+      },
+      "case_ids": [
+        "V005"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "修繕費",
+        "車両費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "車両費": 1
+      },
+      "case_ids": [
+        "V082"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "修繕費",
+        "雑費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "修繕費": 1
+      },
+      "case_ids": [
+        "V098"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "印刷製本費",
+        "広告宣伝費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "印刷製本費": 1
+      },
+      "case_ids": [
+        "V061"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "印刷製本費",
+        "消耗品費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "印刷製本費": 1
+      },
+      "case_ids": [
+        "V016"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "印刷製本費",
+        "租税公課"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "租税公課": 1
+      },
+      "case_ids": [
+        "V057"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "地代家賃"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "地代家賃": 1
+      },
+      "case_ids": [
+        "V051"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "地代家賃",
+        "消耗品費",
+        "賃借料"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "賃借料": 1
+      },
+      "case_ids": [
+        "V050"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "外注工賃"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "外注工賃": 1
+      },
+      "case_ids": [
+        "V032"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "外注工賃",
+        "広告宣伝費",
+        "支払手数料"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "外注工賃": 1
+      },
+      "case_ids": [
+        "V093"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "外注工賃",
+        "賃借料"
+      ],
+      "matched": 2,
+      "evaluated": 2,
+      "actual_accounts": {
+        "賃借料": 1,
+        "外注工賃": 1
+      },
+      "case_ids": [
+        "V036",
+        "V067"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "広告宣伝費",
+        "雑費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "広告宣伝費": 1
+      },
+      "case_ids": [
+        "V068"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "損害保険料"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "損害保険料": 1
+      },
+      "case_ids": [
+        "V053"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "損害保険料",
+        "車両費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "損害保険料": 1
+      },
+      "case_ids": [
+        "V054"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "支払手数料"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "支払手数料": 1
+      },
+      "case_ids": [
+        "V055"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "支払手数料",
+        "通信費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "通信費": 1
+      },
+      "case_ids": [
+        "V046"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "旅費交通費"
+      ],
+      "matched": 7,
+      "evaluated": 7,
+      "actual_accounts": {
+        "旅費交通費": 7
+      },
+      "case_ids": [
+        "V021",
+        "V022",
+        "V023",
+        "V024",
+        "V025",
+        "V026",
+        "V027"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "旅費交通費",
+        "車両費"
+      ],
+      "matched": 2,
+      "evaluated": 2,
+      "actual_accounts": {
+        "車両費": 1,
+        "旅費交通費": 1
+      },
+      "case_ids": [
+        "V083",
+        "V085"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "水道光熱費"
+      ],
+      "matched": 2,
+      "evaluated": 2,
+      "actual_accounts": {
+        "水道光熱費": 2
+      },
+      "case_ids": [
+        "V042",
+        "V043"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "消耗品費"
+      ],
+      "matched": 6,
+      "evaluated": 6,
+      "actual_accounts": {
+        "消耗品費": 6
+      },
+      "case_ids": [
+        "V001",
+        "V007",
+        "V015",
+        "V017",
+        "V018",
+        "V092"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "消耗品費",
+        "荷造運賃"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "消耗品費": 1
+      },
+      "case_ids": [
+        "V070"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "研修費"
+      ],
+      "matched": 2,
+      "evaluated": 3,
+      "actual_accounts": {
+        "研修費": 2,
+        "未提案": 1
+      },
+      "case_ids": [
+        "V034",
+        "V073",
+        "V100"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "租税公課",
+        "通信費"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "通信費": 1
+      },
+      "case_ids": [
+        "V047"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "荷造運賃"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "荷造運賃": 1
+      },
+      "case_ids": [
+        "V037"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "賃借料"
+      ],
+      "matched": 1,
+      "evaluated": 1,
+      "actual_accounts": {
+        "賃借料": 1
+      },
+      "case_ids": [
+        "V066"
+      ]
+    },
+    {
+      "acceptable_accounts": [
+        "通信費"
+      ],
+      "matched": 3,
+      "evaluated": 3,
+      "actual_accounts": {
+        "通信費": 3
+      },
+      "case_ids": [
+        "V044",
+        "V045",
+        "V086"
+      ]
+    }
+  ],
+  "comparison_to_pre_release_9e06ef6": {
+    "different_check_results": 0,
+    "cases": []
+  },
+  "cases": [
+    {
+      "id": "V001",
+      "title": "コンビニ58mmサーマル領収書",
+      "pdf": "individual/V001.pdf",
+      "pdf_sha256": "581f7e2f848f7ec324f019b44a305cffcff3f63789b5f851b185be1437ac6d9a",
+      "expected": {
+        "merchant": "コンビニ みちのく",
+        "date": "2023-11-02",
+        "total": 1760,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "コンビニ みちのく",
+        "date": "2023-11-02",
+        "total": 1760,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V002",
+      "title": "スーパー2税率マルチ買い物籠",
+      "pdf": "individual/V002.pdf",
+      "pdf_sha256": "cfc34898b89a76977b3ce2bfcae1ef80841a39554e117feb336663a4047485fc",
+      "expected": {
+        "merchant": "スーパー いちばん星",
+        "date": "2024-03-16",
+        "total": 6964,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "スーパー いちばん星 テスト市店",
+        "date": "2024-03-16",
+        "total": 6964,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "税率ごとの対象額と記載税額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V003",
+      "title": "書店の縦書き帳付き御買上票",
+      "pdf": "individual/V003.pdf",
+      "pdf_sha256": "b5eccd9d779e5b583b8d30777040f9a1afe55b0935c9ba10ccccbe521607c026",
+      "expected": {
+        "merchant": "本と文具 ことば舎",
+        "date": "2021-06-30",
+        "total": 4290,
+        "acceptable_accounts": [
+          "図書費",
+          "研修費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "本と文具 ことば舎",
+        "date": "2021-06-30",
+        "total": 4290,
+        "account": "新聞図書費",
+        "account_code": "E107",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "新聞図書費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "書籍と業務の関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V004",
+      "title": "電器店大型モニタ領収(横A5)",
+      "pdf": "individual/V004.pdf",
+      "pdf_sha256": "3bec105affe3fdb906a6c89a923f2a372f91ca5fa751bfc6fe3a83515b2d4dc6",
+      "expected": {
+        "merchant": "電器専門店 デンキノハコ",
+        "date": "2022-12-14",
+        "total": 91280,
+        "acceptable_accounts": [],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "電器専門店 デンキノハコ",
+        "date": "2022-12-14",
+        "total": 91280,
+        "account": "工具器具備品",
+        "account_code": "A101",
+        "account_kind": "asset",
+        "confidence": "high",
+        "reason": "工具器具備品の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。"
+        ],
+        "review_questions": [
+          "取得価額と経理方式",
+          "利用開始日",
+          "資産・少額資産等の適用条件",
+          "取得価額、利用開始日、経理方式",
+          "耐用年数や少額資産の取扱い"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_ASSET",
+            "title": "機器・備品の資産検討",
+            "action": "asset_review",
+            "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+            "sources": [
+              "depreciation"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V005",
+      "title": "資材センター納品兼領収(写)",
+      "pdf": "individual/V005.pdf",
+      "pdf_sha256": "3af3eea976451c2fd164158e456f4f34b59ea18ad1def6714fbe99312a1eb4c3",
+      "expected": {
+        "merchant": "資材センター たてものや",
+        "date": "2020-08-24",
+        "total": 11008,
+        "acceptable_accounts": [
+          "修繕費",
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "資材センター たてものや",
+        "date": "2020-08-24",
+        "total": 11008,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V006",
+      "title": "画材店の縦書き御買上証(年省略)",
+      "pdf": "individual/V006.pdf",
+      "pdf_sha256": "85fe9c9b277e6c789a2aa70bae10f0e1d56f608953f561adb80518fb2659047a",
+      "expected": {
+        "merchant": "画材 ときわ堂",
+        "date": "",
+        "total": 9000,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "画材ときわ堂",
+        "date": "",
+        "total": 9000,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "low",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V007",
+      "title": "文具店ミシン目控え付き領収書",
+      "pdf": "individual/V007.pdf",
+      "pdf_sha256": "ed5833701d4fd6174f3f50fe2b22fcfa873ce9110df65601d240aaa7108fd8f4",
+      "expected": {
+        "merchant": "文具 ほしぞら堂",
+        "date": "2019-05-07",
+        "total": 4422,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "文具 ほしぞら堂",
+        "date": "2019-05-07",
+        "total": 4422,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V008",
+      "title": "ベーカリー持ち帰り価格札式",
+      "pdf": "individual/V008.pdf",
+      "pdf_sha256": "6f3cc9f8d945a95ee2c760fd30216b34d76e713f1116a62aeb21f07ae668821e",
+      "expected": {
+        "merchant": "ベーカリー ひだまり",
+        "date": "2024-09-09",
+        "total": 2276,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "ベーカリー ひだまり",
+        "date": "2024-09-09",
+        "total": 2276,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V009",
+      "title": "カフェ店内/持帰り税率併記会計票",
+      "pdf": "individual/V009.pdf",
+      "pdf_sha256": "aec8b6e0a34fa7d7fee0e6918d4b9fdfd7e4ebd5d6d6ba86dbe2a8b28970b7ef",
+      "expected": {
+        "merchant": "カフェ つきよみ",
+        "date": "2025-01-12",
+        "total": 3052,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "カフェ つきよみ",
+        "date": "2025-01-12",
+        "total": 3052,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "税率ごとの対象額と記載税額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V010",
+      "title": "衣料店ハンギングタグ式明細票",
+      "pdf": "individual/V010.pdf",
+      "pdf_sha256": "68737524c806a097a459f2781f5802d4d4321bec0ce743a3a3b1c7799a1e89cf",
+      "expected": {
+        "merchant": "ワーク&タウン みらい店",
+        "date": "2023-04-05",
+        "total": 10500,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "ワーク&タウン みらい店",
+        "date": "2023-04-05",
+        "total": 10500,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+        "warnings": [
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V011",
+      "title": "花屋の納品書(後日請求・未入金)",
+      "pdf": "individual/V011.pdf",
+      "pdf_sha256": "34f89ef6478c9f8369a74851849e72307ddb631d4bfd27b295f91862e961cd7e",
+      "expected": {
+        "merchant": "フラワー&グリーン しきさい",
+        "date": "2024-05-22",
+        "total": 6600,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "フラワー&グリーン しきさい",
+        "date": "2024-05-20",
+        "total": 6600,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": false,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V012",
+      "title": "青果店プライスボード式手書き風",
+      "pdf": "individual/V012.pdf",
+      "pdf_sha256": "2922f3c478dc5d8f9484912e5c7f0c322d81d1e8c6ae42413a0c888da89e74cd",
+      "expected": {
+        "merchant": "八百屋 あづまや",
+        "date": "2024-10-03",
+        "total": 3534,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "八百屋 あづまや",
+        "date": "2024-10-03",
+        "total": 3534,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V013",
+      "title": "給油所リットル明細+ミシン目領収",
+      "pdf": "individual/V013.pdf",
+      "pdf_sha256": "0dcead0cad66500f782fb256004511a45a08f9cf0a9beda24bdfecd715bbfe29",
+      "expected": {
+        "merchant": "スタンド ながれやま給油所",
+        "date": "2023-08-11",
+        "total": 6091,
+        "acceptable_accounts": [
+          "車両費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "スタンド ながれやま給油所",
+        "date": "2023-08-11",
+        "total": 6091,
+        "account": "車両費",
+        "account_code": "E126",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号に由来する先頭の誤読を、同じ原本の別の金額表記で照合しました"
+        ],
+        "review_questions": [
+          "業務との関係",
+          "私用分・期間配分・資産処理の要否"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V014",
+      "title": "中古機器店ランク保証明細領収",
+      "pdf": "individual/V014.pdf",
+      "pdf_sha256": "56e931418dfe1721e1700976c042cfd424350fded3870c9bab66a79391209272",
+      "expected": {
+        "merchant": "中古機器 りさいくる市場",
+        "date": "2021-11-19",
+        "total": 60000,
+        "acceptable_accounts": [],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "中古機器 りさいくる市場",
+        "date": "2021-11-19",
+        "total": 60000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+        "warnings": [
+          "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。"
+        ],
+        "review_questions": [
+          "取得価額と経理方式",
+          "利用開始日",
+          "資産・少額資産等の適用条件"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_ASSET",
+            "title": "機器・備品の資産検討",
+            "action": "asset_review",
+            "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+            "sources": [
+              "depreciation"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V015",
+      "title": "卸売業請求兼領収(登録番号付)",
+      "pdf": "individual/V015.pdf",
+      "pdf_sha256": "1497814770dbc41c559b34069d6f6f02084ab02312d4c2def145eead19f878a0",
+      "expected": {
+        "merchant": "卸売 オフィスサプライ山川",
+        "date": "2024-09-30",
+        "total": 81840,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "卸売 オフィスサプライ山川",
+        "date": "2024-09-30",
+        "total": 81840,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V016",
+      "title": "EC注文完了画面(ブラウザ風)",
+      "pdf": "individual/V016.pdf",
+      "pdf_sha256": "bd87b56eb9d1f0aef9e279c6670b27858eb5b4983463cfe544283acc32565d39",
+      "expected": {
+        "merchant": "テストショップ(架空EC)",
+        "date": "2024-07-18",
+        "total": 7610,
+        "acceptable_accounts": [
+          "消耗品費",
+          "印刷製本費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストショップ運営(架空)",
+        "date": "2024-07-18",
+        "total": 7610,
+        "account": "印刷製本費",
+        "account_code": "E127",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "印刷製本費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました"
+        ],
+        "review_questions": [
+          "業務との関係",
+          "私用分・期間配分・資産処理の要否"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V017",
+      "title": "クーポン値引併用レシート",
+      "pdf": "individual/V017.pdf",
+      "pdf_sha256": "eb1eeacf3dd1c3d05d501e9f8fc017e37e9cabfb70e14f8d1ccdb88f41e991da",
+      "expected": {
+        "merchant": "ドラッグストア くすりのもり",
+        "date": "2022-06-30",
+        "total": 1690,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "ドラッグストア くすりのもり",
+        "date": "2022-06-30",
+        "total": 1690,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V018",
+      "title": "ポイント併用レシート(充当/付与)",
+      "pdf": "individual/V018.pdf",
+      "pdf_sha256": "0d406a09bff02d94a6081bfbe367bb1f3de25c8b67f490df0c30af9c897003a3",
+      "expected": {
+        "merchant": "ホームセンター きぼう館",
+        "date": "2025-02-14",
+        "total": 3274,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "ホームセンター きぼう館",
+        "date": "2025-02-14",
+        "total": 3274,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました",
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V019",
+      "title": "返品返金伝票(マイナス金額)",
+      "pdf": "individual/V019.pdf",
+      "pdf_sha256": "a1143d3b1c9e9056cc6548f078089f6f7692785b63b1f9e4a6ce05defb2b5710",
+      "expected": {
+        "merchant": "電器専門店 デンキノハコ",
+        "date": "2024-07-25",
+        "total": -1480,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "電器専門店 デンキノハコ",
+        "date": "2024-07-25",
+        "total": 1480,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+        "warnings": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "元の取引と返金額",
+          "入金・カード返金の実際",
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。",
+          "返金・取消の記録です。元取引に対応する返金仕訳を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_REFUND",
+            "title": "返品・返金・取消",
+            "action": "block",
+            "message": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V020",
+      "title": "手書き風個人商店売上控(年省略)",
+      "pdf": "individual/V020.pdf",
+      "pdf_sha256": "e0ba95172ba396bf4b909da4d9642e1386cf394fc5f6f2c888ad946aa852cf08",
+      "expected": {
+        "merchant": "八百 たなか",
+        "date": "",
+        "total": 970,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "八百 たなか",
+        "date": "",
+        "total": 970,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V021",
+      "title": "タクシー縦長感熱票",
+      "pdf": "individual/V021.pdf",
+      "pdf_sha256": "4440450e7373d0ec84ad907b15aef7fee0b613590efc3dab2b695dad905a5b14",
+      "expected": {
+        "merchant": "みずほ架空交通",
+        "date": "2023-11-08",
+        "total": 3280,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "みずほ架空交通",
+        "date": "2023-11-08",
+        "total": 3280,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V022",
+      "title": "タクシー横型領収券",
+      "pdf": "individual/V022.pdf",
+      "pdf_sha256": "241b84f9ee237d79d4f034eb5cb9e4aaea2ba3c6ae3a4ab7463f7df8c5656c01",
+      "expected": {
+        "merchant": "こはくタクシー",
+        "date": "2024-06-14",
+        "total": 4600,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "こはくタクシー",
+        "date": "2024-06-14",
+        "total": 4600,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V023",
+      "title": "鉄道券売機領収書",
+      "pdf": "individual/V023.pdf",
+      "pdf_sha256": "3ae221312d08598c7c137f0a6932f4b412b6653020e1064dd3cfb19bacd0a223",
+      "expected": {
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "date": "2022-04-03",
+        "total": 1180,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "date": "2022-04-03",
+        "total": 1180,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V024",
+      "title": "指定席鉄道電子領収書",
+      "pdf": "individual/V024.pdf",
+      "pdf_sha256": "800525623ca58d3eb659510787c4277923d170ad1b7d2d5a87660dfc1a8416b4",
+      "expected": {
+        "merchant": "空想高速鉄道",
+        "date": "2025-02-20",
+        "total": 18240,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "空想高速鉄道",
+        "date": "2025-02-20",
+        "total": 18240,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V025",
+      "title": "航空付帯料金付旅程領収書",
+      "pdf": "individual/V025.pdf",
+      "pdf_sha256": "b92a90b1fcb4a19ce766a54e9aa259a0de1082da6a884a218deebce4cb987574",
+      "expected": {
+        "merchant": "AOZORA FICTION AIR",
+        "date": "2024-07-10",
+        "total": 32900,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "AOZORA FICTION AIR",
+        "date": "2024-07-10",
+        "total": 32900,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V026",
+      "title": "高速道路料金所小票",
+      "pdf": "individual/V026.pdf",
+      "pdf_sha256": "9f35d745f39255b1a1af60d20b817b398cdc45490e62bfe6ddf118e8cb3d5724",
+      "expected": {
+        "merchant": "空想道路サービス",
+        "date": "2021-12-09",
+        "total": 860,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "空想道路サービス",
+        "date": "2021-12-09",
+        "total": 860,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V027",
+      "title": "駐車時間タイムライン",
+      "pdf": "individual/V027.pdf",
+      "pdf_sha256": "78975522c4653dea68de7d12e38b26c23ff60d16369bb5ef4d07e40bf0d2ca65",
+      "expected": {
+        "merchant": "そよかぜ架空パーキング",
+        "date": "2026-01-17",
+        "total": 1400,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "そよかぜ架空パーキング",
+        "date": "2026-01-17",
+        "total": 1400,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V028",
+      "title": "ホテル付帯利用明細",
+      "pdf": "individual/V028.pdf",
+      "pdf_sha256": "6b727b10e94475d66383d789892928a0e30350abed3c922bd1f25794faaefd7e",
+      "expected": {
+        "merchant": "ホテル架空庭",
+        "date": "2025-09-12",
+        "total": 14500,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "ホテル架空庭",
+        "date": "2025-09-12",
+        "total": 14500,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V029",
+      "title": "旅館予約金差引残金領収書",
+      "pdf": "individual/V029.pdf",
+      "pdf_sha256": "646f1ed5ac8c255c2b80f001e6e5f5aa7755bea9a95c0dfa4850adb757db888c",
+      "expected": {
+        "merchant": "旅館 つきの架空庵",
+        "date": "2023-10-22",
+        "total": 16000,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "旅館 つきの架空庵",
+        "date": "2023-10-22",
+        "total": 16000,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V030",
+      "title": "コワーキングカード型",
+      "pdf": "individual/V030.pdf",
+      "pdf_sha256": "0777c7bc8a898bbc7de8267f3643e548c4d05fdcf58d614ee0727b6c756935ed",
+      "expected": {
+        "merchant": "架空ワークラウンジ",
+        "date": "2024-05-08",
+        "total": 2200,
+        "acceptable_accounts": [
+          "賃借料",
+          "会議費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空ワークラウンジ",
+        "date": "2024-05-08",
+        "total": 2200,
+        "account": "賃借料",
+        "account_code": "E118",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "契約期間",
+          "購入・リース資産の処理が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V031",
+      "title": "時間貸会議室入金明細",
+      "pdf": "individual/V031.pdf",
+      "pdf_sha256": "de420f095c4f84173eeee272a32a58e218a4fb44934ef23b2a2c20ff07988eef",
+      "expected": {
+        "merchant": "架空スペース管理合同会社",
+        "date": "2025-06-19",
+        "total": 8100,
+        "acceptable_accounts": [
+          "会議費",
+          "賃借料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空スペース管理合同会社",
+        "date": "2025-06-19",
+        "total": 8100,
+        "account": "会議費",
+        "account_code": "E104",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "会議費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "打合せの目的",
+          "相手と人数",
+          "私的な飲食ではないか"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V032",
+      "title": "制作業務入金済請求書",
+      "pdf": "individual/V032.pdf",
+      "pdf_sha256": "eafe861825fef84a8deedf69527075a661962a0ae7f34f6becfff36c85a78388",
+      "expected": {
+        "merchant": "架空デザイン室",
+        "date": "2024-12-25",
+        "total": 66000,
+        "acceptable_accounts": [
+          "外注費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空デザイン室",
+        "date": "2024-12-25",
+        "total": 66000,
+        "account": "外注工賃",
+        "account_code": "E111",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "委託内容と完了日",
+          "源泉徴収等の別処理の有無"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V033",
+      "title": "源泉控除法律相談受領明細",
+      "pdf": "individual/V033.pdf",
+      "pdf_sha256": "5d97b3e7dff1b7bc317ed2ffb71275200921100308efc5ff7b319357f854e3f5",
+      "expected": {
+        "merchant": "架空みどり法律事務所",
+        "date": "2025-04-16",
+        "total": 29937,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空みどり法律事務所",
+        "date": "2025-04-16",
+        "total": 29937,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。"
+        ],
+        "review_questions": [
+          "税込報酬総額",
+          "源泉徴収額",
+          "実際の支払額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_WITHHOLDING",
+            "title": "源泉徴収を伴う支払",
+            "action": "hold",
+            "message": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V034",
+      "title": "早期割引セミナー参加費",
+      "pdf": "individual/V034.pdf",
+      "pdf_sha256": "c57cc15439fd0b47960f2a43b68872c5b6510b4ced2597c6f9781ce83b2f086c",
+      "expected": {
+        "merchant": "学びの架空社",
+        "date": "2023-08-01",
+        "total": 5000,
+        "acceptable_accounts": [
+          "研修費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "学びの架空社",
+        "date": "2023-08-01",
+        "total": 5000,
+        "account": "研修費",
+        "account_code": "E116",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "研修費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "講座内容と業務の関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V035",
+      "title": "イベント切取券風領収書",
+      "pdf": "individual/V035.pdf",
+      "pdf_sha256": "32a3be0e3c56752de90e20da788909532b182e83f5f770e5d49f50af41bbc384",
+      "expected": {
+        "merchant": "テスト市文化交流会（架空団体）",
+        "date": "2022-11-03",
+        "total": 1800,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テスト市文化交流会（架空団体）",
+        "date": "2022-11-03",
+        "total": 1800,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "入場・参加料の用途が原本から確定できません。業務との関係と私用分を確認してください。",
+        "warnings": [
+          "入場・参加料の用途が原本から確定できません。業務との関係と私用分を確認してください。"
+        ],
+        "review_questions": [
+          "参加目的と事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_EVENT_PURPOSE",
+            "title": "入場・参加目的の確認",
+            "action": "hold",
+            "message": "入場・参加料の用途が原本から確定できません。業務との関係と私用分を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V036",
+      "title": "撮影スタジオ時間精算",
+      "pdf": "individual/V036.pdf",
+      "pdf_sha256": "5c5f3db16cbcc1a4b7b76d55405a0834eef4de3df0a210ee4d30f2e77e903200",
+      "expected": {
+        "merchant": "STUDIO 空想光",
+        "date": "2026-02-06",
+        "total": 18150,
+        "acceptable_accounts": [
+          "賃借料",
+          "外注費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "STUDIO 空想光",
+        "date": "2026-02-06",
+        "total": 18150,
+        "account": "賃借料",
+        "account_code": "E118",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "契約期間",
+          "購入・リース資産の処理が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V037",
+      "title": "宅配ラベル風運送料票",
+      "pdf": "individual/V037.pdf",
+      "pdf_sha256": "a04ae9e1683d7ffad90ca5e04fb40429bc7f52bdf17d55b25774635710845465",
+      "expected": {
+        "merchant": "架空便",
+        "date": "2024-03-12",
+        "total": 1450,
+        "acceptable_accounts": [
+          "荷造運賃"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空便",
+        "date": "2024-03-12",
+        "total": 1450,
+        "account": "荷造運賃",
+        "account_code": "E112",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "荷造運賃の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "発送した業務上の物品と相手"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V038",
+      "title": "海外USDデジタル請求書",
+      "pdf": "individual/V038.pdf",
+      "pdf_sha256": "c3d277a6fa0fc560bb7719053d99e0a2f5244511e921c14e8215f3e4d96b8bd1",
+      "expected": {
+        "merchant": "FICTION CLOUD STUDIO",
+        "date": "2025-10-03",
+        "total": null,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "FICTION CLOUD STUDIO",
+        "date": "2025-10-03",
+        "total": null,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。",
+        "warnings": [
+          "外貨の記載です。実際に確定した円換算額をカード明細等から確認してください",
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。"
+        ],
+        "review_questions": [
+          "円建て確定額と換算根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOREIGN",
+            "title": "外貨の円額が未確定",
+            "action": "hold",
+            "message": "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V039",
+      "title": "模擬手書き謝礼領収書",
+      "pdf": "individual/V039.pdf",
+      "pdf_sha256": "f4286b57f187671363ea5f09670f410b0f988c37d1fff0db240d4c88d3e548f7",
+      "expected": {
+        "merchant": "架空ことば研究会",
+        "date": "2022-05-16",
+        "total": 20000,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空ことば研究会",
+        "date": "2022-05-16",
+        "total": 20000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "謝礼・謝金の記載があります。支払先の属性、報酬総額、源泉徴収の要否や別仕訳を確認してください。",
+        "warnings": [
+          "謝礼・謝金の記載があります。支払先の属性、報酬総額、源泉徴収の要否や別仕訳を確認してください。"
+        ],
+        "review_questions": [
+          "支払先と役務内容",
+          "源泉徴収の要否と金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_HONORARIUM",
+            "title": "謝礼・謝金の支払確認",
+            "action": "hold",
+            "message": "謝礼・謝金の記載があります。支払先の属性、報酬総額、源泉徴収の要否や別仕訳を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V040",
+      "title": "未入金調査委託請求書",
+      "pdf": "individual/V040.pdf",
+      "pdf_sha256": "dc18c5976be262915ebea9c1f3ced246023a526cb5b6632b4045fb797bd12c52",
+      "expected": {
+        "merchant": "架空調査パートナーズ",
+        "date": "2026-03-02",
+        "total": 88000,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "架空調査パートナーズ",
+        "date": "2026-03-02",
+        "total": 88000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V041",
+      "title": "電力メータ検針詳細と請求内訳（A4縦・4分割メータ欄）",
+      "pdf": "individual/V041.pdf",
+      "pdf_sha256": "6604a7e4d39bcf3a956874b568efdb6285f5cb21c110d764f76f02a157b2e001",
+      "expected": {
+        "merchant": "テスト電力株式会社",
+        "date": "2024-06-03",
+        "total": 25968,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "テスト電力株式会社",
+        "date": "2024-06-03",
+        "total": 25968,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V042",
+      "title": "ガス料金 領収書＋検針明細（A5横・左右分割）",
+      "pdf": "individual/V042.pdf",
+      "pdf_sha256": "a98b09b2a48ddd440d81f5b475cd4e7305df6404b87caab15de2d21e41ba6eb6",
+      "expected": {
+        "merchant": "テスト都市ガス株式会社",
+        "date": "2024-05-14",
+        "total": 4437,
+        "acceptable_accounts": [
+          "水道光熱費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト都市ガス株式会社",
+        "date": "2024-05-14",
+        "total": 4437,
+        "account": "水道光熱費",
+        "account_code": "E109",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "水道光熱費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。"
+        ],
+        "review_questions": [
+          "事業で使った割合",
+          "その割合の根拠",
+          "利用期間",
+          "共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_SHARED",
+            "title": "家事関連費の確認",
+            "action": "review",
+            "message": "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V043",
+      "title": "上下水道料金 領収書（A4縦・上下2面・メータ縦罫）",
+      "pdf": "individual/V043.pdf",
+      "pdf_sha256": "207ac54c871937c5f57999f687fd95653893a3cb99ba65aeaef6e270488fcf42",
+      "expected": {
+        "merchant": "テスト市水道局（架空）",
+        "date": "2024-06-18",
+        "total": 3410,
+        "acceptable_accounts": [
+          "水道光熱費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト市水道局",
+        "date": "2024-06-18",
+        "total": 3410,
+        "account": "水道光熱費",
+        "account_code": "E109",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "水道光熱費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。"
+        ],
+        "review_questions": [
+          "事業で使った割合",
+          "その割合の根拠",
+          "利用期間",
+          "共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_SHARED",
+            "title": "家事関連費の確認",
+            "action": "review",
+            "message": "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V044",
+      "title": "携帯2回線 合算領収書（A4縦・回線ツリー）",
+      "pdf": "individual/V044.pdf",
+      "pdf_sha256": "297374a68acb60052ff363440574fd84e593b12402f68290d1b9f846a02fe124",
+      "expected": {
+        "merchant": "架空モバイル通信株式会社",
+        "date": "2024-06-27",
+        "total": 13479,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空モバイル通信株式会社",
+        "date": "2024-06-27",
+        "total": 13479,
+        "account": "通信費",
+        "account_code": "E102",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V045",
+      "title": "固定回線 開通工事費＋月額 明細（B5横・左ナビ帯）",
+      "pdf": "individual/V045.pdf",
+      "pdf_sha256": "f4fb94ac2b1c50fe127cf2bbdbca5485a6d0b856852127483939aef1e4ee882d",
+      "expected": {
+        "merchant": "テスト光ネットワーク株式会社",
+        "date": "2024-04-08",
+        "total": 8980,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト光ネットワーク株式会社",
+        "date": "2024-04-08",
+        "total": 8980,
+        "account": "通信費",
+        "account_code": "E102",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。"
+        ],
+        "review_questions": [
+          "事業で使った割合",
+          "その割合の根拠",
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_SHARED",
+            "title": "家事関連費の確認",
+            "action": "review",
+            "message": "私用と共用になることがある支出です。実際の利用に基づく事業割合と、その根拠を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V046",
+      "title": "クラウドサーバー 月次利用明細（A4縦・三列タイル）",
+      "pdf": "individual/V046.pdf",
+      "pdf_sha256": "48f78e04ca8f0710c93f83bd78c82b674359be73c06aa19c46da08d2c48f7de6",
+      "expected": {
+        "merchant": "TEST CLOUD（架空クラウド事業者）",
+        "date": "2024-06-01",
+        "total": 30162,
+        "acceptable_accounts": [
+          "通信費",
+          "支払手数料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "TEST CLOUD",
+        "date": "2024-06-01",
+        "total": 30162,
+        "account": "通信費",
+        "account_code": "E102",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V047",
+      "title": "ドメイン更新料 領収書（A5縦・中央レシート風）",
+      "pdf": "individual/V047.pdf",
+      "pdf_sha256": "b08f4004a28644a2ca8b7edaf312f7a149b0688e8d5d2599bd25d72d7d16a664",
+      "expected": {
+        "merchant": "テストネームサービス株式会社",
+        "date": "2024-03-18",
+        "total": 1122,
+        "acceptable_accounts": [
+          "通信費",
+          "租税公課"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストネームサービス株式会社",
+        "date": "2024-03-18",
+        "total": 1122,
+        "account": "通信費",
+        "account_code": "E102",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V048",
+      "title": "年次SaaS 年度跨ぎライセンス 領収書（A4横・左期間パネル）",
+      "pdf": "individual/V048.pdf",
+      "pdf_sha256": "a85d00a8e43b2f6d356a33e5d0bace95c0b9d798707181d486aef3fbfa463551",
+      "expected": {
+        "merchant": "テストソフトウェア株式会社",
+        "date": "2028-03-05",
+        "total": 682000,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テストソフトウェア株式会社",
+        "date": "2028-03-05",
+        "total": 682000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。"
+        ],
+        "review_questions": [
+          "サービス開始日と終了日",
+          "当期分・翌期分の処理"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PREPAID",
+            "title": "年払・複数期間の支払",
+            "action": "hold",
+            "message": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V049",
+      "title": "ソフトウェア買切ライセンス 資産候補票（A4縦・三段）",
+      "pdf": "individual/V049.pdf",
+      "pdf_sha256": "9313767b27a6a9049920647cbf83f0e8f94fba51a4299d34b4ab36c6378b2ad1",
+      "expected": {
+        "merchant": "テスト計測システム株式会社",
+        "date": "2024-02-28",
+        "total": 550000,
+        "acceptable_accounts": [
+          "消耗品費",
+          "工具器具備品",
+          "長期前払費用"
+        ],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "テスト計測システム株式会社",
+        "date": "2024-02-28",
+        "total": 550000,
+        "account": "ソフトウェア",
+        "account_code": "A102",
+        "account_kind": "asset",
+        "confidence": "high",
+        "reason": "ソフトウェアの暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください"
+        ],
+        "review_questions": [
+          "買切りか継続サービスか",
+          "取得価額、利用期間、償却の扱い"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V050",
+      "title": "事務機器リース 月額支払明細（A5横・左契約右内訳）",
+      "pdf": "individual/V050.pdf",
+      "pdf_sha256": "689d6526f9fa7875101bfd9f48cc0fbc76adb951d49db8b1b1ac8ac4e748d5ea",
+      "expected": {
+        "merchant": "テストリース株式会社",
+        "date": "2024-03-05",
+        "total": 28000,
+        "acceptable_accounts": [
+          "リース料",
+          "地代家賃",
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストリース株式会社",
+        "date": "2024-03-05",
+        "total": 28000,
+        "account": "賃借料",
+        "account_code": "E118",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "契約期間",
+          "購入・リース資産の処理が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V051",
+      "title": "事務所賃料 領収書（A4縦・封筒型枠＋透かし）",
+      "pdf": "individual/V051.pdf",
+      "pdf_sha256": "96331ff638b1f880384926deb60f78920e69b0bf54da69371e431c8db6f88b7f",
+      "expected": {
+        "merchant": "テスト不動産株式会社",
+        "date": "2024-06-20",
+        "total": 165000,
+        "acceptable_accounts": [
+          "地代家賃"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト不動産株式会社 / 架空町管理部",
+        "date": "2024-06-20",
+        "total": 165000,
+        "account": "地代家賃",
+        "account_code": "E108",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "地代家賃の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "賃借した期間と場所",
+          "共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V052",
+      "title": "自宅兼事務所 家賃の業務用按分 領収書（A5縦・二重枠按分表）",
+      "pdf": "individual/V052.pdf",
+      "pdf_sha256": "211347494eac353f30fd65ca3a3d89371a7fdc58d0d486137e38b3f7ceb31170",
+      "expected": {
+        "merchant": "架空住宅管理サービス（架空）",
+        "date": "2024-06-27",
+        "total": 16800,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空住宅管理サービス（架空）",
+        "date": "2024-06-27",
+        "total": 16800,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。"
+        ],
+        "review_questions": [
+          "借りた場所の業務用途",
+          "事業で使う割合と根拠",
+          "今回の支払額と対象期間"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_RESIDENTIAL_RENT",
+            "title": "居住用家賃の用途確認",
+            "action": "hold",
+            "message": "居住用の家賃の記載があります。業務で使う場所・事業割合と金額の根拠を確認してから、科目を選んでください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V053",
+      "title": "法人向け賠償責任保険 保険料領収書（B5縦・左縦書き帯）",
+      "pdf": "individual/V053.pdf",
+      "pdf_sha256": "a2724edb5174549cfe7fade19e44631f3ec878b7bf6b27f22e771620d1b79d47",
+      "expected": {
+        "merchant": "テスト損害保険株式会社",
+        "date": "2024-03-25",
+        "total": 54000,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト損害保険株式会社",
+        "date": "2024-03-25",
+        "total": 54000,
+        "account": "損害保険料",
+        "account_code": "E114",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "補償対象、契約期間、事業使用部分"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V054",
+      "title": "社用車任意保険 領収書（A4縦・車両情報グリッド）",
+      "pdf": "individual/V054.pdf",
+      "pdf_sha256": "240b699a86e21ca20fe24dcb7e1b81ff97cd41073cfed60ab7e97aa5dc6ada3b",
+      "expected": {
+        "merchant": "テストモーター保険株式会社",
+        "date": "2024-05-28",
+        "total": 66200,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料",
+          "車両費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストモーター保険株式会社",
+        "date": "2024-05-28",
+        "total": 66200,
+        "account": "損害保険料",
+        "account_code": "E114",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "損害保険料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "補償対象、契約期間、事業使用部分"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V055",
+      "title": "銀行振込手数料 受付票兼領収（B5横・等幅モノスペース明細）",
+      "pdf": "individual/V055.pdf",
+      "pdf_sha256": "475779f0d45357b1d614bab445b836104be39f438872a9eeaa973fac2e3a8573",
+      "expected": {
+        "merchant": "TEST BANK 架空支店（架空銀行）",
+        "date": "2024-07-01",
+        "total": 660,
+        "acceptable_accounts": [
+          "支払手数料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "TEST BANK 架空支店",
+        "date": "2024-07-01",
+        "total": 660,
+        "account": "支払手数料",
+        "account_code": "E110",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "支払手数料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "サービスの内容と期間",
+          "買切り資産・前払ではないか"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V056",
+      "title": "ローン元利均等返済 予定表兼領収（A4横・左縦罫表/右箱サマリ）",
+      "pdf": "individual/V056.pdf",
+      "pdf_sha256": "fdb8f6b61b60c2e4e91e871c4cdad78d310747b0c86c29b19dde06b6767c41c3",
+      "expected": {
+        "merchant": "テストローン株式会社（架空金融）",
+        "date": "2024-06-27",
+        "total": 83900,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テストローン",
+        "date": "2024-06-27",
+        "total": 83900,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V057",
+      "title": "収入印紙 購入代金領収証（A5横・切手風券種ブロック）",
+      "pdf": "individual/V057.pdf",
+      "pdf_sha256": "1a0ee2c5aeaa9204694333a5119b798afa71103560774ac65c73b8f1c599ece5",
+      "expected": {
+        "merchant": "テスト郵便局（架空）",
+        "date": "2024-06-10",
+        "total": 7000,
+        "acceptable_accounts": [
+          "租税公課",
+          "印刷費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト郵便局",
+        "date": "2024-06-10",
+        "total": 7000,
+        "account": "租税公課",
+        "account_code": "E115",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "租税公課の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "画像OCRとPDFの文字層に金額の相違があります。文字層の候補を原本と照合してください",
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "税の種類",
+          "所得税・住民税・罰金等ではないか",
+          "印紙等を業務で使用したか"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V058",
+      "title": "自治体証明書手数料 領収書（A5縦・左窓口右金額枠）",
+      "pdf": "individual/V058.pdf",
+      "pdf_sha256": "f64af666aa401e0d7132389c86beb2eaa3501f459f73a32438183e5f4f1675d3",
+      "expected": {
+        "merchant": "テスト市役所架空町支所（架空）",
+        "date": "2024-07-03",
+        "total": 300,
+        "acceptable_accounts": [
+          "租税公課",
+          "事務用品費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テスト市役所 架空町支所",
+        "date": "2024-07-03",
+        "total": 300,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+        "warnings": [
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V059",
+      "title": "所得税 予定納税の納付証明（A4縦・左右2枚組領収証）",
+      "pdf": "individual/V059.pdf",
+      "pdf_sha256": "4b5698e4bc7406b085226083e78f47d340a430491685814f6ed20bc61ff08452",
+      "expected": {
+        "merchant": "テスト税務署（架空）",
+        "date": "2024-07-25",
+        "total": 92400,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テスト税務署",
+        "date": "2024-07-25",
+        "total": 92400,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。",
+        "warnings": [
+          "複数の記載金額からローカルAIが今回分の候補を選びました。原本と照合してください",
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。"
+        ],
+        "review_questions": [
+          "税や支出の正式名称"
+        ],
+        "blocking_reasons": [
+          "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_PERSONAL_TAX",
+            "title": "必要経費に含めない税・罰金等",
+            "action": "block",
+            "message": "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": false,
+        "blocked": true,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V060",
+      "title": "自治体の過料 納付通知兼領収（A5横・横罫表＋太枠納付帯）",
+      "pdf": "individual/V060.pdf",
+      "pdf_sha256": "f7ff186bd58c77ed8fcc67d4b054505a9f83832c439e0fbf6461b9d17c86ece8",
+      "expected": {
+        "merchant": "テスト市架空町 会計課（架空）",
+        "date": "2024-05-20",
+        "total": 12000,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テスト市架空町 会計課",
+        "date": "2024-05-20",
+        "total": 12000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。"
+        ],
+        "review_questions": [
+          "税や支出の正式名称"
+        ],
+        "blocking_reasons": [
+          "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_PERSONAL_TAX",
+            "title": "必要経費に含めない税・罰金等",
+            "action": "block",
+            "message": "所得税・住民税・罰金等の語句があります。事業の経費への計上は保留し、内容を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": false,
+        "blocked": true,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V061",
+      "title": "印刷工房の詳細請求明細書（入金済）",
+      "pdf": "individual/V061.pdf",
+      "pdf_sha256": "a3a6e97081bde5f84078f3533cdd5e4c0ea07096580d29d24a678e7c1840f856",
+      "expected": {
+        "merchant": "イラスト印刷工房 こもれび",
+        "date": "2026-02-03",
+        "total": 187330,
+        "acceptable_accounts": [
+          "印刷費",
+          "広告宣伝費",
+          "販売促進費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "イラスト印刷工房 こもれび",
+        "date": "2026-02-03",
+        "total": 187330,
+        "account": "印刷製本費",
+        "account_code": "E127",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "印刷製本費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "業務との関係",
+          "私用分・期間配分・資産処理の要否"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V062",
+      "title": "名刺印刷の見積書（未払い）",
+      "pdf": "individual/V062.pdf",
+      "pdf_sha256": "bd14eba26cca86e533d830000fd488cfc5a278241dd8d8711193da6299382e6a",
+      "expected": {
+        "merchant": "さくら製版印刷 株式会社",
+        "date": "2027-05-28",
+        "total": 64900,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "さくら製版印刷 株式会社",
+        "date": "2027-05-28",
+        "total": 64900,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V063",
+      "title": "モニター修理の受付票兼領収書（80mm）",
+      "pdf": "individual/V063.pdf",
+      "pdf_sha256": "520d0f108d9e739ce8ec61fb4754d64bc46c54b8b0400ad0768d4a505c1426a3",
+      "expected": {
+        "merchant": "パソコン修理 みつばち電機",
+        "date": "2025-11-11",
+        "total": 39380,
+        "acceptable_accounts": [
+          "修繕費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "パソコン修理 みつばち電機",
+        "date": "2025-11-11",
+        "total": 39380,
+        "account": "修繕費",
+        "account_code": "E113",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "修繕費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "原状回復か、機能向上や資産取得か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V064",
+      "title": "自作PCパーツのカード領収明細（資産確認用）",
+      "pdf": "individual/V064.pdf",
+      "pdf_sha256": "ea0bca4004a7fbc94ac3d64b90d02c2ae0d22263a612aa7ab4f94e7c4e5da0c7",
+      "expected": {
+        "merchant": "架空パーツ館 テスト店",
+        "date": "2024-03-09",
+        "total": 284130,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "備品費"
+        ],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "架空パーツ館 テスト店",
+        "date": "2024-03-09",
+        "total": 284130,
+        "account": "工具器具備品",
+        "account_code": "A101",
+        "account_kind": "asset",
+        "confidence": "high",
+        "reason": "工具器具備品の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。"
+        ],
+        "review_questions": [
+          "取得価額と経理方式",
+          "利用開始日",
+          "資産・少額資産等の適用条件",
+          "取得価額、利用開始日、経理方式",
+          "耐用年数や少額資産の取扱い"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_ASSET",
+            "title": "機器・備品の資産検討",
+            "action": "asset_review",
+            "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+            "sources": [
+              "depreciation"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V065",
+      "title": "家具の配送・組立完了書（兼領収書）",
+      "pdf": "individual/V065.pdf",
+      "pdf_sha256": "bba062b3328b612cf769d3f367ffc5f05c5cf064fd04a2eb86cc77a88a87cc4c",
+      "expected": {
+        "merchant": "テスト市家具 リビング館",
+        "date": "2023-09-21",
+        "total": 273900,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "備品費"
+        ],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "テスト市家具 リビング館",
+        "date": "2023-09-21",
+        "total": 273900,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました",
+          "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。"
+        ],
+        "review_questions": [
+          "取得価額と経理方式",
+          "利用開始日",
+          "資産・少額資産等の適用条件"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_ASSET",
+            "title": "機器・備品の資産検討",
+            "action": "asset_review",
+            "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+            "sources": [
+              "depreciation"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V066",
+      "title": "カメラ機材レンタルの精算書",
+      "pdf": "individual/V066.pdf",
+      "pdf_sha256": "8f02ab0b78bdde2e0320235a98eca202ee114875b9775408b4fb9f4b62ca29c9",
+      "expected": {
+        "merchant": "架空撮影機材 テスト市レンタル",
+        "date": "2024-04-10",
+        "total": 73590,
+        "acceptable_accounts": [
+          "賃借料",
+          "レンタル料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空撮影機材 テスト市レンタル",
+        "date": "2024-04-10",
+        "total": 73590,
+        "account": "賃借料",
+        "account_code": "E118",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "賃借料の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "契約期間",
+          "購入・リース資産の処理が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V067",
+      "title": "レコーディングスタジオのセッション利用請求書",
+      "pdf": "individual/V067.pdf",
+      "pdf_sha256": "10cf1d02928405ffd60ef72d067f7b0826d85d7697252c27fed950d2f6bfa4d7",
+      "expected": {
+        "merchant": "架空スタジオ 音色",
+        "date": "2022-12-20",
+        "total": 291280,
+        "acceptable_accounts": [
+          "賃借料",
+          "外注費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空スタジオ 音色",
+        "date": "2022-12-20",
+        "total": 291280,
+        "account": "外注工賃",
+        "account_code": "E111",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "委託内容と完了日",
+          "源泉徴収等の別処理の有無"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V068",
+      "title": "広告出稿の媒体別支払済サマリー",
+      "pdf": "individual/V068.pdf",
+      "pdf_sha256": "6567e3dd4767f49b5709178f54e783cdc24ac7f5a2b07b77a2762ac951ac1d3a",
+      "expected": {
+        "merchant": "架空広告代理店 ネクストテスト",
+        "date": "2025-08-25",
+        "total": 1342000,
+        "acceptable_accounts": [
+          "広告宣伝費",
+          "販売促進費",
+          "雑費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空広告代理店 ネクストテスト",
+        "date": "2025-08-25",
+        "total": 1342000,
+        "account": "広告宣伝費",
+        "account_code": "E106",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "広告宣伝費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "税率ごとの対象額と記載税額",
+          "広告した事業・案件と掲載期間"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V069",
+      "title": "卸売商品の仕入請求書（入金済）",
+      "pdf": "individual/V069.pdf",
+      "pdf_sha256": "4ce40ceaef905cfe49315ce4298f6b4d2139d6301a2881a8c94ad66f192e7806",
+      "expected": {
+        "merchant": "架空物産卸 株式会社",
+        "date": "2024-02-20",
+        "total": 230340,
+        "acceptable_accounts": [
+          "仕入高",
+          "消耗品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空物産卸 株式会社",
+        "date": "2024-02-20",
+        "total": 230340,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V070",
+      "title": "包材ショップの小型レシート",
+      "pdf": "individual/V070.pdf",
+      "pdf_sha256": "43e88e195d2aa1e30188042ea9da2d753bea42f1518695f410bb9fefa253d575",
+      "expected": {
+        "merchant": "かんぷパッケージ テスト店",
+        "date": "2025-06-03",
+        "total": 7370,
+        "acceptable_accounts": [
+          "消耗品費",
+          "荷造運賃"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "かんぶパッケージ テスト店",
+        "date": "2025-06-03",
+        "total": 7370,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました",
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V071",
+      "title": "電子部品の納品書兼受領確認（高密度品目表）",
+      "pdf": "individual/V071.pdf",
+      "pdf_sha256": "abbbbe8258d910e816054fc2923654e31dc507201222db212f79c7c7de06c478",
+      "expected": {
+        "merchant": "架空電子 部品センター テスト支店",
+        "date": "2024-06-14",
+        "total": 587290,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "架空電子 部品センター テスト支店",
+        "date": "2024-06-14",
+        "total": 587290,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V072",
+      "title": "翻訳業務の報酬計算書（源泉検討）",
+      "pdf": "individual/V072.pdf",
+      "pdf_sha256": "2030c18a43abac052ffff2b75479a77b01a0721c1d039015530d9544e5ca8a0e",
+      "expected": {
+        "merchant": "架空製作 株式会社 出版部",
+        "date": "2025-12-18",
+        "total": 440000,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "架空製作 株式会社 出版部",
+        "date": "2025-12-18",
+        "total": 440000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑",
+          "税込報酬総額",
+          "源泉徴収額",
+          "実際の支払額"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_WITHHOLDING",
+            "title": "源泉徴収を伴う支払",
+            "action": "hold",
+            "message": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V073",
+      "title": "オンライン研修の年間サブスク支払明細",
+      "pdf": "individual/V073.pdf",
+      "pdf_sha256": "b72ec72cc0122c48f85a1112c09eabac92580ba1b7d6b6bd73ec6a7a6fac5a21",
+      "expected": {
+        "merchant": "学習ラボ オンライン",
+        "date": "2024-04-01",
+        "total": 39600,
+        "acceptable_accounts": [
+          "研修費",
+          "教育研修費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "学習ラボ オンライン",
+        "date": "2024-04-01",
+        "total": 39600,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。"
+        ],
+        "review_questions": [
+          "サービス開始日と終了日",
+          "当期分・翌期分の処理"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PREPAID",
+            "title": "年払・複数期間の支払",
+            "action": "hold",
+            "message": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": false,
+        "account_exact": false,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V074",
+      "title": "専門職協会の会費領収書（年度・日付の記載なし）",
+      "pdf": "individual/V074.pdf",
+      "pdf_sha256": "2bb06f1d7a6d4d4f42c0882a1a2b1f8814d24d96768180d9f9bd0b81a1ff997f",
+      "expected": {
+        "merchant": "架空専門職 協会",
+        "date": "",
+        "total": 18000,
+        "acceptable_accounts": [
+          "諸会費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空専門職 協会",
+        "date": "",
+        "total": 18000,
+        "account": "諸会費",
+        "account_code": "E117",
+        "account_kind": "expense",
+        "confidence": "low",
+        "reason": "諸会費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "団体と事業の関係",
+          "会費の内容と税の記載"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V075",
+      "title": "慈善基金の寄附受領証（業務と切り離し）",
+      "pdf": "individual/V075.pdf",
+      "pdf_sha256": "6d1ba16dc761dfc4d67a1155442c3ffdd727d65854fdc1e32463d664e104793c",
+      "expected": {
+        "merchant": "架空こども支援基金",
+        "date": "2025-03-02",
+        "total": 30000,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空こども支援基金",
+        "date": "2025-03-02",
+        "total": 30000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V076",
+      "title": "百貨店ギフトの8%・10%混在レシート",
+      "pdf": "individual/V076.pdf",
+      "pdf_sha256": "414d90a6520d40989d2754f4dba49b516b29cf1dc05bc47f294c295d2ed6ac73",
+      "expected": {
+        "merchant": "架空百貨店 テスト店",
+        "date": "2024-12-24",
+        "total": 16650,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空百貨店 テスト店",
+        "date": "2024-12-24",
+        "total": 16650,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "円記号の誤読を、預り金とお釣りの差額で照合しました",
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "税率ごとの対象額と記載税額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V077",
+      "title": "ケータリング精算書（業務と私用の混在）",
+      "pdf": "individual/V077.pdf",
+      "pdf_sha256": "b5e47904664e344bc51eb28e99d856fc8707db158dab639d78ada0f520cfd432",
+      "expected": {
+        "merchant": "架空デリ クッキングテスト",
+        "date": "2023-06-30",
+        "total": 310200,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空デリ クッキングテスト",
+        "date": "2023-06-30",
+        "total": 310200,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V078",
+      "title": "社内旅費交通費の精算内訳書（事業者領収書でない）",
+      "pdf": "individual/V078.pdf",
+      "pdf_sha256": "d6d96311bd420047db542dc3df1c279011732141afc854e2f506fd9a9d5e2059",
+      "expected": {
+        "merchant": "",
+        "date": "",
+        "total": 13450,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "",
+        "date": "",
+        "total": 13450,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+        "warnings": [
+          "異なる支払合計が見つかりました。原本から今回支払額を確認してください",
+          "複数の記載金額からローカルAIが今回分の候補を選びました。原本と照合してください",
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": true,
+        "decision_exact": false,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V079",
+      "title": "キャンセル料と払戻済み予約金額の対比案内",
+      "pdf": "individual/V079.pdf",
+      "pdf_sha256": "68bf59622464592235151fad1d8b04bb5016d01450e555225503ce6157e31851",
+      "expected": {
+        "merchant": "架空リゾート テストヴィラ",
+        "date": "2023-08-30",
+        "total": 0,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "架空リゾート テストヴィラ",
+        "date": "2023-08-30",
+        "total": 0,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+        "warnings": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。"
+        ],
+        "review_questions": [
+          "元の取引と返金額",
+          "入金・カード返金の実際"
+        ],
+        "blocking_reasons": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "返金・取消の記録です。元取引に対応する返金仕訳を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_REFUND",
+            "title": "返品・返金・取消",
+            "action": "block",
+            "message": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V080",
+      "title": "返金処理完了通知（元取引に対するマイナス返金）",
+      "pdf": "individual/V080.pdf",
+      "pdf_sha256": "c5f88aafcaae86e6fa067eff02b3558f4f9de7e8c3c698710f9586d2aa03bcc0",
+      "expected": {
+        "merchant": "架空ストア テスト店",
+        "date": "2025-02-14",
+        "total": -14850,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "架空ストア テスト店",
+        "date": "2025-02-14",
+        "total": 14850,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。"
+        ],
+        "review_questions": [
+          "元の取引と返金額",
+          "入金・カード返金の実際"
+        ],
+        "blocking_reasons": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "返金・取消の記録です。元取引に対応する返金仕訳を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_REFUND",
+            "title": "返品・返金・取消",
+            "action": "block",
+            "message": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V081",
+      "title": "飲食店 3名分割会計 サービス料10% 使途不明",
+      "pdf": "individual/V081.pdf",
+      "pdf_sha256": "daa59098a68bed560081f2c8ed21a2ab4f42c7e470dde1659e18a76b5c47162b",
+      "expected": {
+        "merchant": "酒肴ごちそう みなと亭",
+        "date": "2025-11-14",
+        "total": 8910,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "酒肴ごちそう みなと亭",
+        "date": "2025-11-14",
+        "total": 8910,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V082",
+      "title": "二連複写 修理伝票 手書き風 朱印",
+      "pdf": "individual/V082.pdf",
+      "pdf_sha256": "2ddf94e0c20c4f6b2c72965e689e3c6c63bca958549033b33710df039c537b8e",
+      "expected": {
+        "merchant": "架空町モータース",
+        "date": "2024-03-08",
+        "total": 15950,
+        "acceptable_accounts": [
+          "修繕費",
+          "車両費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空町モータース",
+        "date": "2024-03-08",
+        "total": 15950,
+        "account": "車両費",
+        "account_code": "E126",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "業務との関係",
+          "私用分・期間配分・資産処理の要否"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V083",
+      "title": "セルフ給油機レシート 洗車別明細",
+      "pdf": "individual/V083.pdf",
+      "pdf_sha256": "927bf6cf77b60f1e99d7dd525c8ba5ab315b3a6e5c6073bddf025412a798ec70",
+      "expected": {
+        "merchant": "架空町セルフSS",
+        "date": "2026-02-19",
+        "total": 6050,
+        "acceptable_accounts": [
+          "車両費",
+          "旅費交通費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空町セルフSS",
+        "date": "2026-02-19",
+        "total": 6050,
+        "account": "車両費",
+        "account_code": "E126",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "車両費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "業務との関係",
+          "私用分・期間配分・資産処理の要否"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V084",
+      "title": "海外向けデジタル領収書 USDのみ",
+      "pdf": "individual/V084.pdf",
+      "pdf_sha256": "c1e9a7a4440e1bd4f4c093e6b3b6c232db4ea7c83c4f80e2c71b3935fdcf041e",
+      "expected": {
+        "merchant": "Harborlight Digital Ltd.",
+        "date": "2025-10-03",
+        "total": null,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "Harborlight Digital Ltd.",
+        "date": "2025-10-03",
+        "total": null,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。",
+        "warnings": [
+          "外貨の記載です。実際に確定した円換算額をカード明細等から確認してください",
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。"
+        ],
+        "review_questions": [
+          "円建て確定額と換算根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOREIGN",
+            "title": "外貨の円額が未確定",
+            "action": "hold",
+            "message": "外貨の記載があります。実際に確定した円額をカード明細等から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V085",
+      "title": "事前精算式 駐車券 出庫時刻・お釣り",
+      "pdf": "individual/V085.pdf",
+      "pdf_sha256": "d30749b813431bc7c970fc1d4f467d18537e3993ae334b43700b94a018c41055",
+      "expected": {
+        "merchant": "テストパーキング架空町第3",
+        "date": "2025-07-22",
+        "total": 1400,
+        "acceptable_accounts": [
+          "旅費交通費",
+          "車両費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テストパーキング架空町第3",
+        "date": "2025-07-22",
+        "total": 1400,
+        "account": "旅費交通費",
+        "account_code": "E103",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "旅費交通費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "出張・移動の業務目的と行先"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V086",
+      "title": "ホスティング利用 領収書 前回残高を別枠表示",
+      "pdf": "individual/V086.pdf",
+      "pdf_sha256": "3ab828c8cb94bf501c7ae720ab08dd23d04f3ed79dffc1fc64eb9277e08d78f7",
+      "expected": {
+        "merchant": "ミナトクラウド株式会社",
+        "date": "2025-12-05",
+        "total": 3850,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "ミナトクラウド株式会社",
+        "date": "2025-12-05",
+        "total": 3850,
+        "account": "通信費",
+        "account_code": "E102",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "通信費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号の誤読を、記載された内税額との整合性で照合しました",
+          "異なる合計金額が複数あります。領収書の単位を確認してください"
+        ],
+        "review_questions": [
+          "対象期間",
+          "私用と共用なら事業割合の根拠"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V087",
+      "title": "交流会参加費 領収書 月日のみ(年なし)",
+      "pdf": "individual/V087.pdf",
+      "pdf_sha256": "241015796e06a39b6ab59150d062e8f097419091ec0cc7e14d4bbcb73acbc94c",
+      "expected": {
+        "merchant": "架空町商店会 青年部",
+        "date": "",
+        "total": 5000,
+        "acceptable_accounts": [
+          "諸会費",
+          "交際費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空町商店会 青年部",
+        "date": "",
+        "total": 5000,
+        "account": "接待交際費",
+        "account_code": "E105",
+        "account_kind": "expense",
+        "confidence": "low",
+        "reason": "接待交際費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "相手と事業上の関係",
+          "会食・贈答の目的"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V088",
+      "title": "寄付金受領証 現金寄付",
+      "pdf": "individual/V088.pdf",
+      "pdf_sha256": "0bcc317a4f8c1abb9fb7c7be852e6f634b6059f8fdfbb4114f61fd4f39d0b877",
+      "expected": {
+        "merchant": "特定非営利活動法人 テスト市みらい食堂",
+        "date": "2025-12-20",
+        "total": 10000,
+        "acceptable_accounts": [
+          "寄付金"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "テスト市みらい食堂",
+        "date": "2025-12-20",
+        "total": 10000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。"
+        ],
+        "review_questions": [
+          "業務用途と私用の区分",
+          "経費以外の金額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PRIVATE_GOODS",
+            "title": "用途で取扱いが変わる購入",
+            "action": "hold",
+            "message": "私用分や経費以外の支払を含む可能性があります。内訳と業務用途を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V089",
+      "title": "スーパー買物 軽減税率混在 自宅用",
+      "pdf": "individual/V089.pdf",
+      "pdf_sha256": "5e6fce1e6e1e8e0aaa915b8cbfb3b89bc00536a1c95ce975d8ac6ae136b820b3",
+      "expected": {
+        "merchant": "スーパーみなと市場 架空町店",
+        "date": "2026-03-14",
+        "total": 3791,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "スーパーみなと市場 架空町店",
+        "date": "2026-03-14",
+        "total": 3791,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "税率ごとの対象額と記載税額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V090",
+      "title": "翻訳報酬 請求書(支払済) 源泉徴収あり",
+      "pdf": "individual/V090.pdf",
+      "pdf_sha256": "05e8b13eb04a8045ed0133d71d01a197af3597c09347fc48f3dd772cdc56018e",
+      "expected": {
+        "merchant": "言葉舎 水野",
+        "date": "2026-01-31",
+        "total": 99790,
+        "acceptable_accounts": [
+          "外注費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "言葉舎 水野",
+        "date": "2026-01-31",
+        "total": 99790,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+        "warnings": [
+          "画像OCRとPDFの文字層に金額の相違があります。文字層の候補を原本と照合してください",
+          "異なる合計金額が複数あります。領収書の単位を確認してください",
+          "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。"
+        ],
+        "review_questions": [
+          "税込報酬総額",
+          "源泉徴収額",
+          "実際の支払額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_WITHHOLDING",
+            "title": "源泉徴収を伴う支払",
+            "action": "hold",
+            "message": "源泉徴収の記載があります。報酬の総額、控除額、支払額、預り金等の仕訳を確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V091",
+      "title": "ホテル見開き精算書（明細左・精算右）",
+      "pdf": "individual/V091.pdf",
+      "pdf_sha256": "aa11882d8ec60d8a30c8d8191a60e6ddb99492471b73220009a0badfe8d53e78",
+      "expected": {
+        "merchant": "ホテル架空ベイテラス",
+        "date": "2024-11-14",
+        "total": 27900,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "ホテル架空ベイテラス",
+        "date": "2024-11-14",
+        "total": 27900,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+        "warnings": [
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。"
+        ],
+        "review_questions": [
+          "利用目的",
+          "相手と人数",
+          "事業との関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V092",
+      "title": "細幅レジ紙・合計先頭型（旧式キャッシュレジスター）",
+      "pdf": "individual/V092.pdf",
+      "pdf_sha256": "dab893827856fb56c594891c14749cf5d008cbc2ad02df908873ad6f3fdac269",
+      "expected": {
+        "merchant": "テスト文具店 架空町本店",
+        "date": "2024-03-08",
+        "total": 1078,
+        "acceptable_accounts": [
+          "消耗品費",
+          "事務用品費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "テスト文具店 架空町本店",
+        "date": "2024-03-08",
+        "total": 1078,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V093",
+      "title": "横型社印領収証（大字枠＋算用数字併記）",
+      "pdf": "individual/V093.pdf",
+      "pdf_sha256": "c3a9ea2f1add501a45bb59fcede6fc7bfb4892b826cb9dc5c7f7e35c437e541c",
+      "expected": {
+        "merchant": "合同会社架空デザイン工房",
+        "date": "2023-09-29",
+        "total": 132000,
+        "acceptable_accounts": [
+          "外注費",
+          "広告宣伝費",
+          "支払手数料"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "合同会社架空デザイン工房",
+        "date": "2023-09-29",
+        "total": 132000,
+        "account": "外注工賃",
+        "account_code": "E111",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "外注工賃の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "委託内容と完了日",
+          "源泉徴収等の別処理の有無"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V094",
+      "title": "A4電子部品商社 請求書兼領収書（20行・繰越小計）",
+      "pdf": "individual/V094.pdf",
+      "pdf_sha256": "46ca43dfd5cfa3095ea408b77524698e777da4be01f1d729eda4562e3f044f21",
+      "expected": {
+        "merchant": "株式会社テスト電子商会",
+        "date": "2025-02-14",
+        "total": 150106,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "消耗品費"
+        ],
+        "expected_decision": "asset_review"
+      },
+      "actual": {
+        "merchant": "株式会社テスト電子商会",
+        "date": "2025-02-14",
+        "total": 150106,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+        "warnings": [
+          "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。"
+        ],
+        "review_questions": [
+          "取得価額と経理方式",
+          "利用開始日",
+          "資産・少額資産等の適用条件"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_ASSET",
+            "title": "機器・備品の資産検討",
+            "action": "asset_review",
+            "message": "一定額以上の機器・備品等です。金額は確認を促すためのアプリの条件であり、税務の資産基準ではありません。経理方式、取得価額、利用開始日、資産・少額資産等の扱いを確認してください。",
+            "sources": [
+              "depreciation"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "asset_review"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "asset_review",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V095",
+      "title": "手書き中古工具領収証（日付空欄）",
+      "pdf": "individual/V095.pdf",
+      "pdf_sha256": "c547d2ee8e88f48657061bbcd89dd5195a0168f22e50f11f61f790ee174c6058",
+      "expected": {
+        "merchant": "架空町リサイクル工具",
+        "date": "",
+        "total": 6500,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "消耗品費"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "架空町リサイクル工具",
+        "date": "",
+        "total": 6500,
+        "account": "消耗品費",
+        "account_code": "E101",
+        "account_kind": "expense",
+        "confidence": "low",
+        "reason": "消耗品費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [
+          "円記号に由来する先頭の誤読を、同じ原本の別の金額表記で照合しました"
+        ],
+        "review_questions": [
+          "購入内容が事業用か",
+          "機器は資産計上の検討が必要か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": false,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V096",
+      "title": "SaaS年額前払い 電子領収書（利用期間タイムライン付）",
+      "pdf": "individual/V096.pdf",
+      "pdf_sha256": "6427ffcc18f16293af299a416999ffeb5f5f3492040cd4c5f341180cbd30c603",
+      "expected": {
+        "merchant": "クラウド帳票テスト株式会社",
+        "date": "2025-04-01",
+        "total": 118800,
+        "acceptable_accounts": [
+          "通信費",
+          "支払手数料",
+          "前払費用"
+        ],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "クラウド帳票テスト株式会社",
+        "date": "2025-04-01",
+        "total": 118800,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+        "warnings": [
+          "資産候補です。取得価額・耐用年数・減価償却は別途確認してください",
+          "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。"
+        ],
+        "review_questions": [
+          "サービス開始日と終了日",
+          "当期分・翌期分の処理"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_PREPAID",
+            "title": "年払・複数期間の支払",
+            "action": "hold",
+            "message": "年払・複数期間の支払です。対象期間と当期・翌期の扱いを確認してください。このアプリは期間配分を自動計算しません。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V097",
+      "title": "一部返金クレジットノート（元請求・返金・差引の三分割）",
+      "pdf": "individual/V097.pdf",
+      "pdf_sha256": "7bfeb2ca6b6340566a72b41bef0626fc488f9cd71fefe240a504e28596abc5c0",
+      "expected": {
+        "merchant": "テスト事務機オンライン",
+        "date": "2025-06-20",
+        "total": -11000,
+        "acceptable_accounts": [],
+        "expected_decision": "block"
+      },
+      "actual": {
+        "merchant": "テスト事務機オンライン",
+        "date": "2025-06-20",
+        "total": 33000,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+        "warnings": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。"
+        ],
+        "review_questions": [
+          "元の取引と返金額",
+          "入金・カード返金の実際",
+          "実際の支払日と支払額",
+          "支払済みの証憑"
+        ],
+        "blocking_reasons": [
+          "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+          "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+          "未払い・見積・社内資料等の記載があります。支払済みの領収書と照合し、通常の支出登録を止めてください。",
+          "返金・取消の記録です。元取引に対応する返金仕訳を確認してください。"
+        ],
+        "policy_matches": [
+          {
+            "code": "P_REFUND",
+            "title": "返品・返金・取消",
+            "action": "block",
+            "message": "返品・返金・取消の記載があります。正の経費として登録せず、元取引と対応する返金仕訳を別途確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_UNPAID",
+            "title": "未払い・見積・内部資料",
+            "action": "block",
+            "message": "未払い・見積・内部資料の記載があります。支払済みの領収書と照合してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "block"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": true,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "block",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V098",
+      "title": "着手金控除後の残金領収書（控え半券付き）",
+      "pdf": "individual/V098.pdf",
+      "pdf_sha256": "e3324c7d8662a727c7d618e1a643ee3b13c24691487ffcbc49e8fd09b496b5d8",
+      "expected": {
+        "merchant": "架空町空調サービス",
+        "date": "2022-01-31",
+        "total": 55000,
+        "acceptable_accounts": [
+          "修繕費",
+          "雑費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "架空町空調サービス",
+        "date": "2022-01-31",
+        "total": 55000,
+        "account": "修繕費",
+        "account_code": "E113",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "修繕費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "原状回復か、機能向上や資産取得か"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V099",
+      "title": "スーパー80mmレシート（8%/10%混在・私用品混在）",
+      "pdf": "individual/V099.pdf",
+      "pdf_sha256": "2761be29759d20d3dac19072833ec39cf0568048ebda5cf84489b50c43534bfa",
+      "expected": {
+        "merchant": "スーパーテストマート 架空町店",
+        "date": "2023-12-09",
+        "total": 2094,
+        "acceptable_accounts": [],
+        "expected_decision": "hold"
+      },
+      "actual": {
+        "merchant": "スーパー テス ストマート",
+        "date": "2023-12-09",
+        "total": 2094,
+        "account": "",
+        "account_code": null,
+        "account_kind": null,
+        "confidence": "low",
+        "reason": "事務用品と飲食品等が混在しています。単一科目にまとめられるか、私用分や別科目への分割が必要か確認してください。",
+        "warnings": [
+          "業務用途と私用の区分",
+          "事務用品と飲食品等が混在しています。単一科目にまとめられるか、私用分や別科目への分割が必要か確認してください。",
+          "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+          "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。"
+        ],
+        "review_questions": [
+          "商品ごとの業務用途と金額",
+          "私用分の有無",
+          "利用目的",
+          "相手と人数",
+          "事業との関係",
+          "税率ごとの対象額と記載税額"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [
+          {
+            "code": "P_MIXED_ITEMS",
+            "title": "複数用途の商品が混在",
+            "action": "hold",
+            "message": "事務用品と飲食品等が混在しています。単一科目にまとめられるか、私用分や別科目への分割が必要か確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_FOOD_CONTEXT",
+            "title": "飲食の業務目的が不明",
+            "action": "hold",
+            "message": "飲食の記載があります。会議費・接待交際費・私用などの区分には、利用目的や相手の確認が必要です。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          },
+          {
+            "code": "P_MIXED_TAX",
+            "title": "軽減税率と標準税率の混在",
+            "action": "review",
+            "message": "8%と10%の記載が混在しています。記載税率を混在として保存し、税率ごとの内訳は原本から確認してください。",
+            "sources": [
+              "necessary_expenses"
+            ]
+          }
+        ],
+        "model": "qwen3:4b",
+        "decision": "hold"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": null,
+        "actual_decision": "hold",
+        "abstained": true,
+        "error": ""
+      },
+      "saved_status": "review"
+    },
+    {
+      "id": "V100",
+      "title": "セミナー受講料領収書（宛名右縦書き・金額左下）",
+      "pdf": "individual/V100.pdf",
+      "pdf_sha256": "63c0f47a1050c4d7fcb8b8016fe0d3df51017bd103c83952874a7a24d24911dd",
+      "expected": {
+        "merchant": "一般社団法人テスト経営研究会",
+        "date": "2025-05-17",
+        "total": 16500,
+        "acceptable_accounts": [
+          "研修費",
+          "教育研修費"
+        ],
+        "expected_decision": "propose"
+      },
+      "actual": {
+        "merchant": "一般社団法人テスト経営研究会",
+        "date": "2025-05-17",
+        "total": 16500,
+        "account": "研修費",
+        "account_code": "E116",
+        "account_kind": "expense",
+        "confidence": "high",
+        "reason": "研修費の暫定候補です。業務用途・事業割合・支払元は未確認です。",
+        "warnings": [],
+        "review_questions": [
+          "講座内容と業務の関係"
+        ],
+        "blocking_reasons": [],
+        "policy_matches": [],
+        "model": "qwen3:4b",
+        "decision": "propose"
+      },
+      "checks": {
+        "ocr_completed": true,
+        "model_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_or_decision_exact": true,
+        "blocked": false,
+        "decision_exact": true,
+        "account_exact": true,
+        "actual_decision": "propose",
+        "abstained": false,
+        "error": ""
+      },
+      "saved_status": "review"
+    }
+  ]
+}
