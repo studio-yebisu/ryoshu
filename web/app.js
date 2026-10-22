@@ -7,7 +7,7 @@ const localMonth = () => {const d = new Date(); return `${d.getFullYear()}-${Str
 const statusNames = {queued:'順番待ち',processing:'読み取り中',review:'未確認',confirmed:'確認済み',excluded:'対象外',error:'読み取りに失敗'};
 const state = {view:'ledger',config:null,catalog:null,health:null,records:[],active:null,detail:null,sourceTab:'image',page:0,history:null,queueFilter:'pending',queuePage:0,queuePageAnchor:null,month:'',drafts:new Map(),busy:false,ledgerFilter:'all',ledgerSearch:'',ledgerPage:0,selected:new Map(),batch:{},batchReport:null,batchOnlyIssues:false,exportMapDrafts:new Map()};
 let toastTimer, pollTimer, searchTimer;
-let receiptRevision=0;
+let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
 
 function validationMessage(error){
@@ -358,19 +358,28 @@ function trackEdit() {
 
 async function loadReceipts() {const revision=++receiptRevision,result=await api('/receipts');if(revision===receiptRevision)state.records=result.receipts;}
 async function selectReceipt(id) {
-  state.active=id;state.detail=await api('/receipts/'+id);state.sourceTab='image';state.page=0;state.history=null;
-  if(state.view!=='inbox')state.view='inbox';render();
+  const revision=++detailRevision,detail=await api('/receipts/'+id);if(revision!==detailRevision)return;
+  state.active=id;state.detail=detail;state.sourceTab='image';state.page=0;state.history=null;
+  if(state.view!=='inbox')state.view='inbox';render();return true;
 }
 async function save(confirm,next=false) {
-  if(state.busy)return;
+  if(state.busy){toast('保存中です。完了してからもう一度操作してください。');return;}
   const body=captureForm();if(!body)return;
+  const id=state.active,revision=detailRevision,submittedDraft=JSON.stringify(body.draft);
+  let saved=false;
   state.busy=true;const buttons=$$('#review-form button');buttons.forEach(b=>b.disabled=true);
   try {
-    const result=await api(`/receipts/${state.active}/save`,{method:'POST',body:JSON.stringify({...body,confirm})});
-    state.detail=result;state.selected.delete(state.active);state.drafts.delete(state.active);await loadReceipts();
+    const result=await api(`/receipts/${id}/save`,{method:'POST',body:JSON.stringify({...body,confirm})});
+    saved=true;if(state.detail?.id===id)state.detail=result;
+    state.selected.delete(id);
+    const pending=state.drafts.get(id);
+    if(!pending||JSON.stringify(pending.draft)===submittedDraft)state.drafts.delete(id);
+    else state.drafts.set(id,{...pending,version:result.version});
+    await loadReceipts();
     if(body.remember_account&&confirm)state.config=await api('/config');
+    if(revision!==detailRevision||state.active!==id||state.view!=='inbox'){render();toast('明細を保存しました。現在の画面と未保存の入力は保持しています。');return;}
     if(confirm&&next){const row=nextReviewReceipt(state.active);if(row)await selectReceipt(row.id);else{state.view='ledger';render();}}else render();toast(confirm?'明細を確認済みにしました。':'変更を保存しました。未確認のまま残しています。');
-  }catch(error){const box=$('#form-errors');if(box){box.textContent=error.message;box.classList.remove('hidden');box.scrollIntoView({block:'nearest',behavior:'smooth'});}else toast(error.message,true);}
+  }catch(error){if(saved){render();toast('明細は保存しましたが、最新情報を取得できませんでした。ページを再読み込みして確認してください。',true);return;}const box=state.active===id?$('#form-errors'):null;if(box){box.textContent=error.message;box.classList.remove('hidden');box.scrollIntoView({block:'nearest',behavior:'smooth'});}else toast(error.message,true);}
   finally{state.busy=false;buttons.forEach(b=>b.disabled=false);}
 }
 
@@ -424,15 +433,15 @@ async function poll(){
 document.addEventListener('click',async event=>{
   const target=event.target.closest('button,a,[data-action]');if(!target)return;
   try{
-    if(target.dataset.view){if(target.dataset.view==='catalog')state.catalog=await api('/catalog');state.view=target.dataset.view;render();return;}
+    if(target.dataset.view){const revision=++detailRevision;if(target.dataset.view==='catalog'){const catalog=await api('/catalog');if(revision!==detailRevision)return;state.catalog=catalog;}state.view=target.dataset.view;render();return;}
     if(target.dataset.reviewOpen){$('#review-dialog').close();state.queueFilter='all';await selectReceipt(target.dataset.reviewOpen);return;}
     if(target.dataset.receipt){await selectReceipt(target.dataset.receipt);return;}
     if(target.dataset.openReceipt){state.queueFilter='all';await selectReceipt(target.dataset.openReceipt);return;}
-    if(target.dataset.fixExport){state.queueFilter='all';await selectReceipt(target.dataset.fixExport);$('.tax-details').open=true;$('[name="export_tax"]').focus();return;}
+    if(target.dataset.fixExport){state.queueFilter='all';if(await selectReceipt(target.dataset.fixExport)){$('.tax-details')?.setAttribute('open','');$('[name="export_tax"]')?.focus();}return;}
     if(target.dataset.sourceTab){state.sourceTab=target.dataset.sourceTab;if(state.sourceTab==='history')state.history=(await api(`/receipts/${state.active}/history`)).history;renderDetail();return;}
     if(target.dataset.removeRule){await api('/rules/remove',{method:'POST',body:JSON.stringify({merchant:target.dataset.removeRule})});state.config=await api('/config');render();toast('科目のルールを解除しました。');return;}
     const action=target.dataset.action;
-    if(action==='back-to-ledger'){state.view='ledger';render();return;}
+    if(action==='back-to-ledger'){++detailRevision;state.view='ledger';render();return;}
     if(action==='save-export-map'){
       const names={};
       for(const line of $('#export-account-map').value.split('\n').filter(v=>v.trim())){

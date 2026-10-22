@@ -142,6 +142,47 @@ try{
   await page.waitForFunction(()=>document.querySelectorAll('#ledger-rows tr').length===100);
   checks.push('duplicate warning remains visible in receipt details and opens related originals');
 
+  const stayed=await page.evaluate(async id=>{
+    const opening=selectReceipt(id);
+    document.querySelector('[data-view="settings"]').click();
+    await opening;return state.view==='settings';
+  },duplicate.id);
+  assert.equal(stayed,true);
+  const newest=await page.evaluate(async ids=>{await Promise.all(ids.map(id=>selectReceipt(id)));return state.active===ids[1]&&state.detail.id===ids[1];},[duplicate.id,related]);
+  assert.equal(newest,true);await page.locator('[data-action="back-to-ledger"]').click();
+  checks.push('a pending receipt response cannot override navigation or a newer receipt selection');
+
+  await page.evaluate(id=>selectReceipt(id),duplicate.id);
+  await page.locator('#review-form [name="purpose"]').fill('先の明細の保存する用途');
+  let releaseSave;const saveGate=new Promise(resolve=>{releaseSave=resolve;});
+  await page.route(`**/api/receipts/${duplicate.id}/save`,async route=>{await saveGate;await route.continue();});
+  const saveRequested=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith('/'+duplicate.id+'/save'));
+  await page.locator('[data-action="save-draft"]').click();await saveRequested;
+  await page.evaluate(id=>selectReceipt(id),related);
+  await page.locator('#review-form [name="purpose"]').fill('別の明細の未保存用途');
+  releaseSave();await page.waitForFunction(()=>!state.busy);
+  await page.unroute(`**/api/receipts/${duplicate.id}/save`);
+  assert.equal(await page.evaluate(id=>state.active===id&&state.detail.id===id&&state.drafts.get(id)?.draft.purpose==='別の明細の未保存用途',related),true);
+  assert.equal((await api('receipts/'+duplicate.id)).draft.purpose,'先の明細の保存する用途');
+  await page.evaluate(id=>selectReceipt(id),duplicate.id);
+  await page.locator('#review-form [name="purpose"]').fill('同じ明細の保存後の用途');
+  let releaseSame;const sameGate=new Promise(resolve=>{releaseSame=resolve;});
+  await page.route(`**/api/receipts/${duplicate.id}/save`,async route=>{await sameGate;await route.continue();});
+  const sameRequested=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith('/'+duplicate.id+'/save'));
+  await page.locator('[data-action="save-draft"]').click();await sameRequested;
+  await page.locator('[data-view="settings"]').click();await page.locator('[data-view="inbox"]').click();
+  releaseSame();await page.waitForFunction(()=>!state.busy);await page.unroute(`**/api/receipts/${duplicate.id}/save`);
+  const savedSame=await api('receipts/'+duplicate.id);
+  assert.equal(await page.evaluate(row=>state.view==='inbox'&&state.active===row.id&&state.detail.version===row.version&&currentDraft().purpose===row.draft.purpose,savedSame),true);
+  await page.locator('#review-form [name="purpose"]').fill('保存後の一覧取得失敗の確認');
+  await page.route('**/api/receipts',route=>route.abort());
+  await page.locator('[data-action="save-draft"]').click();await page.waitForFunction(()=>!state.busy);
+  assert.match(await page.locator('#toast').innerText(),/明細は保存しましたが、最新情報を取得できません/);
+  assert.equal((await api('receipts/'+duplicate.id)).draft.purpose,'保存後の一覧取得失敗の確認');
+  await page.unroute('**/api/receipts');await page.evaluate(()=>loadReceipts());
+  await page.locator('[data-action="back-to-ledger"]').click();
+  checks.push('delayed saves preserve same/other receipt edits and report saved state even if refresh fails');
+
   // Composition events exercise real DOM replacement/focus behavior, without an OS IME.
   const composing=await page.evaluate(async()=>{
     const input=document.querySelector('#ledger-search'),before=document.querySelector('#ledger-rows').innerHTML;

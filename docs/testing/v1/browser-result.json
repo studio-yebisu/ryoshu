@@ -15,6 +15,8 @@
     "persistent individual import errors and exact duplicate skip",
     "100-page PDF split, immutable source download, 100-row pagination",
     "duplicate warning remains visible in receipt details and opens related originals",
+    "a pending receipt response cannot override navigation or a newer receipt selection",
+    "delayed saves preserve same/other receipt edits and report saved state even if refresh fails",
     "Japanese composition preserves the input node, focus, and rows until composition ends",
     "confirm-and-next follows page1 to page2 within the same split PDF",
     "bulk exclude and restore are reversible and retain originals",
@@ -32,16 +34,16 @@
   "errors": [],
   "receipt_count": 202,
   "render_stress": {
-    "milliseconds": 103.7999999821186,
+    "milliseconds": 110.5,
     "closedRows": 0
   },
   "source_sha256": {
-    "web/app.js": "d51396c63d544599623cf5b062adce3be55e1c0e1e826fed2f0d733b7058c4d9",
+    "web/app.js": "15f96bd6d237a3925f59f4c49425b38a966f8790a08df29839af5af7853a532b",
     "web/import.js": "84fac1f3aeb96adc801c17d2f36af7ecd7a971914e0747b2ecf29ceccadce517",
     "web/index.html": "a3d41402a9772877103b17460471ea68bda35a8495a6baffb7ca811a4408d1dd",
     "web/style.css": "796cfa56054208ea15704f9520a85c6dc097bb49bd994edb8a1c5b7d71540386",
     "receipt_ledger/server.py": "4ed53ed23d18caf5babb681cd9a284253b2b5643276905339eca06a4c28d7624",
     "scripts/serve_browser_qa.py": "cec46344b2770674ba86787a1c4114c07074b5d08d3c40deba352bf1428e68e7",
-    "scripts/browser_smoke.mjs": "3c70102a896a07218f353f47aa6dc41c2dae5469581ffca18c645ea200d14c15"
+    "scripts/browser_smoke.mjs": "db05480186a19af7c3b512182c11baeb544aa43cf1e5a740b0141e30952596b2"
   }
 }

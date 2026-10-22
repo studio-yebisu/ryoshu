@@ -9,7 +9,7 @@
     "passed": 3
   },
   "browser": {
-    "passed": 26,
+    "passed": 28,
     "receipts": 202,
     "inference": "saved observation replay; real HTTP/SQLite/CSV"
   },
@@ -24,5 +24,6 @@
     "No real SaaS account import",
     "No unseen-receipt accuracy estimate",
     "No professional legal assessment"
-  ]
+  ],
+  "runtime_source_commit_scope": "Frozen source for the three-case OCR/AI spot; current UI source hashes and all28 browser checks are in browser-result.json."
 }

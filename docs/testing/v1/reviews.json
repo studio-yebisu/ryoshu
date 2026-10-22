@@ -269,6 +269,34 @@
         "claude-opus-5-5"
       ],
       "skill_sha256": "bdf8d742aecd82af324ac81298ff498fe4fc13cf44cff3183ba1c7bd94a2891a"
+    },
+    {
+      "requested_model": "kimi-code/k3",
+      "started_at": "2026-10-22T00:42:09.814358+00:00",
+      "finished_at": "2026-10-22T00:43:56.592568+00:00",
+      "exit_code": 0,
+      "prompt_characters": 8406,
+      "stdout_sha256": "8f2a0b922d028b380c6bbb66ec174fdc7ae2ffb405e18bf264a442e9c2365509",
+      "round": "kimi-navigation-final2",
+      "status": "completed",
+      "reported_models": [],
+      "frozen_source_manifest_sha256": "ce927ea767ef63c5dc9d4370ca571c81e86461df3799548a1be88ff04ed28ea8",
+      "scope": "Bounded source-only review of navigation/save response races. Findings fixed afterward; current28-browser evidence separately records the final implementation."
+    },
+    {
+      "requested_model": "claude-opus-5-5",
+      "started_at": "2026-10-22T00:42:09.814358+00:00",
+      "finished_at": "2026-10-22T00:42:59.335154+00:00",
+      "exit_code": 0,
+      "prompt_characters": 8406,
+      "stdout_sha256": "114b904f49214cdae2d18fa495697c79121d13d26ee00d3b6e2a472c03edec1c",
+      "round": "opus-navigation-final2",
+      "status": "completed",
+      "reported_models": [
+        "claude-opus-5-5"
+      ],
+      "frozen_source_manifest_sha256": "ce927ea767ef63c5dc9d4370ca571c81e86461df3799548a1be88ff04ed28ea8",
+      "scope": "Bounded source-only review of navigation/save response races. Findings fixed afterward; current28-browser evidence separately records the final implementation."
     }
   ]
 }
