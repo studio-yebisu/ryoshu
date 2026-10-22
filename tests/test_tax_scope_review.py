@@ -26,6 +26,25 @@ def test_a_tax_summary_is_never_a_gross_payment_candidate(label):
     ('税抜合計1,220,000円 消費税122,000円 税込合計1,342,000円', 1342000, 122000),
     ('10%対象27,500円（内消費税2,500円）\n宿泊税400円\n合計27,900円', 27900, 2500),
     ('報酬総額110,000円\n消費税10,000円\n源泉所得税10,210円\n実振込額99,790円', 99790, 10000),
+    ('消費税80,000円\n合計880,000円\n今回お支払額（1回目）440,000円', 440000, None),
+    ('消費税合計80,000円\n合計880,000円\n今回お支払額（1回目）440,000円', 440000, None),
+    ('小計1,000円\n外税額100円\n合計1,100円', 1100, 100),
+    ('小計1,000円\n外税100円\n合計1,100円', 1100, 100),
 ])
 def test_document_and_component_tax_scopes_are_not_interchangeable(text, total, expected):
     assert printed_tax(text, total=total) == expected
+
+
+@pytest.mark.parametrize('text,total,expected', [
+    ('8%対象1,080円 内消費税80円\n10%対象1,100円 内消費税100円\n合計2,180円（内消費税等180円）', 2180, 180),
+    ('8%対象1,080円 内消費税80円\n10%対象1,100円 内消費税100円\n合計2,180円\n消費税等180円', 2180, 180),
+    ('8%対象1,782円\n10%対象1,818円\n合計3,600円\nお預り5,000円\nお釣り1,400円\n消費税等合計313円', 3600, 313),
+])
+def test_printed_mixed_rate_aggregate_survives_receipt_layout(text, total, expected):
+    assert printed_tax(text, mixed=True, total=total) == expected
+
+
+def test_a_gross_total_and_tax_summary_may_share_one_line():
+    total, _, _, candidates = extract_total('合計3,600円 消費税等合計313円')
+    assert total == 3600
+    assert all(candidate['value'] != 313 for candidate in candidates)

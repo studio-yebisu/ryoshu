@@ -19,7 +19,7 @@
       "tests/test_tax_scope_review.py",
       "tests/test_extraction.py"
     ],
-    "after_sha256": "ebea624fe38d5254612e89723995d1a88e09be878c336c930c0b3d3c7cb04dbc",
+    "after_sha256": "deb04279ea4213e97e2451c652f7e864b5052ac38cd31d97ebe788c89d2d7794",
     "previous_release_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705"
   },
   "receipt_ledger/exports.py": {
