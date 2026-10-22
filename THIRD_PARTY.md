@@ -20,11 +20,11 @@ Indraの重みは、コードのApache-2.0と異なる **AI Pubs Open RAIL-M (Mo
 
 実行したQwen3のOllama digest：`359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`。実際に使ったdigestを各候補にも保存します。
 
-公開版v1.0.0のOCR検証は無償の取得経路とローカル推論で実施しました。開発版の任意のChatGPTチャット編集は、OpenAIに接続し利用者のプラン・許可・上限に従って利用します。DatalabやOllamaのクラウド推論、有料OCRへの自動切り替えは実装していません。
+公開版v1.0.0のOCR検証は無償の取得経路とローカル推論で実施しました。v1.1.0で追加した任意のChatGPTチャット編集は、OpenAIに接続し利用者のプラン・許可・上限に従って利用します。DatalabやOllamaのクラウド推論、有料OCRへの自動切り替えは実装していません。
 
 ## その他の依存と検証用データ
 
-任意のOAuth・チャット連携にPyJWT（MIT）、cryptography（Apache-2.0 OR BSD-3-Clause）、cffi（MIT）、pycparser（BSD-3-Clause）を使用します。各配布物の条件に従います。OpenAIのアカウントやサービスの利用条件は、アプリのMIT Licenseとは別です。[接続・送信範囲](docs/CHAT-EDIT.md)
+任意のOAuth・チャット連携にPyJWT（MIT）、cryptography（Apache-2.0 OR BSD-3-Clause）、cffi（MIT-0）、pycparser（BSD-3-Clause）を使用します。各配布物の条件に従います。OpenAIのアカウントやサービスの利用条件は、アプリのMIT Licenseとは別です。[接続・送信範囲](docs/CHAT-EDIT.md)
 
 追加依存の固定版・配布元メタデータは[dependencies-chat.json](docs/dependencies-chat.json)に記録しています。
 

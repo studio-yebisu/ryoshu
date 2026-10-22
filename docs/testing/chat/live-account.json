@@ -1,0 +1,202 @@
+{
+  "status": "passed",
+  "recorded_at": "2026-10-22T04:11:45.374630+00:00",
+  "real_openai_account": true,
+  "real_openai_inference": true,
+  "model": "gpt-6-luna",
+  "inference_turns": 2,
+  "authorization_source_commit": "2dbec9915e3d8ecd640e7aa888df833f9155cfd7",
+  "chat_source_commit": "3a8a87f05f8a4a41d8e5092655e803ef01749491",
+  "source_sha256": {
+    "receipt_ledger/chat.py": "8621cfd807b5e1e738cfdadc72ac4c2053d527063e3fc76cd39bbbfc70c45eda",
+    "receipt_ledger/openai_oauth.py": "994f1cd3a8400416e38bc47b21e7575c7ba30bfafaf0311e0a59bd89e3b0d9a0",
+    "receipt_ledger/privacy.py": "505bba5a35b203250f78faa31e7faea967fcc12e2ebd4dbf40c4db46286c5135",
+    "receipt_ledger/server.py": "f7e1a7b009620d88ee49b1872af6c2c708ce68748cfd03d9fa5bdce9588c06ed",
+    "web/chat.js": "e74f42a399cd430967a544d2f84391238c29044603ebb2261f6a449b6a5c35ab",
+    "web/app.js": "83e2066427edfa95c34a12bafe50528c62235546d6feeeaa863e35b0ef19fe76"
+  },
+  "hash_scope": "Git blob bytes (LF); final release source is compared to these files separately",
+  "oauth": {
+    "user_completed_official_sign_in_and_plan_permission": true,
+    "validated_identity_before_persisting": true,
+    "account_models_obtained": true,
+    "saved_session_survived_server_restart": true,
+    "windows_dpapi_vault_separate_from_ledger": true,
+    "api_key_or_other_app_credentials_used": false
+  },
+  "selected_fictional_cases": [
+    "V044",
+    "V045"
+  ],
+  "unselected_control": "V001",
+  "checks": [
+    {
+      "name": "question_only",
+      "passed": true,
+      "request": "選んだ2件の勘定科目と事業割合は、今それぞれどうなっていますか。まだ変更せず、説明だけしてください。",
+      "observed_reply": "選んだ2件はいずれも勘定科目が「消耗品費」、事業割合が100%です。",
+      "ledger_unchanged": true,
+      "proposal_created": false
+    },
+    {
+      "name": "follow_up_preview",
+      "passed": true,
+      "request": "では、その2件の勘定科目を通信費に、事業割合を50%に変更する案を作ってください。金額・日付・ほかの項目は、そのままにしてください。",
+      "changed_fields": [
+        "account",
+        "business_percent"
+      ],
+      "exactly_selected_two_cases": true,
+      "ledger_unchanged_before_apply": true
+    },
+    {
+      "name": "explicit_apply",
+      "passed": true,
+      "status": "review",
+      "versions_incremented_once": true,
+      "one_chat_edit_audit_per_selected_case": true,
+      "posted_entries_created": false,
+      "unselected_case_unchanged": true,
+      "date_amount_and_other_fields_unchanged": true
+    },
+    {
+      "name": "repeat_same_apply",
+      "passed": true,
+      "already_applied": true,
+      "versions_and_audit_unchanged": true
+    }
+  ],
+  "before": {
+    "V044": {
+      "draft": {
+        "date": "2024-06-27",
+        "merchant": "架空モバイル通信株式会社",
+        "total": 13479,
+        "description": "架空の編集検証用明細",
+        "account": "消耗品費",
+        "payment": "owner",
+        "business_percent": 100,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 3,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 0
+    },
+    "V045": {
+      "draft": {
+        "date": "2024-04-08",
+        "merchant": "テスト光ネットワーク株式会社",
+        "total": 8980,
+        "description": "架空の編集検証用明細",
+        "account": "消耗品費",
+        "payment": "owner",
+        "business_percent": 100,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 3,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 0
+    },
+    "V001": {
+      "draft": {
+        "date": "2023-11-02",
+        "merchant": "コンビニ みちのく",
+        "total": 1760,
+        "description": "架空の編集検証用明細",
+        "account": "消耗品費",
+        "payment": "owner",
+        "business_percent": 100,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 3,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 0
+    }
+  },
+  "after": {
+    "V044": {
+      "draft": {
+        "date": "2024-06-27",
+        "merchant": "架空モバイル通信株式会社",
+        "total": 13479,
+        "description": "架空の編集検証用明細",
+        "account": "通信費",
+        "payment": "owner",
+        "business_percent": 50,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 4,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 1
+    },
+    "V045": {
+      "draft": {
+        "date": "2024-04-08",
+        "merchant": "テスト光ネットワーク株式会社",
+        "total": 8980,
+        "description": "架空の編集検証用明細",
+        "account": "通信費",
+        "payment": "owner",
+        "business_percent": 50,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 4,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 1
+    },
+    "V001": {
+      "draft": {
+        "date": "2023-11-02",
+        "merchant": "コンビニ みちのく",
+        "total": 1760,
+        "description": "架空の編集検証用明細",
+        "account": "消耗品費",
+        "payment": "owner",
+        "business_percent": 100,
+        "purpose": "架空データでの動作検証",
+        "tax_rate": "unknown",
+        "tax_amount": null,
+        "invoice_number": "",
+        "export_tax": ""
+      },
+      "version": 3,
+      "status": "review",
+      "posting": null,
+      "chat_edits": 0
+    }
+  },
+  "scope": "Actual local app UI, HTTP, SQLite, official OpenAI OAuth and ChatGPT-plan Responses inference. Public fictional PDFs were manually seeded with deliberately incorrect accounts; no OCR was run in this test. User's normal ledger was not used.",
+  "not_verified_here": [
+    "Unknown real-receipt accuracy or all-model editing accuracy",
+    "Live token refresh or live revocation",
+    "Multiple real accounts/workspaces",
+    "Actual accounting SaaS CSV import",
+    "Empty-PC installation or non-Windows OS"
+  ],
+  "privacy": "Account identifiers, email, OAuth URLs, codes and tokens, raw provider responses, and machine paths omitted. No PDF/image/OCR/unselected receipt data included in the chat request by the tested payload code."
+}

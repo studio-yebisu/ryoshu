@@ -1,12 +1,12 @@
 {
-  "version": "1.1.0.dev1",
+  "version": "1.1.0",
   "date": "2026-10-22",
-  "live_openai_account_verified": false,
-  "live_openai_inference_verified": false,
+  "live_openai_account_verified": true,
+  "live_openai_inference_verified": true,
   "python": {
-    "passed": 168,
+    "passed": 172,
     "existing": 130,
-    "chat": 38
+    "chat": 42
   },
   "browser": {
     "existing_passed": 28,
@@ -56,18 +56,26 @@
       "route": "Claude CLI",
       "original_findings_rechecked": true,
       "scope": "Read-only code review; six P2 findings resolved, no remaining P1/P2 in re-read"
+    },
+    {
+      "requested_model": "gemini-3.8-flash-high",
+      "route": "Antigravity terminal CLI (agy)",
+      "scope": "Read-only Japanese review of supplied chat UI/help/README; no real browser or OAuth operated by the reviewer",
+      "findings": "Login visibility and expired/cancelled retry guidance corrected against actual behavior; no extra repeated tax notice added because existing pre-apply guidance remains"
     }
   ],
   "source_sha256": {
     "receipt_ledger/chat.py": "8621cfd807b5e1e738cfdadc72ac4c2053d527063e3fc76cd39bbbfc70c45eda",
-    "receipt_ledger/openai_oauth.py": "78fc9d5f34be6e324efd7535434fd3afd3805f54faad36e15c0802cd7b1c6dcd",
-    "receipt_ledger/privacy.py": "cf9fe97db14afb68b6862cd1ad027240726a3e76b8c2cdf3cc21c743af90aae8",
-    "receipt_ledger/server.py": "8191840076191048ae2dbcb10eaba8560978af18fb459c59e4ddca1483706f61",
-    "web/chat.js": "ad0e19fa8ecfc114abdce167b9284757dc9e726be65f23f92488df9191eb5bc2",
-    "web/app.js": "59a9f03e7f28e2b81b33d2d4c8e16c807e711478a0a93b13f94d99ef41c33ed0",
-    "tests/test_chat.py": "46c97a3eef5c841dcaa8c36555b6bb72ab257066e6efcbc7c3db659d34690ff5",
+    "receipt_ledger/openai_oauth.py": "994f1cd3a8400416e38bc47b21e7575c7ba30bfafaf0311e0a59bd89e3b0d9a0",
+    "receipt_ledger/privacy.py": "505bba5a35b203250f78faa31e7faea967fcc12e2ebd4dbf40c4db46286c5135",
+    "receipt_ledger/server.py": "f7e1a7b009620d88ee49b1872af6c2c708ce68748cfd03d9fa5bdce9588c06ed",
+    "web/chat.js": "e74f42a399cd430967a544d2f84391238c29044603ebb2261f6a449b6a5c35ab",
+    "web/app.js": "83e2066427edfa95c34a12bafe50528c62235546d6feeeaa863e35b0ef19fe76",
+    "tests/test_chat.py": "dd6ca39098f0db66bf79112e8b58187cbbc4ff553ac2e59373f52707ce582a54",
     "scripts/chat_browser_smoke.mjs": "2574431ae5e8f779022bef624f857bead8ae657cdfa88c9abc5dc39b1b91ac9b",
     "scripts/serve_chat_qa.py": "ea926056e607cdc48c08c21600231f55d058262133ccb00a8f924cdfe0ae7800"
   },
-  "hash_scope": "Working-tree bytes at parent verification, before Git line-ending normalization"
+  "hash_scope": "Git-normalized source bytes (LF), excluding separately archived original processing sources",
+  "live_account_evidence": "live-account.json",
+  "live_model": "gpt-6-luna"
 }
