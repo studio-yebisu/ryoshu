@@ -18,8 +18,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--first-run",action="store_true",help="Exercise actual initial protection setup in the browser")
+    parser.add_argument("--legacy-account-collision",action="store_true",help="Recreate a fictional old custom name matching a newer account code")
     args = parser.parse_args()
     data_dir = args.data_dir.resolve()
+    default_data = (Path.home() / "StudioYebisu" / "ReceiptLedger" / "data").resolve()
+    if data_dir == default_data or data_dir.is_relative_to(default_data):
+        parser.error("検証には通常の帳簿とは別の保存先を指定してください")
     if data_dir.exists() and any(data_dir.iterdir()):
         parser.error("検査には空の新しいデータフォルダーを指定してください")
     os.environ["RECEIPT_LEDGER_DATA"] = str(data_dir)
@@ -33,6 +37,8 @@ def main():
     import uvicorn
     from receipt_ledger import config, server
     from receipt_ledger.importing import Importer
+    if config.DATA_DIR != data_dir or config.PORT != port:
+        parser.error("検証用の保存先・ポートとアプリの設定が一致しないため停止しました")
 
     report = json.loads((ROOT / "docs/testing/results.json").read_text("utf-8"))
     cases = {row["sha256"]: row for row in report["cases"]}
@@ -66,6 +72,15 @@ def main():
     if not args.first_run:
         keys.setup("fictional browser test recovery password")
     app = server.create_app(config.DATA_DIR)
+    if app.state.store.root != data_dir:
+        raise RuntimeError("検証用の保存先と実際の帳簿の保存先が一致しません")
+    if args.legacy_account_collision:
+        from receipt_ledger.catalog import account_key
+        custom = app.state.store.add_account('架空旧版独自科目', 'expense',
+            '旧版から保存されていた名前と新規コードの衝突を再現', [], [], category_id='learning')
+        with app.state.store.connect() as db:
+            db.execute('UPDATE account_master SET name=?,name_key=? WHERE code=?',
+                       ('E129', account_key('E129'), custom['code']))
     runner = uvicorn.Server(uvicorn.Config(app, access_log=False, log_level="warning"))
     token = secrets.token_urlsafe(32)
 

@@ -285,6 +285,40 @@ class Store:
             result.append(data)
         return result
 
+    def favorite_accounts(self, db=None):
+        """Return usable favorite codes; names and aliases never define identity."""
+        if db is None:
+            with self.connect() as conn:
+                return self.favorite_accounts(conn)
+        row = db.execute("SELECT value FROM settings WHERE key='favorite_accounts'").fetchone()
+        try:
+            saved = json.loads(row['value']) if row else []
+        except (TypeError, ValueError):
+            return []
+        if not isinstance(saved, list):
+            return []
+        valid = {row['code'] for row in db.execute(
+            "SELECT code FROM account_master WHERE active=1 AND selectable=1 AND kind IN ('expense','asset')")}
+        return sorted({code for code in saved if isinstance(code, str) and code in valid})
+
+    def set_account_favorite(self, code, favorite):
+        """Change one favorite atomically without overwriting another window's list."""
+        if not isinstance(code, str) or type(favorite) is not bool:
+            raise ValueError('科目コードと、お気に入りの指定を確認してください。')
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            account = db.execute("SELECT code FROM account_master WHERE code=? AND active=1 AND selectable=1 AND kind IN ('expense','asset')", (code,)).fetchone()
+            if account is None:
+                raise ValueError('選択できる勘定科目を指定してください。')
+            favorites = set(self.favorite_accounts(db))
+            if favorite:
+                favorites.add(code)
+            else:
+                favorites.discard(code)
+            result = sorted(favorites)
+            db.execute("INSERT INTO settings VALUES('favorite_accounts',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (dumps(result),))
+            return result
+
     def catalog(self):
         with self.connect() as db:
             return {"schema_version":db.execute("PRAGMA user_version").fetchone()[0],

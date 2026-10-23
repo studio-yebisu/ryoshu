@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "scope": "Actual browser/HTTP/encrypted settings using saved fictional observations and a reconstructed legacy custom-account collision. No new OCR/classification inference.",
+  "checks": [
+    "QA launcher refuses the default ledger path and cached data/port mismatches before creating a key or database",
+    "keyboard/mouse stars add and remove without receipt changes or dirty drafts; shortcuts synchronize category/account and the native two-layer selector remains intact",
+    "favorites persist through a real browser reload",
+    "a failed favorite POST shows an error, retains the existing star and shortcut, and succeeds on retry",
+    "detail shortcuts preserve unsaved amount/purpose, star-only actions never dirty a receipt, and delayed favorite responses do not steal focus",
+    "historical custom name E129 and formal code E129 retain separate stable-code stars and correct category/account shortcuts",
+    "catalog exposes stars only for selectable expense/asset accounts and its changes synchronize with the picker",
+    "all favorites including a long custom name fit desktop and375px dialog widths; selecting a wrapped shortcut works without changing saved receipts, versions, statuses, postings or audit history",
+    "after stopping the QA server a separate Python process reopens the encrypted DB with all favorites and unchanged schema; unkeyed SQLite cannot read settings"
+  ],
+  "errors": [],
+  "server_exit": {
+    "code": 0,
+    "signal": null
+  },
+  "source_hashes": {
+    "web/app.js": "e0e6542026f5c8b9486b225ffb08ff94f121a39c63a6b5bd9e93004bfb80b929",
+    "web/style.css": "800e55d31b78fc85c83ba53dc63633c4d48b05a52f237ba69b11ee7e37acedf1",
+    "receipt_ledger/store.py": "e77a057b6d2a79c70f7bf12d516235995932218816f2ded12d02b30a780b0ecb",
+    "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+    "scripts/serve_browser_qa.py": "961f6a8d9e33dc6a5a9e7f5b94bd0fbd98e4fc3548ae75c4a136b5cd63121841",
+    "scripts/account_favorites_smoke.mjs": "44ec35483c25632115693d658858bf408d3e367af946bce42d900bbbd22839fd"
+  }
+}

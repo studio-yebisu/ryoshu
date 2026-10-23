@@ -7,7 +7,7 @@ const localMonth = () => {const d = new Date(); return `${d.getFullYear()}-${Str
 const statusNames = {queued:'順番待ち',processing:'読み取り中',review:'未確認',confirmed:'確認済み',excluded:'対象外',error:'読み取りに失敗'};
 const state = {view:'home',config:null,catalog:null,health:null,records:[],active:null,detail:null,sourceTab:'image',page:0,history:null,queueFilter:'pending',queuePage:0,queuePageAnchor:null,month:'',drafts:new Map(),busy:false,ledgerFilter:'all',ledgerSearch:'',ledgerPage:0,selected:new Map(),batch:{},batchReport:null,batchOnlyIssues:false,exportMapDrafts:new Map()};
 let toastTimer, pollTimer, searchTimer;
-Object.assign(state,{resultsPage:0,resultsOnlyPending:false,reviewAccountCategories:new Map(),catalogCategory:'',catalogSearch:''});
+Object.assign(state,{resultsPage:0,resultsOnlyPending:false,reviewAccountCategories:new Map(),catalogCategory:'',catalogSearch:'',favoriteSaving:false});
 let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
 
@@ -227,19 +227,76 @@ function accountHelp(account){
   if(!account)return 'カテゴリーを選ぶと、その中の科目を選べます。';
   return (account.description?'<p>'+esc(account.description)+'</p>':'')+(account.review_questions?.length?'<p class="field-hint">確認すること：'+account.review_questions.map(esc).join(' / ')+'</p>':'');
 }
+function favoriteAccounts(){
+  const codes=new Set(state.config?.favorite_accounts||[]);
+  return selectableAccounts().filter(a=>codes.has(a.code));
+}
+function isFavoriteAccount(account){return !!account&&(state.config?.favorite_accounts||[]).includes(account.code);}
+function favoriteAccountButton(account){
+  const selected=isFavoriteAccount(account),label=account?account.name+'をよく使う科目'+(selected?'から外す':'に追加'):'科目を選ぶとスターを付けられます';
+  return '<button type="button" class="account-star'+(selected?' starred':'')+'" data-favorite-toggle="'+esc(account?.code||'')+'" aria-pressed="'+selected+'" aria-disabled="'+state.favoriteSaving+'" aria-label="'+esc(label)+'" title="'+esc(label)+'"'+(!account?' disabled':'')+'><span aria-hidden="true">'+(selected?'★':'☆')+'</span></button>';
+}
+function favoriteAccountChoices(){
+  const accounts=favoriteAccounts();
+  return accounts.length?'<span class="field-label">よく使う科目</span><div class="account-favorite-list">'+accounts.map(a=>'<button type="button" class="account-favorite-choice" data-favorite-choice="'+esc(a.code)+'"><span aria-hidden="true">★ </span>'+esc(a.name)+'</button>').join('')+'</div>':'<p class="field-hint">☆を押すと、よく使う科目をここに並べられます。</p>';
+}
+function catalogFavoriteButton(account){
+  return account.selectable&&['expense','asset'].includes(account.kind)?favoriteAccountButton(account).replace('data-favorite-toggle=','data-catalog-favorite data-favorite-toggle='):'';
+}
+function paintFavoriteButton(button,account){
+  const template=document.createElement('template');template.innerHTML=favoriteAccountButton(account);
+  const fresh=template.content.firstElementChild;
+  for(const name of ['class','data-favorite-toggle','aria-pressed','aria-disabled','aria-label','title'])button.setAttribute(name,fresh.getAttribute(name));
+  button.disabled=fresh.disabled;button.innerHTML=fresh.innerHTML;
+}
+function refreshAccountFavorites(){
+  for(const picker of $$('[data-account-picker]')){
+    const slot=$('[data-account-favorites]',picker),focused=slot.contains(document.activeElement)?document.activeElement.dataset.favoriteChoice:null;
+    const markup=favoriteAccountChoices();if(slot.innerHTML!==markup)slot.innerHTML=markup;
+    if(focused)slot.querySelector('[data-favorite-choice="'+CSS.escape(focused)+'"]')?.focus({preventScroll:true});
+    paintFavoriteButton($('[data-account-star] button',picker),findAccount($('[data-account-choice]',picker).value));
+  }
+  for(const button of $$('[data-catalog-favorite]')){
+    const account=selectableAccounts().find(a=>a.code===button.dataset.favoriteToggle);
+    paintFavoriteButton(button,account);
+  }
+}
+async function toggleAccountFavorite(code){
+  if(state.favoriteSaving||state.busy||accountEdit?.saving||accountEdit?.reloading)return;
+  const account=selectableAccounts().find(a=>a.code===code);if(!account)return;
+  const favorite=!isFavoriteAccount(account);
+  state.favoriteSaving=true;refreshAccountFavorites();
+  try{
+    const result=await api('/accounts/'+encodeURIComponent(code)+'/favorite',{method:'POST',body:JSON.stringify({favorite})});
+    state.config.favorite_accounts=result.favorite_accounts;
+    toast(favorite?account.name+'をよく使う科目に追加しました。':account.name+'をよく使う科目から外しました。');
+  }catch(error){toast('スターを保存できませんでした。'+error.message,true);}
+  finally{state.favoriteSaving=false;refreshAccountFavorites();}
+}
+function chooseFavoriteAccount(picker,code){
+  const account=favoriteAccounts().find(a=>a.code===code);if(!account)return;
+  const category=$('[data-account-category]',picker),choice=$('[data-account-choice]',picker);
+  category.value=accountCategoryId(account);changeAccountCategory(picker);
+  choice.value=account.name;
+  choice.dispatchEvent(new Event('change',{bubbles:true}));
+  choice.focus();
+}
 function accountPicker(value='',category='',id='review-account'){
   const account=findAccount(value);
   category=account?accountCategoryId(account):category;
-  return '<div class="account-picker" data-account-picker><div class="form-row"><label class="field"><span class="field-label">カテゴリー<span class="required">*</span></span><select id="'+esc(id)+'-category" data-account-category required>'+accountCategoryOptions(selectableAccounts(),category)+'</select></label><label class="field"><span class="field-label">勘定科目<span class="required">*</span></span><select id="'+esc(id)+'" name="account" data-account-choice required'+(category?'':' disabled')+'>'+accountOptions(category,account?.name||'')+'</select></label></div><div class="account-picker-help" data-account-help aria-live="polite">'+accountHelp(account)+'</div></div>';
+  return '<div class="account-picker" data-account-picker><div class="account-favorites" data-account-favorites>'+favoriteAccountChoices()+'</div><div class="form-row"><label class="field"><span class="field-label">カテゴリー<span class="required">*</span></span><select id="'+esc(id)+'-category" data-account-category required>'+accountCategoryOptions(selectableAccounts(),category)+'</select></label><div class="field"><label class="field-label" for="'+esc(id)+'">勘定科目<span class="required">*</span></label><div class="account-choice-row"><select id="'+esc(id)+'" name="account" data-account-choice required'+(category?'':' disabled')+'>'+accountOptions(category,account?.name||'')+'</select><span data-account-star>'+favoriteAccountButton(account)+'</span></div></div></div><div class="account-picker-help" data-account-help aria-live="polite">'+accountHelp(account)+'</div></div>';
 }
 function changeAccountCategory(picker){
   const category=$('[data-account-category]',picker).value,choice=$('[data-account-choice]',picker);
   choice.innerHTML=accountOptions(category);
   choice.disabled=!category;
   $('[data-account-help]',picker).innerHTML=accountHelp(null);
+  $('[data-account-star]',picker).innerHTML=favoriteAccountButton(null);
 }
 function updateAccountHelp(picker){
-  $('[data-account-help]',picker).innerHTML=accountHelp(findAccount($('[data-account-choice]',picker).value));
+  const account=findAccount($('[data-account-choice]',picker).value);
+  $('[data-account-help]',picker).innerHTML=accountHelp(account);
+  $('[data-account-star]',picker).innerHTML=favoriteAccountButton(account);
 }
 function addAccountCategoryOptions(kind,selected=''){
   return '<option value="">カテゴリーを選択（任意）</option>'+accountDefinitions().filter(c=>!c.id.startsWith('__')&&(!c.kinds||c.kinds.includes(kind))).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===selected?' selected':'')+'>'+esc(c.label)+'</option>').join('');
@@ -549,7 +606,7 @@ function renderCatalogRows(query){
   const normalized=state.catalogSearch.normalize('NFKC').toLocaleLowerCase();
   const rows=state.catalog.accounts.filter(a=>(!state.catalogCategory||accountCategoryId(a)===state.catalogCategory)&&[a.name,a.code,a.description,...a.aliases,...(a.hints?.any||[])].join(' ').normalize('NFKC').toLocaleLowerCase().includes(normalized));
   $('#catalog-count').textContent=`${rows.length}科目`;
-  el.innerHTML=rows.map(a=>`<tr><td><div class="table-sub">${esc(a.code)}${a.seeded?'':' / 自分の科目'}</div><strong>${esc(a.name)}</strong></td><td><span class="account-chip">${esc(accountDefinitions().find(c=>c.id===accountCategoryId(a))?.label||'その他')}</span><div class="table-sub">${esc(kindLabels[a.kind]||a.kind)}</div></td><td class="catalog-description">${esc(a.description)}</td><td class="catalog-description">${a.review_questions.map(q=>`<div>· ${esc(q)}</div>`).join('')||'<span class="table-sub">支払元・仕訳の相手科目として使用</span>'}${a.hints?.any?.length?`<div class="field-hint">品目の手がかり：${esc(a.hints.any.join(' / '))}</div>`:''}${a.aliases.length?`<div class="table-sub">別名：${esc(a.aliases.join(' / '))}</div>`:''}</td></tr>`).join('')||'<tr><td colspan="4" class="empty-table">一致する科目はありません</td></tr>';
+  el.innerHTML=rows.map(a=>`<tr><td><div class="table-sub">${esc(a.code)}${a.seeded?'':' / 自分の科目'}</div><div class="catalog-account-name">${catalogFavoriteButton(a)}<strong>${esc(a.name)}</strong></div></td><td><span class="account-chip">${esc(accountDefinitions().find(c=>c.id===accountCategoryId(a))?.label||'その他')}</span><div class="table-sub">${esc(kindLabels[a.kind]||a.kind)}</div></td><td class="catalog-description">${esc(a.description)}</td><td class="catalog-description">${a.review_questions.map(q=>`<div>· ${esc(q)}</div>`).join('')||'<span class="table-sub">支払元・仕訳の相手科目として使用</span>'}${a.hints?.any?.length?`<div class="field-hint">品目の手がかり：${esc(a.hints.any.join(' / '))}</div>`:''}${a.aliases.length?`<div class="table-sub">別名：${esc(a.aliases.join(' / '))}</div>`:''}</td></tr>`).join('')||'<tr><td colspan="4" class="empty-table">一致する科目はありません</td></tr>';
 }
 
 async function addAccount(form){
@@ -658,6 +715,8 @@ document.addEventListener('click',async event=>{
   try{
     if(target.dataset.view){event.preventDefault();if(!state.uiReady)return;const revision=++detailRevision;if(target.dataset.view==='catalog'){const catalog=await api('/catalog');if(revision!==detailRevision)return;state.catalog=catalog;}state.view=target.dataset.view;history.replaceState(null,'','#'+state.view);$('.more-nav').open=false;render();return;}
     if(target.dataset.changeAccount){await openAccountChange(target.dataset.changeAccount,target);return;}
+    if(target.hasAttribute('data-favorite-toggle')){await toggleAccountFavorite(target.dataset.favoriteToggle);return;}
+    if(target.dataset.favoriteChoice){chooseFavoriteAccount(target.closest('[data-account-picker]'),target.dataset.favoriteChoice);return;}
     if(target.dataset.reviewOpen){$('#review-dialog').close();state.queueFilter='all';await selectReceipt(target.dataset.reviewOpen);return;}
     if(target.dataset.zoomReceipt){openZoom(target.dataset.zoomReceipt,target);return;}
     if(target.dataset.ocrReceipt){const details=target.closest('details');if(!details.open&&!details.dataset.loaded){const r=await api('/receipts/'+target.dataset.ocrReceipt);if(details.isConnected){details.querySelector('pre').textContent=r.ocr?.text||'読み取った本文がありません。原本を確認してください。';details.dataset.loaded='1';}}return;}
@@ -718,7 +777,7 @@ document.addEventListener('change',event=>{
     changeAccountCategory(event.target.closest('[data-account-picker]'));
     if(event.target.closest('#review-form'))state.reviewAccountCategories.set(state.active,event.target.value);
   }
-  if(event.target.matches('[data-account-choice]'))updateAccountHelp(event.target.closest('[data-account-picker]'));
+  if(event.target.matches('[data-account-choice]')){updateAccountHelp(event.target.closest('[data-account-picker]'));if(event.target.closest('#review-form'))state.reviewAccountCategories.set(state.active,$('[data-account-category]',event.target.closest('[data-account-picker]')).value);}
   if(event.target.closest('#account-change-form')&&(event.target.matches('[data-account-category]')||event.target.matches('[data-account-choice]')))updateAccountChangeSave();
   if(event.target.id==='catalog-category'){state.catalogCategory=event.target.value;renderCatalogRows(state.catalogSearch);}
   if(event.target.id==='account-add-kind'){

@@ -16,7 +16,7 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, StrictBool
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -252,7 +252,7 @@ def create_app(data_dir=None, run_workers=True):
 
     @app.get("/api/config")
     def app_config():
-        return {"accounts": store.accounts(), "account_categories": account_categories(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
+        return {"accounts": store.accounts(), "account_categories": account_categories(), "favorite_accounts": store.favorite_accounts(), "payments": config.PAYMENTS, "tax_rates": config.TAX_LABELS,
                 "business_context": store.business_context(), "rules": store.rules(),
                 "review_before_ledger": review_before_ledger(store),
                 "storage_issues":store.storage_issues(),
@@ -282,6 +282,14 @@ def create_app(data_dir=None, run_workers=True):
         if any(len(s)>200 for s in body.aliases+body.review_questions+body.keywords):
             raise ValueError("別名・確認事項は各200文字以内で入力してください")
         return store.add_account(body.name,body.kind,body.description,body.aliases,body.review_questions,body.keywords,body.category_id)
+
+    class FavoriteAccountRequest(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+        favorite: StrictBool
+
+    @app.post('/api/accounts/{code}/favorite')
+    def favorite_account(code: str, body: FavoriteAccountRequest):
+        return {'favorite_accounts': store.set_account_favorite(code, body.favorite)}
 
     @app.get("/api/samples/{kind}")
     def sample_download(kind:str):

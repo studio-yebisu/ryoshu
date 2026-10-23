@@ -102,7 +102,9 @@ for item in meta['exports']:
 critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt_ledger/catalog.py',
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
-changes_path = ROOT / 'docs/testing/v1.3/source-changes.json'
+changes_path = ROOT / 'docs/testing/v1.3.1/source-changes.json'
+if not changes_path.is_file():
+    changes_path = ROOT / 'docs/testing/v1.3/source-changes.json'
 if not changes_path.is_file():
     changes_path = ROOT / 'docs/testing/v1.2/source-changes.json'
 if not changes_path.is_file():
@@ -270,8 +272,22 @@ if (v13 / 'results-100.json').is_file():
     final = json.loads((v13 / 'finalization.json').read_text('utf-8'))
     require(final['status'] == 'passed' and final['frozen_runtime_matches_final_distribution'], 'v1.3 final integration is incomplete')
     require(set(latest['source_hashes']).issubset(final['distribution_source_sha256']), 'v1.3 runtime reconciliation scope differs')
-    for name, expected_hash in final['distribution_source_sha256'].items():
-        require(distribution_sha(ROOT / name) == expected_hash, f'v1.3 final source is stale: {name}')
+    current_version = re.search(r'^__version__ = "([^"]+)"', (ROOT / 'receipt_ledger/__init__.py').read_text('utf-8'), re.M)
+    require(current_version is not None, 'Current application version is missing')
+    if current_version is not None and current_version.group(1) == '1.3.0':
+        for name, expected_hash in final['distribution_source_sha256'].items():
+            require(distribution_sha(ROOT / name) == expected_hash, f'v1.3 final source is stale: {name}')
+    else:
+        archive = v13 / 'processing-source.zip'
+        require(archive.is_file(), 'Missing historical v1.3 processing source archive')
+        if archive.is_file():
+            require(sha(archive) == '178fa959b40915f19ba38ee40b70b4d6afc7c161ce7d63d1096a92f57c8007f2', 'Historical v1.3 archive changed')
+            with zipfile.ZipFile(archive) as source_zip:
+                snapshot = final['distribution_source_sha256']
+                require(source_zip.comment == b'e79394d7349efc15aadb2dc02f6fe381596b407d', 'Historical v1.3 source commit differs')
+                require(source_zip.testzip() is None and len(source_zip.namelist()) == len(snapshot) and set(source_zip.namelist()) == set(snapshot), 'Historical v1.3 archive scope or CRC differs')
+                for name, expected_hash in snapshot.items():
+                    require(hashlib.sha256(source_zip.read(name)).hexdigest() == expected_hash, f'Historical v1.3 source differs: {name}')
     for name, expected_hash in final['visual_review']['screenshots_sha256'].items():
         require(sha(v13 / 'screenshots' / name) == expected_hash, f'v1.3 screenshot changed: {name}')
 

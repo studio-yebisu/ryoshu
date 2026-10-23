@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "app_version": "1.3.1",
+  "scope": "Favorites UI and encrypted settings regression. No new OCR or model inference.",
+  "python": {
+    "tests": "264",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "147.418"
+  },
+  "javascript": {
+    "passed": 5,
+    "failed": 0
+  },
+  "browser": {
+    "existing_workflow": 28,
+    "account_changes": 8,
+    "favorites": 9
+  },
+  "visual_review": {
+    "desktop": "Parent and implementation agent inspected screenshot",
+    "mobile_375px": "Parent and implementation agent inspected screenshot; all favorites and long custom name wrap without horizontal overflow"
+  },
+  "source_hashes": {
+    "web/app.js": "e0e6542026f5c8b9486b225ffb08ff94f121a39c63a6b5bd9e93004bfb80b929",
+    "web/style.css": "800e55d31b78fc85c83ba53dc63633c4d48b05a52f237ba69b11ee7e37acedf1",
+    "receipt_ledger/store.py": "e77a057b6d2a79c70f7bf12d516235995932218816f2ded12d02b30a780b0ecb",
+    "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+    "scripts/serve_browser_qa.py": "961f6a8d9e33dc6a5a9e7f5b94bd0fbd98e4fc3548ae75c4a136b5cd63121841",
+    "scripts/account_favorites_smoke.mjs": "44ec35483c25632115693d658858bf408d3e367af946bce42d900bbbd22839fd"
+  },
+  "screenshots_sha256": {
+    "01-favorite-picker-desktop.png": "87963bf095269ba3e97628d7ad890eeb99ee57b19093be1eebe05139c38f4f05",
+    "04-all-favorites-mobile.png": "c473abb72a4a8dee9fa17081f83de2c2a02624434f9ebb44a463ce4583ba76e3"
+  },
+  "prior_inference": "v1.3.0 record unchanged;100 cases were not rerun for this settings/UI addition."
+}
