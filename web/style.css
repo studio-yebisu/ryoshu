@@ -856,6 +856,65 @@ input[type=checkbox],input[type=radio] {
 .account-picker .field {
   min-width:0
 }
+.account-favorites {
+  margin-bottom:14px
+}
+.account-favorite-list {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:6px
+}
+.account-favorite-choice {
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper);
+  color:var(--brand);
+  padding:8px 12px;
+  min-height:40px;
+  max-width:100%;
+  overflow-wrap:anywhere;
+  text-align:left;
+  font:inherit;
+  font-size:13px;
+  cursor:pointer
+}
+.account-choice-row {
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.account-choice-row select {
+  flex:1;
+  min-width:0
+}
+.account-star {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper);
+  color:var(--muted);
+  font-size:25px;
+  cursor:pointer
+}
+.account-star.starred {
+  color:var(--brand);
+  background:var(--brand-soft)
+}
+.account-star:disabled {
+  cursor:default;
+  opacity:.5
+}
+.catalog-account-name {
+  display:flex;
+  align-items:center;
+  gap:10px
+}
 .account-picker-help {
   color:var(--muted);
   font-size:13px;
