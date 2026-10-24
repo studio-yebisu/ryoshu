@@ -10,6 +10,8 @@ let toastTimer, pollTimer, searchTimer;
 Object.assign(state,{resultsPage:0,resultsOnlyPending:false,reviewAccountCategories:new Map(),catalogCategory:'',catalogSearch:'',favoriteSaving:false});
 let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
+state.processingFetchedAt=0;
+const processingUI=RyoshuProcessing.create($('#processing-status'));
 
 function validationMessage(error){
   if(typeof error==='string')return error;
@@ -145,11 +147,7 @@ function rememberLedgerInputs(){
 }
 
 function renderProcessing(){
-  const busy=state.records.filter(busyRecord),failed=state.records.filter(r=>r.status==='error'||(r.status==='review'&&r.error)),el=$('#processing-status');
-  el.classList.toggle('hidden',!busy.length&&!failed.length);
-  if(!busy.length&&!failed.length)return;
-  const active=busy.find(r=>r.status==='processing'),waiting=busy.filter(r=>r.status==='queued').length;
-  el.innerHTML=`<div><strong>${active?`${active.stage==='model'?'AIが科目を判定中':'文字を読み取り中'}：${esc(active.original_name)}`:waiting?'順番に読み取ります':'読み取りの確認が必要です'}</strong><p>保存済み ${state.records.length}件 · 読取完了 ${state.records.filter(r=>!busyRecord(r)&&r.status!=='error').length}件 · 待ち ${waiting}件 · 失敗 ${failed.length}件</p>${busy.length?'<span class="field-hint">保存後の読み取りは、この画面を閉じても続きます。PCのスリープ中は進みません。アプリを再起動すると続きから再開します。</span>':''}</div>${failed.length?'<button class="button small" data-action="retry-errors">失敗した読み取りを再試行</button>':''}`;
+  processingUI.render(state.records,{importing:RyoshuImport.busy(),fetchedAt:state.processingFetchedAt});
 }
 
 function renderInbox(content) {
@@ -633,7 +631,11 @@ function trackEdit() {
   renderJournal(d);renderQueue();
 }
 
-async function loadReceipts() {const revision=++receiptRevision,result=await api('/receipts');if(revision===receiptRevision)state.records=result.receipts;}
+async function loadReceipts() {
+  const revision=++receiptRevision;
+  try{const result=await api('/receipts');if(revision===receiptRevision){state.records=result.receipts;state.processingFetchedAt=Date.now();}}
+  catch(error){if(revision===receiptRevision)processingUI.connectionFailed();throw error;}
+}
 async function selectReceipt(id) {
   const revision=++detailRevision,detail=await api('/receipts/'+id);if(revision!==detailRevision)return;
   state.active=id;state.detail=detail;state.sourceTab='image';state.page=0;state.history=null;
@@ -662,6 +664,8 @@ async function save(confirm,next=false) {
 
 let importRefreshTimer;
 function beginImport(){
+  processingUI.begin();
+  renderProcessing();
   if(state.view==='inbox'&&state.drafts.size)return;
   if(state.view==='home'){renderHome();return;}
   state.view=state.config.review_before_ledger?'inbox':'results';render();
@@ -675,7 +679,9 @@ async function refreshImported(){
     schedulePoll();
   }catch{toast('原本は保存しました。一覧を更新できなかったため、接続を確認して再読み込みしてください。',true);}
 }
-function uploaded(){
+function uploaded(result){
+  processingUI.imported(result);
+  renderProcessing();
   clearTimeout(importRefreshTimer);importRefreshTimer=setTimeout(refreshImported,300);
   if(!state.records.length)refreshImported();
 }
@@ -807,7 +813,7 @@ async function init(){
   try{
     await RyoshuSecurity.prepare();
     const [config,health,receipts]=await Promise.all([api('/config'),api('/health'),api('/receipts')]);
-    state.config=config;state.health=health;state.records=receipts.receipts;
+    state.config=config;state.health=health;state.records=receipts.receipts;state.processingFetchedAt=Date.now();
     if(!config.limits?.max_split_pages){state.uiReady=false;$('.sidebar nav').inert=true;$('#upload-top').disabled=true;$$('.nav-item').forEach(el=>{if(el.tagName==='BUTTON')el.disabled=true;});$('#main-content').innerHTML='<section class="panel settings-card"><h2>アプリ本体を再起動してください</h2><p>画面とアプリ本体の版が違います。「停止.cmd」で終了してから「Ryoshu.cmd」を起動してください。帳簿と原本は保存されています。</p></section>';return;}
 
     RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});

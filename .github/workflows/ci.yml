@@ -36,9 +36,10 @@ jobs:
       - run: python scripts/verify_csv_workflow.py --out .local/csv-proof-ci
       - run: python scripts/check_publication.py
       - run: node --check web/app.js
+      - run: node --check web/processing.js
       - run: node --check web/import.js
       - run: node --check web/security.js
-      - run: node --test tests/import-ui.test.cjs tests/account-choice.test.cjs
+      - run: node --test tests/import-ui.test.cjs tests/account-choice.test.cjs tests/processing.test.cjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npx playwright install chromium
       - run: npm run test:browser
@@ -46,6 +47,7 @@ jobs:
       - run: node scripts/ux_workflow_smoke.mjs
       - run: node scripts/account_workflow_smoke.mjs
       - run: node scripts/account_favorites_smoke.mjs
+      - run: node scripts/processing_workflow_smoke.mjs
       - shell: powershell
         run: |
           foreach ($target in @('setup.ps1','start.ps1','stop.ps1','restore.ps1','scripts/launcher-process.ps1','scripts/bootstrap-uv.ps1')) {
