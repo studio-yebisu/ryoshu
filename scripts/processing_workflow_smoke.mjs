@@ -154,7 +154,7 @@ try{
   await screenshot('07-processing-resumed-after-reload');
   checks.push('a new upload resets a finished cohort, and reload truthfully recaptures only the two remaining busy receipts rather than past completed history');
 
-  await results();await page.locator(`[data-result-row="${oldId}"]`).getByRole('button',{name:'確認・修正する',exact:true}).click();
+  await results();await page.locator(`[data-result-row="${oldId}"]`).getByRole('button',{name:'詳細を修正',exact:true}).click();
   const form=page.locator('#review-form');await form.waitFor();
   const purpose=form.locator('[name=purpose]'),amount=form.locator('[name=total]');
   await amount.fill('12345');await purpose.fill('保存前の架空案件Aの調査費');
