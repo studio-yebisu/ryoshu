@@ -154,7 +154,7 @@ function rememberLedgerInputs(){
 }
 
 function renderProcessing(){
-  processingUI.render(state.records,{importing:RyoshuImport.busy(),fetchedAt:state.processingFetchedAt});
+  processingUI.render(state.records,{importing:RyoshuImport.busy(),paused:RyoshuImport.paused(),fetchedAt:state.processingFetchedAt});
 }
 
 function renderInbox(content) {
@@ -823,7 +823,7 @@ async function init(){
     state.config=config;state.health=health;state.records=receipts.receipts;state.processingFetchedAt=Date.now();
     if(!config.limits?.max_split_pages){state.uiReady=false;$('.sidebar nav').inert=true;$('#upload-top').disabled=true;$$('.nav-item').forEach(el=>{if(el.tagName==='BUTTON')el.disabled=true;});$('#main-content').innerHTML='<section class="panel settings-card"><h2>アプリ本体を再起動してください</h2><p>画面とアプリ本体の版が違います。「停止.cmd」で終了してから「Ryoshu.cmd」を起動してください。帳簿と原本は保存されています。</p></section>';return;}
 
-    RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});
+    RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,progress:renderProcessing,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});
     state.exportTaxMode=config.export_tax_mode||'reviewed';state.view=['home','results','ledger','settings','accounts'].includes(location.hash.slice(1))?location.hash.slice(1):'home';state.exportKind=config.review_before_ledger?'expenses':'review';
     if(health.environment_label){$('#connection-banner').textContent=health.environment_label+'。実際の帳簿とは別のデータベースです。';$('#connection-banner').classList.remove('hidden');}
     $('#app-version').textContent=health.app_version;$('#engine-status').textContent=`Indra ${health.ocr_version} / Qwen3 4B`;

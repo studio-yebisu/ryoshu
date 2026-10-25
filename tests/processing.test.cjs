@@ -72,6 +72,21 @@ test('uploading batches do not reset between individually completed fast files',
   assert.equal(summary.total,2);assert.equal(summary.completed,1);assert.equal(summary.active,1);
 });
 
+test('pausing imports preserves the unfinished cohort after saved work completes and resume appends new IDs',()=>{
+  const tracker=createTracker();tracker.begin();tracker.imported(imported('a'));
+  let summary=tracker.observe([row('a','processing')],{...fresh(1000,true),paused:true});
+  assert.equal(summary.paused,true);assert.equal(summary.active,1);
+  summary=tracker.observe([row('a','review')],{...fresh(2000,true),paused:true});
+  assert.equal(summary.paused,true);assert.equal(summary.importing,true);
+  assert.equal(summary.busy,0);assert.equal(summary.total,1);assert.equal(summary.completed,1);
+  tracker.imported(imported('b'));
+  summary=tracker.observe([row('a','review'),row('b','processing')],fresh(3000,true));
+  assert.equal(summary.paused,false);assert.equal(summary.total,2);
+  assert.equal(summary.completed,1);assert.equal(summary.active,1);
+  summary=tracker.observe([row('a','review'),row('b','review')],{...fresh(4000),paused:true});
+  assert.equal(summary.paused,false);assert.equal(summary.importing,false);assert.equal(summary.completed,2);
+});
+
 test('OCR to model stage keeps one active job and does not claim intermediate completion',()=>{
   const tracker=createTracker();
   tracker.observe([row('a','processing',{stage:'ocr'})],fresh());

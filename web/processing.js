@@ -77,7 +77,7 @@ window.RyoshuProcessing = (() => {
         }
         previous.set(item.id, item.kind);
       }
-      last = {...snapshot, importing:!!options.importing, scope, stale, fetchedAt, dismissed, newlyCompleted};
+      last = {...snapshot, importing:!!options.importing, paused:!!options.importing && !!options.paused, scope, stale, fetchedAt, dismissed, newlyCompleted};
       return last;
     }
     function connectionFailed() {stale = true; if (last) last.stale = true;}
@@ -132,7 +132,7 @@ window.RyoshuProcessing = (() => {
       if (!snapshot || target.classList.contains('hidden')) return;
       const stale = snapshot.stale || !!(snapshot.busy && snapshot.fetchedAt && Date.now()-snapshot.fetchedAt > 9000);
       target.classList.toggle('is-stale', stale);
-      target.dataset.state = stale ? 'stale' : snapshot.busy || snapshot.importing ? 'processing' : snapshot.attention ? 'attention' : 'finished';
+      target.dataset.state = stale ? 'stale' : snapshot.paused && !snapshot.busy ? 'paused' : snapshot.busy || snapshot.importing ? 'processing' : snapshot.attention ? 'attention' : 'finished';
       target.querySelector('[data-processing-connection]').classList.toggle('hidden', !stale);
       text('[data-processing-current-label]', stale ? '最後に確認できた処理' : 'いま、この領収書を処理しています');
       const start = timestamp(snapshot.current?.row.updated_at), end = stale ? snapshot.fetchedAt : Date.now();
@@ -149,7 +149,7 @@ window.RyoshuProcessing = (() => {
       target.classList.toggle('is-busy', running); target.classList.toggle('is-finished', !running);
       target.classList.toggle('has-attention', !!snapshot.attention);
       text('[data-processing-scope]', snapshot.scope === 'current' ? '今回の読み取り' : snapshot.scope === 'attention' ? '確認が必要な読み取り' : 'この画面を開いた時点の残りの処理');
-      text('[data-processing-title]', snapshot.active ? '1件ずつ、読み取っています' : snapshot.waiting ? '順番に読み取ります' : snapshot.syncing || snapshot.importing ? '原本を保存しながら読み取っています' : snapshot.attention ? '処理が終わりました。再確認が必要な領収書があります' : '読み取りが完了しました');
+      text('[data-processing-title]', snapshot.active ? '1件ずつ、読み取っています' : snapshot.waiting ? '順番に読み取ります' : snapshot.paused ? '取り込みを一時停止中です' : snapshot.syncing || snapshot.importing ? '原本を保存しながら読み取っています' : snapshot.attention ? '処理が終わりました。再確認が必要な領収書があります' : '読み取りが完了しました');
       for (const key of ['processed','total','completed','active','waiting','attention']) text(`[data-processing-count="${key}"]`, snapshot[key]);
       const progress = target.querySelector('.pp-progress'); progress.max = snapshot.total || 1;
       if (snapshot.total) progress.value = snapshot.processed; else progress.removeAttribute('value');
@@ -169,13 +169,13 @@ window.RyoshuProcessing = (() => {
       updateList('[data-processing-next]', snapshot.next, new Set());
       target.querySelector('[data-processing-recent-empty]').classList.toggle('hidden', !!snapshot.recent.length);
       const nextEmpty = target.querySelector('[data-processing-next-empty]'); nextEmpty.classList.toggle('hidden', !!snapshot.next.length);
-      nextEmpty.textContent = snapshot.importing ? '保存できた原本から順に追加します。' : snapshot.active ? '待機中の領収書はありません。この1件で終わります。' : '待機中の領収書はありません。';
+      nextEmpty.textContent = snapshot.paused ? '取り込みを再開すると、保存できた原本から追加します。' : snapshot.importing ? '保存できた原本から順に追加します。' : snapshot.active ? '待機中の領収書はありません。この1件で終わります。' : '待機中の領収書はありません。';
       text('[data-processing-more]', snapshot.waiting + snapshot.syncing > snapshot.next.length ? `ほか ${snapshot.waiting + snapshot.syncing - snapshot.next.length}件が順番を待っています` : '');
-      const note = snapshot.importing ? '原本を保存中です。保存できた領収書から対象件数へ加わります。' : snapshot.syncing ? '保存済みの領収書の状態を更新しています。' : running ? '保存後の読み取りは画面を閉じても続きます。PCのスリープ中は進みません。' : '読取完了は、内容の正しさや経費の確定を表すものではありません。原本と候補を確認してください。';
+      const note = snapshot.paused ? '取り込みを一時停止中。保存済みの領収書は読み取りを続けます。再開は原本の保存欄から行えます。' : snapshot.importing ? '原本を保存中です。保存できた領収書から対象件数へ加わります。' : snapshot.syncing ? '保存済みの領収書の状態を更新しています。' : running ? '保存後の読み取りは画面を閉じても続きます。PCのスリープ中は進みません。' : '読取完了は、内容の正しさや経費の確定を表すものではありません。原本と候補を確認してください。';
       text('[data-processing-note]', note + (snapshot.otherAttention ? ` 以前の読み取りにも、再確認・再試行が必要な領収書が${snapshot.otherAttention}件あります。` : ''));
       target.querySelector('[data-action="retry-errors"]').classList.toggle('hidden', !snapshot.attention && !snapshot.otherAttention);
       target.querySelector('[data-processing-dismiss]').classList.toggle('hidden', running);
-      const announcement = `読取完了${snapshot.completed}件、待機中${snapshot.waiting}件、再確認・再試行${snapshot.attention}件。`;
+      const announcement = `${snapshot.paused ? '取り込みを一時停止中。' : ''}読取完了${snapshot.completed}件、待機中${snapshot.waiting}件、再確認・再試行${snapshot.attention}件。`;
       text('[data-processing-announcement]', announcement);
       paintClock(); return snapshot;
     }

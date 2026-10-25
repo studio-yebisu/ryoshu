@@ -294,7 +294,7 @@ if (v13 / 'results-100.json').is_file():
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
 skipped = {'.git','.venv','venv','__pycache__','.pytest_cache','.local','dist','node_modules'}
-text_suffixes = {'.py','.md','.json','.js','.mjs','.cjs','.css','.html','.txt','.yml','.yaml','.ps1','.cmd','.svg'}
+text_suffixes = {'.py','.md','.json','.js','.mjs','.cjs','.css','.html','.txt','.yml','.yaml','.ps1','.cmd','.svg','.iss'}
 class Assets(HTMLParser):
     def __init__(self, path):
         super().__init__(); self.path = path

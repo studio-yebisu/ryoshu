@@ -168,7 +168,40 @@ try{
   assert.equal(await purpose.inputValue(),'保存前の架空案件Aの調査費');assert.equal(await amount.inputValue(),'12345');
   assert.deepEqual(await savedState(oldId),oldSaved);assert.deepEqual(await api('receipts/'+oldId+'/history'),oldHistory);
   checks.push('background stage/timer/completion updates preserve focused unsaved purpose and amount inputs, while saved draft, confirmation, posting and audit remain unchanged');
-  await home();await panel().locator('[data-processing-dismiss]').click();assert.equal(await panel().isVisible(),false);
+  await home();
+  // Hold the first upload in flight so pause deterministically leaves one file waiting.
+  await hold(true);
+  let releaseUpload,notifyUpload;
+  const uploadGate=new Promise(resolve=>{releaseUpload=resolve;});
+  const uploadSeen=new Promise(resolve=>{notifyUpload=resolve;});
+  await page.route('**/api/receipts',async route=>{
+    if(route.request().method()==='POST'){notifyUpload();await uploadGate;}
+    await route.continue();
+  });
+  await upload(['V007','V008']);await uploadSeen;
+  await page.locator('#import-progress [data-import-action=pause]').click();
+  assert.match(await panel().locator('[data-processing-note]').innerText(),/取り込みを一時停止中/);
+  releaseUpload();
+  await page.waitForFunction(()=>state.records.length===7);await waitCount('total',1);
+  await page.waitForFunction(()=>document.querySelector('#import-progress .progress-heading strong').textContent.includes('1 / 2'));
+  const pausedId=(await api('receipts')).receipts.find(r=>r.original_name==='V007.pdf').id;
+  await hold(false);await waitFinished([pausedId]);await waitCount('completed',1);
+  assert.match(await panel().locator('[data-processing-title]').innerText(),/取り込みを一時停止中/);
+  assert.doesNotMatch(await panel().locator('[data-processing-note]').innerText(),/原本を保存中です/);
+  assert.equal(await panel().getAttribute('data-state'),'paused');
+  assert.equal(await panel().evaluate(node=>node.classList.contains('is-finished')),false);
+  assert.equal(await panel().locator('[data-processing-dismiss]').isVisible(),false);
+  await screenshot('08-processing-import-paused');
+  await hold(true);await page.locator('#import-progress [data-import-action=resume]').click();
+  await page.waitForFunction(()=>state.records.length===8);await waitCount('total',2);await waitCount('active',1);
+  assert.equal(await recent(pausedId).count(),1);await waitCount('completed',1);
+  assert.doesNotMatch(await panel().locator('[data-processing-note]').innerText(),/取り込みを一時停止中/);
+  await page.unroute('**/api/receipts');await hold(false);
+  const resumedIds=(await api('receipts')).receipts.filter(r=>['V007.pdf','V008.pdf'].includes(r.original_name)).map(r=>r.id);
+  await waitFinished(resumedIds);await waitCount('completed',2);
+  await page.waitForFunction(()=>document.querySelector('#processing-status').classList.contains('is-finished'));
+  checks.push('paused imports are labelled immediately, saved OCR can finish without claiming batch completion, and resume retains the first receipt and adds the remaining file to the same cohort');
+  await panel().locator('[data-processing-dismiss]').click();assert.equal(await panel().isVisible(),false);
   assert.deepEqual(errors,[]);
 }catch(error){errors.push(error.stack||String(error));process.exitCode=1;if(page)await page.screenshot({path:path.join(out,'failure.png'),fullPage:true}).catch(()=>{});}
 finally{
