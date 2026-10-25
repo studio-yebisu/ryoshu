@@ -28,7 +28,7 @@ const choice=form=>form.locator('[data-account-choice]');
 const category=form=>form.locator('[data-account-category]');
 const star=(form,code)=>form.locator(`[data-favorite-toggle="${code}"]`);
 const chip=(form,code)=>form.locator(`[data-account-favorites] [data-favorite-choice="${code}"]`);
-async function open(id){await row(id).getByRole('button',{name:'科目を変更',exact:true}).click();await dialog().waitFor({state:'visible'});await quick().waitFor();}
+async function open(id){await row(id).locator(`button.result-account[data-change-account="${id}"]`).click();await dialog().waitFor({state:'visible'});await quick().waitFor();}
 async function close(){await page.keyboard.press('Escape');await dialog().waitFor({state:'hidden'});}
 async function choose(form,account){await category(form).selectOption(account.category_id);await choice(form).selectOption(account.name);}
 async function waitFavorite(code,value){await page.waitForFunction(({code,value})=>!state.favoriteSaving&&state.config.favorite_accounts.includes(code)===value,{code,value});}
@@ -119,7 +119,7 @@ try{
   await close();assert.deepEqual(await persistedRows(ids),baseline);
   checks.push('a failed favorite POST shows an error, retains the existing star and shortcut, and succeeds on retry');
 
-  await row(detailId).getByRole('button',{name:'確認・修正する',exact:true}).click();await detail().waitFor();
+  await row(detailId).getByRole('button',{name:'詳細を修正',exact:true}).click();await detail().waitFor();
   assert.equal(await page.evaluate(id=>state.drafts.has(id),detailId),false);
   const detailAccount=config.accounts.find(a=>a.name===baseline.find(r=>r.id===detailId).draft.account);
   await toggle(detail(),detailAccount.code,false,'Enter');

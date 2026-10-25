@@ -15,15 +15,19 @@ async function api(route,body){return page.evaluate(async({route,body})=>{
   const response=await RyoshuSecurity.fetch('/api/'+route,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Ledger-Request':'1'},body:JSON.stringify(body)});
   const result=await response.json();if(!response.ok)throw new Error(JSON.stringify(result));return result;
 },{route,body});}
-async function saveScreenshot(name){await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});}
+async function saveScreenshot(name){
+  await page.waitForFunction(()=>[...document.querySelectorAll('.results-table img[data-private-src]')].filter(img=>{const box=img.getBoundingClientRect();return box.top<innerHeight+250&&box.bottom>-250;}).every(img=>img.complete&&img.naturalWidth>0),null,{timeout:5000});
+  await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});
+}
 async function results(){await page.locator('.nav-item[data-view=results]').click();await page.locator('.results-table').waitFor();}
 const row=id=>page.locator(`[data-result-row="${id}"]`);
+const accountButton=id=>row(id).locator(`button.result-account[data-change-account="${id}"]`);
 const dialog=()=>page.locator('#account-change-dialog');
 const form=()=>page.locator('#account-change-form');
 const category=()=>form().locator('[data-account-category]');
 const account=()=>form().locator('select[name=account]');
 const submit=()=>form().locator('button[type=submit]');
-async function open(id){await row(id).getByRole('button',{name:'科目を変更',exact:true}).click();await dialog().waitFor({state:'visible'});await form().waitFor({state:'visible'});}
+async function open(id){await accountButton(id).click();await dialog().waitFor({state:'visible'});await form().waitFor({state:'visible'});}
 async function close(){await page.keyboard.press('Escape');await dialog().waitFor({state:'hidden'});}
 async function choose(config,name){const selected=config.accounts.find(a=>a.name===name);assert.ok(selected,name);await category().selectOption(selected.category_id);await account().selectOption(name);return selected;}
 try{
@@ -48,7 +52,11 @@ try{
   const config=await api('config'),records=(await api('receipts')).receipts;
   const target=records.find(r=>r.original_name==='V045.pdf'),initial=await api('receipts/'+target.id);
   assert.ok(config.accounts.length>33&&config.account_categories.length>1);
-  await open(target.id);
+  assert.equal(await accountButton(target.id).locator('.result-account-name').innerText(),initial.draft.account);
+  assert.match(await accountButton(target.id).getAttribute('aria-label'),/勘定科目.*確認.*変更/);
+  const hit=await accountButton(target.id).boundingBox();assert.ok(hit.width>=100&&hit.height>=44);
+  await accountButton(target.id).focus();await page.keyboard.press('Enter');
+  await dialog().waitFor({state:'visible'});await form().waitFor();
   assert.equal(await account().inputValue(),initial.draft.account);
   assert.equal(await category().inputValue(),config.accounts.find(a=>a.name===initial.draft.account).category_id);
   const originalVersion=initial.version;
@@ -60,14 +68,14 @@ try{
   assert.ok(available.every(name=>config.accounts.find(a=>a.name===name)?.category_id===alternative.category_id));
   await close();
   assert.equal((await api('receipts/'+target.id)).version,originalVersion);
-  assert.equal(await row(target.id).getByRole('button',{name:'科目を変更',exact:true}).evaluate(node=>node===document.activeElement),true);
-  checks.push('categories filter real account options; category change needs an explicit account; Escape cancels without a save and restores focus');
+  assert.equal(await accountButton(target.id).evaluate(node=>node===document.activeElement),true);
+  checks.push('the account name is a large native button; Enter opens the two-level picker, category changes require a choice, and Escape cancels without saving and restores the same account-button focus');
   await open(target.id);await choose(config,'取材費');await saveScreenshot('01-account-picker');await submit().click();
   await dialog().waitFor({state:'hidden'});
   const changed=await api('receipts/'+target.id);
   assert.deepEqual(changed.draft,{...initial.draft,account:'取材費'});
   assert.equal(changed.status,'review');assert.equal(changed.version,originalVersion+1);
-  assert.equal(await row(target.id).locator('.result-account').innerText(),'取材費');
+  assert.equal(await accountButton(target.id).locator('.result-account-name').innerText(),'取材費');
   await page.reload({waitUntil:'networkidle'});await page.locator('.results-table').waitFor();
   await open(target.id);assert.equal(await account().inputValue(),'取材費');assert.equal(await category().inputValue(),alternative.category_id);
   await close();
@@ -99,7 +107,7 @@ try{
   assert.ok(JSON.stringify(history).includes('消耗品費')&&JSON.stringify(history).includes('事務用品費'));
   checks.push('changing a confirmed account returns it to review, voids its posting and preserves the old/new audit history');
 
-  await row(id).getByRole('button',{name:'確認・修正する',exact:true}).click();
+  await row(id).getByRole('button',{name:'詳細を修正',exact:true}).click();
   await page.locator('#review-form').waitFor();
   const review=page.locator('#review-form'),reviewCategory=review.locator('[data-account-category]');
   assert.equal(await review.locator('[name=account]').inputValue(),'事務用品費');
@@ -108,10 +116,10 @@ try{
   await review.locator('[name=account]').selectOption('取材費');
   assert.equal(await review.locator('[name=purpose]').inputValue(),reviewed.purpose);
   await results();
-  await row(id).getByRole('button',{name:'科目を変更',exact:true}).click();
+  await accountButton(id).click();
   assert.equal(await dialog().isVisible(),false);
   assert.match(await page.locator('#toast').innerText(),/保存|未保存|入力/);
-  await row(id).getByRole('button',{name:'確認・修正する',exact:true}).click();await review.waitFor();
+  await row(id).getByRole('button',{name:'詳細を修正',exact:true}).click();await review.waitFor();
   assert.equal(await review.locator('[name=account]').inputValue(),'取材費');
   await review.locator('button[type=submit]').click();
   await page.waitForFunction(id=>state.detail?.id===id&&state.detail.status==='confirmed'&&!state.drafts.has(id),id);
@@ -128,7 +136,7 @@ try{
   }
   checks.push('reconfirmed new account is retained in actual generic/freee/MF/Yayoi CSV responses');
 
-  await results();await page.setViewportSize({width:375,height:812});await open(target.id);
+  await results();await page.setViewportSize({width:375,height:812});await saveScreenshot('02a-account-name-mobile');await open(target.id);
   await choose(config,'法定福利費');
   const layout=await dialog().evaluate(node=>({left:node.getBoundingClientRect().left,right:node.getBoundingClientRect().right,width:innerWidth,scroll:node.scrollWidth,client:node.clientWidth}));
   assert.ok(layout.left>=0&&layout.right<=layout.width&&layout.scroll<=layout.client+1);
@@ -154,6 +162,28 @@ try{
   assert.ok(await account().locator('option[value="架空案件調査費"]').count());
   await close();await saveScreenshot('03-results-with-new-account');
   checks.push('catalog category filtering and a categorized custom account feed the live two-level picker');
+  await api('receipts/'+target.id+'/exclude',{version:(await api('receipts/'+target.id)).version});
+  await page.reload({waitUntil:'networkidle'});await results();
+  assert.equal(await accountButton(target.id).isDisabled(),true);
+  assert.equal(await row(target.id).getByRole('button',{name:'詳細を修正',exact:true}).isEnabled(),true);
+  await api('receipts/'+target.id+'/restore',{version:(await api('receipts/'+target.id)).version});
+  await page.evaluate(async token=>fetch('/_qa/replay-hold?held=true',{method:'POST',headers:{'x-qa-token':token}}),address.stop_token);
+  await api('receipts/'+target.id+'/retry',{version:(await api('receipts/'+target.id)).version});
+  await page.reload({waitUntil:'networkidle'});await results();
+  assert.equal(await accountButton(target.id).isDisabled(),true);
+  await saveScreenshot('04-account-disabled-while-reading');
+  await page.evaluate(async token=>fetch('/_qa/replay-hold?held=false',{method:'POST',headers:{'x-qa-token':token}}),address.stop_token);
+  await page.waitForFunction(id=>{const button=document.querySelector(`button.result-account[data-change-account="${id}"]`);return button&&!button.disabled;},target.id,{timeout:15000});
+  assert.equal(await accountButton(target.id).isEnabled(),true);
+  checks.push('account-name editing stays disabled for excluded and processing rows, detail access remains available, and completion restores the button');
+  const emptyCandidate=await api('receipts/'+target.id);
+  await api('receipts/'+target.id+'/save',{version:emptyCandidate.version,draft:{...emptyCandidate.draft,account:''},confirm:false});
+  await page.reload({waitUntil:'networkidle'});await results();
+  assert.equal(await accountButton(target.id).locator('.result-account-name').innerText(),'科目を選ぶ');
+  assert.equal(await accountButton(target.id).isEnabled(),true);
+  await open(target.id);assert.equal(await account().inputValue(),'');assert.equal(await submit().isEnabled(),false);
+  await close();assert.equal((await api('receipts/'+target.id)).draft.account,'');
+  checks.push('a missing account exposes the same large choose-account button and opens an empty explicit choice without silently assigning one');
   assert.deepEqual(errors,[]);
 }catch(error){errors.push(error.stack||String(error));process.exitCode=1;if(page)await page.screenshot({path:path.join(out,'failure.png'),fullPage:true}).catch(()=>{});}
 finally{

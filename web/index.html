@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/style.css">
   <script src="/security.js" defer></script>
   <script src="/import.js" defer></script>
+  <script src="/processing.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -29,10 +30,10 @@
       <div id="connection-banner" class="banner hidden" role="status"></div>
       <p class="usage-guidance" id="usage-guidance">読取・科目はAIの候補です。金額・科目・用途は必ずご自身で確認し、税務上の最終判断は税理士へ。<a href="/help.html#tax-review" target="_blank" rel="noreferrer">確認の方針</a></p>
       <section id="import-progress" class="panel import-progress hidden" aria-live="polite"></section>
-      <section id="processing-status" class="processing-status hidden" aria-live="polite"></section>
+      <section id="processing-status" class="processing-status hidden" aria-label="領収書の処理状況"></section>
       <section id="home-view" class="hidden"><div id="home-import"></div><div id="home-result-link" aria-live="polite"></div><p class="privacy-note">領収書の画像・内容を外部AIへ送らず、このPC内で読み取ります。</p></section>
       <div id="main-content" tabindex="-1"></div>
-      <footer class="main-footer"><span>Ryoshu <span id="app-version">1.3.1</span></span><span>原本と候補を確認して、CSVへ。</span></footer>
+      <footer class="main-footer"><span>Ryoshu <span id="app-version">1.3.2</span></span><span>原本と候補を確認して、CSVへ。</span></footer>
     </main>
   </div>
   <input id="file-input" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple aria-label="領収書ファイルを選ぶ">

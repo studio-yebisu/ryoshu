@@ -1,6 +1,7 @@
 """Isolated UI test server. Replays saved observations; never runs OCR or AI."""
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import secrets
@@ -19,7 +20,11 @@ def main():
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--first-run",action="store_true",help="Exercise actual initial protection setup in the browser")
     parser.add_argument("--legacy-account-collision",action="store_true",help="Recreate a fictional old custom name matching a newer account code")
+    parser.add_argument("--processing-step-delay",type=float,default=0,help="Delay each replayed OCR/model stage for progress-UI checks (0 to3 seconds)")
+    parser.add_argument("--processing-fail-once",choices=[f"V{i:03d}.pdf" for i in range(1,101)],help="Fail one named fictional receipt once, then allow retry")
     args = parser.parse_args()
+    if not math.isfinite(args.processing_step_delay) or not 0 <= args.processing_step_delay <= 3:
+        parser.error("工程の待ち時間は0秒から3秒の範囲で指定してください")
     data_dir = args.data_dir.resolve()
     default_data = (Path.home() / "StudioYebisu" / "ReceiptLedger" / "data").resolve()
     if data_dir == default_data or data_dir.is_relative_to(default_data):
@@ -44,13 +49,21 @@ def main():
     cases = {row["sha256"]: row for row in report["cases"]}
     replay_gate=threading.Event()
     replay_gate.set()
+    failed_once=set()
 
     def replay(store, receipt_id):
         row = store.get(receipt_id)
         store.stage(receipt_id, "ocr")
         if not replay_gate.wait(30):
             raise RuntimeError("QA replay was held beyond its bounded test window")
-        time.sleep(.08)
+        time.sleep(args.processing_step_delay or .08)
+        if args.processing_fail_once == row["original_name"] and receipt_id not in failed_once:
+            failed_once.add(receipt_id)
+            store.complete(receipt_id,None,{},error="架空の一時読取エラーです。再試行で成功する検査用の明細です。")
+            return
+        if args.processing_step_delay:
+            store.stage(receipt_id,"model")
+            time.sleep(args.processing_step_delay)
         source = Importer(store).source(receipt_id)
         old = cases.get(row["sha256"])
         if old is None and source and source["page"] <= 100:

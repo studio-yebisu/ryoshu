@@ -1,0 +1,192 @@
+{
+  "status": "passed",
+  "version": "1.3.2",
+  "verified_at": "2026-10-25T07:23:40.813899+00:00",
+  "scope": "UI, real local HTTP, encrypted persistence, CSV and installer boundaries. Saved fictional OCR/model observations are replayed for browser tests. No fresh OCR/AI accuracy run. No real account or receipt data.",
+  "checks": {
+    "python_existing": 264,
+    "python_installer_boundaries": 25,
+    "javascript": 21,
+    "browser": 75,
+    "csv_profiles": 4
+  },
+  "browser_suites": {
+    "core": {
+      "status": "passed",
+      "scope": "Real browser/HTTP/persistence/CSV; OCR and model observations replayed by QA test double, not new inference",
+      "checks": [
+        "personal and tax-professional review policy visible in app and local help",
+        "100 PDFs selected once, explicit start with default document mode, pause/resume, saved and read to ledger",
+        "accounting CSV explains why unreviewed rows cannot be exported",
+        "ledger search",
+        "batch review warns about missing inputs before any confirmation request",
+        "explicit batch review acknowledgement, missing amount stays pending, only valid row posted",
+        "receipt detail returns to the ledger and retains batch results",
+        "named batch failures persist after opening a receipt and can filter the remaining rows",
+        "freee CSV download and version-aware CSV creation history",
+        "CSV preview network failure disables save and explains recovery in Japanese",
+        "persistent individual import errors and exact duplicate skip",
+        "100-page PDF split, immutable source download, 100-row pagination",
+        "duplicate warning remains visible in receipt details and opens related originals",
+        "a pending receipt response cannot override navigation or a newer receipt selection",
+        "delayed saves preserve same/other receipt edits and report saved state even if refresh fails",
+        "Japanese composition preserves the input node, focus, and rows until composition ends",
+        "confirm-and-next follows page1 to page2 within the same split PDF",
+        "bulk exclude and restore are reversible and retain originals",
+        "refund confirmation is disabled with the exact reason visible on the form",
+        "folder selection includes nested files and explains unsupported formats",
+        "file drop stages until explicit start and skips the existing original",
+        "375px mobile layout and import dialog",
+        "optional review-first setting automatically persists",
+        "a failed second100-row batch retains saved rows, reports partial success and names remaining rows",
+        "missing date in a simulated legacy confirmed row does not crash summaries",
+        "a delayed old receipt response cannot overwrite a newer refresh",
+        "old backend compatibility guard guides a restart before allowing uploads",
+        "2000-file result rendering is lazy and paged to100; this is not a2000-document OCR test"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/import.js": "f9e31f79dec3423af3ffc1227be73b5247207af7d1a1b6dbacfec0f81a2334ce",
+        "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+        "web/index.html": "c60413f1207ac58ff7378d756245cdde058104816aafce3e71235054bd9b67ee",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+        "scripts/serve_browser_qa.py": "6cd1653e2eb3fc036feacf1e4bcb7cdb2f0c6b5c54e3cf3c960df37649b92921",
+        "scripts/browser_smoke.mjs": "7dfb2efb2fd9acf899cd2d7511582b08151696296e20b78d93ff4c4ba0f4a2fb"
+      }
+    },
+    "security": {
+      "status": "passed",
+      "scope": "Real browser setup, Windows DPAPI/SQLCipher, original and CSV IO, password reset, encrypted backup/restore. OCR/model saved-observation replay. Native OS save dialog replaced with real browser OPFS FileSystemFileHandle.",
+      "checks": [
+        "actual first-run setup: masked confirmation, mismatch blocks setup, key creation and no password in browser storage",
+        "PDF stays staged until Start; results show original/text/account, authenticated thumbnail, zoom200%, Escape focus return and OCR disclosure",
+        "held background job: poll and import refresh preserve unchanged image DOM/focus, open zoom, and expanded OCR body while another row updates",
+        "after the last job, a focused stale row stays stable and refreshes from saved state on blur without another poll",
+        "filter eviction, including an empty result set, defers replacing active zoom or expanded OCR until interaction is released",
+        "correction persists and the result screen links directly to actual generic CSV download",
+        "fallback download produces a real encrypted backup that restores successfully",
+        "password reset requires confirmation; old password rejected for new backup while existing backup still restores with old password",
+        "File System Access streaming uses native OPFS writable and yields a restorable encrypted backup; OS save dialog itself is outside this automated proof",
+        "375px results keep horizontal scrolling within the result table"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/import.js": "f9e31f79dec3423af3ffc1227be73b5247207af7d1a1b6dbacfec0f81a2334ce",
+        "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+        "web/index.html": "c60413f1207ac58ff7378d756245cdde058104816aafce3e71235054bd9b67ee",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+        "scripts/serve_browser_qa.py": "6cd1653e2eb3fc036feacf1e4bcb7cdb2f0c6b5c54e3cf3c960df37649b92921",
+        "scripts/security_ui_smoke.mjs": "628f052fddb03ba228c6608e1148e900265e04d566b70c33355bd4730454763e"
+      }
+    },
+    "ux": {
+      "status": "passed",
+      "scope": "Real browser/HTTP/encrypted persistence. Saved fictional observations replayed; not fresh OCR/AI. First-use viewport checks set only model readiness/banner fields in the health response to reproduce the appearance after setup, including on CI without local models. Actual health response is restored before importing.",
+      "checks": [
+        "first-use file selection and Start fit the initial1366x768 and125%-equivalent1093x614 viewports",
+        "five PDFs remain staged until Start, then results present originals/read contents/accounts",
+        "month input keeps focus and the CSV preview and ledger share the selected period",
+        "format changes preserve keyboard focus and the selected accounting period",
+        "additional import from CSV returns to results and preserves the previous CSV/list period",
+        "all-period control exposes its selected state, retains focus and updates the six-row preview",
+        "result filter retains focus and the result navigation stays current while editing",
+        "home/results/CSV avoid body overflow at375/850/851/1000/1001px with44px primary navigation targets"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/import.js": "f9e31f79dec3423af3ffc1227be73b5247207af7d1a1b6dbacfec0f81a2334ce",
+        "web/security.js": "1dec9b8b48faf97422dcb59a09c45bb0e7fada25b8d8f32cd2a8f717c3af9f7b",
+        "web/index.html": "c60413f1207ac58ff7378d756245cdde058104816aafce3e71235054bd9b67ee",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+        "scripts/serve_browser_qa.py": "6cd1653e2eb3fc036feacf1e4bcb7cdb2f0c6b5c54e3cf3c960df37649b92921",
+        "scripts/ux_workflow_smoke.mjs": "b99835bb0aca82e7123184cc517795d4bafff7ff1b75b93730b6e48fc237a9e1"
+      }
+    },
+    "account": {
+      "status": "passed",
+      "scope": "Actual browser/HTTP/encrypted persistence using saved fictional observations. New classification inference is separately measured.",
+      "checks": [
+        "the account name is a large native button; Enter opens the two-level picker, category changes require a choice, and Escape cancels without saving and restores the same account-button focus",
+        "quick account change persists across reload and changes no other draft field",
+        "optimistic-lock conflict preserves entered selection and never overwrites a concurrent edit",
+        "changing a confirmed account returns it to review, voids its posting and preserves the old/new audit history",
+        "detail form uses the same two-level selector and protects unsaved edits from a quick change",
+        "reconfirmed new account is retained in actual generic/freee/MF/Yayoi CSV responses",
+        "two-level account dialog fits a375px viewport and supports keyboard dismissal",
+        "catalog category filtering and a categorized custom account feed the live two-level picker",
+        "account-name editing stays disabled for excluded and processing rows, detail access remains available, and completion restores the button",
+        "a missing account exposes the same large choose-account button and opens an empty explicit choice without silently assigning one"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/index.html": "c60413f1207ac58ff7378d756245cdde058104816aafce3e71235054bd9b67ee",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "receipt_ledger/catalog.py": "17e3a15a4c0706e64de7706f91268000d2d8e2fd517e3b4aeee8ee4781f5f651",
+        "receipt_ledger/store.py": "e77a057b6d2a79c70f7bf12d516235995932218816f2ded12d02b30a780b0ecb",
+        "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+        "data/account-catalog.json": "d9a3d96f572112644d97aac916afb61a4aa2d9b2192717b5a6b6f8142d5ec42a",
+        "scripts/account_workflow_smoke.mjs": "dc0d3957bb990ad2ad5aa1d6d675f0e0ecfa2181fa215fb0bd2ee7ad56a2cb4d"
+      }
+    },
+    "favorites": {
+      "status": "passed",
+      "scope": "Actual browser/HTTP/encrypted settings using saved fictional observations and a reconstructed legacy custom-account collision. No new OCR/classification inference.",
+      "checks": [
+        "QA launcher refuses the default ledger path and cached data/port mismatches before creating a key or database",
+        "keyboard/mouse stars add and remove without receipt changes or dirty drafts; shortcuts synchronize category/account and the native two-layer selector remains intact",
+        "favorites persist through a real browser reload",
+        "a failed favorite POST shows an error, retains the existing star and shortcut, and succeeds on retry",
+        "detail shortcuts preserve unsaved amount/purpose, star-only actions never dirty a receipt, and delayed favorite responses do not steal focus",
+        "historical custom name E129 and formal code E129 retain separate stable-code stars and correct category/account shortcuts",
+        "catalog exposes stars only for selectable expense/asset accounts and its changes synchronize with the picker",
+        "all favorites including a long custom name fit desktop and375px dialog widths; selecting a wrapped shortcut works without changing saved receipts, versions, statuses, postings or audit history",
+        "after stopping the QA server a separate Python process reopens the encrypted DB with all favorites and unchanged schema; unkeyed SQLite cannot read settings"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "receipt_ledger/store.py": "e77a057b6d2a79c70f7bf12d516235995932218816f2ded12d02b30a780b0ecb",
+        "receipt_ledger/server.py": "0f954ad90fb3b73a50103d5a19e9c72b2c1bf6938bbd69adcf2bb85e20cc7bb5",
+        "scripts/serve_browser_qa.py": "6cd1653e2eb3fc036feacf1e4bcb7cdb2f0c6b5c54e3cf3c960df37649b92921",
+        "scripts/account_favorites_smoke.mjs": "014c9fab5f880f0d85f9d92df8ca4b8afd87cedf61f9afde9bb3894a91c824cb"
+      }
+    },
+    "processing": {
+      "status": "passed",
+      "scope": "Actual browser/HTTP progression using isolated saved fictional observations, delayed OCR/model replay and one intentional first-attempt error. Not a new OCR or AI accuracy measurement.",
+      "checks": [
+        "processing replay rejects invalid or unbounded delays before creating any key or database",
+        "old confirmed history alone does not appear as a new processing batch or inflate progress",
+        "a four-file upload tracks only the three new receipt IDs, with one real OCR stage and two waiting rows; old and duplicate records are excluded",
+        "failed progress fetches retain the last real counts and show stale status; reconnecting recovers without replacing the active card",
+        "the active dashboard fits375px and disables CSS motion for the reduced-motion preference",
+        "OCR transitions to the model stage and completed checks accumulate; failed work stays distinct, no row is automatically confirmed, and repeated renders do not replay completion animations or replace completed rows",
+        "retry moves the failed receipt back into real processing, succeeds once, and leaves a persistent finished card and a route to the results",
+        "a new upload resets a finished cohort, and reload truthfully recaptures only the two remaining busy receipts rather than past completed history",
+        "background stage/timer/completion updates preserve focused unsaved purpose and amount inputs, while saved draft, confirmation, posting and audit remain unchanged",
+        "paused imports are labelled immediately, saved OCR can finish without claiming batch completion, and resume retains the first receipt and adds the remaining file to the same cohort"
+      ],
+      "errors": [],
+      "source_sha256": {
+        "web/app.js": "63bff4393cd6210c8ac975b20d45c8271d1742e94eea1c67de8d9fe9ec4d746a",
+        "web/import.js": "f9e31f79dec3423af3ffc1227be73b5247207af7d1a1b6dbacfec0f81a2334ce",
+        "web/processing.js": "b0143a1c072bb4da39abadb03305d49c131c43e53b9dfee9f230d37d63cd7765",
+        "web/style.css": "12f20f5cc6dac2b843ff047fd75f3d4af6b6c08af5aa82a817cbe45c792f693e",
+        "web/index.html": "c60413f1207ac58ff7378d756245cdde058104816aafce3e71235054bd9b67ee",
+        "scripts/serve_browser_qa.py": "6cd1653e2eb3fc036feacf1e4bcb7cdb2f0c6b5c54e3cf3c960df37649b92921",
+        "scripts/processing_workflow_smoke.mjs": "4d5e653c9cdba921bed8c67d51935954e8d0dcf44214aa7ec230434c80e03362"
+      }
+    }
+  },
+  "fresh_ocr_ai_inference": false,
+  "ocr_accuracy_evidence": "../v1.3/results-100.json",
+  "database_schema": 3
+}

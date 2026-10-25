@@ -9,6 +9,7 @@ window.RyoshuImport = (() => {
   const waiting = () => jobs.filter(j => j.status === 'waiting');
   const failed = () => jobs.filter(j => j.status === 'failed');
   const busy = () => running || waiting().length > 0;
+  const isPaused = () => paused && waiting().length > 0;
   const labels = {waiting:'取り込み待ち',importing:'保存中',saved:'保存済み',duplicate:'重複のためスキップ',failed:'取り込み失敗',skipped:'対応していない形式'};
 
   function setup(settings, callbacks) {
@@ -157,13 +158,14 @@ window.RyoshuImport = (() => {
   }
   function renderProgress(){
     const el=element('import-progress');
-    if(!jobs.length){el.classList.add('hidden');el.replaceChildren();resultsPage=0;resultsFilter='all';return;}
+    if(!jobs.length){el.classList.add('hidden');el.replaceChildren();resultsPage=0;resultsFilter='all';handlers.progress?.();return;}
     el.classList.remove('hidden');
     if(!el.querySelector('.progress-heading'))el.innerHTML=`<div class="progress-heading"><strong></strong><span></span></div><progress aria-label="ファイルの取り込み進捗"></progress><div class="import-actions"><button class="button small" data-import-action="pause">取り込みを一時停止</button><button class="button small" data-import-action="resume">取り込みを再開</button><button class="button small" data-import-action="retry">失敗分を再試行</button><button class="text-button" data-import-action="dismiss">結果を閉じる</button><span class="field-hint" data-import-hint></span></div><div class="warning-list hidden" data-split-warning><p></p><button class="button small" data-import-action="split-failed">ページごとに別の領収書として取り込み直す</button></div><details><summary>ファイルごとの結果・失敗理由</summary><div class="import-result-controls"></div><ul class="import-results"></ul></details>`;
     const pending=waiting().length,active=jobs.filter(j=>j.status==='importing').length,completed=jobs.length-pending-active;
+    el.classList.toggle('is-saving',!!(pending||active));
     const saved=jobs.reduce((n,j)=>n+j.rows.filter(r=>!r.duplicate).length,0),duplicates=jobs.reduce((n,j)=>n+j.duplicate,0),skipped=jobs.filter(j=>j.status==='skipped').length;
     const splitCount=failed().filter(j=>j.needsSplit).length,retryCount=failed().length-splitCount;
-    el.querySelector('.progress-heading strong').textContent=`${paused?'取り込みを一時停止中':pending||active?'原本を保存しています':'取り込み結果'}：${completed} / ${jobs.length}ファイル`;
+    el.querySelector('.progress-heading strong').textContent=`${paused?'取り込みを一時停止中':pending||active?'原本を保存しています':'原本の保存結果'}：${completed} / ${jobs.length}ファイル`;
     el.querySelector('.progress-heading span').textContent=`${saved}件を新規保存 · 重複${duplicates}件 · 失敗${failed().length}ファイル${skipped?' · 未対応形式'+skipped+'ファイル':''}`;
     const progress=el.querySelector('progress');progress.max=jobs.length;progress.value=completed;
     for(const [action,show] of Object.entries({pause:pending&&!paused,resume:pending&&paused,retry:retryCount>0,dismiss:!pending&&!active}))el.querySelector(`[data-import-action="${action}"]`).classList.toggle('hidden',!show);
@@ -171,8 +173,9 @@ window.RyoshuImport = (() => {
     const warning=el.querySelector('[data-split-warning]');warning.classList.toggle('hidden',!splitCount);
     if(splitCount)warning.querySelector('p').textContent=`11ページ以上のPDFが${splitCount}件あります。ページごとに別の領収書が入っている場合は、下のボタンで取り込み直せます。1つの取引の続きの場合は、10ページ以下に分けてください。`;
     if(el.querySelector('details').open)syncResults();
+    handlers.progress?.();
   }
 
   function open() {setHome(false);element('import-dialog').showModal();}
-  return {setup, open, busy, addFiles, readEntry, setHome};
+  return {setup, open, busy, paused:isPaused, addFiles, readEntry, setHome};
 })();

@@ -10,6 +10,8 @@ let toastTimer, pollTimer, searchTimer;
 Object.assign(state,{resultsPage:0,resultsOnlyPending:false,reviewAccountCategories:new Map(),catalogCategory:'',catalogSearch:'',favoriteSaving:false});
 let receiptRevision=0,detailRevision=0;
 Object.assign(state,{exportProfile:'generic',exportKind:'expenses',exportTaxMode:'reviewed',exportRevision:0,exportNewOnly:false,ledgerNeedsRefresh:false});
+state.processingFetchedAt=0;
+const processingUI=RyoshuProcessing.create($('#processing-status'));
 
 function validationMessage(error){
   if(typeof error==='string')return error;
@@ -94,11 +96,18 @@ function renderHome(){
   if(state.records.length&&resultLink){resultLink.querySelector('strong').textContent=`${done.length} / ${state.records.length}件`;$('#home-result-link>.field-hint').textContent=`未確認 ${pending}件`;}
   else if($('#home-result-link').innerHTML!==html)$('#home-result-link').innerHTML=html;
 }
+function resultAccountButton(row){
+  const busy=busyRecord(row),excluded=row.status==='excluded',disabled=busy||excluded;
+  const name=row.draft.account||'科目を選ぶ';
+  const hint=busy?'読み取り中':excluded?'対象外の明細':'科目を確認';
+  const title=busy?'読み取りが終わると科目を選べます':excluded?'「詳細を修正」から確認待ちへ戻してください':'クリックして勘定科目を確認・変更';
+  return `<button class="result-account" type="button" data-change-account="${esc(row.id)}" aria-haspopup="dialog" aria-label="${esc('勘定科目を確認・変更：'+(row.draft.account||'未選択'))}" title="${esc(title)}" ${disabled?'disabled':''}><span class="result-account-main"><span class="result-account-name">${esc(name)}</span><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m7 4 6 6-6 6"/></svg></span><span class="result-account-hint">${esc(hint)}</span></button>`;
+}
 function renderResults(content, incremental=false){
   const all=orderedReceipts(state.records.filter(r=>!state.resultsOnlyPending||isPending(r))),pages=Math.max(1,Math.ceil(all.length/100));
   state.resultsPage=Math.max(0,Math.min(state.resultsPage,pages-1));
   const rows=all.slice(state.resultsPage*100,(state.resultsPage+1)*100),pending=state.records.filter(isPending).length;
-  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="96" height="128" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'確認・修正から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-content"><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</div></td><td><strong class="result-account">${esc(r.draft.account||'科目を確認')}</strong>${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<div class="result-account-actions"><button class="text-button" type="button" data-change-account="${esc(r.id)}" ${busyRecord(r)||r.status==='excluded'?'disabled':''} ${r.status==='excluded'?'title="確認・修正から確認待ちへ戻してください"':''}>科目を変更</button><button class="button small" data-open-receipt="${esc(r.id)}">確認・修正する</button></div></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
+  const markup=`<div class="results-toolbar"><label class="checkbox-line"><input id="results-pending" type="checkbox" ${state.resultsOnlyPending?'checked':''}>未確認だけ表示</label><span class="results-summary">全${state.records.length}件 / 未確認 ${pending}件</span><a class="button primary" href="#ledger" data-view="ledger">CSVに書き出す</a></div>${!all.length?`<section class="results-empty"><p>${state.records.length?'この条件の明細はありません。':'まだ領収書がありません。'}</p><a href="#home" data-view="home">領収書を読み込む</a></section>`:`<div class="results-scroll"><table class="results-table"><thead><tr><th scope="col">原本</th><th scope="col">読み取った内容</th><th scope="col">勘定科目</th></tr></thead><tbody>${rows.map(r=>`<tr data-result-row="${esc(r.id)}" data-result-version="${esc(JSON.stringify([r.version,r.status,r.stage,r.preview_count]))}"><td><button class="result-image" data-zoom-receipt="${esc(r.id)}" ${r.preview_count?'':'disabled'} aria-label="${esc(r.original_name)}の原本を拡大">${r.preview_count?`<img loading="lazy" width="96" height="128" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:`<span>${busyRecord(r)?'読み取り中':'プレビューなし'}</span>`}<span>${r.preview_count?'クリックで拡大':busyRecord(r)?'完了までお待ちください':'詳細から原本を保存'}</span></button><p class="result-filename">${esc(r.original_name)}</p></td><td><div class="result-content"><div class="result-merchant">${esc(r.draft.merchant||'支払先を確認')}</div><div class="result-date">${esc(r.draft.date||'日付を確認')}</div><strong class="result-amount">${yen(r.draft.total)}</strong><p class="result-description">${esc(r.draft.description||'')}</p>${busyRecord(r)?badge(r.status):`<details class="result-ocr"><summary data-ocr-receipt="${esc(r.id)}">読み取った文字を見る</summary><pre class="ocr-text">開くと本文を読み込みます。</pre></details>`}</div></td><td>${resultAccountButton(r)}${badge(r.status)}${r.error?`<p class="review-warning">${esc(r.error)}</p>`:''}<div class="result-account-actions"><button class="button small" data-open-receipt="${esc(r.id)}">詳細を修正</button></div></td></tr>`).join('')}</tbody></table></div><div class="pagination"><button class="button small" data-action="results-prev" ${state.resultsPage?'':'disabled'}>前の100件</button><span tabindex="-1" aria-live="polite">${state.resultsPage*100+1}〜${Math.min((state.resultsPage+1)*100,all.length)}件目 / ${all.length}件</span><button class="button small" data-action="results-next" ${state.resultsPage<pages-1?'':'disabled'}>次の100件</button></div>`}`;
   if(!incremental||!$('.results-table',content)){content.innerHTML=markup;return;}
   const fresh=document.createElement('div');fresh.innerHTML=markup;
   const body=$('.results-table tbody',content),nextBody=$('.results-table tbody',fresh);
@@ -145,11 +154,7 @@ function rememberLedgerInputs(){
 }
 
 function renderProcessing(){
-  const busy=state.records.filter(busyRecord),failed=state.records.filter(r=>r.status==='error'||(r.status==='review'&&r.error)),el=$('#processing-status');
-  el.classList.toggle('hidden',!busy.length&&!failed.length);
-  if(!busy.length&&!failed.length)return;
-  const active=busy.find(r=>r.status==='processing'),waiting=busy.filter(r=>r.status==='queued').length;
-  el.innerHTML=`<div><strong>${active?`${active.stage==='model'?'AIが科目を判定中':'文字を読み取り中'}：${esc(active.original_name)}`:waiting?'順番に読み取ります':'読み取りの確認が必要です'}</strong><p>保存済み ${state.records.length}件 · 読取完了 ${state.records.filter(r=>!busyRecord(r)&&r.status!=='error').length}件 · 待ち ${waiting}件 · 失敗 ${failed.length}件</p>${busy.length?'<span class="field-hint">保存後の読み取りは、この画面を閉じても続きます。PCのスリープ中は進みません。アプリを再起動すると続きから再開します。</span>':''}</div>${failed.length?'<button class="button small" data-action="retry-errors">失敗した読み取りを再試行</button>':''}`;
+  processingUI.render(state.records,{importing:RyoshuImport.busy(),paused:RyoshuImport.paused(),fetchedAt:state.processingFetchedAt});
 }
 
 function renderInbox(content) {
@@ -324,13 +329,13 @@ function updateAccountChangeSave(){
 }
 async function openAccountChange(id,trigger){
   if(accountEdit||state.busy)return;
-  if(state.drafts.has(id)){toast('この明細には未保存の変更があります。「確認・修正する」で先に保存してください。',true);return;}
+  if(state.drafts.has(id)){toast('この明細には未保存の変更があります。「詳細を修正」で先に保存してください。',true);return;}
   const edit={id,trigger,row:null,saving:false},dialog=$('#account-change-dialog');accountEdit=edit;
   dialog.innerHTML=accountChangeHeading()+'<p role="status">明細を読み込んでいます…</p>';dialog.showModal();
   try{
     const row=await api('/receipts/'+id);if(accountEdit!==edit||!dialog.open)return;
     if(busyRecord(row))throw new Error('読み取り中です。完了してから科目を変更してください。');
-    if(row.status==='excluded')throw new Error('対象外の明細です。「確認・修正する」から確認待ちへ戻してください。');
+    if(row.status==='excluded')throw new Error('対象外の明細です。「詳細を修正」から確認待ちへ戻してください。');
     edit.row=row;paintAccountChange();
   }catch(error){if(accountEdit===edit){dialog.close();toast(error.message,true);}}
 }
@@ -497,7 +502,7 @@ function openBatchReview(){
   rememberLedgerInputs();
   const rows=[...state.selected.keys()].map(id=>state.records.find(r=>r.id===id)).filter(Boolean),dialog=$('#review-dialog');
   const missingCount=rows.filter(r=>batchMissing(r).length).length;
-  dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>選択した${rows.length}件の内容を確認</h2><button class="button small">戻る</button></form><p>以下の原本・金額・科目と、入力した用途・仕事の割合・支払元を確認してください。未確認の候補をそのまま確定しないようご注意ください。</p>${missingCount?`<div class="warning-list" id="batch-missing-warning" role="alert">${missingCount}件に入力の不足があります。必要な項目がそろった明細だけを確認済みにし、不足した明細は未確認のまま残します。「戻る」から共通項目を入力するか、下の明細を個別に修正してください。</div>`:''}<div class="review-check-list">${rows.map(r=>`<article>${r.preview_count?`<img loading="lazy" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:''}<div><strong>${esc(r.draft.merchant||r.original_name)} · ${yen(r.draft.total)}</strong><p>${esc(r.draft.date||'日付未確定')} / ${esc(r.draft.account||'科目未確定')}</p><p>用途：${esc(r.draft.purpose||state.batch.purpose||'未入力')} / 仕事の割合：${esc(r.draft.business_percent??state.batch.percent??'未入力')}% / 支払元：${esc(state.config.payments[r.draft.payment||state.batch.payment]?.label||'未入力')}</p>${batchMissing(r).length?`<p class="review-warning">不足：${batchMissing(r).map(esc).join('・')}</p>`:''}${r.suggestion?.warnings?.length?`<p class="review-warning">${r.suggestion.warnings.map(esc).join(' / ')}</p>`:''}${r.possible_duplicate_ids?.length?'<p class="review-warning">同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p>':''}<button class="text-button" data-review-open="${r.id}">個別に確認・修正する</button></div></article>`).join('')}</div><label class="checkbox-line"><input id="review-ack" type="checkbox">上記の原本と照合し、金額・科目・用途を自分で確認しました（チェックすると下のボタンを押せます）</label><button class="button primary" id="confirm-batch" data-action="confirm-batch" disabled>確認して保存（最大${rows.length}件）</button><p class="field-hint">不足や競合がある明細は、理由を表示して未確認のまま残します。税務上の最終判断は、申告前に税理士に確認してください。</p>`;
+  dialog.innerHTML=`<form method="dialog" class="dialog-heading"><h2>選択した${rows.length}件の内容を確認</h2><button class="button small">戻る</button></form><p>以下の原本・金額・科目と、入力した用途・仕事の割合・支払元を確認してください。未確認の候補をそのまま確定しないようご注意ください。</p>${missingCount?`<div class="warning-list" id="batch-missing-warning" role="alert">${missingCount}件に入力の不足があります。必要な項目がそろった明細だけを確認済みにし、不足した明細は未確認のまま残します。「戻る」から共通項目を入力するか、下の明細を個別に修正してください。</div>`:''}<div class="review-check-list">${rows.map(r=>`<article>${r.preview_count?`<img loading="lazy" data-private-src="/api/receipts/${r.id}/preview/0" alt="${esc(r.original_name)}の原本">`:''}<div><strong>${esc(r.draft.merchant||r.original_name)} · ${yen(r.draft.total)}</strong><p>${esc(r.draft.date||'日付未確定')} / ${esc(r.draft.account||'科目未確定')}</p><p>用途：${esc(r.draft.purpose||state.batch.purpose||'未入力')} / 仕事の割合：${esc(r.draft.business_percent??state.batch.percent??'未入力')}% / 支払元：${esc(state.config.payments[r.draft.payment||state.batch.payment]?.label||'未入力')}</p>${batchMissing(r).length?`<p class="review-warning">不足：${batchMissing(r).map(esc).join('・')}</p>`:''}${r.suggestion?.warnings?.length?`<p class="review-warning">${r.suggestion.warnings.map(esc).join(' / ')}</p>`:''}${r.possible_duplicate_ids?.length?'<p class="review-warning">同じ日付・支払先・金額の明細があります。別の支出か、二重取り込みかを原本で確認してください。</p>':''}<button class="text-button" data-review-open="${r.id}">詳細を修正</button></div></article>`).join('')}</div><label class="checkbox-line"><input id="review-ack" type="checkbox">上記の原本と照合し、金額・科目・用途を自分で確認しました（チェックすると下のボタンを押せます）</label><button class="button primary" id="confirm-batch" data-action="confirm-batch" disabled>確認して保存（最大${rows.length}件）</button><p class="field-hint">不足や競合がある明細は、理由を表示して未確認のまま残します。税務上の最終判断は、申告前に税理士に確認してください。</p>`;
   dialog.showModal();
 }
 
@@ -633,7 +638,11 @@ function trackEdit() {
   renderJournal(d);renderQueue();
 }
 
-async function loadReceipts() {const revision=++receiptRevision,result=await api('/receipts');if(revision===receiptRevision)state.records=result.receipts;}
+async function loadReceipts() {
+  const revision=++receiptRevision;
+  try{const result=await api('/receipts');if(revision===receiptRevision){state.records=result.receipts;state.processingFetchedAt=Date.now();}}
+  catch(error){if(revision===receiptRevision)processingUI.connectionFailed();throw error;}
+}
 async function selectReceipt(id) {
   const revision=++detailRevision,detail=await api('/receipts/'+id);if(revision!==detailRevision)return;
   state.active=id;state.detail=detail;state.sourceTab='image';state.page=0;state.history=null;
@@ -662,6 +671,8 @@ async function save(confirm,next=false) {
 
 let importRefreshTimer;
 function beginImport(){
+  processingUI.begin();
+  renderProcessing();
   if(state.view==='inbox'&&state.drafts.size)return;
   if(state.view==='home'){renderHome();return;}
   state.view=state.config.review_before_ledger?'inbox':'results';render();
@@ -675,7 +686,9 @@ async function refreshImported(){
     schedulePoll();
   }catch{toast('原本は保存しました。一覧を更新できなかったため、接続を確認して再読み込みしてください。',true);}
 }
-function uploaded(){
+function uploaded(result){
+  processingUI.imported(result);
+  renderProcessing();
   clearTimeout(importRefreshTimer);importRefreshTimer=setTimeout(refreshImported,300);
   if(!state.records.length)refreshImported();
 }
@@ -807,10 +820,10 @@ async function init(){
   try{
     await RyoshuSecurity.prepare();
     const [config,health,receipts]=await Promise.all([api('/config'),api('/health'),api('/receipts')]);
-    state.config=config;state.health=health;state.records=receipts.receipts;
+    state.config=config;state.health=health;state.records=receipts.receipts;state.processingFetchedAt=Date.now();
     if(!config.limits?.max_split_pages){state.uiReady=false;$('.sidebar nav').inert=true;$('#upload-top').disabled=true;$$('.nav-item').forEach(el=>{if(el.tagName==='BUTTON')el.disabled=true;});$('#main-content').innerHTML='<section class="panel settings-card"><h2>アプリ本体を再起動してください</h2><p>画面とアプリ本体の版が違います。「停止.cmd」で終了してから「Ryoshu.cmd」を起動してください。帳簿と原本は保存されています。</p></section>';return;}
 
-    RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});
+    RyoshuImport.setup(config,{api,begin:beginImport,saved:uploaded,progress:renderProcessing,notice:toast,open:async id=>{state.queueFilter='all';await selectReceipt(id);}});
     state.exportTaxMode=config.export_tax_mode||'reviewed';state.view=['home','results','ledger','settings','accounts'].includes(location.hash.slice(1))?location.hash.slice(1):'home';state.exportKind=config.review_before_ledger?'expenses':'review';
     if(health.environment_label){$('#connection-banner').textContent=health.environment_label+'。実際の帳簿とは別のデータベースです。';$('#connection-banner').classList.remove('hidden');}
     $('#app-version').textContent=health.app_version;$('#engine-status').textContent=`Indra ${health.ocr_version} / Qwen3 4B`;
