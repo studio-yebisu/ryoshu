@@ -49,17 +49,17 @@ class CipherDatabase:
         self.legacy_path = self.root / "ledger.sqlite3"
         self.state_path = self.root / ".ryoshu-vault.json"
         if keys.mode != "unlocked":
-            raise ProtectionError("先に帳簿の保護を設定するか、復元用パスワードで開いてください。")
+            raise ProtectionError("帳簿がロックされています。保護を設定するか、復元用パスワードで開いてください。")
         with FileLock(str(self.root / ".ryoshu-database.lock"), timeout=15):
             self._prepare()
 
     def open(self, path=None, key=None, readonly=False):
         path = Path(path or self.path)
         if path.is_symlink():
-            raise ProtectionError("帳簿ファイルが別の場所を参照しています。保存先を確認してください。")
+            raise ProtectionError("帳簿ファイルがリンクになっています。保存先を確認し、バックアップから復元してください。")
         key = key if key is not None else self.keys.derive("database")
         if not isinstance(key, bytes) or len(key) != 32:
-            raise ProtectionError("帳簿の鍵を確認できません。")
+            raise ProtectionError("帳簿の鍵を導出できません。保護情報を確認してください。")
         location = path.resolve().as_uri() + "?mode=ro" if readonly else str(path)
         db = sqlite.connect(location, timeout=15, uri=readonly)
         try:
@@ -77,7 +77,7 @@ class CipherDatabase:
         except BaseException as exc:
             db.close()
             if isinstance(exc, sqlite.DatabaseError):
-                raise ProtectionError("帳簿の鍵が違うか、データが破損しています。復元用パスワードとバックアップを確認してください。") from exc
+                raise ProtectionError("帳簿を開けません。鍵と帳簿ファイルが一致しないか、データが破損しています。保存先とバックアップを確認してください。") from exc
             raise
 
     def _state(self):
@@ -126,15 +126,15 @@ class CipherDatabase:
         state, version = self._state(), self._legacy_version()
         if version is not None and version < GUARD_VERSION:
             if (state and state["phase"] == "active") or (state is None and self.path.exists()):
-                raise ProtectionError("旧帳簿と保護済み帳簿が同時に見つかりました。上書きせずに停止しました。")
+                raise ProtectionError("旧帳簿と暗号化帳簿の両方があります。どちらも上書きせず停止しました。保存先とバックアップを確認してください。")
             self._migrate()
             return
         if version == GUARD_VERSION:
             if not state or state["phase"] not in {"active", "exported", "creating"} or not self.path.is_file():
-                raise ProtectionError("保護済みの帳簿が見つかりません。新しい空の帳簿は作成しません。バックアップから復元してください。")
+                raise ProtectionError("暗号化帳簿を開けません。新しい空の帳簿は作らず停止しました。バックアップから復元してください。")
             with closing(self.open(readonly=True)) as db:
                 if db.execute("PRAGMA quick_check").fetchone()[0] != "ok":
-                    raise ProtectionError("帳簿の整合性を確認できません。バックアップを確認してください。")
+                    raise ProtectionError("帳簿の整合性検査に失敗しました。バックアップから復元してください。")
             with closing(sqlite.connect(str(self.legacy_path))) as guard:
                 identity = guard.execute("SELECT ledger_id FROM ryoshu_protected").fetchone()
                 if not identity or identity[0] != self.keys.ledger_id:
@@ -152,7 +152,7 @@ class CipherDatabase:
                 self._save_state("active")
             return
         if version is not None:
-            raise ProtectionError("この版では開けない形式の帳簿です。対応する新版を確認してください。")
+            raise ProtectionError("この帳簿は対応していない形式です。新しい版のRyoshuで開くか、対応するバックアップを選んでください。")
         if state and state["phase"] == "creating" and self.path.exists():
             with closing(self.open(readonly=True)) as db:
                 if db.execute("SELECT count(*) FROM sqlite_master").fetchone()[0] != 0:
@@ -196,9 +196,9 @@ class CipherDatabase:
             source.execute("PRAGMA trusted_schema=OFF")
             source.execute("PRAGMA temp_store=MEMORY")
             if source.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()[0] != 0:
-                raise ProtectionError("旧帳簿を使用中です。旧版のRyoshuを終了してから起動してください。")
+                raise ProtectionError("旧版が帳簿を使用中です。旧版のRyoshuを終了してから移行してください。")
             if source.execute("PRAGMA journal_mode=DELETE").fetchone()[0].lower() != "delete":
-                raise ProtectionError("旧帳簿の書き込みを停止できません。旧版を終了してください。")
+                raise ProtectionError("旧帳簿への書き込みを止められません。旧版を終了してから再試行してください。")
             source.execute("PRAGMA locking_mode=EXCLUSIVE")
             source.execute("BEGIN EXCLUSIVE")
             version = source.execute("PRAGMA user_version").fetchone()[0]
@@ -228,7 +228,7 @@ class CipherDatabase:
             self._make_guard(source)
             self._save_state("active")
         except sqlite.DatabaseError as exc:
-            raise ProtectionError("旧帳簿を保護する処理を完了できません。旧版を終了し、保存先とバックアップを確認してください。") from exc
+            raise ProtectionError("旧帳簿の暗号化を完了できませんでした。旧版を終了し、保存先とバックアップを確認して再試行してください。") from exc
         finally:
             source.close()
             pending.unlink(missing_ok=True)
@@ -241,19 +241,19 @@ class CipherDatabase:
         for receipt_id,extension,digest in connection.execute("SELECT id,extension,sha256 FROM receipts"):
             path=self.root / "receipts" / receipt_id / ("original"+extension)
             if not path.resolve().is_relative_to(self.root) or path.is_symlink() or not path.is_file():
-                raise ProtectionError("移行前の原本が見つかりません。旧帳簿は保持しています。保存先かバックアップの原本を確認してください。")
+                raise ProtectionError("移行前の原本が見つかりません。旧帳簿は変更していません。保存先の原本を戻すか、バックアップから復元してください。")
             with path.open("rb") as raw:
                 if hashlib.file_digest(raw,"sha256").hexdigest()!=digest:
-                    raise ProtectionError("移行前の原本の検証値が違います。旧帳簿は保持しています。原本とバックアップを確認してください。")
+                    raise ProtectionError("移行前の原本と帳簿のSHA-256が一致しません。旧帳簿は変更していません。原本とバックアップを確認してください。")
 
     def snapshot(self, destination, source=None, key=None):
         if Path(destination).exists():
-            raise ProtectionError("既存のバックアップは上書きできません。")
+            raise ProtectionError("バックアップ用の内部スナップショットが既に存在するため上書きしません。前の処理が残っていないか確認して再試行してください。")
         own_source = source is None
         source = source or self.open(readonly=True)
         try:
             if source.in_transaction:
-                raise ProtectionError("保存処理が完了してからバックアップしてください。")
+                raise ProtectionError("帳簿の変更を保存中です。完了してからバックアップしてください。")
             with closing(self.open(destination, key=key)) as target:
                 source.backup(target)
         finally:
@@ -276,7 +276,7 @@ class CipherDatabase:
                 source.execute("DETACH DATABASE encrypted")
             with closing(self.open(pending,readonly=True)) as candidate:
                 if fingerprint(candidate)!=expected or candidate.execute("PRAGMA quick_check").fetchone()[0]!="ok" or candidate.execute("PRAGMA foreign_key_check").fetchone():
-                    raise ProtectionError("復元前後の帳簿が一致しません。")
+                    raise ProtectionError("復元後の帳簿がバックアップと一致しません。復元先は開かず、別のバックアップを確認してください。")
             pending.replace(self.path)
             self._save_state("active",files_version=1)
         finally:
@@ -326,12 +326,12 @@ class CipherDatabase:
                 old.execute("DETACH DATABASE encrypted")
             with closing(self.open(pending, readonly=True)) as candidate:
                 if fingerprint(candidate) != expected:
-                    raise ProtectionError("バックアップの暗号化前後の内容が一致しません。")
+                    raise ProtectionError("暗号化後のバックアップが元の帳簿と一致しません。元のファイルは保持しています。")
             pending.replace(path)
         with closing(self.open(readonly=True)) as db:
             rows = db.execute("SELECT id,extension,sha256 FROM receipts") if db.execute("SELECT 1 FROM sqlite_master WHERE name='receipts'").fetchone() else []
             for row in rows:
                 original = self.root / "receipts" / row["id"] / ("original" + row["extension"])
                 if hashlib.sha256(self.keys.read_file(original)).hexdigest() != row["sha256"]:
-                    raise ProtectionError("原本の検証値が帳簿と一致しません。バックアップを確認してください。")
+                    raise ProtectionError("原本のSHA-256が帳簿と一致しません。原本を修復するか、バックアップから復元してください。")
         self._save_state("active", files_version=1)

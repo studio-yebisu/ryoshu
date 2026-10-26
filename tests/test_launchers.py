@@ -61,7 +61,7 @@ $ErrorActionPreference = 'Stop'
 $failure = $null
 try { New-RyoshuLedgerLauncher -SourceDir $env:RYOSHU_TEST_SOURCE -DataDir $env:RYOSHU_TEST_DATA -OutputDir $env:RYOSHU_TEST_OUTPUT }
 catch { $failure = $_.Exception.Message }
-if (-not $failure -or $failure -notmatch '帳簿が見つかりません') { throw 'missing restored database was not rejected' }
+if (-not $failure -or $failure -notmatch '起動ファイルか復元済みの帳簿を確認できません。復元は完了していない可能性があります。バックアップからもう一度復元してください。') { throw 'missing restored database was not rejected' }
 '''
     run_ps_fixture(tmp_path, script, {
         'RYOSHU_TEST_LIBRARY': str(ROOT / 'scripts/launcher-process.ps1'),

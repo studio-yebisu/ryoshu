@@ -15,12 +15,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     try:
         if sys.stdin.isatty():
-            password = getpass.getpass("復元用パスワード（画面には表示されません）：")
+            password = getpass.getpass("復元用パスワードを入力（入力内容は表示されません）：")
         else:
             # The native password dialog sends it over stdin, never argv/env or logs.
             password = sys.stdin.buffer.readline(4096).decode("utf-8").rstrip("\r\n")
         result = restore_backup(args.archive, args.destination, password=password)
     except Exception as exc:
-        print("バックアップを復元できませんでした：" + str(exc), file=sys.stderr)
+        print("復元を完了できませんでした。現在の帳簿は変更していません：" + str(exc), file=sys.stderr)
         raise SystemExit(1)
     print(json.dumps(result, ensure_ascii=True))

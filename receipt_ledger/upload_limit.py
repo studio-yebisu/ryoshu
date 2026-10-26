@@ -32,7 +32,7 @@ class UploadSizeLimit:
             if total > limit:
                 scope["ryoshu_upload_limit"] = True
                 # Starlette closes spooled multipart files when this exception is raised.
-                raise UploadTooLarge("送信量が大きすぎます")
+                raise UploadTooLarge("アップロードの合計サイズが上限を超えました")
             return message
 
         try:
@@ -42,5 +42,5 @@ class UploadSizeLimit:
             else:
                 await self.app(scope, bounded_receive, send)
         except UploadTooLarge:
-            response = JSONResponse({"detail": "送信量が大きすぎます。ファイルを分けて取り込んでください。保存済みの原本は保持しています。"}, status_code=413)
+            response = JSONResponse({"detail": "一度に送信できるサイズを超えました。ファイルを分けて選び直してください。保存済みの原本は保持しています。"}, status_code=413)
             await response(scope, receive, send)

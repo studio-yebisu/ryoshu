@@ -60,7 +60,7 @@ try{
   await page.goto(launched.open,{waitUntil:'networkidle'});
   await page.locator('.dropzone').waitFor();assert.equal(await page.locator('#page-title').innerText(),'領収書を読み取る');
   assert.match(await page.locator('#usage-guidance').innerText(),/ご自身で確認/);
-  assert.match(await page.locator('#usage-guidance').innerText(),/税務上の最終判断は税理士(?:に確認|へ)/);
+  assert.match(await page.locator('#usage-guidance').innerText(),/税務上の最終判断は利用者と税理士が行います/);
   const help=await page.request.get(base+'/help.html');assert.equal(help.status(),200);
   assert.match(await help.text(),/税理士の承認や税法への適合を表すものではありません/);
   checks.push('personal and tax-professional review policy visible in app and local help');

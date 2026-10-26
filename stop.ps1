@@ -17,6 +17,6 @@ try {
     # Ownership of every listener is verified before any process is stopped.
     foreach ($targetId in @($targets | Select-Object -Unique)) { Stop-Process -Id ([int]$targetId) -ErrorAction SilentlyContinue }
     if (Test-Path -LiteralPath $recordPath) { Remove-Item -LiteralPath $recordPath -Force -ErrorAction SilentlyContinue }
-    if ($targets.Count) { Write-Host 'Ryoshuを終了しました。帳簿・原本・Ollamaはそのまま保存されています。' }
-    else { Write-Host 'Ryoshuはすでに終了しています。帳簿・原本は保存されています。' }
+    if ($targets.Count) { Write-Host 'Ryoshuを終了しました。帳簿・原本・Ollamaは削除していません。' }
+    else { Write-Host 'Ryoshuは起動していません。帳簿と原本はそのままです。' }
 } finally { $startupLock.Dispose() }

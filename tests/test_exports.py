@@ -50,7 +50,7 @@ def test_tax_is_explicit_and_missing_values_block_whole_native_download(tmp_path
     for target in ['freee','mf','yayoi']:
         out=build_export(store.list(),target)
         assert out.issues and not out.preview()['ready']
-        with pytest.raises(ValueError,match='未確認'):out.content()
+        with pytest.raises(ValueError,match='会計ソフト向けの消費税区分が未選択です。明細を開いて区分を確認してください'):out.content()
         exempt=build_export(store.list(),target,tax_mode='exempt')
         assert not exempt.issues and exempt.receipt_count==1
     assert build_export(store.list(),'generic',kind='expenses').content()

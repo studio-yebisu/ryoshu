@@ -150,7 +150,7 @@ try{
   const pendingIds=(await api('receipts')).receipts.filter(r=>['queued','processing'].includes(r.status)).map(r=>r.id);
   assert.equal(pendingIds.length,2);
   await page.reload({waitUntil:'networkidle'});await waitCount('total',2);
-  assert.match(await panel().innerText(),/残りの処理/);
+  assert.match(await panel().innerText(),/画面を開いた時点で残っている処理/);
   await screenshot('07-processing-resumed-after-reload');
   checks.push('a new upload resets a finished cohort, and reload truthfully recaptures only the two remaining busy receipts rather than past completed history');
 
@@ -180,13 +180,13 @@ try{
   });
   await upload(['V007','V008']);await uploadSeen;
   await page.locator('#import-progress [data-import-action=pause]').click();
-  assert.match(await panel().locator('[data-processing-note]').innerText(),/取り込みを一時停止中/);
+  assert.match(await panel().locator('[data-processing-note]').innerText(),/新しいファイルの送信を止めています。すでに保存された領収書の読み取りは継続します。送信を再開するには原本の保存欄を使います。/);
   releaseUpload();
   await page.waitForFunction(()=>state.records.length===7);await waitCount('total',1);
   await page.waitForFunction(()=>document.querySelector('#import-progress .progress-heading strong').textContent.includes('1 / 2'));
   const pausedId=(await api('receipts')).receipts.find(r=>r.original_name==='V007.pdf').id;
   await hold(false);await waitFinished([pausedId]);await waitCount('completed',1);
-  assert.match(await panel().locator('[data-processing-title]').innerText(),/取り込みを一時停止中/);
+  assert.match(await panel().locator('[data-processing-title]').innerText(),/ファイルの追加を一時停止しています/);
   assert.doesNotMatch(await panel().locator('[data-processing-note]').innerText(),/原本を保存中です/);
   assert.equal(await panel().getAttribute('data-state'),'paused');
   assert.equal(await panel().evaluate(node=>node.classList.contains('is-finished')),false);

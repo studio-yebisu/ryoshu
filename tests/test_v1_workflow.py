@@ -39,7 +39,7 @@ def test_batch_tax_fills_only_empty_and_mixed_rate_stays_pending(tmp_path):
         result = client.post("/api/ledger/review", headers=HEADERS, json={"rows": [{"id": r["id"], "version": r["version"]} for r in [a, b]],
                 "purpose": "業務用紙", "business_percent": 100, "payment": "owner", "export_tax": "purchase10"}).json()
         assert result["reviewed"] == [a["id"]]
-        assert "複数税率" in result["issues"][0]["message"]
+        assert "8%と10%が混在する明細には税区分を一括入力できません。原本を確認し、会計ソフトでの分割方法を個別に決めてください" in result["issues"][0]["message"]
         assert store.get(b["id"])["status"] == "review"
         assert store.get(a["id"])["draft"]["export_tax"] == "purchase10"
 

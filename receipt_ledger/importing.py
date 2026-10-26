@@ -57,26 +57,26 @@ class Importer:
             yield row, duplicate
             return
         if not raw or len(raw) > config.MAX_BYTES:
-            raise ValueError("1ファイル20MBまでのPDFを選んでください")
+            raise ValueError("PDFは1ファイル20MB以下にしてください")
         import pypdfium2 as pdfium
         with PDF_LOCK:
             try:
                 document = pdfium.PdfDocument(raw)
             except Exception as exc:
-                raise ValueError("PDFを開けません。破損やパスワード設定を確認してください") from exc
+                raise ValueError("PDFを読み込めません。破損していないか、パスワードが設定されていないか確認してください") from exc
         try:
             with PDF_LOCK, document:
                 count = len(document)
                 if count == 0:
-                    raise ValueError("PDFにページが見つかりません。空のPDFでないか確認し、パスワード付きの場合は解除してから取り込んでください")
+                    raise ValueError("PDFにページがありません。空のPDFでないか確認し、パスワード付きなら解除してから選択してください")
                 if not 1 <= count <= config.MAX_SPLIT_PAGES:
-                    raise ValueError(f"ページごとの取り込みは1〜{config.MAX_SPLIT_PAGES}ページのPDFに対応しています")
+                    raise ValueError(f"1ページずつ分ける場合は1〜{config.MAX_SPLIT_PAGES}ページのPDFを選んでください")
                 digest = hashlib.sha256(raw).hexdigest()
                 original = self.source_path(digest)
                 original.parent.mkdir(parents=True, exist_ok=True)
                 if original.exists():
                     if hashlib.sha256(self.store.keys.read_file(original)).hexdigest() != digest:
-                        raise ValueError("保存済みの元PDFが変更されています。バックアップを確認してください")
+                        raise ValueError("以前保存した元PDFと内容が一致しません。原本とバックアップを確認してください")
                 else:
                     self.store.keys.write_file(original, raw)
                 for index in range(count):
@@ -106,4 +106,4 @@ class Importer:
                                    (row["id"], digest, name, index + 1, count))
                     yield row, duplicate
         except pdfium.PdfiumError as exc:
-            raise ValueError("PDFの一部を分割できません。破損やパスワード設定を確認し、別のPDFとして保存し直してください。取り込み済みのページは保持しています。") from exc
+            raise ValueError("PDFの一部を分割できません。破損やパスワード設定を確認し、別名で保存したPDFを選んでください。分割できたページは削除せずに保持しています。") from exc

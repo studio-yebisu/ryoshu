@@ -89,11 +89,11 @@ print(json.dumps(r,ensure_ascii=True))
 function Format-RyoshuPythonIssue {
     param($Status)
     switch ($Status.reason) {
-        'missing' { return 'Pythonの実行ファイルが見つかりません。' }
-        'unsupported_python' { return ('Python ' + $Status.version + ' が残っています。64bitのPython 3.12.15以降の3.12系へ準備し直します。') }
-        'dependencies_missing' { return 'Pythonの必要なライブラリが不足、または対応する版と一致していません。' }
-        'launch_failed' { return ('Pythonを起動できません。参照先のPythonが移動・削除された可能性があります。' + "`n" + $Status.detail) }
-        default { return ('Pythonの動作を確認できません。' + "`n" + $Status.detail) }
+        'missing' { return 'Ryoshu専用のPythonが見つかりません。「初回セットアップ.cmd」で準備してください。' }
+        'unsupported_python' { return ('Python ' + $Status.version + ' は対象外です。64bitのPython 3.12.15以降の3.12系を「初回セットアップ.cmd」で準備してください。') }
+        'dependencies_missing' { return '必要なPythonライブラリが不足しているか、固定版と一致しません。「初回セットアップ.cmd」で再取得してください。' }
+        'launch_failed' { return ('Ryoshu専用Pythonを起動できません。移動・削除されていないか確認し、「初回セットアップ.cmd」で準備し直してください。' + "`n" + $Status.detail) }
+        default { return ('Pythonの状態を確認できませんでした。「初回セットアップ.cmd」で準備し直してください。' + "`n" + $Status.detail) }
     }
 }
 
@@ -105,7 +105,7 @@ function Assert-RyoshuRuntimeIdle {
     foreach ($process in $processes) {
         foreach ($prefix in $prefixes) {
             if ($process.ExecutablePath -and $process.ExecutablePath.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) {
-                throw 'Ryoshuの実行環境を使用中のPythonがあります。読み取りの終了を待ち、起動元からRyoshuを終了してから準備し直してください。帳簿は変更していません。'
+                throw 'Ryoshu専用Pythonを使用中のため実行環境を変更できません。読み取りの終了を待ち、起動元の「停止.cmd」で終了してから「初回セットアップ.cmd」を実行してください。帳簿は変更していません。'
             }
         }
     }

@@ -2,7 +2,7 @@
     param([string]$RuntimeDir)
     New-Item -ItemType Directory -Path $RuntimeDir -Force | Out-Null
     try { return [System.IO.File]::Open((Join-Path $RuntimeDir 'start.lock'), 'OpenOrCreate', 'ReadWrite', 'None') }
-    catch [System.IO.IOException] { throw 'Ryoshuの起動・終了処理が進行中です。少し待ってから、もう一度操作してください。' }
+    catch [System.IO.IOException] { throw 'Ryoshuの起動・終了処理が進行中です。前の操作が終わってから、もう一度実行してください。' }
 }
 
 function Get-RyoshuListener {
@@ -26,7 +26,7 @@ function Get-RyoshuListener {
                 if ($parent -and $parent.ExecutablePath -ieq $PythonExe -and $parent.CommandLine -match '-m\s+receipt_ledger\b') { $owned = $true }
             }
         }
-        if (-not $owned) { throw '接続先を別のアプリが使っているため、自動操作を止めました。別のアプリは停止していません。' }
+        if (-not $owned) { throw '8766番を別のアプリが使用しています。Ryoshuの起動・停止を中止し、別のアプリは停止していません。接続先の競合を解消してください。' }
         $result += $server
     }
     return $result
@@ -45,7 +45,7 @@ function New-RyoshuLedgerLauncher {
     $startFile = Join-Path ([System.IO.Path]::GetFullPath($SourceDir)) 'start.ps1'
     $ledgerPath = [System.IO.Path]::GetFullPath($DataDir)
     if (-not (Test-Path -LiteralPath $startFile) -or (-not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.sqlite3')) -and -not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.enc.sqlite3')))) {
-        throw '起動ファイルまたは復元した帳簿が見つかりません。復元先は変更していません。'
+        throw '起動ファイルか復元済みの帳簿を確認できません。復元は完了していない可能性があります。バックアップからもう一度復元してください。'
     }
     $quotedStart = $startFile.Replace("'", "''")
     $quotedData = $ledgerPath.Replace("'", "''")

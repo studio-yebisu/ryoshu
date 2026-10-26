@@ -50,19 +50,19 @@ def validate_pdf(content: bytes):
     try:
         with pdfium.PdfDocument(content) as pdf:
             if len(pdf) == 0:
-                raise ValueError("PDFにページが見つかりません。空のPDFでないか確認し、パスワード付きの場合は解除してから取り込んでください")
+                raise ValueError("PDFにページがありません。空でないか確認し、パスワード付きなら解除してから選択してください")
             if len(pdf) > config.MAX_PAGES:
                 raise PdfPageLimit("11ページ以上のPDFは「1ページずつ、別の領収書にする」を選んで取り込み直してください。1つの取引の続きの場合は、10ページ以下のPDFに分けてください")
     except ValueError:
         raise
     except Exception as exc:
-        raise ValueError("PDFを開けません。破損やパスワード設定を確認してください") from exc
+        raise ValueError("PDFを開けません。破損やパスワード設定を確認し、別のPDFとして保存し直してください") from exc
     return ".pdf"
 
 
 def validate_file(content: bytes):
     if not content or len(content) > config.MAX_BYTES:
-        raise ValueError("1ファイル20MBまでの画像・PDFを選んでください")
+        raise ValueError("空のファイルは取り込めません。画像・PDFは1ファイル20MB以下にしてください")
     if content.startswith(b"%PDF-"):
         return validate_pdf(content)
     try:
@@ -72,17 +72,17 @@ def validate_file(content: bytes):
                 formats = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp"}
                 extension = formats.get(image.format)
                 if extension is None or getattr(image, "n_frames", 1) != 1:
-                    raise ValueError("JPG・PNG・WebP、またはPDFを選んでください。アニメーション画像は対象外です")
+                    raise ValueError("JPG・PNG・WebP・PDFを選んでください。アニメーション画像には対応していません")
                 if image.width * image.height > Image.MAX_IMAGE_PIXELS:
-                    raise ValueError("画像は2500万画素以下に縮小してください")
+                    raise ValueError("画像は2500万画素以下に縮小してから選んでください")
                 image.verify()
                 return extension
     except ValueError:
         raise
     except (Image.DecompressionBombWarning, Image.DecompressionBombError) as exc:
-        raise ValueError("画像は2500万画素以下に縮小してください") from exc
+        raise ValueError("画像は2500万画素以下に縮小してから選んでください") from exc
     except Exception as exc:
-        raise ValueError("画像を開けません。JPG・PNG・WebP・PDFに対応しています") from exc
+        raise ValueError("画像を読み込めません。JPG・PNG・WebP・PDFのファイルを選んでください") from exc
 
 
 @serialized
@@ -118,12 +118,12 @@ def read_receipt(folder: Path, extension: str):
         pages = []
         for index, page in _converter.convert(str(ocr_input), max_pages=config.MAX_PAGES):
             if page.source == "error":
-                raise ValueError(f"{index + 1}ページ目の読み取りに失敗しました")
+                raise ValueError(f"{index + 1}ページ目を読み取れませんでした。ページの状態を確認して再試行してください")
             pages.append({"index": int(index), "text": page.text, "source": page.source,
                           "lines": [{"text": line.text, "confidence": float(line.conf), "box": [float(v) for v in line.box]} for line in page.lines],
                           "timings": {k: float(v) for k, v in page.timings.items()}})
     if not pages or not any(p["text"].strip() for p in pages):
-        raise ValueError("文字が見つかりませんでした。明るい場所で正面から撮影した画像を試してください")
+        raise ValueError("文字を検出できませんでした。明るい場所で正面から撮影した画像を選んでください")
     import importlib.metadata
     from .ocr_focus import rectify_pages
     with _ocr_lock:
@@ -210,7 +210,7 @@ def fallback(text):
     unique = {x[0] for x in totals}
     return {**Draft().model_dump(), "date": next(iter(dates)) if len(dates) == 1 else "",
             "total": next(iter(unique)) if len(unique) == 1 else None,
-            "reason": "意味判断モデルが実行できていません。OCR本文を見ながら入力できます。",
+            "reason": "読み取り結果を保存するまでの処理を完了できませんでした。OCR本文を確認しながら手入力できます。",
             "confidence": "low", "model": None, "warnings": ["AI分類未実行"], "evidence": {}}
 
 
@@ -229,9 +229,9 @@ def local_models():
             details.raise_for_status()
             info=details.json()
             if info.get("remote_host") or info.get("remote_model") or target.get("remote_host") or target.get("remote_model"):
-                raise ModelSafetyError("クラウドモデルには領収書を送りません。Ollamaにローカル版のqwen3:4bを準備してください。")
+                raise ModelSafetyError("クラウドモデルへの領収書送信は拒否しました。Ollamaにローカル版のqwen3:4bを用意してください。")
             if info.get("details",{}).get("format")!="gguf" or info.get("model_info",{}).get("general.architecture")!="qwen3" or type(target.get("size")) is not int or target["size"]<1024**3:
-                raise ModelSafetyError("ローカルのQwen3 4Bを確認できません。初回セットアップでqwen3:4bを準備してください。")
+                raise ModelSafetyError("ローカルGGUFのQwen3 4Bを確認できません。「初回セットアップ.cmd」でqwen3:4bを準備してください。")
         return models
 
 
@@ -312,7 +312,7 @@ def ground(candidate, text, accounts=None, policies=None, *, tax_text=None):
     try:
         Draft.model_validate(safe)
     except ValueError as exc:
-        raise ValueError("AI候補の形式が正しくありません。OCR本文から手入力できます") from exc
+        raise ValueError("AI候補の形式を読み取れませんでした。OCR本文から手入力できます") from exc
     return apply_account_policies(candidate,text,accounts,policies)
 
 

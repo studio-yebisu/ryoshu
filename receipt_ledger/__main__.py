@@ -6,7 +6,7 @@ from .privacy import install
 
 if __name__ == "__main__":
     if sys.version_info[:2]!=(3,12) or sys.version_info<(3,12,15):
-        raise SystemExit("Python 3.12.15以降の3.12系が必要です。「初回セットアップ.cmd」で実行環境を更新してください。")
+        raise SystemExit("Ryoshuには64bitのPython 3.12.15以降の3.12系が必要です。「初回セットアップ.cmd」で専用の実行環境を準備してください。")
     install()
     from .server import create_app
     from .protection import clean_work, clean_incomplete_restores, private_directory

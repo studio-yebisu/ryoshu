@@ -24,7 +24,7 @@ class Draft(BaseModel):
     def valid_date(cls, value):
         if value:
             if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
-                raise ValueError("日付は YYYY-MM-DD で入力してください")
+                raise ValueError("取引日はYYYY-MM-DDの形式で入力してください")
             date.fromisoformat(value)
         return value
 
@@ -32,7 +32,7 @@ class Draft(BaseModel):
     @classmethod
     def valid_invoice(cls, value):
         if value and not re.fullmatch(r"T\d{13}", value):
-            raise ValueError("登録番号は T と13桁の数字で入力してください")
+            raise ValueError("登録番号はTに続く13桁の数字で入力してください")
         return value
 
 

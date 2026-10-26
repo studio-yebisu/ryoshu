@@ -60,14 +60,14 @@ def transition_percent(day):
     if "2026-10-01" <= day < "2028-10-01": return 70
     if "2028-10-01" <= day < "2030-10-01": return 50
     if "2030-10-01" <= day < "2031-10-01": return 30
-    raise ValueError("経過措置の対応期間外です。税区分を個別に確認してください")
+    raise ValueError("取引日が経過措置の対応期間外です。原本と税区分を個別に確認してください")
 
 
 def tax_labels(treatment, day):
     if treatment == "outside": return {"freee": "対象外", "mf": "対象外", "yayoi": "対象外", "invoice": ""}
     if treatment == "non_taxable": return {"freee": "非課仕入", "mf": "非課税仕入", "yayoi": "非課仕入", "invoice": ""}
     if treatment not in TAX_CHOICES or not treatment:
-        raise ValueError("会計ソフト出力用の消費税区分が未確認です。領収書の確認画面で選択してください")
+        raise ValueError("会計ソフト向けの消費税区分が未選択です。明細を開いて区分を確認してください")
     rate = "10" if treatment.endswith("10") else "8"
     light = "（軽）" if rate == "8" else ""
     transitional = treatment.startswith("transition")
@@ -101,7 +101,7 @@ def build_export(records, profile="generic", month="", kind="journal", tax_mode=
         # csv_export already neutralizes cells. Do not add a second prefix here.
         result = Export(rows[0], rows[1:], [], [], receipt_count=len(confirmed(records, month)))
         return result
-    if kind != "journal": raise ValueError("会計ソフト向けは確定済み仕訳を出力します")
+    if kind != "journal": raise ValueError("会計ソフト向けCSVには確認済みの仕訳だけを出力できます")
     account_map = account_map or {}
     columns = {"freee": FREEE_HEADER, "mf": MF_HEADER, "yayoi": YAYOI_HEADER}[profile]
     result = Export(columns, [], [], [], "cp932" if profile == "yayoi" else "utf-8-sig", profile != "yayoi")

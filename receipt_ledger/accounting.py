@@ -20,7 +20,7 @@ def posted_pairs(row):
         return journal(row["draft"])
     credits=[line for line in posting["lines"] if line["side"]=="credit"]
     if len(credits)!=1:
-        raise ValueError("経費仕訳の貸方を確認してください")
+        raise ValueError("仕訳の貸方科目を確認してください")
     return [{"debit":line["name"],"credit":credits[0]["name"],"amount":line["amount"]} for line in posting["lines"] if line["side"]=="debit"]
 
 

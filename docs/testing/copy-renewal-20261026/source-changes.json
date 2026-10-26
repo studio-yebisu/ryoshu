@@ -1,0 +1,118 @@
+{
+  "data/account-catalog.json": {
+    "baseline": "docs/testing/baseline/account-catalog.json",
+    "before_sha256": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+    "after_sha256": "d9a3d96f572112644d97aac916afb61a4aa2d9b2192717b5a6b6f8142d5ec42a",
+    "scope": "実OCR・AI100件の再実行で、居住用家賃を0円の駐車場明細から旅費交通費と提案する誤りを確認。居住用家賃の明示を用途・按分確認まで保留する一般条件を追加。原本・元の期待値・当初の100件の点数は保持。 住宅向け火災保険等への誤検知を避けるため、賃貸だけでは家賃扱いせず家賃・賃料の記載を必要とする。 v1.3: 経費49・資産20・相手科目5へ拡張。カテゴリー14を追加し、旧名・コード・別名を保持。",
+    "regression_tests": [
+      "tests/test_catalog.py",
+      "tests/test_residential_rent.py",
+      "tests/test_account_categories.py",
+      "scripts/account_workflow_smoke.mjs"
+    ],
+    "previous_release_sha256": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf"
+  },
+  "receipt_ledger/catalog.py": {
+    "baseline": "docs/testing/baseline/catalog.py",
+    "before_sha256": "8e09913b0bb562c9cd8d26bd8fd3c320bd2e183fb34d5e72eab6c026e8509498",
+    "scope": " v1.3: 正式名・コードを別名より先に解決し、expense/assetだけを支出選択へ許可。カテゴリーとkindを検証。 raise ValueErrorの引数。retrieve_accountsやprompt組み立てへ渡さない",
+    "regression_tests": [
+      "tests/test_account_categories.py",
+      "scripts/account_workflow_smoke.mjs"
+    ],
+    "after_sha256": "e426681367a425c10b08b4200237a5a8e7f9d1c43efa3971fb0baaa15b5380b0",
+    "previous_release_sha256": "17e3a15a4c0706e64de7706f91268000d2d8e2fd517e3b4aeee8ee4781f5f651"
+  },
+  "receipt_ledger/extraction.py": {
+    "baseline": "docs/testing/baseline/extraction.py",
+    "before_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705",
+    "scope": "v1.2: 税額の範囲を共通抽出。括弧内の税込金額・内訳行・今回領収分・契約全体を区別し、印字されていない税額を計算しない。",
+    "regression_tests": [
+      "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
+      "tests/test_extraction.py"
+    ],
+    "after_sha256": "deb04279ea4213e97e2451c652f7e864b5052ac38cd31d97ebe788c89d2d7794",
+    "previous_release_sha256": "ee46d16f966ed257552f7f9b331697e6df158d227dff4e0397c3481c27691705"
+  },
+  "receipt_ledger/exports.py": {
+    "baseline": "docs/testing/baseline/exports.py",
+    "before_sha256": "bb260d209d668c8ed75fd0f0d6a4feda84b377911a377bfe150ad3826fbf8a92",
+    "after_sha256": "6b100c62af69ad10410d0a9ca0765bf5f91c2d4a0944b42e0a72dd414915a90d",
+    "scope": "混在税率のエラー案内を修正。未実装の品目分割入力を案内せず、汎用CSVと原本を用いた会計ソフト側の内訳処理へ案内する。CSV列・生成ロジックとOCR・AI分類は変更しない。 freeeの取引先タグ新規登録に関する警告を追記。 CSV生成時の例外文。モデル入力ではない CSV税区分の検証文。OCR・科目モデルへ渡さない CSV出力の利用者向け例外文。モデルの判断条件を変更しない",
+    "regression_tests": [
+      "tests/test_exports.py"
+    ],
+    "previous_release_sha256": "d1b949ab3e45854f3e840a4b2967b2b0d079b6692293bfd0980a73935121d22f"
+  },
+  "receipt_ledger/pipeline.py": {
+    "baseline": "docs/testing/baseline/pipeline.py",
+    "before_sha256": "ae4a7febd4c18b56b1d869d4b3f929ac37c4d16eec9bc9179341fe4ff56e98bb",
+    "after_sha256": "0e26960fd6e2b251852936ebbe0ee40bff143b76e5e7602d49a8b7829a113736",
+    "scope": "AI停止時もPDF文字層・補正前OCRを確認条件に使用。PDFiumのプロセス内排他、プレビューの安全な再生成、PDFページ数・画像画素数の案内を追加。抽出・科目モデルの判定アルゴリズムと元の100件の数値は変更しない。 v1.1候補では原本・プレビューの暗号化と専用一時領域、本文送信前のローカルモデル確認を追加。抽出・科目モデルの判定アルゴリズムは変更せず、固定候補で100件を新規実行。 v1.2: 税額の根拠確認にも同じ範囲判定を適用し、複数の根拠層を連結して税額の重複と誤認しない。 validate_pdfの例外でOCR・semanticの入力に到達しない PDFを開けない場合の例外。locked prefix「PDFを開けません」を保持 validate_fileのnot contentと20MB超の両方をカバーする例外文。画像・PDFの検証で停止し、モデル入力へ到達しない。G1-COPY-01への修正 画像形式の検証例外。モデル入力へ到達しない 画素数検証の例外。locked substring「2500万画素以下に縮小」を保持 DecompressionBombの例外。locked substringを保持 画像を開けない例外。モデル入力へ到達しない OCR失敗のf-string例外。差し込み位置を保持し、promptへ渡さない OCR結果が空の場合の例外。semanticのpromptへ到達しない OCRがある場合の共通fallbackの返却値reason。classify後のstore.completeの失敗も含むため、モデル実行失敗とは断定しない。モデル呼び出しのsystem/user promptやschemaへは使わない。親の非モデル入力判定を維持し、G1-COPY-02への修正 送信前のModelSafetyError。モデルへの本文送信前に停止するため入力へ到達しない モデル形式検証のModelSafetyError。promptではない モデル応答の検証例外。応答をpromptへ戻さない",
+    "regression_tests": [
+      "tests/test_retained_evidence.py",
+      "tests/test_bulk_import.py",
+      "tests/test_v1_quality.py",
+      "tests/test_local_model_guard.py",
+      "tests/test_encryption_migration_files.py",
+      "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
+      "tests/test_extraction.py"
+    ],
+    "previous_release_sha256": "cdda304ea14b6540705bfa59f6729c52ad2fbf9386c681be17ddcac000de6b7d"
+  },
+  "receipt_ledger/semantic.py": {
+    "baseline": "docs/testing/baseline/semantic.py",
+    "before_sha256": "e045a81d0888b0cfb6ea91aa9b4642e10236e70dab813f28d63f940ad79cda59",
+    "scope": "v1.2: 単独の帳票注記と購入内容を分離し、支出の種類と実際の業務用途の確認を分ける。小数割合の末尾を8%税率と誤認しない。 local_modelsの結果がない場合の例外。system prompt・user prompt・schemaは変更しない。C-10は現行インストーラー経路に合わせた モデル応答後の例外。num_predict等のモデル入力は変更しない モデル応答の型検証例外。出力schemaそのものは変更しない",
+    "regression_tests": [
+      "tests/test_tax_scope.py",
+      "tests/test_tax_scope_review.py",
+      "tests/test_extraction.py"
+    ],
+    "after_sha256": "f4d0e0f4e275b140d4876ae3e7bb3abc9d9b78df0af0102fc6967bbad1b65f66",
+    "previous_release_sha256": "30302bbf2435afb816e39244c5729279a4eb02509815ab03ec53cf2ea48a94ee"
+  },
+  "receipt_ledger/store.py": {
+    "baseline": "docs/testing/baseline/store.py",
+    "before_sha256": "22f58470c1e97ba59aab8a9705833e4e508cf2ec2556dd9158982eabf4a229c4",
+    "after_sha256": "89558e706e7a2c5f7ef2c711139d7b2febf044986f4cb0f4a055a3127838e7eb",
+    "scope": "確認時とAI停止時の確認条件に、PDF文字層・補正前OCRの根拠を追加。元の100件の数値は当時の実行記録として保持。 対象外以外の明細を復帰操作で未確認へ変えないよう制限。 シード更新時、既存の未確認明細に新しく合致した確認条件を候補と注意事項へ反映。元の解析は監査履歴に残し、利用者の入力・確認済み仕訳は変更しない。 v1.1候補では暗号化DB・保護設定の起動ゲート、原本修復と保護済み保存を追加。固定候補で100件を新規実行。 v1.3: カテゴリー列とスキーマ3移行、暗号化snapshot、独自科目・ユーザー編集・確認済み仕訳の保全。category付き追加と既存マスターの出典更新。 v1.3.1: よく使う科目のスターを既存settingsへコードで保存。科目単位の更新をトランザクションで行う。OCR・科目候補・領収書・仕訳処理は変更しない。 Store初期化の例外。locked substring「復元が完了していない」を保持 DB版検査の例外。モデル入力へ到達しない 科目ファイル検証の例外。locked substring「識別情報」を保持 ☆の入力検証。モデル参照の科目説明・別名は変更しない ☆対象の検証例外。モデル入力へ到達しない 独自科目の入力検証。公式科目名と初期カタログは変更しない 重複検査の例外prefix。既存の科目データは変更しない 仕訳参照の検証例外。モデル入力へ到達しない 会計検証の例外。仕訳計算は変更しない 原本形式の検証例外。モデル入力へ到達しない 保存競合の例外。OCR・モデルの入力は変更しない 利用者入力の検証例外。モデル参照の科目データは変更しない 楽観ロックの例外。機能とversion検査は変更しない 状態変更の競合例外。モデル入力へ到達しない 状態遷移の例外。状態値は変更しない 再読み取りの状態検証例外。モデル入力へ到達しない export_mapの入力検証。CSV列名・公式科目名・モデル入力は変更しない",
+    "regression_tests": [
+      "tests/test_retained_evidence.py",
+      "tests/test_v1_quality.py",
+      "tests/test_residential_rent.py",
+      "tests/test_database_protection.py",
+      "tests/test_security_recovery_regressions.py",
+      "tests/test_session_security.py",
+      "tests/test_account_categories.py",
+      "scripts/account_workflow_smoke.mjs",
+      "tests/test_account_favorites.py",
+      "scripts/account_favorites_smoke.mjs"
+    ],
+    "previous_release_sha256": "e77a057b6d2a79c70f7bf12d516235995932218816f2ded12d02b30a780b0ecb"
+  },
+  "receipt_ledger/accounting.py": {
+    "baseline": "docs/testing/baseline/accounting.py",
+    "before_sha256": "92f5f5c8c683bc6fef085b0c4d8daaefec30a270c536c0fadb6bee86aa262001",
+    "after_sha256": "6562b2b6c62a058a0c36bd411f60225cf58545cd399c4e3ab1e6e740c617852e",
+    "previous_release_sha256": "92f5f5c8c683bc6fef085b0c4d8daaefec30a270c536c0fadb6bee86aa262001",
+    "scope": "仕訳検証の例外文。モデル呼び出しのmessages・schemaに到達しない",
+    "regression_tests": [
+      "tests/test_ledger.py",
+      "tests/test_exports.py"
+    ]
+  },
+  "receipt_ledger/schemas.py": {
+    "baseline": "docs/testing/baseline/schemas.py",
+    "before_sha256": "e5843a2dccf77f644f86576ddeb4e303a301516f9ace9f9d3e0ab2d2b58549b8",
+    "after_sha256": "f6a03a5e3c3508e087b2d37e5ff98a4156b3880cd239b4a2ac564ce51dda89c5",
+    "previous_release_sha256": "e5843a2dccf77f644f86576ddeb4e303a301516f9ace9f9d3e0ab2d2b58549b8",
+    "scope": "Draft入力の検証文。モデル出力schemaそのものは変更しない 利用者入力の検証文。モデル入力へ到達しない",
+    "regression_tests": [
+      "tests/test_ledger.py",
+      "tests/test_exports.py"
+    ]
+  }
+}

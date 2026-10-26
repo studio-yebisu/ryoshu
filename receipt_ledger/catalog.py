@@ -25,7 +25,7 @@ def category_for(kind, category_id=None):
     selected = fallback if category_id in (None, "") else category_id
     category = next((c for c in account_categories() if c["id"] == selected), None)
     if category is None or kind not in category["kinds"]:
-        raise ValueError("科目の区分に合うカテゴリーを選んでください")
+        raise ValueError("科目の種類に対応するカテゴリーを選択してください")
     return selected
 
 

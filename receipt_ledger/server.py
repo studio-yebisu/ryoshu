@@ -42,7 +42,7 @@ from .upload_limit import MemoryMultipartParser
 
 def create_app(data_dir=None, run_workers=True):
     if config.MAX_REQUEST_BYTES>=MemoryMultipartParser.spool_max_size:
-        raise RuntimeError("取り込みサイズがメモリ内の上限を超えています。設定を確認してください。")
+        raise RuntimeError("アップロード上限がメモリ内の処理上限以上です。設定値を見直してください。")
     store = Store(Path(data_dir or config.DATA_DIR))
     importer = Importer(store) if store.ready else None
     export_history = ExportHistory(store) if store.ready else None
@@ -75,18 +75,18 @@ def create_app(data_dir=None, run_workers=True):
         path = request.url.path
         if path.startswith("/api/") and path not in {"/api/health", "/api/session"}:
             if not sessions.authorized(request.headers.get("authorization")):
-                return JSONResponse({"detail":"起動リンクからアプリを開いてください。「Ryoshu.cmd」をもう一度起動すると開けます。"}, status_code=401,
+                return JSONResponse({"detail":"有効な起動リンクが必要です。「Ryoshu.cmd」から新しいリンクで開き直してください。"}, status_code=401,
                                     headers={"Cache-Control":"no-store"})
             if (not store.ready or importer is None or export_history is None) and not path.startswith("/api/security"):
-                return JSONResponse({"detail":"先に帳簿の保護を設定するか、復元用パスワードで開いてください。"}, status_code=423,
+                return JSONResponse({"detail":"帳簿がロックされています。保護を設定するか、復元用パスワードで開いてください。"}, status_code=423,
                                     headers={"Cache-Control":"no-store"})
         if request.url.path.startswith("/api/") and request.headers.get("sec-fetch-site") == "cross-site":
-            return JSONResponse({"detail": "このアプリの画面から操作してください"}, status_code=403)
+            return JSONResponse({"detail": "外部サイトからの要求は受け付けません。Ryoshuの画面から操作してください"}, status_code=403)
         if request.url.path.startswith("/api/") and request.method not in ["GET", "HEAD"]:
             origin = request.headers.get("origin")
             allowed = {str(request.base_url).rstrip("/")}
             if request.headers.get("x-ledger-request") != "1" or (origin and origin not in allowed) or request.headers.get("sec-fetch-site") == "cross-site":
-                return JSONResponse({"detail": "このアプリの画面から操作してください"}, status_code=403)
+                return JSONResponse({"detail": "この要求を確認できません。Ryoshuの画面からもう一度操作してください"}, status_code=403)
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -97,7 +97,7 @@ def create_app(data_dir=None, run_workers=True):
 
     @app.exception_handler(Missing)
     async def missing(request, exc):
-        return JSONResponse({"detail": "領収書が見つかりません"}, status_code=404)
+        return JSONResponse({"detail": "指定された領収書は帳簿にありません。一覧を再読み込みしてください"}, status_code=404)
 
     @app.exception_handler(Conflict)
     async def conflict(request, exc):
@@ -129,7 +129,7 @@ def create_app(data_dir=None, run_workers=True):
         return row
 
     def sample_set():
-        return config.SAMPLE_DIR, "receipts-100", {"count": 100, "version": "receipts-100-v2", "description": "6モデルの独立した帳票設計。電子PDF、スキャン、薄い印字、FAX、斜め撮影、回転を含みます。"}
+        return config.SAMPLE_DIR, "receipts-100", {"count": 100, "version": "receipts-100-v2", "description": "6モデルが分野を分けて設計した架空帳票です。電子PDF・傾いたスキャン・薄い印字・FAX・斜め撮影・回転を含みます。"}
 
     @app.get("/api/health")
     def health(request: Request):
@@ -155,7 +155,7 @@ def create_app(data_dir=None, run_workers=True):
     def open_session(request: Request):
         authorization = request.headers.get("authorization", "")
         if not authorization.startswith("Bootstrap "):
-            raise HTTPException(401, "Ryoshu.cmdから開き直してください。")
+            raise HTTPException(401, "起動用の認証情報がありません。「Ryoshu.cmd」から開き直してください。")
         try:
             return {"token":sessions.exchange(authorization[10:])}
         except ProtectionError as exc:
@@ -182,9 +182,9 @@ def create_app(data_dir=None, run_workers=True):
     def protection_setup(body: ProtectionRequest):
         nonlocal importer, export_history, retry_after
         if store.ready:
-            raise HTTPException(409,"この帳簿は保護されています。")
+            raise HTTPException(409,"帳簿は既に開いています。保護設定をもう一度行う必要はありません。")
         if time.monotonic() < retry_after or not setup_lock.acquire(blocking=False):
-            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+            raise HTTPException(429,"保護処理を連続して実行できません。数秒待ってから再試行してください。")
         try:
             password = body.password.get_secret_value()
             if store.keys.mode == "new":
@@ -220,7 +220,7 @@ def create_app(data_dir=None, run_workers=True):
     def retry_initialization():
         nonlocal importer, export_history
         if not setup_lock.acquire(blocking=False):
-            raise HTTPException(429,"帳簿を確認しています。少し待ってからやり直してください。")
+            raise HTTPException(429,"帳簿の確認を実行中です。完了してから再試行してください。")
         try:
             store.initialize()
             importer,export_history=Importer(store),ExportHistory(store)
@@ -237,15 +237,15 @@ def create_app(data_dir=None, run_workers=True):
     def change_recovery_password(body: ProtectionRequest):
         nonlocal retry_after
         if not store.ready:
-            raise HTTPException(423,"帳簿を開いてから変更してください。")
+            raise HTTPException(423,"復元用パスワードを変更するには、先に帳簿を開いてください。")
         if time.monotonic()<retry_after or not setup_lock.acquire(blocking=False):
-            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+            raise HTTPException(429,"保護やパスワードの処理を連続して実行できません。数秒待ってから再試行してください。")
         try:
             password=body.password.get_secret_value()
             if body.confirmation is None or body.confirmation.get_secret_value()!=password:
                 raise ProtectionError("確認用のパスワードが一致しません。")
             store.keys.reset_password(password)
-            return {"changed":True,"message":"復元用パスワードを変更しました。新しいバックアップを保存してください。以前のバックアップには以前のパスワードが必要です。"}
+            return {"changed":True,"message":"復元用パスワードを再設定しました。新しい暗号化バックアップを保存してください。以前のファイルには作成当時のパスワードが必要です。"}
         finally:
             retry_after=time.monotonic()+3
             setup_lock.release()
@@ -280,7 +280,7 @@ def create_app(data_dir=None, run_workers=True):
     @app.post("/api/accounts")
     def add_account(body:AccountRequest):
         if any(len(s)>200 for s in body.aliases+body.review_questions+body.keywords):
-            raise ValueError("別名・確認事項は各200文字以内で入力してください")
+            raise ValueError("別名・確認事項・品目の手がかりは1項目200文字以内にしてください")
         return store.add_account(body.name,body.kind,body.description,body.aliases,body.review_questions,body.keywords,body.category_id)
 
     class FavoriteAccountRequest(BaseModel):
@@ -359,11 +359,11 @@ def create_app(data_dir=None, run_workers=True):
                 row = store.get(selected.id)
                 draft = Draft(**row["draft"])
                 if row["status"] == "confirmed":
-                    raise Conflict("既に確認済みです。画面を更新してください")
+                    raise Conflict("この明細は確認済みです。最新の状態を読み込んでから選択し直してください")
                 if row["status"] == "excluded":
-                    raise Conflict("対象外の明細です。先に対象へ戻してください")
+                    raise Conflict("対象外の明細は確認できません。先に未確認へ戻してください")
                 if body.export_tax and not draft.export_tax and draft.tax_rate == "mixed":
-                    raise ValueError("複数税率の明細は税区分をまとめて入力できません。原本と会計ソフトでの分割方法を個別に確認してください")
+                    raise ValueError("8%と10%が混在する明細には税区分を一括入力できません。原本を確認し、会計ソフトでの分割方法を個別に決めてください")
                 updates = {key: getattr(body, key) for key in ("purpose", "payment", "business_percent", "export_tax")
                            if getattr(draft, key) in (None, "") and getattr(body, key) not in (None, "")}
                 saved = store.save(selected.id, selected.version, draft.model_copy(update=updates), confirm=True)
@@ -383,16 +383,16 @@ def create_app(data_dir=None, run_workers=True):
             raise
         except Exception as exc:
             if request.scope.get("ryoshu_upload_limit"):
-                raise HTTPException(413, "送信量が大きすぎます。ファイルを分けて取り込んでください。保存済みの原本は保持しています。") from exc
-            raise HTTPException(400, f"ファイルを受け取れませんでした。一度に{config.MAX_FILES}ファイルまでに分けて、選び直してください") from exc
+                raise HTTPException(413, "アップロードの合計サイズが上限を超えました。ファイルを分けて選び直してください。保存済みの原本は保持しています。") from exc
+            raise HTTPException(400, f"ファイルを受け取れませんでした。{config.MAX_FILES}ファイル以下に分けて選択し直してください") from exc
         results, errors = [], []
         try:
             files = form.getlist("files")
             mode = form.get("pdf_mode", "document")
             if mode not in ("document", "pages"):
-                raise HTTPException(400, "PDFの取り込み方を選び直してください")
+                raise HTTPException(400, "PDFの取り込み方は「1ファイルを1つの取引にする」または「1ページずつ、別の領収書にする」から選んでください")
             if not files or any(not hasattr(item, "read") for item in files):
-                raise HTTPException(400, "領収書の画像・PDFを選んでください")
+                raise HTTPException(400, "領収書の画像またはPDFを選択してください")
             for item in files:
                 name = (item.filename or "receipt").replace("\\", "/").split("/")[-1][:200]
                 try:
@@ -407,7 +407,7 @@ def create_app(data_dir=None, run_workers=True):
                 except ValueError as exc:
                     errors.append({"name": name, "message": str(exc), "code": getattr(exc, "code", "")})
                 except (OSError, sqlite3.OperationalError):
-                    errors.append({"name": name, "message": "保存できませんでした。保存先の空き容量と書き込み権限を確認して、もう一度取り込んでください。保存済みの原本は保持しています。"})
+                    errors.append({"name": name, "message": "原本を保存できませんでした。保存先の空き容量と書き込み権限を確認して再試行してください。先に保存できた原本と明細は保持しています。"})
             return {"imported": results, "errors": errors}
         finally:
             await form.close()
@@ -426,7 +426,7 @@ def create_app(data_dir=None, run_workers=True):
             try:
                 current = store.get(selected.id)
                 if current["status"] != "error" and not (current["status"] == "review" and current["error"]):
-                    raise Conflict("読み取りに失敗した明細を選んでください")
+                    raise Conflict("再試行できるのは読み取りに失敗した明細だけです。状態を確認して選び直してください")
                 store.set_status(selected.id, selected.version, "retry")
                 enqueue(selected.id)
                 retried.append(selected.id)
@@ -448,7 +448,7 @@ def create_app(data_dir=None, run_workers=True):
             seen.add(selected.id)
             try:
                 if body.action == "restore" and store.get(selected.id)["status"] != "excluded":
-                    raise Conflict("対象外の明細だけを選んでください")
+                    raise Conflict("未確認へ戻せるのは対象外の明細だけです。最新の状態を確認してください")
                 store.set_status(selected.id, selected.version, body.action)
                 changed.append(selected.id)
             except (Conflict, Missing, ValueError) as exc:
@@ -488,10 +488,10 @@ def create_app(data_dir=None, run_workers=True):
         store.get(receipt_id)
         document = importer.source(receipt_id, source or None)
         if document is None:
-            raise HTTPException(404, "この明細はページ分割で取り込まれていません")
+            raise HTTPException(404, "この明細には分割前の元PDFがありません。ページ分割で取り込んだ明細を確認してください")
         path = importer.source_path(document["sha256"])
         if not path.is_file():
-            raise HTTPException(404, "元PDFが見つかりません。バックアップを確認してください")
+            raise HTTPException(404, "分割前の元PDFが見つかりません。保存先かバックアップを確認してください")
         return Response(store.keys.read_file(path), media_type="application/pdf",
                         headers={"Content-Disposition":"attachment; filename*=utf-8''" + quote(document["name"])})
 
@@ -520,7 +520,7 @@ def create_app(data_dir=None, run_workers=True):
     def check_month(month):
         import re
         if month and not re.fullmatch(r"\d{4}-(?:0[1-9]|1[0-2])", month):
-            raise HTTPException(422, "年月の指定が正しくありません")
+            raise HTTPException(422, "対象の期間はYYYY-MM形式で指定してください")
 
     @app.get("/api/summary")
     def totals(month: str = ""):
@@ -534,7 +534,7 @@ def create_app(data_dir=None, run_workers=True):
         result = build_export(rows,profile,month,kind,tax_mode,store.export_map(profile)).preview()
         duplicate_count = len(possible_duplicates(rows))
         if duplicate_count:
-            result["warnings"].append(f"同じ日付・支払先・金額の明細が{duplicate_count}件あります。重複でないか原本を確認してください。自動では削除しません。")
+            result["warnings"].append(f"日付・支払先・金額が同じ明細が{duplicate_count}件あります。別の支出か重複かを原本で判断してください。自動では削除しません。")
         return {**result,"csv_history":history}
 
     class ExportMapRequest(BaseModel):
@@ -567,7 +567,7 @@ def create_app(data_dir=None, run_workers=True):
     def backup(body: BackupRequest):
         nonlocal retry_after
         if time.monotonic()<retry_after or not setup_lock.acquire(blocking=False):
-            raise HTTPException(429,"少し待ってから、もう一度お試しください。")
+            raise HTTPException(429,"バックアップや保護の処理を連続して実行できません。数秒待ってから再試行してください。")
         try:
             temporary,archive=create_backup(store,importer,body.password.get_secret_value(),allow_missing=body.allow_missing)
             return FileResponse(archive,media_type="application/octet-stream",filename="ryoshu-backup-partial.ryoshubak" if body.allow_missing else "ryoshu-backup.ryoshubak",background=BackgroundTask(temporary.cleanup))

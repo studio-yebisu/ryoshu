@@ -11,11 +11,11 @@ def _audit(event, args):
     if event in {"socket.connect", "socket.sendto", "socket.sendmsg"}:
         address = args[1]
         if isinstance(address, tuple) and address[0] not in LOOPBACK:
-            raise PermissionError("Ryoshuは外部ネットワークへ接続しません")
+            raise PermissionError("外部ネットワークへの接続はRyoshuの処理では許可されていません")
     elif event in {"socket.getaddrinfo", "socket.gethostbyname", "socket.gethostbyaddr"}:
         host = args[0]
         if host is not None and host not in LOOPBACK:
-            raise PermissionError("Ryoshuは外部ホストを照会しません")
+            raise PermissionError("外部ホストの名前解決はRyoshuの処理では許可されていません")
 
 
 def install():

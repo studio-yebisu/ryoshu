@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ryoshuの導入ガイド</title>
 <style>body{font:17px/1.8 system-ui,sans-serif;color:#26354b;background:#f6f8fc;margin:0}main{max-width:760px;margin:48px auto;padding:32px;background:white;border:1px solid #dce2ec;border-radius:16px}h1{font-size:28px}h2{font-size:21px;margin-top:32px}a{color:#3848c0}li{margin:16px 0}.note{padding:16px;background:#eff2ff;border-radius:8px}@media(max-width:800px){main{margin:16px;padding:24px}}</style>
-<main><h1>Ryoshuをはじめる</h1><p>領収書をまとめて取り込み、PC内で帳簿とCSVを作ります。外部AIのアカウントやAPIキーは必要ありません。</p>
-<ol><li><strong>スタートメニューから「Ryoshu」を開きます。</strong><br>Ollamaがまだない場合は、起動画面から<a href="https://ollama.com/download/windows">公式ダウンロードページ</a>を開いて導入します。導入後にRyoshuをもう一度開いてください。</li>
-<li><strong>初回準備の画面でモデルの利用条件を確認します。</strong><br>続行するとPython・ライブラリ・OCRモデル・AIモデルを自動で取得します。初回だけネット接続と数GB以上の空き容量が必要です。</li>
-<li><strong>ブラウザーが開いたら、復元用パスワードを設定します。</strong><br>安全な場所へ保管してください。次回からはWindowsが帳簿を開くため、通常は毎回の入力が不要です。</li>
-<li><strong>PDFや画像を追加し、「読み取りを開始」。</strong><br>「読み取り結果を見る」で原本・文字と数字・科目を確認します。科目名をクリックすると変更できます。確認後にCSVを書き出します。</li></ol>
-<p class="note">モデルの利用条件は<a href="../../THIRD_PARTY.md">THIRD_PARTY.md</a>で案内しています。AIの読み取りと科目は候補です。原本と内容を必ずご自身で確認し、税務上の最終判断は税理士に確認してください。</p>
-<h2>終了・更新・アンインストール</h2><p>終了はスタートメニューの「Ryoshuを終了」です。ブラウザーの画面を閉じるだけでは、読み取りは止まりません。</p><p>更新前は暗号化バックアップを保存し、Ryoshuを終了してください。新しいセットアップを実行するとアプリを更新します。Windowsの「インストールされているアプリ」から削除しても、帳簿・原本・AIモデルは残ります。</p>
+<main><h1>Ryoshuを使い始める</h1><p>領収書の画像と内容を外部AIへ送らず、ローカルPC上で読み取り、支出帳簿とCSVを作ります。外部AIのアカウントとAPIキーは不要で、管理者権限も必要ありません。</p>
+<ol><li><strong>スタートメニューの「Ryoshu」を開きます。</strong><br>Ollamaが未導入なら、起動画面から<a href="https://ollama.com/download/windows">公式ダウンロードページ</a>へ進んで導入し、Ryoshuを開き直してください。</li>
+<li><strong>初回準備でモデルの利用条件を確認します。</strong><br>続行するとPython・ライブラリ・OCRモデル・約2.5GBのQwenモデルを外部の配布元から取得します。ネット接続と数GB以上の空き容量が必要です。</li>
+<li><strong>ブラウザーで復元用パスワードを設定します。</strong><br>12〜256文字で設定し、安全な場所へ保管してください。通常はWindowsが帳簿を開くため、毎回の入力は不要です。</li>
+<li><strong>PDFや画像を追加し、「読み取りを開始」を押します。</strong><br>「読み取り結果を見る」で原本・読み取った内容・勘定科目を照合します。科目名から選び直し、金額や用途は「詳細を修正」で直してからCSVに書き出します。</li></ol>
+<p class="note">モデルの条件は<a href="../../THIRD_PARTY.md">THIRD_PARTY.md</a>に記載しています。読み取りと科目は候補なので、原本と照らしてご自身で確認してください。「確認済み」は税理士の承認ではなく、税務上の最終判断は利用者と税理士が行います。</p>
+<h2>帳簿の保護</h2><p>帳簿DB・保存済みの原本・プレビュー・暗号化バックアップを暗号化します。書き出したCSVと原本は暗号化されない通常のファイルです。保存先と共有先を管理してください。Windowsの鍵と復元用パスワードの両方を失うと帳簿を復元できません。</p>
+<h2>終了・更新・アンインストール</h2><p>終了はスタートメニューの「Ryoshuを終了」です。ブラウザーを閉じるだけでは読み取りは止まりません。</p><p>更新前は暗号化バックアップを保存してRyoshuを終了し、新しいセットアップを実行します。Windowsの「インストールされているアプリ」から削除しても、帳簿・原本・復元用の情報・モデル・実行環境とOllamaは残ります。</p>
 <p>帳簿と実行環境の保存先：<code>%USERPROFILE%\StudioYebisu\ReceiptLedger</code></p><p><a href="https://github.com/studio-yebisu/ryoshu">公開ページ・詳しい使い方</a></p>
-<p><small>この配布物はWindows向けのローカルWebアプリです。ブラウザーで操作します。セットアップEXEにはコード署名がありません。</small></p></main></html>
+<p><small>ブラウザーで操作するWindows向けのローカルWebアプリです。配布EXEにはコード署名がないため、同じReleaseのSHA256SUMS.txtで入手物を照合してください。</small></p></main></html>

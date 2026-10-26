@@ -54,10 +54,10 @@ def write_encrypted(output, password, produce):
 
 def read_header(source,password):
     if source.read(len(MAGIC)) != MAGIC:
-        raise ProtectionError("Ryoshuの暗号化バックアップではありません。")
+        raise ProtectionError("選択したファイルはRyoshuの暗号化バックアップではありません。")
     size=source.read(4)
     if len(size)!=4 or not 1 <= struct.unpack(">I",size)[0] <= 4096:
-        raise ProtectionError("バックアップの保護情報が正しくありません。")
+        raise ProtectionError("暗号化バックアップのヘッダーを読み取れません。別のファイルを選んでください。")
     payload=source.read(struct.unpack(">I",size)[0])
     try:
         header=_json(payload)
@@ -67,7 +67,7 @@ def read_header(source,password):
         if len(secret)!=44:raise ValueError()
         return secret[:32],secret[32:],MAGIC+size+payload
     except (ValueError,TypeError,KeyError) as exc:
-        raise ProtectionError("復元用パスワードが違うか、バックアップが破損しています。") from exc
+        raise ProtectionError("復元用パスワードが一致しないか、バックアップが破損しています。入力とファイルを確認してください。") from exc
 
 
 def read_encrypted(source,password,consume,zero_tail=False):
@@ -76,7 +76,7 @@ def read_encrypted(source,password,consume,zero_tail=False):
     source.seek(0,2)
     size=source.tell()-start-16
     if not 0 <= size <= STREAM_LIMIT:
-        raise ProtectionError("バックアップのサイズが正しくありません。")
+        raise ProtectionError("暗号化バックアップのデータ量を確認できません。別のファイルを選んでください。")
     source.seek(-16,2)
     tag=source.read(16)
 
@@ -88,17 +88,17 @@ def read_encrypted(source,password,consume,zero_tail=False):
             self.decryptor.authenticate_additional_data(header)
             self.finished=False
         def read(self,length=-1):
-            if length<0:raise ValueError("復元は大きさを制限して読み取ります。")
+            if length<0:raise ValueError("復元では読み取り量を制限するため、読み取りサイズの指定が必要です。")
             if length==0 or self.finished:return b""
             raw=source.read(min(length,self.remaining))
             if len(raw)!=min(length,self.remaining):
-                raise ProtectionError("バックアップが途中で切れています。")
+                raise ProtectionError("バックアップの途中でデータが終わっています。ファイルを再取得してください。")
             self.remaining-=len(raw)
             plain=self.decryptor.update(raw)
             if self.remaining==0 and not self.finished:
                 try:plain+=self.decryptor.finalize()
                 except InvalidTag as exc:
-                    raise ProtectionError("バックアップが変更されたか、破損しています。元の帳簿は変更していません。") from exc
+                    raise ProtectionError("バックアップの認証に失敗しました。変更・破損の可能性があります。現在の帳簿は変更していません。") from exc
                 self.finished=True
             return plain
 
@@ -110,7 +110,7 @@ def read_encrypted(source,password,consume,zero_tail=False):
     reader=PlainReader()
     result=consume(reader)
     while chunk:=reader.read(65536):
-        if zero_tail and any(chunk):raise ProtectionError("バックアップの末尾に不明なデータがあります。")
+        if zero_tail and any(chunk):raise ProtectionError("バックアップの末尾に対応していないデータがあります。別のファイルを選んでください。")
     return result
 
 
@@ -132,9 +132,9 @@ def create_backup(store, importer, password, allow_missing=False):
         missing=[]
         def original_bytes(path,digest):
             raw=store.keys.read_file(path)
-            if len(raw)>20*1024**2:raise ProtectionError("バックアップの原本は1ファイル20MBまでに対応しています。")
+            if len(raw)>20*1024**2:raise ProtectionError("20MBを超える原本はバックアップできません。原本のサイズを確認してください。")
             if hashlib.sha256(raw).hexdigest()!=digest:
-                raise ProtectionError("原本の検証値が違います。保存先とバックアップを確認してください。")
+                raise ProtectionError("原本のSHA-256が帳簿と一致しません。原本を修復してから保存し直してください。")
             return raw
         for name,path,digest in records:
             try:original_bytes(path,digest)
@@ -145,11 +145,11 @@ def create_backup(store, importer, password, allow_missing=False):
                     "receipts":len(originals),"database_key":base64.b64encode(backup_key).decode(),"missing_files":missing}
         manifest_bytes = json.dumps(manifest,ensure_ascii=False).encode()
         if len(manifest_bytes) > 1024**2:
-            raise ValueError("不足している原本の一覧がバックアップの上限を超えています。原本を修復してから、もう一度保存してください。")
+            raise ValueError("不足原本の一覧が大きすぎて保存できません。原本を修復してからバックアップし直してください。")
         total = snapshot.stat().st_size
         count = 2 + len(originals) + len(sources)
         if count > MAX_ENTRIES:
-            raise ValueError("このバックアップのファイル数は上限を超えています。")
+            raise ValueError("ファイル数が多すぎるため、このバックアップを作成できません。")
 
         def produce(output):
             nonlocal total
@@ -157,7 +157,7 @@ def create_backup(store, importer, password, allow_missing=False):
                 nonlocal total
                 total += len(raw)
                 if total > MAX_ARCHIVE:
-                    raise ValueError("バックアップは展開後20GBまでに対応しています。")
+                    raise ValueError("帳簿とすべての原本を含めると展開後20GBを超えるため、このバックアップは作成できません。現在の帳簿は変更していません。")
                 info = tarfile.TarInfo(name)
                 info.size, info.mode = len(raw), 0o600
                 bundle.addfile(info, io.BytesIO(raw))

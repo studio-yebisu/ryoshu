@@ -23,7 +23,7 @@ def save_preview(image, target, quality):
 
 def ensure_preview(store, row, index):
     if not 0 <= index < config.MAX_PAGES:
-        raise ValueError("プレビューのページ番号が正しくありません")
+        raise ValueError("指定されたページのプレビューは作成できません。ページ番号を確認してください")
     folder = store.root / "receipts" / row["id"]
     target = folder / f"preview-{index}.jpg"
     if target.is_file():
@@ -36,7 +36,7 @@ def ensure_preview(store, row, index):
             import pypdfium2 as pdfium
             with pdfium.PdfDocument(store.keys.read_file(original)) as document:
                 if index >= len(document):
-                    raise ValueError("このページはありません")
+                    raise ValueError("指定されたページはPDFに存在しません")
                 page = document[index]
                 bitmap = page.render(scale=min(2, 2048 / max(page.get_size())))
                 try:
@@ -46,7 +46,7 @@ def ensure_preview(store, row, index):
                     page.close()
         else:
             if index:
-                raise ValueError("画像は1ページです")
+                raise ValueError("画像ファイルに表示できるのは1ページだけです")
             with Image.open(io.BytesIO(store.keys.read_file(original))) as raw:
                 image = ImageOps.exif_transpose(raw).convert("RGB")
                 image.thumbnail((1800, 2400))

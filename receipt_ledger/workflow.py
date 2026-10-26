@@ -14,7 +14,7 @@ def export_tax_mode(store, value=None):
     with store.connect() as db:
         if value is not None:
             if value not in {"reviewed", "exempt"}:
-                raise ValueError("消費税のCSV出力設定を選び直してください")
+                raise ValueError("消費税の出力方法は画面の選択肢から選んでください")
             db.execute("INSERT INTO settings VALUES('export_tax_mode',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (json.dumps(value),))
         row = db.execute("SELECT value FROM settings WHERE key='export_tax_mode'").fetchone()
         return json.loads(row[0]) if row else "reviewed"

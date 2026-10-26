@@ -37,7 +37,7 @@ if ($CheckOnly) {
 Add-Type -AssemblyName System.Windows.Forms
 if (-not $ollama) {
     $answer = [System.Windows.Forms.MessageBox]::Show(
-        "初回の準備には、PC内でAIを動かすOllama Windows版が必要です。`n`n公式ダウンロードページを開きますか？`n導入が終わったら、スタートメニューの「Ryoshu」をもう一度開いてください。`n`nPythonを手動で入れる必要はありません。",
+        "領収書をローカルPC上で処理するには、Ollama Windows版が必要です。`n`n公式ダウンロードページを開きますか？`n導入後はスタートメニューの「Ryoshu」を開き直してください。初回準備ではネット接続も必要です。`n`nPythonを手動で導入する必要はありません。",
         'Ryoshuの初回準備', [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information)
     if ($answer -eq [System.Windows.Forms.DialogResult]::Yes) { Start-Process 'https://ollama.com/download/windows' }
     exit 0
@@ -48,7 +48,7 @@ try {
     $detail = [string]$_.Exception.Message
     Write-Host $detail -ForegroundColor Red
     [System.Windows.Forms.MessageBox]::Show(
-        "Ryoshuを開けませんでした。`n`n$detail`n`n導入ガイドは、スタートメニューの「Ryoshuの導入ガイド」から開けます。帳簿は削除していません。",
+        "Ryoshuを起動できませんでした。`n`n$detail`n`n表示された原因を確認してください。手順はスタートメニューの「Ryoshuの導入ガイド」にあります。帳簿と原本は削除していません。",
         'Ryoshu', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning) | Out-Null
     exit 1
 }
