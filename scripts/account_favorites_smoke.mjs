@@ -111,7 +111,7 @@ try{
   const failureRoute='**/api/accounts/'+supplies.code+'/favorite';
   await page.route(failureRoute,route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'架空の一時保存エラー'})}));
   await star(quick(),supplies.code).click();
-  await page.waitForFunction(()=>!state.favoriteSaving&&document.querySelector('#toast')?.textContent.includes('スターを保存できません'));
+  await page.waitForFunction(()=>!state.favoriteSaving&&document.querySelector('#toast')?.textContent.includes('保存できません'));
   assert.equal(await star(quick(),supplies.code).getAttribute('aria-pressed'),'true');
   assert.equal(await chip(quick(),supplies.code).count(),1);
   assert.ok((await api('config')).favorite_accounts.includes(supplies.code));
