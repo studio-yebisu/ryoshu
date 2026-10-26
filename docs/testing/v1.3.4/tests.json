@@ -1,70 +1,71 @@
 {
   "version": "1.3.4",
-  "status": "draft_pending_final_verification",
-  "prepared_on": "2026-10-26",
-  "scope": "Windows hash bootstrap, Japanese product copy, layout, navigation and progress freshness. Final test, browser, native entrypoint, CI and artifact results remain unfilled.",
-  "source_revision": null,
-  "source_sha256": {},
+  "status": "source_tests_passed_release_verification_external",
+  "source_sha256_lf": {
+    "web/app.js": "a64fb18ef8eefe7bc910cd1f89bba6e3eb24fe161d9e91dae409a8f42be978bf",
+    "web/import.js": "9a291334e756f2e9b5c39dbce336ad1e64d88701513070f1bf9759cc850215bf",
+    "web/processing.js": "e8618b33f3fa7857d0b1d793396eb7fdde84e197d6a3ed335d0d11db5d889f7d",
+    "web/security.js": "035363f34667378b0fb6776233cbab5eccb832a6a4a6175af621c53bd66c31a4",
+    "web/index.html": "e4ec455a59801201e6294688e3ff886c7f78ed47458e51ed6a7a9c46e8d11c93",
+    "web/style.css": "792013e2afa5a6282804872a2d8070488a7a1af64eccb60978a3a6a20d1173d6",
+    "scripts/python-runtime.ps1": "f57622a9667b2102c72d7c3df02e60c149c84e79061b8a5c7b944a38c0108614",
+    "scripts/bootstrap-uv.ps1": "64b5c69cbddd0d873b0293067b4963a76ad7abcaad777040174bb2913dba76c7",
+    "tests/detail-navigation.test.cjs": "77f3f9dcc36ea4629eba4995070e3c7a9d03e87f22b1b4f91139850e8f75bc64",
+    "tests/processing.test.cjs": "035cf694aa0d07bde1c6193070b6897c8db581c513b1b016b08c65eccdc1514e",
+    "tests/test_runtime_bootstrap.py": "a1966ea3e955b7ad6bbc95c56da99d6d2697f8ab7b5dab8a0244984e0cfa3004"
+  },
   "python_full": {
-    "status": "pending",
-    "passed": null,
-    "failures": null,
-    "errors": null,
-    "skipped": null,
-    "seconds": null,
-    "record": null
+    "passed": 354,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 223.56,
+    "environment": "Windows, dedicated SQLCipher test environment"
   },
   "javascript": {
-    "status": "pending",
-    "passed": null,
-    "failures": null,
-    "record": null
+    "passed": 29,
+    "failures": 0,
+    "scope": "folder traversal, accounts, progress, delayed detail navigation and input protection"
   },
-  "browser_workflow": {
-    "status": "pending",
-    "passed": null,
-    "record": null,
-    "replays_saved_observations": null
-  },
-  "browser_ux": {
-    "status": "pending",
-    "passed": null,
-    "record": null
+  "csv": {
+    "profiles": [
+      "generic",
+      "freee",
+      "mf",
+      "yayoi"
+    ],
+    "receipts": 6,
+    "rows": 7,
+    "debit_jpy": 299095,
+    "credit_jpy": 299095,
+    "record": "csv-verification.json",
+    "new_ocr_or_ai_inference": false
   },
   "manual_codex_browser": {
-    "status": "pending",
-    "record": null
+    "record": "manual-browser.json"
   },
-  "publication": {
-    "status": "pending",
-    "files": null,
-    "record": null
-  },
-  "native_windows_entrypoint": {
-    "status": "pending",
-    "installer_sha256": null,
-    "original_shortcut_full_setup_and_start": "pending",
-    "model_cache_reused": null,
-    "record": null
+  "reviews": {
+    "record": "reviews.json"
   },
   "ci": {
-    "status": "pending",
-    "commit": null,
-    "run_url": null
+    "result_location": "https://github.com/studio-yebisu/ryoshu/pull/10/checks",
+    "scope": "Windows full regression and six remote headless browser workflows; no main local browser operated"
+  },
+  "native_windows_entrypoint": {
+    "result_location": "https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4",
+    "record": "runtime-verification.json attached to Release",
+    "normal_shortcut_full_setup_and_browser_opening": "not_retested_after_in_app_browser_only_instruction",
+    "existing_model_cache_reused": true
   },
   "release_artifacts": {
-    "status": "pending",
-    "installer_sha256": null,
-    "source_zip_sha256": null,
-    "installed_files_match_source_zip": null,
-    "record": null
+    "record": "runtime-verification.json and SHA256SUMS.txt attached to Release",
+    "source_zip_and_installer_match_recorded_commit": "verify_in_release_record"
   },
   "fresh_100_receipt_accuracy_audit": "not_performed",
   "historical_accuracy_record": "../v1.3/README.md",
   "limitations": [
-    "The exact original uv stderr wording has not been reproduced.",
-    "A fresh isolated app environment with existing caches is not a clean-PC installation test.",
-    "CLI startup alone does not establish full first setup and startup through the original OS shortcut.",
-    "No import into real accounting-service accounts has been verified."
+    "Exact original uv stderr was not reproduced",
+    "Existing PC and model caches; no separate clean-PC test",
+    "No import into real accounting-service accounts",
+    "Generic CSV state strings retained for compatibility; display copy changed separately"
   ]
 }

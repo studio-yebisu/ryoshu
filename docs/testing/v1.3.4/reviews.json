@@ -1,0 +1,221 @@
+{
+  "scope": "public product sources and synthetic QA screenshots only; no user ledger or authentication data",
+  "kimi": {
+    "requested_route": "kimi-code/k3.1-pro",
+    "sections": [
+      {
+        "section": 1,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_fefe7d47-b619-4f1c-90f1-8624dcd328ca"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "286571ca73d17528a5e51792629d1ff85ae7bf2c9434d0628ffebb38582da5f2",
+        "answer_sha256": "c0eb672bfbcf9726ad2fbc4f1cbc01c2744787ed6d766aacaf2a183adfa682b3"
+      },
+      {
+        "section": 2,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_90acf884-9dd1-4bca-8b18-77ca9ad7bf29"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "7f5f44c9162e7bd0bec82f58e08f61da77bebfd336dd3bb3fe8d17fc6de36a5f",
+        "answer_sha256": "03a623da5126521f550f7954e475b0a8e5481eebdd82bbc1ab3dc9bb413d8d08"
+      },
+      {
+        "section": 3,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_dc7b8a60-1d4a-41c4-826f-ac7bb34e9f30"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "6c38c459d9b763d8b585dd01f204749ba693f8e088011f5324e46869b8b7401f",
+        "answer_sha256": "f700223263d495c9418d1fa846265b9eff84af9cf644f5c0e46cb740f40cd040"
+      },
+      {
+        "section": 4,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_65ffe710-a593-429a-96d0-02d4c81bdcc3"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "8e251d1e22542184d0f7b81a1bf366a17bd960fd59c626982ceb340b3da4aa51",
+        "answer_sha256": "25d3eb0c5dea98a50022e70b896404534c2e9a875869c514cb609317d68545cb"
+      },
+      {
+        "section": 5,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_1db2ebb9-e54f-4218-892b-36fab1130d38"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "be6de15e8819c2c014948ff6485b007fefb78e3b7eccda5d488908f25760be24",
+        "answer_sha256": "8e3bb9b6eef5092a6937cd5ce12e6766c5ca0adc2d98dcec6e21ec452a30346f"
+      },
+      {
+        "section": 6,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_ff02c444-ac82-422b-a84e-4c89a2a41f23"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "6d055747f23ba811fed0d3661b3dbbf6161e8b3de449803f1b53bd8f2be8cc06",
+        "answer_sha256": "9ade1040b84f29ce227662d342d6948579ee75e3ada9834fbe515f8b92af4c1f"
+      },
+      {
+        "section": 7,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_367aa525-11c6-4d69-bea5-db41d78a4cf3"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "0212384240c93b5459b6b91c6249f87c03ccdbfb30ce0d332350e0089ffc4612",
+        "answer_sha256": "a2210072d923cec38ada98d819a27b995dda6b0ad63f38af13aec5cfe8d5a111"
+      },
+      {
+        "section": 8,
+        "requested_model": "kimi-code/k3.1-pro",
+        "server_returned_models": [],
+        "session_ids": [
+          "session_861c7d50-42de-4147-9488-91865bea5efc"
+        ],
+        "exit_code": 0,
+        "review_completed": true,
+        "prompt_sha256": "7ea9604f690c273cc0dc350caac6da8171fef99caeebcb1792d1ef75f24d8794",
+        "answer_sha256": "124bac900800fe66767fbafda0a5d3aa09d32e2a049712bf01b93481d7eed2ae"
+      }
+    ],
+    "upstream_model_id_returned": false,
+    "limitation": "CLI provider route verified; server did not return an upstream model id"
+  },
+  "opus_after_source": {
+    "actual_models": [
+      "claude-opus-5-5"
+    ],
+    "response_id": "5507a671-33dc-49ca-91a7-13598db70034",
+    "exit_code": 0,
+    "exact_model_verified": true,
+    "source_sha256": {
+      "web/app.js": "874f01baff70f96b1d2006bd1ba3e71a53803738f88f1328e21617ca1325ca22",
+      "web/import.js": "9a291334e756f2e9b5c39dbce336ad1e64d88701513070f1bf9759cc850215bf",
+      "web/processing.js": "35306f3a1a8785db125594a6af5e48d6a3d63e0dd84787699e313cc16ed341ac",
+      "web/style.css": "f3e85ca2aa8c117d189ba39098e29b46a84c2e629c9df8b4ab8674102f746b55",
+      "web/index.html": "f102ac3e19d50f687c41e1319272549a7aa3bf2464e4dabb4f08086bfbfda052",
+      "web/security.js": "035363f34667378b0fb6776233cbab5eccb832a6a4a6175af621c53bd66c31a4"
+    },
+    "read_calls": [
+      {
+        "file": "review-input.md",
+        "offset": null,
+        "limit": null
+      },
+      {
+        "file": "review-input.md",
+        "offset": 429,
+        "limit": 428
+      },
+      {
+        "file": "review-input.md",
+        "offset": 857,
+        "limit": 428
+      },
+      {
+        "file": "snapshot/web/app.js",
+        "offset": null,
+        "limit": 440
+      },
+      {
+        "file": "snapshot/web/app.js",
+        "offset": 440,
+        "limit": 440
+      },
+      {
+        "file": "snapshot/web/processing.js",
+        "offset": null,
+        "limit": null
+      },
+      {
+        "file": "snapshot/web/import.js",
+        "offset": null,
+        "limit": null
+      },
+      {
+        "file": "snapshot/web/style.css",
+        "offset": 1085,
+        "limit": 70
+      },
+      {
+        "file": "snapshot/web/style.css",
+        "offset": 370,
+        "limit": 30
+      }
+    ],
+    "outside_scope_calls": 0,
+    "permission_denials": 0
+  },
+  "opus_after_images": {
+    "actual_models": [
+      "claude-opus-5-5"
+    ],
+    "response_id": "c743ee6d-1315-4f8c-b6b6-2c6aacf3bd95",
+    "exit_code": 0,
+    "exact_model_verified": true,
+    "input_sha256": {
+      "after-home-desktop.png": "5af78aa421615b61bd51db19ad0a769d0699cba42533909a91f73484948068ba",
+      "after-home-1093.png": "0cea2ad77b3c1789dd6fe805ac4dba4677c0f657c3ed16e1909e64eb4e2bd9b1",
+      "after-results-desktop.png": "c44e7a8f1513378c4526516ad94009d78223a535795ba9da762cac2f8fcefaae",
+      "after-csv-desktop.png": "043d4b1b9886b479c193b0b44d477d83360539f60a80b98cd02c63eaf9aa322d",
+      "after-detail-desktop.png": "04cd9a30a52eceb79e7cfb4211321e04e7695b275537760edffee4c4e97e58ee",
+      "after-account-desktop.png": "57e7a064f6c687cc5446d7f779f3d18376257ea21f5e7c8c0bb2ac3dca81164b",
+      "after-csv-375.png": "067b98d62ffd0471651ed85d6147cf97addbba47f09bd96cd8ebf6e4c784d955",
+      "after-results-375.png": "7402c2a004e74466f0b9bb823e2fda9dcbed05944ffc0cefd9a9061f2a4bd57e",
+      "after-detail-375.png": "bfeead6572775af48d6d553a2729bfd68b1a37729c0c01c34f440db3816c8be4",
+      "after-detail-actions-375.png": "3eb4aea77d149276a37bef9334d329fb71cad844b5019b4bf1e129d74584997d",
+      "after-account-375.png": "845b8f24ad2a8fcd3ada60799384ba021c93edc821e064b1bae6cb61301c440b"
+    },
+    "read_files": [
+      "after-home-desktop.png",
+      "after-home-1093.png",
+      "after-results-desktop.png",
+      "after-csv-desktop.png",
+      "after-detail-desktop.png",
+      "after-account-desktop.png",
+      "after-csv-375.png",
+      "after-results-375.png",
+      "after-detail-375.png",
+      "after-detail-actions-375.png",
+      "after-account-375.png"
+    ],
+    "image_tool_results": 11,
+    "outside_scope_calls": 0,
+    "permission_denials": 0
+  },
+  "decisions": [
+    "unify UI states and payment/business-percentage copy",
+    "remove duplicate successful completion blocks and align CSV controls",
+    "keep large clickable account names requested by user",
+    "preserve original CSV context while moving among details; reject proposed origin reset because no independent inbox entry exists",
+    "after source snapshot, add guarded polling to protect a newly selected detail and unsaved input",
+    "after image snapshot, hide the remaining successful import summary and separate narrow-screen secondary actions"
+  ],
+  "limits": [
+    "Consultations do not replace executed tests",
+    "Source and image reviews used fixed snapshots; subsequent narrow fixes were verified separately",
+    "Image review found no P1/P2 in eleven supplied still images; does not certify all screen states"
+  ]
+}

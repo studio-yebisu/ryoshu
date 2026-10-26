@@ -39,7 +39,7 @@ jobs:
       - run: node --check web/processing.js
       - run: node --check web/import.js
       - run: node --check web/security.js
-      - run: node --test tests/import-ui.test.cjs tests/account-choice.test.cjs tests/processing.test.cjs
+      - run: node --test tests/import-ui.test.cjs tests/account-choice.test.cjs tests/processing.test.cjs tests/detail-navigation.test.cjs
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npx playwright install chromium
       - run: npm run test:browser

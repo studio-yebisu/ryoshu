@@ -6,7 +6,7 @@
 
 **CSV → freee、MFクラウド、弥生などに取り込み。** 外部AIのアカウント・APIキーは不要です。初回準備では実行環境とモデルをダウンロードします。準備後のOCR・科目候補・CSV出力はローカルで行います。
 
-**v1.3.4（配布準備中）** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe) · [配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4) · [変更内容](CHANGELOG.md) · [今回の検証範囲](docs/testing/v1.3.4/README.md) · [v1.3.0の100件の検証結果](docs/testing/v1.3/README.md)
+**v1.3.4** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe) · [配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4) · [変更内容](CHANGELOG.md) · [今回の検証範囲](docs/testing/v1.3.4/README.md) · [v1.3.0の100件の検証結果](docs/testing/v1.3/README.md)
 
 v1.3.4では、一部のWindows起動環境で`Get-FileHash`が見つからず、初回準備や起動が止まる問題を修正しました。PowerShell 7のモジュール検索設定を引き継いだ場合も、.NETでハッシュを照合します。画面の日本語と余白を整え、CSV画面から詳細を開いた後は、元の期間・検索・表示位置へ戻れるようにしました。最終検証と配布物の確認状況は[今回の検証範囲](docs/testing/v1.3.4/README.md)へ記録します。
 
