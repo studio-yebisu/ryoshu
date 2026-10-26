@@ -6,20 +6,23 @@ $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
 $appUrl = 'http://127.0.0.1:8766'
 $runtimeDir = Join-Path $taskRoot 'runtime'
 . (Join-Path $PSScriptRoot 'scripts\launcher-process.ps1')
+. (Join-Path $PSScriptRoot 'scripts\python-runtime.ps1')
 $startupLock = Open-RyoshuStartupLock $runtimeDir
 try {
-if (-not (Test-Path -LiteralPath $pythonExe)) { & (Join-Path $PSScriptRoot 'setup.ps1') }
 $locationRecord = Join-Path $taskRoot 'runtime\data-location.json'
 $selectedData = if ($DataDir) { [System.IO.Path]::GetFullPath($DataDir) } elseif (Test-Path -LiteralPath $locationRecord) {
     (Get-Content -LiteralPath $locationRecord -Raw | ConvertFrom-Json).data_dir
 } else { Join-Path $taskRoot 'data' }
-if (($DataDir -or (Test-Path -LiteralPath $locationRecord)) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.sqlite3'))) {
+if (($DataDir -or (Test-Path -LiteralPath $locationRecord)) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.sqlite3')) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.enc.sqlite3'))) {
     throw '選択した帳簿が見つかりません。保存先を移動していないか確認してください。新しい空の帳簿へ自動で切り替えることはありません。'
 }
-& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
-if ($LASTEXITCODE -ne 0) { & (Join-Path $PSScriptRoot 'setup.ps1') }
-& $pythonExe -c "import sqlcipher3,cryptography;assert cryptography.__version__=='50.0.2';assert sqlcipher3.sqlite_version_info>=(3,53,4)"
-if ($LASTEXITCODE -ne 0) { & (Join-Path $PSScriptRoot 'setup.ps1') }
+$pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
+if (-not $pythonStatus.ready) {
+    Write-Host (Format-RyoshuPythonIssue $pythonStatus)
+    & (Join-Path $PSScriptRoot 'setup.ps1') -StartupLockHeld
+    $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
+    if (-not $pythonStatus.ready) { throw ('実行環境の準備が完了していません。' + "`n" + (Format-RyoshuPythonIssue $pythonStatus)) }
+}
 $sourceVersion = & $pythonExe -c "import sys;sys.path.insert(0,sys.argv[1]);from receipt_ledger import __version__;print(__version__)" $PSScriptRoot
 
 try { $runningApp = Invoke-RestMethod -Uri ($appUrl + '/api/health') -TimeoutSec 4 } catch { $runningApp = $null }
@@ -44,6 +47,12 @@ if ($runningApp -and $runningApp.app -eq 'receipt-ledger') {
     exit 0
 }
 if (Get-NetTCPConnection -LocalPort 8766 -State Listen -ErrorAction SilentlyContinue) { throw 'Ryoshuの接続先（8766番）が別のアプリで使われています。使っているアプリを確認してから起動してください。' }
+if (-not (Test-RyoshuSetupComplete -TaskRoot $taskRoot -RequirementsFile (Join-Path $PSScriptRoot 'requirements.lock.txt') -PythonStatus $pythonStatus)) {
+    Write-Host '初回セットアップの完了を確認できません。残っている準備を再開します。'
+    & (Join-Path $PSScriptRoot 'setup.ps1') -StartupLockHeld
+    $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
+    if (-not (Test-RyoshuSetupComplete -TaskRoot $taskRoot -RequirementsFile (Join-Path $PSScriptRoot 'requirements.lock.txt') -PythonStatus $pythonStatus)) { throw '初回セットアップはまだ完了していません。直前のエラーを確認して実行し直してください。帳簿は残っています。' }
+}
 try { Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/version' -TimeoutSec 3 | Out-Null }
 catch {
     $ollamaCommand = Get-Command ollama -ErrorAction SilentlyContinue
@@ -72,7 +81,11 @@ if ($LASTEXITCODE -ne 0) { throw '起動情報を確認できません。Ryoshu�
 $session = $sessionJson | ConvertFrom-Json
 if ($session.instance -ne $runningApp.instance -or [int]$session.pid -ne [int]$listeners[0].ProcessId -or [System.IO.Path]::GetFullPath($session.data_dir) -ine [System.IO.Path]::GetFullPath($selectedData) -or [System.IO.Path]::GetFullPath($session.source_dir) -ine [System.IO.Path]::GetFullPath($PSScriptRoot)) { throw '起動情報と接続先が一致しません。帳簿は変更していません。' }
 Save-RyoshuServerRecord -RuntimeDir $runtimeDir -Server $listeners[0] -DataDir $selectedData -SourceDir $PSScriptRoot
-@{data_dir=$selectedData} | ConvertTo-Json | Set-Content -LiteralPath $locationRecord -Encoding UTF8
+# The first-run protection screen has no ledger yet. Do not record an empty
+# directory as an established ledger: reopening that screen must remain possible.
+if ((Test-Path -LiteralPath (Join-Path $selectedData 'ledger.sqlite3')) -or (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.enc.sqlite3'))) {
+    @{data_dir=$selectedData} | ConvertTo-Json | Set-Content -LiteralPath $locationRecord -Encoding UTF8
+}
 if (-not $NoBrowser) { Start-Process $session.url }
 Write-Host ('起動しました： ' + $appUrl)
 Write-Host ('開いている帳簿： ' + $selectedData)

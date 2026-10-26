@@ -1,0 +1,168 @@
+{
+  "version": "1.3.3",
+  "verified_at": "2026-10-26T00:44:33.023460+00:00",
+  "scope": "Windows bootstrap repair, actual installed runtime provisioning, installed candidate update and first protection screen. No new OCR accuracy audit.",
+  "tests": {
+    "python": {
+      "passed": 349,
+      "seconds": 195.06
+    },
+    "javascript": {
+      "passed": 21
+    },
+    "bootstrap_and_launchers": {
+      "passed": 55,
+      "seconds": 51.41
+    },
+    "publication": "passed"
+  },
+  "source_hash_format": "SHA-256 after CRLF-to-LF normalization, matching Git source archive text bytes",
+  "source_sha256": {
+    "setup.ps1": "f2dd37072355123eb5e6e9f02846945a09b6b28201a13d7e3949ae50905bca94",
+    "start.ps1": "daeb2c2ed47552e1d9fc90829d64591c49f26c8ff1732009a39572486484ff67",
+    "scripts/python-runtime.ps1": "412b18b532e9891d8dd66dd80614e8436892621b73a4ad3719dc4937ba11fc79",
+    "scripts/launcher-process.ps1": "8541dabcd27196d8876411e9051d7100bdfcb3fd9187a6e844457d55cbc9acad",
+    "packaging/windows/launch.ps1": "66f5d2e53cd4e854b7d78e4124b423f850897a8deb8f06e659c4fca2bfd1cc61",
+    "scripts/build_windows_package.py": "45030613138b83babfdb340c2804a09435c0970fb80cbbc24316dc2f4f38c461",
+    "scripts/check_publication.py": "9a85f04ae2736d8262fec2249c7687f387db4e1522c5c19f24d9978a6a0a0efc",
+    "tests/test_runtime_bootstrap.py": "2374716ffa5a47c3820e659ec7abfd1e261602e94c1ac366e3612f3e37fe1583",
+    "tests/test_installed_readiness.py": "3dda5dbfe7a9939f989d174c959cfb22a28877d41e85f8c9386b4c1f94577a11",
+    "tests/test_launchers.py": "8b21b7cda139eff6ededdf62ca0ef1cb9be253a8681296704bddb2156a7fe5b4",
+    "tests/test_windows_package.py": "f4e3b30cb1b62b7f61ace11aa79bb03e0bdf883ebffc7b1e59014105d2aa9f29",
+    "web/index.html": "9c92fdd9b3b03eb31afeaff00e4c1391e505a51988b2f8231f9fd2b178b0f163"
+  },
+  "runtime_repair": {
+    "previous_python": "3.12.9",
+    "python": "3.12.15",
+    "uv": "0.13.5",
+    "dedicated_python_base": true,
+    "global_uv_junction_unchanged": true,
+    "old_venv_preserved": true,
+    "existing_model_consent_preserved": true,
+    "protected_existing_files": {
+      "unchanged": true,
+      "files": 2
+    },
+    "cryptography": "50.0.2",
+    "sqlite": "3.53.4",
+    "ocr": "1.1.2",
+    "ocr_provider": "CPUExecutionProvider",
+    "model": "qwen3:4b",
+    "model_cache_may_be_reused": true,
+    "setup_state": "complete"
+  },
+  "installed_entrypoint_results": [
+    {
+      "action": "setup-repeat",
+      "stage": "repeat",
+      "exit_code": 0,
+      "seconds": 5.018,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "start",
+      "stage": "first-run-fixed",
+      "exit_code": 0,
+      "seconds": 6.394,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "reuse",
+      "stage": "first-run-fixed",
+      "exit_code": 0,
+      "seconds": 2.833,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "stop",
+      "stage": "first-run-fixed",
+      "exit_code": 0,
+      "seconds": 2.902,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "start",
+      "stage": "reopened-fixed",
+      "exit_code": 0,
+      "seconds": 6.537,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "reuse",
+      "stage": "reopened-fixed",
+      "exit_code": 0,
+      "seconds": 3.561,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "start",
+      "stage": "candidate",
+      "exit_code": 0,
+      "seconds": 7.812,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "reuse",
+      "stage": "candidate",
+      "exit_code": 0,
+      "seconds": 3.447,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "check",
+      "stage": "candidate",
+      "exit_code": 0,
+      "seconds": 0.596,
+      "installed_entrypoint": true,
+      "readiness": {
+        "python_version": "3.12.15",
+        "python_prepared": true,
+        "python_reason": "ready",
+        "python_exists": true,
+        "source_complete": true,
+        "python_compatible": true,
+        "python_runnable": true,
+        "ollama_available": true,
+        "app_version": "1.3.3"
+      }
+    },
+    {
+      "action": "start",
+      "stage": "automatic-resume",
+      "exit_code": 0,
+      "seconds": 10.964,
+      "installed_entrypoint": true
+    },
+    {
+      "action": "reuse",
+      "stage": "automatic-resume",
+      "exit_code": 0,
+      "seconds": 3.375,
+      "installed_entrypoint": true
+    }
+  ],
+  "working_tree_candidate_install": {
+    "app_version": "1.3.3",
+    "installed_existing_app": true,
+    "exit_code": 0,
+    "payload_files_matched": 525,
+    "installer_sha256": "1b9f83380a6667a6b476c182c822f8b325ccdcd62c046195f990e25a1b4de971",
+    "seconds": 11.847
+  },
+  "final_release_artifact_proof": "https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.3",
+  "browser": {
+    "surface": "in-app browser",
+    "screen": "Initial recovery-password setup",
+    "version": "1.3.3",
+    "new_credentials_entered": false,
+    "screenshot": "screenshots/01-protection.png",
+    "screenshot_sha256": "169d153f32bc6801ff2d19d9b491a42f6e35d8fba469036251743235f78bdd0e"
+  },
+  "not_tested": [
+    "Clean Windows PC without existing Ollama or model caches",
+    "Uninstall of the ordinary user installation",
+    "User recovery-password entry and subsequent ordinary-ledger workflow",
+    "New 100-receipt OCR/AI accuracy run",
+    "New complete dependency security audit"
+  ]
+}

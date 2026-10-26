@@ -6,7 +6,9 @@
 
 **CSV → freee、MFクラウド、弥生などに取り込み。** 外部AIのアカウント・APIキーは不要です。初回準備では実行環境とモデルをダウンロードします。準備後のOCR・科目候補・CSV出力はローカルで行います。
 
-**v1.3.2** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.2/Ryoshu-1.3.2-windows-x64-setup.exe) · [配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.2) · [変更内容](CHANGELOG.md) · [今回の検証範囲](docs/testing/v1.3.2/README.md) · [v1.3.0の100件の検証結果](docs/testing/v1.3/README.md)
+**v1.3.3** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.3/Ryoshu-1.3.3-windows-x64-setup.exe) · [配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.3) · [変更内容](CHANGELOG.md) · [今回の検証範囲](docs/testing/v1.3.3/README.md) · [v1.3.0の100件の検証結果](docs/testing/v1.3/README.md)
+
+v1.3.3では、Windowsで実行環境を準備し直せない問題と、初回の保護設定前に再起動できなくなる問題を修正しました。実インストール先で準備・更新・起動・再起動を確認し、ブラウザーで復元用パスワードの設定画面まで開いています。
 
 読み取り中は、**処理中のファイル・文字読み取り／科目候補の段階・完了／待ち件数**が更新されます。[読み取り中の画面と検証結果](docs/testing/v1.3.2/README.md)も公開しています。
 
@@ -18,11 +20,11 @@
 
 ## はじめる
 
-1. [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.2/Ryoshu-1.3.2-windows-x64-setup.exe)を開き、画面に沿ってインストールします。管理者権限は不要です。
+1. [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.3/Ryoshu-1.3.3-windows-x64-setup.exe)を開き、画面に沿ってインストールします。管理者権限は不要です。
 2. ショートカットからRyoshuを起動します。初回はOllamaの導入と、モデルの利用条件を確認してから、実行環境・モデルの準備を進めます。Pythonの手動導入は不要です。
 3. ブラウザーが開いたら**復元用パスワード**を設定します。次回以降はWindowsが自動で帳簿を開くため、毎回の入力は不要です。
 
-インストーラーはアプリ本体を配置する導入用です。モデルは同梱せず、初回の準備にはネット接続が必要です。ソースから使う場合は[配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.2)のZIPを展開し、`Ryoshu.cmd`を開きます。
+インストーラーはアプリ本体を配置する導入用です。モデルは同梱せず、初回の準備にはネット接続が必要です。ソースから使う場合は[配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.3)のZIPを展開し、`Ryoshu.cmd`を開きます。
 
 PDFや画像をドロップして、**「読み取りを開始」**を押します。「読み取り結果を見る」から、**原本画像・読み取った文字と数字・勘定科目**を横に並べて確認できます。画像をクリックすると拡大できます。科目名のボタンからカテゴリー→勘定科目の順に選べます。金額・日付・用途などは「詳細を修正」で直し、内容を確認したら「CSVに書き出す」へ進みます。[詳しい導入手順・更新方法](docs/INSTALL.md)
 
@@ -48,7 +50,7 @@ Windows向けのローカルWebアプリです。インストーラーで導入�
 
 ## 100件の検証結果（v1.3.0）
 
-以下は**v1.3.0で実行した記録**です。v1.3.2の変更は操作画面とWindowsへの導入で、科目マスター・OCR・科目判定・CSV生成処理は変えていません。今回100件を新規推論した結果ではありません。[今回の検証対象](docs/testing/v1.3.2/README.md)
+以下は**v1.3.0で実行した記録**です。その後の画面・Windows導入・起動の修正で、科目マスター・OCR・科目判定・CSV生成処理は変えていません。v1.3.3で100件を新規推論した結果ではありません。[今回の検証対象](docs/testing/v1.3.3/README.md)
 
 2026-10-23に、新しい科目マスターを含む候補を固定し、100種類の架空PDFを取り込みました。Indra OCRとPC内のQwenで**全100件を新規処理**し、保存済みのOCR・AI出力は再利用していません。
 

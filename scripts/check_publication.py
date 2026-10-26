@@ -291,6 +291,19 @@ if (v13 / 'results-100.json').is_file():
     for name, expected_hash in final['visual_review']['screenshots_sha256'].items():
         require(sha(v13 / 'screenshots' / name) == expected_hash, f'v1.3 screenshot changed: {name}')
 
+# The protection screen is shown before authenticated health updates the footer.
+# Keep its fallback version and development manifests aligned with the app.
+version_match = re.search(r'^__version__ = "([^"]+)"', (ROOT / 'receipt_ledger/__init__.py').read_text('utf-8'), re.M)
+require(version_match is not None, 'Application version is missing')
+if version_match:
+    version = version_match.group(1)
+    footer_match = re.search(r'id="app-version">([^<]+)</span>', (ROOT / 'web/index.html').read_text('utf-8'))
+    require(footer_match is not None and footer_match.group(1) == version, 'First-run footer version differs from application')
+    package = json.loads((ROOT / 'package.json').read_text('utf-8'))
+    lock = json.loads((ROOT / 'package-lock.json').read_text('utf-8'))
+    require(package['version'] == lock['version'] == lock['packages']['']['version'] == version,
+            'Development package versions differ from application')
+
 private_path = re.compile(r'(?i)[a-z]:[\\/](?:Users[\\/][^\\/\s"\']+|Codex[\\/]|Tools[\\/])')
 secret = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|sk-[A-Za-z0-9_-]{35,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
 skipped = {'.git','.venv','venv','__pycache__','.pytest_cache','.local','dist','node_modules'}
