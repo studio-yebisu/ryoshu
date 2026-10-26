@@ -82,3 +82,14 @@ def test_missing_runtime_and_version_disagreement_are_rejected(tmp_path):
         package.unpack_source(source_zip(tmp_path, omit=['web/processing.js']), tmp_path / 'missing')
     with pytest.raises(ValueError, match='version disagree'):
         package.unpack_source(source_zip(tmp_path, version='1.3.1'), tmp_path / 'mismatch')
+
+
+@pytest.mark.parametrize('helper', [
+    'scripts/python-runtime.ps1', 'scripts/bootstrap-uv.ps1',
+    'scripts/launcher-process.ps1',
+])
+def test_missing_launcher_runtime_helper_is_rejected(tmp_path, helper):
+    destination = tmp_path / 'output'
+    with pytest.raises(ValueError, match='Missing application'):
+        package.unpack_source(source_zip(tmp_path, omit=[helper]), destination)
+    assert not destination.exists()

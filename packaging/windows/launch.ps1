@@ -10,9 +10,28 @@ if ((-not (Get-Command ollama -ErrorAction SilentlyContinue)) -and (Test-Path -L
 }
 $ollama = Get-Command ollama -ErrorAction SilentlyContinue
 if ($CheckOnly) {
-    $versionText = Get-Content -LiteralPath (Join-Path $appRoot 'receipt_ledger\__init__.py') -Raw
-    $versionMatch = [regex]::Match($versionText, '__version__\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"')
-    @{app_version=$versionMatch.Groups[1].Value; source_complete=(Test-Path -LiteralPath (Join-Path $appRoot 'web\processing.js')); ollama_available=($null -ne $ollama); python_prepared=(Test-Path -LiteralPath $pythonExe)} | ConvertTo-Json -Compress
+    $versionFile = Join-Path $appRoot 'receipt_ledger\__init__.py'
+    $appVersion = $null
+    if (Test-Path -LiteralPath $versionFile -PathType Leaf) {
+        $versionText = Get-Content -LiteralPath $versionFile -Raw
+        $versionMatch = [regex]::Match($versionText, '__version__\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"')
+        if ($versionMatch.Success) { $appVersion = $versionMatch.Groups[1].Value }
+    }
+    $requiredSource = @('receipt_ledger\__init__.py', 'web\processing.js',
+        'scripts\python-runtime.ps1', 'scripts\bootstrap-uv.ps1', 'scripts\launcher-process.ps1')
+    $missingSource = @($requiredSource | Where-Object { -not (Test-Path -LiteralPath (Join-Path $appRoot $_) -PathType Leaf) })
+    $runtimeHelper = Join-Path $appRoot 'scripts\python-runtime.ps1'
+    if (Test-Path -LiteralPath $runtimeHelper -PathType Leaf) {
+        . $runtimeHelper
+        $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
+    } else {
+        $pythonStatus = [PSCustomObject]@{exists=(Test-Path -LiteralPath $pythonExe -PathType Leaf); runnable=$false;
+            compatible=$false; ready=$false; version=''; reason='runtime_helper_missing'}
+    }
+    @{app_version=$appVersion; source_complete=($missingSource.Count -eq 0); ollama_available=($null -ne $ollama);
+        python_prepared=[bool]$pythonStatus.ready; python_exists=[bool]$pythonStatus.exists;
+        python_runnable=[bool]$pythonStatus.runnable; python_compatible=[bool]$pythonStatus.compatible;
+        python_version=$pythonStatus.version; python_reason=$pythonStatus.reason} | ConvertTo-Json -Compress
     exit 0
 }
 Add-Type -AssemblyName System.Windows.Forms

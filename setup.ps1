@@ -1,4 +1,4 @@
-﻿param([switch]$AcceptModelLicense)
+﻿param([switch]$AcceptModelLicense, [switch]$StartupLockHeld)
 $ErrorActionPreference = 'Stop'
 $env:OLLAMA_NO_CLOUD = '1'
 Write-Host 'Ryoshu — 領収書を読み取り、勘定科目の候補を作ります。'
@@ -10,41 +10,61 @@ if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) { throw 'Ollamaが�
 $taskRoot = Join-Path $env:USERPROFILE 'StudioYebisu\ReceiptLedger'
 $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
 New-Item -ItemType Directory -Path $taskRoot -Force | Out-Null
+. (Join-Path $PSScriptRoot 'scripts\python-runtime.ps1')
+. (Join-Path $PSScriptRoot 'scripts\launcher-process.ps1')
+$setupLock = $null
+if (-not $StartupLockHeld) { $setupLock = Open-RyoshuStartupLock (Join-Path $taskRoot 'runtime') }
+try {
+$pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe
+try { Assert-RyoshuRuntimeIdle -TaskRoot $taskRoot }
+catch {
+    $runtimeIssue = if ($pythonStatus.ready) { '' } else { (Format-RyoshuPythonIssue $pythonStatus) + "`n`n" }
+    throw ($runtimeIssue + $_.Exception.Message)
+}
 $licenseRecord = Join-Path $taskRoot 'model-license-acceptance.json'
 if (-not $AcceptModelLicense -and -not (Test-Path -LiteralPath $licenseRecord)) {
     $licenseAnswer = Read-Host 'モデルの利用条件を確認し、ダウンロードを開始しますか？ [y/N]'
     if ($licenseAnswer -notmatch '^[yY]$') { throw '準備を取り消しました。利用条件を確認してから、初回セットアップを実行してください。' }
 }
-@{license='Indra modified OpenRAIL-M'; accepted_at=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $licenseRecord -Encoding UTF8
+if (-not (Test-Path -LiteralPath $licenseRecord)) {
+    @{license='Indra modified OpenRAIL-M'; accepted_at=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $licenseRecord -Encoding UTF8
+}
+Set-RyoshuSetupState -TaskRoot $taskRoot -RequirementsFile (Join-Path $PSScriptRoot 'requirements.lock.txt') -PythonStatus $pythonStatus -State pending
 
-if (Test-Path -LiteralPath $pythonExe) {
-    & $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
-    if ($LASTEXITCODE -ne 0) {
-        if (Get-NetTCPConnection -LocalPort 8766 -State Listen -ErrorAction SilentlyContinue) { throw '先に「停止.cmd」でRyoshuを終了してから、初回セットアップを実行してください。帳簿は変更していません。' }
-        $oldEnvironment = [System.IO.Path]::GetFullPath((Join-Path $taskRoot 'venv'))
-        $savedEnvironment = [System.IO.Path]::GetFullPath((Join-Path $taskRoot ('venv-before-update-' + (Get-Date -Format 'yyyyMMddHHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8))))
-        $workspacePrefix = [System.IO.Path]::GetFullPath($taskRoot).TrimEnd('\') + '\'
-        if (-not $oldEnvironment.StartsWith($workspacePrefix,[StringComparison]::OrdinalIgnoreCase) -or -not $savedEnvironment.StartsWith($workspacePrefix,[StringComparison]::OrdinalIgnoreCase)) { throw '実行環境の保存先を確認できません。' }
-        Move-Item -LiteralPath $oldEnvironment -Destination $savedEnvironment
-        Write-Host '以前の実行環境を残して、セキュリティ更新済みの環境を準備します。帳簿と原本はそのままです。'
-    }
+if (-not $pythonStatus.compatible -and (Test-Path -LiteralPath (Join-Path $taskRoot 'venv'))) {
+    Write-Host (Format-RyoshuPythonIssue $pythonStatus)
+    $savedEnvironment = Move-RyoshuRuntimeAside -Path (Join-Path $taskRoot 'venv') -TaskRoot $taskRoot
+    Write-Host ('以前の実行環境を次へ保存して準備し直します： ' + $savedEnvironment)
+    Write-Host '帳簿・原本・復元用の情報は移動も削除もしません。'
 }
 . (Join-Path $PSScriptRoot 'scripts\bootstrap-uv.ps1')
 $uvExe = Get-RyoshuUv (Join-Path $taskRoot 'tools\uv-0.13.5')
 if (-not (Test-Path -LiteralPath $pythonExe)) {
     Write-Host 'Python 3.12.15を、このアプリ専用の保存先に準備します。'
     $pythonHome = Join-Path $taskRoot 'python'
-    & $uvExe python install 3.12.15 --install-dir $pythonHome
-    if ($LASTEXITCODE -ne 0) { throw 'Pythonを取得できませんでした。接続と空き容量を確認してください。' }
+    if ((Test-Path -LiteralPath $pythonHome) -and ((Get-Item -LiteralPath $pythonHome).Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw 'Pythonの保存先にリンクがあるため、自動で書き込みません。' }
     $managedPython = Join-Path $pythonHome 'cpython-3.12.15-windows-x86_64-none\python.exe'
+    $managedStatus = Get-RyoshuPythonStatus -PythonExe $managedPython
+    if (-not $managedStatus.compatible) {
+        $managedDirectory = Split-Path -Parent $managedPython
+        if (Test-Path -LiteralPath $managedDirectory) { $savedPython = Move-RyoshuRuntimeAside -Path $managedDirectory -TaskRoot $taskRoot }
+        # Never change another application's uv junctions, PATH aliases or Python
+        # registry entries. This interpreter belongs only to Ryoshu.
+        & $uvExe python install 3.12.15 --install-dir $pythonHome --no-bin --no-registry
+        if ($LASTEXITCODE -ne 0) { throw 'Pythonを取得できませんでした。接続と空き容量を確認してください。以前の実行環境と帳簿は残しています。' }
+        $managedStatus = Get-RyoshuPythonStatus -PythonExe $managedPython
+        if (-not $managedStatus.compatible) { throw ('取得したPythonを起動できません。' + "`n" + (Format-RyoshuPythonIssue $managedStatus)) }
+    }
     & $uvExe venv --python $managedPython (Join-Path $taskRoot 'venv')
     if ($LASTEXITCODE -ne 0) { throw '実行環境を作成できませんでした。保存先と空き容量を確認してください。' }
 }
-& $pythonExe -c "import sys;sys.exit(0 if sys.version_info[:2]==(3,12) and sys.version_info>=(3,12,15) and sys.maxsize>2**32 else 1)"
-if ($LASTEXITCODE -ne 0) { throw 'Python 3.12.15以降の3.12系・64bitが必要です。帳簿はそのまま残っています。docs/INSTALL.mdの実行環境の再作成を確認してください。' }
+$pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe
+if (-not $pythonStatus.ready) { throw (Format-RyoshuPythonIssue $pythonStatus) }
 Write-Host '1/3 必要なライブラリを準備しています。'
 & $uvExe pip install --python $pythonExe --require-hashes -r (Join-Path $PSScriptRoot 'requirements.lock.txt')
 if ($LASTEXITCODE -ne 0) { throw '必要なライブラリを取得できませんでした。直前の詳細とネット接続・空き容量を確認し、初回セットアップを実行し直してください。' }
+$pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
+if (-not $pythonStatus.ready) { throw ('必要なライブラリの動作確認に失敗しました。' + "`n" + (Format-RyoshuPythonIssue $pythonStatus)) }
 $env:PYTHONUTF8 = '1'
 Write-Host '2/3 文字読み取りモデルを準備しています。'
 & $pythonExe (Join-Path $PSScriptRoot 'scripts\prepare_ocr.py')
@@ -64,5 +84,7 @@ catch {
 Write-Host '3/3 科目判断のAIモデルを準備しています。'
 & $ollamaCommand.Source pull qwen3:4b
 if ($LASTEXITCODE -ne 0) { throw 'AIモデルを取得できませんでした。Ollamaの起動、ネット接続、空き容量を確認して、初回セットアップを実行し直してください。' }
+Set-RyoshuSetupState -TaskRoot $taskRoot -RequirementsFile (Join-Path $PSScriptRoot 'requirements.lock.txt') -PythonStatus $pythonStatus -State complete
 Write-Host '準備が完了しました。この画面を閉じ、「Ryoshu.cmd」または「起動.cmd」をダブルクリックしてください。'
 Write-Host ('帳簿・原本・OCRモデルの保存先： ' + $taskRoot)
+} finally { if ($setupLock) { $setupLock.Dispose() } }

@@ -20,6 +20,8 @@ REQUIRED = {
     'LICENSE', 'README.md', 'THIRD_PARTY.md', 'setup.ps1', 'start.ps1', 'stop.ps1',
     'receipt_ledger/__init__.py', 'web/app.js', 'web/processing.js',
     'data/account-catalog.json', 'requirements.lock.txt',
+    'scripts/python-runtime.ps1', 'scripts/bootstrap-uv.ps1',
+    'scripts/launcher-process.ps1',
     'packaging/windows/ryoshu.iss', 'packaging/windows/can-modify.ps1',
     'packaging/windows/launch.ps1', 'packaging/windows/before-install.txt',
     'packaging/windows/welcome.html',

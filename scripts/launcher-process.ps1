@@ -44,7 +44,7 @@ function New-RyoshuLedgerLauncher {
     param([string]$SourceDir, [string]$DataDir, [string]$OutputDir)
     $startFile = Join-Path ([System.IO.Path]::GetFullPath($SourceDir)) 'start.ps1'
     $ledgerPath = [System.IO.Path]::GetFullPath($DataDir)
-    if (-not (Test-Path -LiteralPath $startFile) -or -not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.sqlite3'))) {
+    if (-not (Test-Path -LiteralPath $startFile) -or (-not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.sqlite3')) -and -not (Test-Path -LiteralPath (Join-Path $ledgerPath 'ledger.enc.sqlite3')))) {
         throw '起動ファイルまたは復元した帳簿が見つかりません。復元先は変更していません。'
     }
     $quotedStart = $startFile.Replace("'", "''")

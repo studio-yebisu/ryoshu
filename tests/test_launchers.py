@@ -12,13 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.mark.skipif(os.name != 'nt' or not shutil.which('powershell'), reason='Windows PowerShell launcher')
-def test_restored_ledger_launcher_passes_literal_japanese_paths_and_never_overwrites(tmp_path):
+@pytest.mark.parametrize('ledger_file', ['ledger.sqlite3', 'ledger.enc.sqlite3'])
+def test_restored_ledger_launcher_passes_literal_japanese_paths_and_never_overwrites(tmp_path, ledger_file):
     source = tmp_path / "日本語 ' & %PATH% source"
     data = tmp_path / "帳簿 ' & %PATH% data"
     output = tmp_path / 'restored'
     for folder in [source, data, output]:
         folder.mkdir()
-    (data / 'ledger.sqlite3').write_bytes(b'fixture-not-opened')
+    (data / ledger_file).write_bytes(b'fixture-not-opened')
     (source / 'start.ps1').write_text('param([string]$DataDir)\n[System.IO.File]::WriteAllText($env:RYOSHU_TEST_RESULT,$DataDir)\n', 'utf-8')
     result_file = tmp_path / 'received.txt'
     script = r'''
@@ -42,6 +43,32 @@ if (-not $rejected -or [System.IO.File]::ReadAllText($launcher) -cne $before) { 
         env={**os.environ, 'RYOSHU_TEST_RESULT': str(result_file)}, capture_output=True, timeout=20)
     assert result.returncode == 0, result.stderr.decode('utf-8', errors='replace')
     assert result_file.read_text('utf-8-sig') == str(data)
+
+
+@pytest.mark.skipif(os.name != 'nt' or not shutil.which('powershell'), reason='Windows PowerShell launcher')
+def test_restored_ledger_launcher_rejects_missing_database_without_changing_restored_files(tmp_path):
+    source = tmp_path / 'source'
+    data = tmp_path / 'restored-data'
+    output = tmp_path / 'launchers'
+    for folder in [source, data, output]:
+        folder.mkdir()
+    (source / 'start.ps1').write_text('param([string]$DataDir)\n', 'ascii')
+    original = data / 'receipt-original.png'
+    original.write_bytes(b'restored-original-do-not-touch')
+    script = r'''
+$ErrorActionPreference = 'Stop'
+. $env:RYOSHU_TEST_LIBRARY
+$failure = $null
+try { New-RyoshuLedgerLauncher -SourceDir $env:RYOSHU_TEST_SOURCE -DataDir $env:RYOSHU_TEST_DATA -OutputDir $env:RYOSHU_TEST_OUTPUT }
+catch { $failure = $_.Exception.Message }
+if (-not $failure -or $failure -notmatch '帳簿が見つかりません') { throw 'missing restored database was not rejected' }
+'''
+    run_ps_fixture(tmp_path, script, {
+        'RYOSHU_TEST_LIBRARY': str(ROOT / 'scripts/launcher-process.ps1'),
+        'RYOSHU_TEST_SOURCE': str(source), 'RYOSHU_TEST_DATA': str(data), 'RYOSHU_TEST_OUTPUT': str(output),
+    })
+    assert list(output.iterdir()) == []
+    assert original.read_bytes() == b'restored-original-do-not-touch'
 
 
 @pytest.mark.skipif(os.name != "nt" or not shutil.which("powershell"), reason="Windows PowerShell launcher")
