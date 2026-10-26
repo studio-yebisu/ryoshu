@@ -12,7 +12,7 @@ await fs.mkdir(out,{recursive:true});
 const checks=[],errors=[],logs=[];
 let server,serverExit,browser,page,address;
 const api=route=>page.evaluate(async route=>(await(await RyoshuSecurity.fetch('/api/'+route)).json()),route);
-async function sourceHashes(){const result={};for(const n of ['web/app.js','web/import.js','web/security.js','web/index.html','web/style.css','receipt_ledger/server.py','scripts/serve_browser_qa.py','scripts/ux_workflow_smoke.mjs'])result[n]=createHash('sha256').update(await fs.readFile(path.join(root,n))).digest('hex');return result;}
+async function sourceHashes(){const result={};for(const n of ['web/app.js','web/import.js','web/processing.js','web/security.js','web/index.html','web/style.css','receipt_ledger/server.py','scripts/serve_browser_qa.py','scripts/ux_workflow_smoke.mjs'])result[n]=createHash('sha256').update(await fs.readFile(path.join(root,n))).digest('hex');return result;}
 async function go(view){await page.locator(`.nav-item[data-view="${view}"]`).first().click();await page.waitForFunction(v=>state.view===v,view);}
 async function waitForRecords(count){await page.waitForFunction(async count=>{const rows=(await(await RyoshuSecurity.fetch('/api/receipts')).json()).receipts;return rows.length===count&&rows.every(r=>!['queued','processing'].includes(r.status));},count,{timeout:30000});await page.waitForFunction(count=>state.records.length===count&&state.records.every(r=>!['queued','processing'].includes(r.status)),count,{timeout:15000});}
 async function snapshot(name){
@@ -28,6 +28,16 @@ async function snapshot(name){
   await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});
 }
 async function waitPreview(count){await page.waitForFunction(count=>document.querySelector('#export-result')?.innerText.includes(`${count}件 / ${count}行`),count,{timeout:10000});}
+async function assertFinishedPanelsHidden(view){
+  assert.equal(await page.locator('#processing-status').getAttribute('data-state'),'finished',`${view} fixture is not a finished successful batch`);
+  assert.equal(await page.locator('#import-progress').evaluate(n=>n.classList.contains('has-issues')||n.classList.contains('is-saving')),false,`${view} fixture still has import issues or active work`);
+  for(const selector of ['#import-progress','#processing-status']){
+    await page.locator(selector).waitFor({state:'hidden'});
+    assert.equal(await page.locator(selector).isVisible(),false,`${view} is obstructed by ${selector}`);
+  }
+  assert.equal(await page.locator('#page-title').evaluate(n=>{const box=n.getBoundingClientRect();return box.top>=0&&box.bottom<=innerHeight;}),true,`${view} first heading is outside the initial viewport`);
+  assert.equal(await page.locator('#main-content').evaluate(n=>n.getBoundingClientRect().top<innerHeight),true,`${view} content begins below the first viewport`);
+}
 try{
   server=spawn(process.env.RYOSHU_QA_PYTHON||'python',[path.join(root,'scripts/serve_browser_qa.py'),'--data-dir',path.join(out,'data')],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
   serverExit=new Promise(resolve=>server.once('exit',(code,signal)=>resolve({code,signal})));
@@ -65,15 +75,28 @@ try{
   await page.locator('#file-input').setInputFiles(['V001','V021','V023','V044','V045'].map(sample));
   assert.equal((await api('receipts')).receipts.length,0);
   assert.match(await page.locator('#import-selection').innerText(),/5ファイル選択中/);
-  await page.locator('#start-import').click();await waitForRecords(5);
-  await page.locator('#home-result-link a').click();
+  await page.locator('#start-import').click();
+  await page.waitForFunction(()=>Math.abs(scrollY)<=1&&document.activeElement?.id==='page-title');
+  checks.push('starting an import brings progress into view once without scrolling on polling updates');
+  await waitForRecords(5);
+  await page.locator('#processing-status a[data-view="results"]').click();
   await page.locator('.results-table').waitFor();
   assert.deepEqual(await page.locator('.results-table th').allTextContents(),['原本','読み取った内容','勘定科目']);
   assert.equal(await page.locator('.results-table tbody tr').count(),5);
   await page.waitForFunction(()=>[...document.querySelectorAll('.result-image img')].some(n=>n.naturalWidth>0));
   checks.push('five PDFs remain staged until Start, then results present originals/read contents/accounts');
+  assert.equal((await api('receipts')).receipts.every(r=>!r.error&&!['queued','processing','error'].includes(r.status)),true,'Successful progress visibility fixture contains an unfinished or failed receipt');
+  await assertFinishedPanelsHidden('results');
   await snapshot('01-results-desktop');
-  await go('ledger');
+  await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+  assert.ok(await page.evaluate(()=>scrollY)>100,'Results fixture did not reach a meaningful outer-page scroll position');
+  // Locator.click() would scroll an off-screen nav into view before the app
+  // handles it, hiding the preserved-scroll regression this check exercises.
+  await page.locator('.nav-item[data-view="ledger"]').evaluate(n=>n.click());
+  await page.waitForFunction(()=>state.view==='ledger'&&Math.abs(scrollY)<=1&&document.activeElement?.id==='page-title');
+  checks.push('CSV navigation from the results page bottom resets outer scroll and focuses its first heading');
+  await assertFinishedPanelsHidden('ledger');
+  checks.push('successful finished import and processing cards stay hidden above results and CSV content');
   await page.locator('#month-filter').fill('2024-04');
   await page.waitForFunction(()=>document.querySelector('#ledger-rows tr')?.innerText.includes('テスト光'));
   assert.equal(await page.locator('#ledger-rows tr').count(),1);
@@ -89,6 +112,26 @@ try{
   await page.locator('#export-profile').selectOption('generic');await waitPreview(1);
   assert.equal(await page.locator('#export-profile').evaluate(n=>n===document.activeElement),true);
   checks.push('format changes preserve keyboard focus and the selected accounting period');
+  await page.setViewportSize({width:1365,height:650});
+  await page.locator('#ledger-search').fill('テスト光');
+  await page.waitForFunction(()=>state.ledgerSearch==='テスト光'&&document.querySelectorAll('#ledger-rows tr').length===1);
+  const detailTrigger=page.locator('#ledger-rows [data-open-receipt]').first();
+  const receiptId=await detailTrigger.getAttribute('data-open-receipt');
+  await page.evaluate(()=>scrollTo(0,Math.min(240,document.documentElement.scrollHeight-innerHeight)));
+  const origin=await page.evaluate(()=>({scrollY,month:document.querySelector('#month-filter').value,search:document.querySelector('#ledger-search').value}));
+  assert.ok(origin.scrollY>100,'CSV fixture did not reach a meaningful outer-page scroll position');
+  await detailTrigger.evaluate(n=>n.click());
+  await page.locator('#review-form').waitFor();
+  await page.locator('[data-action="back-from-detail"]').click();
+  await page.waitForFunction(({top,id})=>state.view==='ledger'&&Math.abs(scrollY-top)<=2&&document.activeElement?.dataset.openReceipt===id,{top:origin.scrollY,id:receiptId});
+  assert.equal(await page.locator('#month-filter').inputValue(),origin.month);
+  assert.equal(await page.locator('#ledger-search').inputValue(),origin.search);
+  assert.equal(await page.locator('#ledger-rows tr').count(),1);
+  assert.equal(await page.locator('.nav-item[data-view="ledger"]').getAttribute('aria-current'),'page');
+  checks.push('detail opened from CSV returns to CSV with its period, search, outer scroll and originating row focus');
+  await page.locator('#ledger-search').fill('');
+  await page.waitForFunction(()=>state.ledgerSearch==='');
+  await page.setViewportSize({width:1365,height:1000});
   await page.locator('#upload-top').click();
   await page.locator('#import-dialog[open]').waitFor();
   await page.locator('#file-input').setInputFiles(sample('V055'));

@@ -1,0 +1,70 @@
+{
+  "version": "1.3.4",
+  "status": "draft_pending_final_verification",
+  "prepared_on": "2026-10-26",
+  "scope": "Windows hash bootstrap, Japanese product copy, layout, navigation and progress freshness. Final test, browser, native entrypoint, CI and artifact results remain unfilled.",
+  "source_revision": null,
+  "source_sha256": {},
+  "python_full": {
+    "status": "pending",
+    "passed": null,
+    "failures": null,
+    "errors": null,
+    "skipped": null,
+    "seconds": null,
+    "record": null
+  },
+  "javascript": {
+    "status": "pending",
+    "passed": null,
+    "failures": null,
+    "record": null
+  },
+  "browser_workflow": {
+    "status": "pending",
+    "passed": null,
+    "record": null,
+    "replays_saved_observations": null
+  },
+  "browser_ux": {
+    "status": "pending",
+    "passed": null,
+    "record": null
+  },
+  "manual_codex_browser": {
+    "status": "pending",
+    "record": null
+  },
+  "publication": {
+    "status": "pending",
+    "files": null,
+    "record": null
+  },
+  "native_windows_entrypoint": {
+    "status": "pending",
+    "installer_sha256": null,
+    "original_shortcut_full_setup_and_start": "pending",
+    "model_cache_reused": null,
+    "record": null
+  },
+  "ci": {
+    "status": "pending",
+    "commit": null,
+    "run_url": null
+  },
+  "release_artifacts": {
+    "status": "pending",
+    "installer_sha256": null,
+    "source_zip_sha256": null,
+    "installed_files_match_source_zip": null,
+    "record": null
+  },
+  "fresh_100_receipt_accuracy_audit": "not_performed",
+  "historical_accuracy_record": "../v1.3/README.md",
+  "limitations": [
+    "The exact original uv stderr wording has not been reproduced.",
+    "A fresh isolated app environment with existing caches is not a clean-PC installation test.",
+    "CLI startup alone does not establish full first setup and startup through the original OS shortcut.",
+    "No import into real accounting-service accounts has been verified."
+  ]
+}

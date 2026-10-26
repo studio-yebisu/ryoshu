@@ -88,7 +88,7 @@ try{
   await page.locator('#start-import').click();
   await page.waitForFunction(async()=>{const rows=(await(await RyoshuSecurity.fetch('/api/receipts')).json()).receipts;return rows.length===1&&rows.every(r=>r.status==='review');},{},{timeout:30000});
   await page.waitForFunction(()=>state.records.length===1&&state.records.every(r=>r.status==='review'),null,{timeout:10000});
-  await page.locator('#home-result-link a').click();
+  await page.locator('#processing-status a[data-view="results"]').click();
   await page.locator('.results-table').waitFor();
   assert.deepEqual(await page.locator('.results-table th').allTextContents(),['原本','読み取った内容','勘定科目']);
   await page.waitForFunction(()=>document.querySelector('.result-image img')?.naturalWidth>0);
@@ -173,7 +173,7 @@ try{
   await page.locator('#review-form [name="purpose"]').fill('架空の画面検証に使用');
   await page.locator('[data-action="save-draft"]').click();
   await page.waitForFunction(()=>!state.busy&&state.detail?.draft.purpose==='架空の画面検証に使用');
-  await page.locator('[data-action="back-to-ledger"]').click();
+  await page.locator('[data-action="back-from-detail"]').click();
   await page.locator('.results-toolbar [data-view="ledger"]').click();
   await page.waitForFunction(()=>!document.querySelector('#download-csv').disabled);
   const csvEvent=page.waitForEvent('download');await page.locator('#download-csv').click();

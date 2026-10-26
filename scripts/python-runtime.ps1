@@ -1,5 +1,22 @@
 ﻿# Probe the actual interpreter, not the existence of a uv trampoline. These
 # helpers never open a ledger, download software, or stop a process.
+function Get-RyoshuFileSha256 {
+    param([Parameter(Mandatory=$true)][string]$LiteralPath)
+    # Windows PowerShell may inherit PowerShell 7's module search path from a
+    # launcher. Hashing must work even when Get-FileHash cannot be autoloaded.
+    $stream = $null
+    $algorithm = $null
+    try {
+        $stream = [System.IO.File]::Open($LiteralPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::Read)
+        $algorithm = [System.Security.Cryptography.SHA256]::Create()
+        $digest = $algorithm.ComputeHash($stream)
+        return [System.BitConverter]::ToString($digest).Replace('-','').ToLowerInvariant()
+    } finally {
+        if ($algorithm) { $algorithm.Dispose() }
+        if ($stream) { $stream.Dispose() }
+    }
+}
+
 function Get-RyoshuPythonStatus {
     param([string]$PythonExe, [switch]$RequireLibraries)
     $result = [ordered]@{exists=$false;runnable=$false;compatible=$false;ready=$false;version='';reason='missing';detail='';base_prefix=''}
@@ -125,7 +142,7 @@ function Set-RyoshuSetupState {
     $recordPath = Join-Path $runtime 'setup-state.json'
     if ((Get-Item -LiteralPath $runtime).Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw '準備状態の保存先にリンクは使えません。' }
     if ((Test-Path -LiteralPath $recordPath) -and ((Get-Item -LiteralPath $recordPath).Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw '準備状態の記録にリンクは使えません。' }
-    $record = @{schema=1;state=$State;requirements_sha256=(Get-FileHash -LiteralPath $RequirementsFile -Algorithm SHA256).Hash.ToLowerInvariant();
+    $record = @{schema=1;state=$State;requirements_sha256=(Get-RyoshuFileSha256 -LiteralPath $RequirementsFile);
                 python_version=[string]$PythonStatus.version;python_base=[string]$PythonStatus.base_prefix;updated_at=(Get-Date).ToString('o')}
     $temporary = Join-Path $runtime ('setup-state-' + [guid]::NewGuid().ToString('N') + '.tmp')
     try {
@@ -144,7 +161,7 @@ function Test-RyoshuSetupComplete {
         if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint -or $item.Length -gt 16384) { return $false }
         $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
         return ($record.schema -eq 1 -and $record.state -ceq 'complete' -and
-                $record.requirements_sha256 -ceq (Get-FileHash -LiteralPath $RequirementsFile -Algorithm SHA256).Hash.ToLowerInvariant() -and
+                $record.requirements_sha256 -ceq (Get-RyoshuFileSha256 -LiteralPath $RequirementsFile) -and
                 $record.python_version -ceq [string]$PythonStatus.version -and $record.python_base -ieq [string]$PythonStatus.base_prefix)
     } catch { return $false }
 }

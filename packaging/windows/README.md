@@ -15,7 +15,7 @@
 コンパイラ導入後、次を実行します。Node.jsは不要です。
 
 ```powershell
-python scripts/build_windows_package.py --source-zip Ryoshu-1.3.3-source.zip --output-dir dist/windows-1.3.3 --iscc 'C:\path\to\ISCC.exe'
+python scripts/build_windows_package.py --source-zip Ryoshu-1.3.4-source.zip --output-dir dist/windows-1.3.4 --iscc 'C:\path\to\ISCC.exe'
 ```
 
 ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致する必要があります。起動に使う`python-runtime.ps1`・`bootstrap-uv.ps1`・`launcher-process.ps1`も必須ファイルとして照合します。公開用ソース以外の`.local`・DB・鍵・ログ・モデル・仮想環境、危険なパスやシンボリックリンクは拒否します。出力は`Ryoshu-<version>-windows-x64-setup.exe`と`.build.json`です。後者には入力ZIP・コンパイラ・全同梱ファイル・出力EXEのSHA-256を記録します。同名の成果物は上書きしません。
@@ -38,9 +38,9 @@ ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致
 既存のインストール登録がないWindows検証機で、空の専用出力先を指定します。既存の登録があれば試験を拒否します。
 
 ```powershell
-python scripts/verify_windows_package.py --installer dist/windows-1.3.3/Ryoshu-1.3.3-windows-x64-setup.exe --source-zip Ryoshu-1.3.3-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
+python scripts/verify_windows_package.py --installer dist/windows-1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe --source-zip Ryoshu-1.3.4-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
 ```
 
 検査はインストール・全payloadのソースZIPとのバイト照合・3つのショートカット・Windows PowerShell起動・更新の起動元保護・別ポートのアプリ起動・アンインストールを実行します。新しい架空の暗号化帳簿と追加した利用者ファイルが削除・変更されないことを照合します。通常の帳簿を開かず、OCR・AIの新規推論も行いません。結果の`verification.json`には絶対パスや起動トークンを含めません。失敗時も、自分で作った検証用アプリの削除と自分の検証サーバーの停止だけを行います。
 
-別ポートのアプリ起動には、`--qa-python`で指定した準備済みの検証用Pythonを使います。この結果が確認するのはインストールされたコードの実行であり、スタートメニューからの通常起動や、Ryoshu専用Pythonの作成・依存とモデルの取得を含む初回セットアップの成否は別に確認する必要があります。`-CheckOnly`のPython検査も、OCR・モデル取得の完了を示すものではありません。[v1.3.3の実行範囲と検証待ち項目](../../docs/testing/v1.3.3/README.md)
+別ポートのアプリ起動には、`--qa-python`で指定した準備済みの検証用Pythonを使います。この結果が確認するのはインストールされたコードの実行であり、スタートメニューからの通常起動や、Ryoshu専用Pythonの作成・依存とモデルの取得を含む初回セットアップの成否は別に確認する必要があります。`-CheckOnly`のPython検査も、OCR・モデル取得の完了を示すものではありません。[v1.3.4の実行範囲と検証待ち項目](../../docs/testing/v1.3.4/README.md)
