@@ -1,0 +1,42 @@
+{
+  "surface": "Codex in-app side browser only",
+  "application_version": "1.3.4",
+  "data": "separate encrypted QA database; public fictional PDFs",
+  "new_ocr_or_ai_inference": false,
+  "files": [
+    "V001",
+    "V021",
+    "V023",
+    "V044",
+    "V045"
+  ],
+  "checks": [
+    "files remain staged until Start",
+    "Start focuses the page top once; ongoing refresh does not move it",
+    "successful completion cards do not push results or CSV below the heading",
+    "original, reading and account columns visible",
+    "account name opens two-level category/account picker",
+    "category change does not silently choose an account",
+    "favorite added and removed through the real button",
+    "account changed and restored; date and total retained",
+    "375px CSV and account dialog have no document overflow"
+  ],
+  "additional_checks_on_same_ui_changes": [
+    "CSV detail-back preserves month 2024-04, search テスト光, scroll and originating detail-button focus",
+    "actual CSV download verified with one filtered fictional row",
+    "new batch after idle does not immediately show stale connection warning"
+  ],
+  "screenshots": {
+    "01-home.png": "3dd25efdd2ea8eb7235bc4d6720221e2087271c8c548f09c2edc7fa979f352f1",
+    "02-processing.png": "be8966246e9d1460c3051fbddbb7dec8e5e207a7077b08bfb3c130198e6c2a49",
+    "03-results.png": "0921b48fc9d0d5b0f86fcdf2a742a573779d22bd80fcdab3a19fb9d0c6959db1",
+    "04-csv.png": "06cc24175986406772362ed3eb1928843a45e249ab692bc07deae71f4d1701b0",
+    "05-csv-375.png": "04a48982381d81db77bcd7e6eba508619749b1b4ce60c13b31e5385ec40c82a1",
+    "06-account-375.png": "6b41854b2b6970e5e9b3f1e662cf039d132029f81fe69d91d82b208e650fe905"
+  },
+  "limits": [
+    "Saved public observations replayed for UI checks, not a new OCR accuracy result",
+    "Static screenshots do not prove motion or tax correctness",
+    "1093x614 ordinary startup checked separately in installed-package verification"
+  ]
+}

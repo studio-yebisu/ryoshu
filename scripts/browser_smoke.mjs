@@ -59,8 +59,8 @@ try{
   const loadedSourceHashes=await sourceHashes();
   await page.goto(launched.open,{waitUntil:'networkidle'});
   await page.locator('.dropzone').waitFor();assert.equal(await page.locator('#page-title').innerText(),'領収書を読み取る');
-  assert.match(await page.locator('#usage-guidance').innerText(),/必ずご自身で確認/);
-  assert.match(await page.locator('#usage-guidance').innerText(),/税務上の最終判断は税理士へ/);
+  assert.match(await page.locator('#usage-guidance').innerText(),/ご自身で確認/);
+  assert.match(await page.locator('#usage-guidance').innerText(),/税務上の最終判断は税理士(?:に確認|へ)/);
   const help=await page.request.get(base+'/help.html');assert.equal(help.status(),200);
   assert.match(await help.text(),/税理士の承認や税法への適合を表すものではありません/);
   checks.push('personal and tax-professional review policy visible in app and local help');
@@ -100,7 +100,7 @@ try{
 
   assert.match(await page.locator('#batch-result').innerText(),/V038.pdf/);
   await page.locator('#batch-result [data-open-receipt]').click();
-  await page.locator('[data-action="back-to-ledger"]').click();await go('ledger');
+  await page.locator('[data-action="back-from-detail"]').click();await go('ledger');
   assert.match(await page.locator('#batch-result').innerText(),/V038.pdf/);
   checks.push('receipt detail returns to the ledger and retains batch results');
   await page.locator('[data-action="filter-batch-issues"]').click();assert.equal(await page.locator('#ledger-rows tr').count(),1);
@@ -140,7 +140,7 @@ try{
   const related=duplicate.possible_duplicate_ids[0];
   await page.locator(`#detail-duplicates [data-open-receipt="${related}"]`).click();
   await page.waitForFunction(id=>state.active===id,related);
-  await page.locator('[data-action="back-to-ledger"]').click();await go('ledger');
+  await page.locator('[data-action="back-from-detail"]').click();await go('ledger');
   await page.locator('#ledger-search').fill('');
   await page.waitForFunction(()=>document.querySelectorAll('#ledger-rows tr').length===100);
   checks.push('duplicate warning remains visible in receipt details and opens related originals');
@@ -152,7 +152,7 @@ try{
   },duplicate.id);
   assert.equal(stayed,true);
   const newest=await page.evaluate(async ids=>{await Promise.all(ids.map(id=>selectReceipt(id)));return state.active===ids[1]&&state.detail.id===ids[1];},[duplicate.id,related]);
-  assert.equal(newest,true);await page.locator('[data-action="back-to-ledger"]').click();await go('ledger');
+  assert.equal(newest,true);await page.locator('[data-action="back-from-detail"]').click();await go('ledger');
   checks.push('a pending receipt response cannot override navigation or a newer receipt selection');
 
   await page.evaluate(id=>selectReceipt(id),duplicate.id);
@@ -183,7 +183,7 @@ try{
   assert.match(await page.locator('#toast').innerText(),/明細は保存しましたが、最新情報を取得できません/);
   assert.equal((await api('receipts/'+duplicate.id)).draft.purpose,'保存後の一覧取得失敗の確認');
   await page.unroute('**/api/receipts');await page.evaluate(()=>loadReceipts());
-  await page.locator('[data-action="back-to-ledger"]').click();await go('ledger');
+  await page.locator('[data-action="back-from-detail"]').click();await go('ledger');
   checks.push('delayed saves preserve same/other receipt edits and report saved state even if refresh fails');
 
   // Composition events exercise real DOM replacement/focus behavior, without an OS IME.
@@ -217,7 +217,7 @@ try{
   for(const id of chosen)await page.locator(`[data-ledger-select="${id}"]`).check();
   page.once('dialog',dialog=>dialog.accept());await page.locator('[data-action="restore-selected"]').click();
   await page.waitForFunction(async ids=>{const rows=(await(await RyoshuSecurity.fetch('/api/receipts')).json()).receipts;return ids.every(id=>rows.find(r=>r.id===id)?.status==='review');},chosen);
-  await page.waitForFunction(()=>document.querySelector('#batch-result')?.innerText.includes('2件を確認待ちへ戻しました'));
+  await page.waitForFunction(()=>document.querySelector('#batch-result')?.innerText.includes('2件を未確認に戻しました'));
   await page.locator('#ledger-filter').selectOption('all');
   checks.push('bulk exclude and restore are reversible and retain originals');
 

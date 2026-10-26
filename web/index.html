@@ -23,17 +23,17 @@
         <a class="nav-item" href="#ledger" data-view="ledger"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/></svg></span>CSV出力</a>
         <details class="more-nav"><summary>その他</summary><div><a class="nav-item" href="#accounts" data-view="accounts">科目別の集計</a><a class="nav-item" href="#catalog" data-view="catalog">勘定科目一覧</a><a class="nav-item" href="#settings" data-view="settings">設定・バックアップ</a><a class="nav-item" href="/help.html" target="_blank" rel="noreferrer">使い方</a></div></details>
       </nav>
-      <div class="local-status"><span class="status-dot"></span><div>このPC内で処理<small id="engine-status">エンジンを確認中</small></div></div>
+      <div class="local-status"><span class="status-dot"></span><div>領収書の処理はこのPC内<small id="engine-status">読み取りの準備を確認中</small></div></div>
     </header>
     <main id="main-workspace" tabindex="-1">
-      <header class="page-header"><div><h1 id="page-title">領収書を読み取る</h1><p id="page-description">PDFや画像をまとめて読み込み、CSVに。</p></div><button class="button" id="upload-top">ファイルを追加</button></header>
+      <header class="page-header"><div><h1 id="page-title" tabindex="-1">領収書を読み取る</h1><p id="page-description">PDFや画像をまとめて取り込み、帳簿をCSVに。</p></div><button class="button" id="upload-top">ファイルを追加</button></header>
       <div id="connection-banner" class="banner hidden" role="status"></div>
-      <p class="usage-guidance" id="usage-guidance">読取・科目はAIの候補です。金額・科目・用途は必ずご自身で確認し、税務上の最終判断は税理士へ。<a href="/help.html#tax-review" target="_blank" rel="noreferrer">確認の方針</a></p>
+      <p class="usage-guidance" id="usage-guidance">読み取り結果と勘定科目は候補です。原本を見てご自身で確認し、税務上の最終判断は税理士に確認してください。<a href="/help.html#tax-review" target="_blank" rel="noreferrer">確認する項目</a></p>
       <section id="import-progress" class="panel import-progress hidden" aria-live="polite"></section>
       <section id="processing-status" class="processing-status hidden" aria-label="領収書の処理状況"></section>
       <section id="home-view" class="hidden"><div id="home-import"></div><div id="home-result-link" aria-live="polite"></div><p class="privacy-note">領収書の画像・内容を外部AIへ送らず、このPC内で読み取ります。</p></section>
       <div id="main-content" tabindex="-1"></div>
-      <footer class="main-footer"><span>Ryoshu <span id="app-version">1.3.3</span></span><span>原本と候補を確認して、CSVへ。</span></footer>
+      <footer class="main-footer"><span>Ryoshu <span id="app-version">1.3.4</span></span><span>原本を確認して、帳簿をCSVに。</span></footer>
     </main>
   </div>
   <input id="file-input" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple aria-label="領収書ファイルを選ぶ">

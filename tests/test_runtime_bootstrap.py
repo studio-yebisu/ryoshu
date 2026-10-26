@@ -758,3 +758,85 @@ def test_recorded_or_explicit_missing_ledger_is_rejected_before_server_start(tmp
         assert location.read_bytes() == recorded
     else:
         assert not location.exists()
+
+
+@pytest.mark.parametrize("contents", [b"", b"Ryoshu SHA256 fixture\n", bytes(range(256)) * 8193], ids=["empty", "text", "binary-stream"])
+def test_file_hash_uses_literal_paths_and_releases_native_stream_without_filehash_cmdlet(tmp_path, contents):
+    target = tmp_path / "hash 日本語 ' &[literal].bin"
+    target.write_bytes(contents)
+    script = r'''
+$ErrorActionPreference = 'Stop'
+function global:Get-FileHash { throw 'Get-FileHash must not be used' }
+. $env:RYOSHU_TEST_LIBRARY
+$hash = Get-RyoshuFileSha256 -LiteralPath $env:RYOSHU_TEST_HASH_FILE
+$exclusive = [IO.File]::Open($env:RYOSHU_TEST_HASH_FILE, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+$exclusive.Dispose()
+@{hash=$hash;stream_released=$true} | ConvertTo-Json | Set-Content -LiteralPath $env:RYOSHU_TEST_RESULT -Encoding UTF8
+'''
+    result = run_ps(tmp_path, script, {
+        "RYOSHU_TEST_LIBRARY": str(ROOT / "scripts/python-runtime.ps1"),
+        "RYOSHU_TEST_HASH_FILE": str(target),
+    })
+    assert result == {"hash": sha256(contents).hexdigest(), "stream_released": True}
+    assert target.read_bytes() == contents
+
+
+def test_setup_marker_hash_works_after_pwsh7_module_path_breaks_windows_filehash_autoload(tmp_path):
+    pwsh_modules = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "PowerShell/7/Modules"
+    if not (pwsh_modules / "Microsoft.PowerShell.Utility").is_dir():
+        pytest.skip("PowerShell 7 Utility module is not installed")
+    requirements = tmp_path / "requirements 日本語 [literal].txt"
+    contents = b"dependency==1.2.3 --hash=sha256:fixture\n"
+    requirements.write_bytes(contents)
+    task_root = tmp_path / "profile/StudioYebisu/ReceiptLedger"
+    script = r'''
+$ErrorActionPreference = 'Stop'
+# This mirrors the native launcher loading GUI/.NET support before setup.
+Add-Type -TypeDefinition 'public class RyoshuHashModulePathFixture {}'
+$legacyAvailable = $null -ne (Get-Command Get-FileHash -ErrorAction SilentlyContinue)
+if ($legacyAvailable) { throw 'fixture did not reproduce unavailable Get-FileHash' }
+. $env:RYOSHU_TEST_LIBRARY
+$status = [PSCustomObject]@{ready=$true;version='3.12.15';base_prefix='fixture-app-owned-python'}
+Set-RyoshuSetupState -TaskRoot $env:RYOSHU_TEST_TASK_ROOT -RequirementsFile $env:RYOSHU_TEST_REQUIREMENTS -PythonStatus $status -State pending
+$pending = Test-RyoshuSetupComplete -TaskRoot $env:RYOSHU_TEST_TASK_ROOT -RequirementsFile $env:RYOSHU_TEST_REQUIREMENTS -PythonStatus $status
+Set-RyoshuSetupState -TaskRoot $env:RYOSHU_TEST_TASK_ROOT -RequirementsFile $env:RYOSHU_TEST_REQUIREMENTS -PythonStatus $status -State complete
+$complete = Test-RyoshuSetupComplete -TaskRoot $env:RYOSHU_TEST_TASK_ROOT -RequirementsFile $env:RYOSHU_TEST_REQUIREMENTS -PythonStatus $status
+$record = Get-Content -LiteralPath (Join-Path $env:RYOSHU_TEST_TASK_ROOT 'runtime\setup-state.json') -Raw | ConvertFrom-Json
+@{legacy_available=$legacyAvailable;pending_accepted=$pending;complete_accepted=$complete;hash=$record.requirements_sha256} | ConvertTo-Json | Set-Content -LiteralPath $env:RYOSHU_TEST_RESULT -Encoding UTF8
+'''
+    result = run_ps(tmp_path, script, {
+        "PSModulePath": str(pwsh_modules) + os.pathsep + str(Path(os.environ["SystemRoot"]) / "System32/WindowsPowerShell/v1.0/Modules"),
+        "RYOSHU_TEST_LIBRARY": str(ROOT / "scripts/python-runtime.ps1"),
+        "RYOSHU_TEST_TASK_ROOT": str(task_root),
+        "RYOSHU_TEST_REQUIREMENTS": str(requirements),
+    })
+    assert result == {"legacy_available": False, "pending_accepted": False,
+                      "complete_accepted": True, "hash": sha256(contents).hexdigest()}
+
+
+def test_cached_pinned_uv_is_verified_without_get_filehash_or_network(tmp_path):
+    source_uv = Path(os.environ["USERPROFILE"]) / "StudioYebisu/ReceiptLedger/tools/uv-0.13.5/uv.exe"
+    expected = "f45d1cb9d9140ca6d3f4005fdfc0ebeccf849fd04d1dc85804155cb923f1597b"
+    if not source_uv.is_file() or sha256(source_uv.read_bytes()).hexdigest() != expected:
+        pytest.skip("Trusted pinned uv is not locally available for a read-only fixture copy")
+    cache = tmp_path / "cached uv 日本語 [literal]"
+    cache.mkdir()
+    cached_uv = cache / "uv.exe"
+    shutil.copyfile(source_uv, cached_uv)
+    script = r'''
+$ErrorActionPreference = 'Stop'
+Add-Type -TypeDefinition 'public class RyoshuCachedUvHashFixture {}'
+function global:Get-FileHash { throw 'Get-FileHash must not be used' }
+function global:Invoke-WebRequest { throw 'Cached uv fixture must not download anything' }
+# Source bootstrap alone: it must find its runtime hash helper itself.
+. $env:RYOSHU_TEST_BOOTSTRAP
+$selected = Get-RyoshuUv $env:RYOSHU_TEST_UV_CACHE
+@{selected=$selected;hash=(Get-RyoshuFileSha256 -LiteralPath $selected)} | ConvertTo-Json | Set-Content -LiteralPath $env:RYOSHU_TEST_RESULT -Encoding UTF8
+'''
+    result = run_ps(tmp_path, script, {
+        "PSModulePath": os.environ.get("PSModulePath", str(Path(os.environ["SystemRoot"]) / "System32/WindowsPowerShell/v1.0/Modules")),
+        "RYOSHU_TEST_BOOTSTRAP": str(ROOT / "scripts/bootstrap-uv.ps1"),
+        "RYOSHU_TEST_UV_CACHE": str(cache),
+    })
+    assert result == {"selected": str(cached_uv), "hash": expected}
+    assert sha256(cached_uv.read_bytes()).hexdigest() == expected

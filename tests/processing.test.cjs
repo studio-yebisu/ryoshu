@@ -159,3 +159,58 @@ test('recent history and next queue are bounded and final state does not suddenl
   summary=tracker.observe(rows.map(item=>({...item,status:'review'})),fresh(2000));
   assert.equal(summary.total,20);assert.equal(summary.processed,20);assert.equal(summary.busy,0);assert.equal(summary.dismissed,false);
 });
+
+function trackerWithClock(start){
+  let now=start;
+  const timed={window:{},Date:class extends Date{static now(){return now;}}};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../web/processing.js'),'utf8'),timed);
+  return {tracker:timed.window.RyoshuProcessing.createTracker(),isStale:timed.window.RyoshuProcessing.isStale,setTime(value){now=value;}};
+}
+
+test('a new batch after idle clears the old failure and gets bounded first-response grace without inventing a fetch',()=>{
+  const {tracker,isStale,setTime}=trackerWithClock(1000);
+  tracker.begin();tracker.imported(imported('old'));
+  tracker.observe([row('old','review')],fresh(1000));
+  tracker.connectionFailed();
+  assert.equal(tracker.last.stale,true);
+  setTime(100000);
+  tracker.begin();tracker.imported(imported('new'));
+  const summary=tracker.observe([row('old','review')],fresh(1000,true));
+  assert.equal(summary.total,1);assert.equal(summary.syncing,1);
+  assert.equal(summary.fetchedAt,1000,'starting a batch is not a successful server response');
+  assert.equal(summary.stale,false);
+  assert.equal(isStale(summary,100000),false);
+  assert.equal(isStale(summary,109000),false);
+  assert.equal(isStale(summary,109001),true,'waiting for the first response must not hide a real timeout indefinitely');
+});
+
+test('adding to an ongoing stale batch does not renew its response grace or hide a connection failure',()=>{
+  const {tracker,isStale,setTime}=trackerWithClock(1000);
+  tracker.begin();tracker.imported(imported('active'));
+  tracker.observe([row('active','processing')],fresh(1000,true));
+  setTime(11000);
+  assert.equal(isStale(tracker.last),true);
+  tracker.begin();tracker.imported(imported('added'));
+  let summary=tracker.observe([row('active','processing')],fresh(1000,true));
+  assert.equal(summary.total,2);assert.equal(isStale(summary),true);
+  assert.equal(summary.freshnessStartedAt,1000);
+  tracker.connectionFailed();
+  tracker.begin();
+  summary=tracker.observe([row('active','processing')],fresh(1000,true));
+  assert.equal(summary.stale,true);assert.equal(isStale(summary),true);
+});
+
+test('a real connection failure overrides a new-batch grace and only a newer response clears it',()=>{
+  const {tracker,isStale,setTime}=trackerWithClock(100000);
+  tracker.begin();tracker.imported(imported('new'));
+  tracker.observe([],fresh(1000,true));
+  assert.equal(isStale(tracker.last),false);
+  tracker.connectionFailed();
+  assert.equal(isStale(tracker.last),true);
+  assert.equal(tracker.observe([],fresh(1000,true)).stale,true);
+  setTime(100500);
+  const summary=tracker.observe([row('new','processing')],fresh(100500,true));
+  assert.equal(summary.stale,false);assert.equal(summary.fetchedAt,100500);
+  assert.equal(isStale(summary),false);
+  assert.equal(isStale(summary,109501),true);
+});
