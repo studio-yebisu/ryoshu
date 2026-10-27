@@ -84,6 +84,30 @@ def test_missing_runtime_and_version_disagreement_are_rejected(tmp_path):
         package.unpack_source(source_zip(tmp_path, version='1.3.1'), tmp_path / 'mismatch')
 
 
+@pytest.mark.parametrize('name', [
+    'third_party/llama-server.exe', 'scripts/ggml-cpu-x64.dll', 'docs/Qwen3-4B-Q4_K_M.gguf',
+    'samples/LLAMA.DLL', 'models.gguf', 'downloads/partial.part', 'docs/model.safetensors', 'web/x.onnx',
+    'llama/b11700-cpu-x64/LICENSE-llama.cpp.txt', 'Downloads/readme.txt',
+])
+def test_runtime_binaries_and_model_weights_are_never_distributed(tmp_path, name):
+    destination = tmp_path / 'output'
+    with pytest.raises(ValueError, match='not distributable|Private'):
+        package.unpack_source(source_zip(tmp_path, [(f'Ryoshu-1.3.2/{name}', 'binary')]), destination)
+    assert not destination.exists()
+
+
+def test_pin_preparer_and_exact_license_texts_are_required_and_legitimate_names_pass(tmp_path):
+    for required in ('receipt_ledger/runtime_pin.json', 'receipt_ledger/runtime_pin.py', 'scripts/prepare_llama.py',
+                     'scripts/ms_vcredist.py',
+                     'third_party/llama.cpp/LICENSE', 'third_party/Qwen3-4B-GGUF/LICENSE'):
+        assert required in package.REQUIRED
+        with pytest.raises(ValueError, match='Missing application'):
+            package.unpack_source(source_zip(tmp_path, omit=[required]), tmp_path / ('m-' + required.replace('/', '_')))
+    # 'runtime' / 'llama' are forbidden only as whole path parts, never as name prefixes
+    root, _, files = package.unpack_source(source_zip(tmp_path, [('Ryoshu-1.3.2/receipt_ledger/runtime.py', 'x')]), tmp_path / 'ok')
+    assert 'receipt_ledger/runtime.py' in files and 'third_party/llama.cpp/LICENSE' in files
+
+
 @pytest.mark.parametrize('helper', [
     'scripts/python-runtime.ps1', 'scripts/bootstrap-uv.ps1',
     'scripts/launcher-process.ps1',

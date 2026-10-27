@@ -2,6 +2,7 @@
 import re
 from statistics import median
 from .extraction import TOTAL_LABEL, compact, total_candidates
+from . import ocr_io
 
 
 def rectify_pages(converter, original, extension, pages, folder):
@@ -35,7 +36,7 @@ def rectify_pages(converter, original, extension, pages, folder):
             rectified=cv2.warpPerspective(rgb,transform,(width,height),borderValue=(255,255,255))
             rectified=cv2.copyMakeBorder(rectified,20,20,20,20,cv2.BORDER_CONSTANT,value=(255,255,255))
             path=folder/f'rectified-p{source["index"]}.png';Image.fromarray(rectified).save(path)
-            for _,p in converter.convert(str(path),max_pages=1):
+            for _,p in ocr_io.convert(converter,path,max_pages=1):
                 if p.source=='error':continue
                 old_len=len(compact(source['text']));new_len=len(compact(p.text))
                 if new_len<old_len*.7:continue
@@ -80,7 +81,7 @@ def focus_regions(converter, original, extension, pages, folder):
                 crop=im.crop(box)
                 if crop.height<500:crop=crop.resize((crop.width*2,crop.height*2))
                 path=folder/f'focus-p{source["index"]}-{i}.png';crop.save(path)
-                for _,p in converter.convert(str(path),max_pages=1):
+                for _,p in ocr_io.convert(converter,path,max_pages=1):
                     if p.source=='error':continue
                     results.append({'index':source['index'],'source':'indra_region_ocr','region':list(box),'text':p.text,
                                     'lines':[{'text':l.text,'confidence':float(l.conf),'box':[float(v) for v in l.box]} for l in p.lines]})
@@ -103,7 +104,7 @@ def focus_headers(converter,original,extension,pages,folder):
                 crop=im.crop(box);scale=max(1,min(4,1600/crop.width))
                 if scale!=1:crop=crop.resize((int(crop.width*scale),int(crop.height*scale)))
                 path=folder/f'header-p{source["index"]}-{i}.png';crop.save(path)
-                for _,p in converter.convert(str(path),max_pages=1):
+                for _,p in ocr_io.convert(converter,path,max_pages=1):
                     if p.source=='error':continue
                     results.append({'index':source['index'],'source':'indra_header_ocr','region':list(box),'text':p.text,
                                     'lines':[{'text':l.text,'confidence':float(l.conf),'box':[float(v) for v in l.box]} for l in p.lines]})

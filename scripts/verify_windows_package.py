@@ -44,6 +44,33 @@ def registry_exists() -> bool:
         return False
 
 
+def known_programs_dir() -> Path:
+    """Current user's Start Menu Programs folder from SHGetKnownFolderPath(FOLDERID_Programs); independent of the
+    USERPROFILE/APPDATA variables of this process. Read-only: no Known Folder or environment setting is changed."""
+    import ctypes
+    from ctypes import wintypes
+
+    class GUID(ctypes.Structure):
+        _fields_ = [('Data1', wintypes.DWORD), ('Data2', wintypes.WORD), ('Data3', wintypes.WORD), ('Data4', ctypes.c_ubyte * 8)]
+
+    g = uuid.UUID('{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}')  # FOLDERID_Programs
+    fid = GUID(g.fields[0], g.fields[1], g.fields[2], (ctypes.c_ubyte * 8)(*g.bytes[8:]))
+    shell32, ole32 = ctypes.WinDLL('shell32'), ctypes.WinDLL('ole32')
+    shell32.SHGetKnownFolderPath.argtypes = [ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)]
+    shell32.SHGetKnownFolderPath.restype = ctypes.HRESULT
+    ole32.CoTaskMemFree.argtypes = [ctypes.c_void_p]
+    out = ctypes.c_wchar_p()
+    shell32.SHGetKnownFolderPath(ctypes.byref(fid), 0x00004000, None, ctypes.byref(out))  # KF_FLAG_DONT_VERIFY; raises on failure
+    try:
+        return Path(out.value)
+    finally:
+        ole32.CoTaskMemFree(ctypes.cast(out, ctypes.c_void_p))
+
+
+def qa_group_dir(group: str, query=known_programs_dir) -> Path:
+    return query() / group
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--installer', type=Path, required=True)
@@ -69,9 +96,11 @@ def main() -> int:
     profile = out / 'isolated-profile'
     data = out / 'isolated-ledger/data'
     group = 'Ryoshu QA ' + uuid.uuid4().hex[:10]
-    # Inno expands the per-user Known Folder through USERPROFILE. Keep shortcut
-    # creation inside that synthetic profile, never in the ordinary Start Menu.
-    group_dir = profile / 'AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Ryoshu'
+    # Inno's {group} is <current user's Shell Known Folder FOLDERID_Programs>\<group>; a changed USERPROFILE does
+    # not redirect it. The unique QA group name keeps the test shortcuts apart from any ordinary Ryoshu group.
+    group_dir = qa_group_dir(group)
+    if group_dir.exists():
+        parser.error('The QA Start Menu group already exists; refusing to overwrite it')
     env = dict(os.environ, USERPROFILE=str(profile), PYTHONUTF8='1', PYTHONIOENCODING='utf-8')
     # The application being tested is in a fresh folder and has never owned 8766.
     # Synthetic launch metadata models the unrelated server already using that

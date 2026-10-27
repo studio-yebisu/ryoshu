@@ -1,6 +1,5 @@
 ﻿param([switch]$NoBrowser, [string]$DataDir)
 $ErrorActionPreference = 'Stop'
-$env:OLLAMA_NO_CLOUD = '1'
 $taskRoot = Join-Path $env:USERPROFILE 'StudioYebisu\ReceiptLedger'
 $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
 $appUrl = 'http://127.0.0.1:8766'
@@ -52,12 +51,18 @@ if (-not (Test-RyoshuSetupComplete -TaskRoot $taskRoot -RequirementsFile (Join-P
     & (Join-Path $PSScriptRoot 'setup.ps1') -StartupLockHeld
     $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
     if (-not (Test-RyoshuSetupComplete -TaskRoot $taskRoot -RequirementsFile (Join-Path $PSScriptRoot 'requirements.lock.txt') -PythonStatus $pythonStatus)) { throw '初回セットアップはまだ完了していません。直前のエラーを確認して実行し直してください。帳簿は残っています。' }
+} elseif ((Get-RyoshuSetupRecordPinSha256 -TaskRoot $taskRoot) -cne (Get-RyoshuRuntimePinSha256 -SourceDir $PSScriptRoot)) {
+    # A new source pin (update) prepares the pinned runtime/model once. The app opens afterwards
+    # even if that preparation failed; the inference reason is recorded in setup-state.json.
+    & (Join-Path $PSScriptRoot 'setup.ps1') -StartupLockHeld
+    $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
 }
-try { Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/version' -TimeoutSec 3 | Out-Null }
-catch {
-    $ollamaCommand = Get-Command ollama -ErrorAction SilentlyContinue
-    if ($ollamaCommand) { Start-Process -FilePath $ollamaCommand.Source -ArgumentList @('serve') -WindowStyle Hidden | Out-Null }
+# A verified Python CRT stage left by an interrupted setup is applied while no Ryoshu Python is running.
+if ($pythonStatus.base_prefix -and (Invoke-RyoshuPythonCrtStage -TaskRoot $taskRoot -PythonBase ([string]$pythonStatus.base_prefix) -SourcePin (Join-Path $PSScriptRoot 'receipt_ledger\runtime_pin.json')) -eq 'applied') {
+    Write-Host 'Ryoshu専用PythonのDLLを更新しました。'
 }
+# The local inference process is owned and started by the app itself (receipt_ledger.runtime);
+# launchers never start, reuse or stop Ollama, LM Studio or any other model service.
 $env:PYTHONUTF8 = '1'
 $env:RECEIPT_LEDGER_PORT = '8766'
 $env:RECEIPT_LEDGER_DATA = $selectedData

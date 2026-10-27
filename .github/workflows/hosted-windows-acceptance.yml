@@ -1,0 +1,108 @@
+name: Hosted Windows installer acceptance
+# Builds the per-user installer from this commit, installs the ACTUAL EXE into a fresh runner profile,
+# runs real first setup (official pinned downloads incl. Microsoft VC++ directly from Microsoft), two fictional receipts
+# through real OCR + local CPU llama.cpp, CSV, NoBrowser launch and uninstall. NOT the 100-receipt benchmark.
+# A GitHub-hosted image is not a stock consumer Windows 11; acceptance.json records the image facts.
+# Triggers: ordinary pull_request (never pull_request_target) for runtime/bootstrap/packaging/workflow changes, plus
+# manual dispatch once merged. Fork PRs are skipped by the job condition below (no secrets exist either way).
+on:
+  pull_request:
+    paths:
+      - 'receipt_ledger/**'
+      - 'scripts/**'
+      - 'packaging/windows/**'
+      - 'setup.ps1'
+      - 'start.ps1'
+      - 'stop.ps1'
+      - 'requirements.lock.txt'
+      - 'third_party/**'
+      - '.github/workflows/hosted-windows-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hosted-windows-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
+  INNO_URL: https://github.com/jrsoftware/issrc/releases/download/is-7_1_0/innosetup-7.1.0-x64.exe
+  INNO_SHA256: 0362a383ed217d4c4239b5933866dd96d3eb2102737da92f80f6057a4b40df2f
+  ISCC_SHA256: d06ebd38f38e3cee60a3c50cc45bd449d77e0bc6a5cabc607ea9886808e4de1a
+jobs:
+  acceptance:
+    # Same-repository PRs and manual runs only; a fork PR skips this heavy job instead of running untrusted code here.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Pinned Python 3.12.15 for the stdlib build/acceptance helpers
+        run: |
+          $ErrorActionPreference = 'Stop'
+          . (Join-Path $pwd 'scripts/bootstrap-uv.ps1')
+          $uvExe = Get-RyoshuUv (Join-Path $env:RUNNER_TEMP 'ci-uv-0.13.5')
+          $pythonHome = Join-Path $env:RUNNER_TEMP 'ci-python'
+          & $uvExe python install 3.12.15 --install-dir $pythonHome --no-bin --no-registry
+          if ($LASTEXITCODE -ne 0) { throw 'Python installation failed' }
+          ('CI_PYTHON=' + (Join-Path $pythonHome 'cpython-3.12.15-windows-x86_64-none\python.exe')) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Public source ZIP from this commit
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $src = Join-Path $env:RUNNER_TEMP 'source'
+          New-Item -ItemType Directory -Path $src | Out-Null
+          & $env:CI_PYTHON -I scripts/make_source_zip.py --output (Join-Path $src 'Ryoshu-source.zip')
+          if ($LASTEXITCODE -ne 0) { throw 'Source ZIP failed' }
+      - name: Official Inno Setup 7.1.0 (verified, private per-user install for this build only)
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dl = Join-Path $env:RUNNER_TEMP 'inno-download'
+          New-Item -ItemType Directory -Path $dl | Out-Null
+          $exe = Join-Path $dl 'innosetup-7.1.0-x64.exe'
+          Invoke-WebRequest -Uri $env:INNO_URL -OutFile $exe -UseBasicParsing
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $exe).Hash.ToLowerInvariant()
+          if ($hash -ne $env:INNO_SHA256) { throw ('Inno Setup installer hash mismatch: ' + $hash) }
+          $sig = Get-AuthenticodeSignature -LiteralPath $exe
+          if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Pyrsys B\.V\.') { throw 'Inno Setup signature is not the official signer' }
+          $dir = Join-Path $env:RUNNER_TEMP 'inno-7.1.0'
+          $p = Start-Process -FilePath $exe -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER','/NOICONS',('/DIR=' + $dir)) -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Inno Setup install failed' }
+          $iscc = Join-Path $dir 'ISCC.exe'
+          if ((Get-FileHash -Algorithm SHA256 -LiteralPath $iscc).Hash.ToLowerInvariant() -ne $env:ISCC_SHA256) { throw 'ISCC.exe hash mismatch' }
+          ('RYOSHU_ISCC=' + $iscc) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build the installer (existing build script; it never downloads or runs toolchains itself)
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:CI_PYTHON -I scripts/build_windows_package.py --source-zip (Join-Path $env:RUNNER_TEMP 'source\Ryoshu-source.zip') --output-dir (Join-Path $env:RUNNER_TEMP 'dist') --iscc $env:RYOSHU_ISCC
+          if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
+      - name: Install, first setup, real OCR + local model, CSV, launch, uninstall
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dist = Join-Path $env:RUNNER_TEMP 'dist'
+          $installer = @(Get-ChildItem -LiteralPath $dist -Filter 'Ryoshu-*-windows-x64-setup.exe')
+          if ($installer.Count -ne 1) { throw 'Expected exactly one built installer' }
+          & $env:CI_PYTHON -I scripts/hosted_acceptance.py --installer $installer[0].FullName --build-report ([System.IO.Path]::ChangeExtension($installer[0].FullName, '.build.json')) --source-zip (Join-Path $env:RUNNER_TEMP 'source\Ryoshu-source.zip') --fixtures samples/receipts-100-v2/receipts-100.zip --work-dir (Join-Path $env:RUNNER_TEMP 'qa-work') --report-dir (Join-Path $env:RUNNER_TEMP 'qa-report')
+          if ($LASTEXITCODE -ne 0) { throw 'Hosted acceptance failed (see acceptance.json)' }
+      - name: Collect allowlisted metadata only
+        if: always()
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'qa-report'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          Get-ChildItem -LiteralPath (Join-Path $env:RUNNER_TEMP 'dist') -Filter '*.build.json' -ErrorAction SilentlyContinue | Copy-Item -Destination (Join-Path $out 'installer.build.json')
+          Get-ChildItem -LiteralPath (Join-Path $env:RUNNER_TEMP 'source') -Filter '*.source.json' -ErrorAction SilentlyContinue | Copy-Item -Destination (Join-Path $out 'source-zip.json')
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: hosted-windows-acceptance
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/qa-report/acceptance.json
+            ${{ runner.temp }}/qa-report/synthetic-expenses.csv
+            ${{ runner.temp }}/qa-report/installer.build.json
+            ${{ runner.temp }}/qa-report/source-zip.json

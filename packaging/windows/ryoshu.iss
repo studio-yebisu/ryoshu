@@ -114,5 +114,5 @@ end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if (CurUninstallStep = usPostUninstall) and not UninstallSilent then
-    MsgBox('アプリとショートカットを削除しました。帳簿・原本・復元用の情報・モデル・実行環境とOllamaは残っています。', mbInformation, MB_OK);
+    MsgBox('アプリとショートカットを削除しました。帳簿・原本・復元用の情報・モデル・実行環境は残っています。', mbInformation, MB_OK);
 end;

@@ -6,6 +6,7 @@ if (-not (Get-Command Get-RyoshuFileSha256 -CommandType Function -ErrorAction Si
 
 function Get-RyoshuUv([string]$Directory) {
     $target = [System.IO.Path]::GetFullPath($Directory)
+    Assert-RyoshuUnlinkedPath $target   # refuse a linked tools dir or ANY linked ancestor before creating it
     New-Item -ItemType Directory -Path $target -Force | Out-Null
     if ((Get-Item -LiteralPath $target).Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw '実行環境の保存先にリンクは使えません。' }
     $executable = Join-Path $target 'uv.exe'

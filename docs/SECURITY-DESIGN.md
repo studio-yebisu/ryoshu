@@ -2,11 +2,11 @@
 
 ## 1. 保護範囲と前提
 
-この文書は、Ryoshu v1.3.4 に関する現在の実装仕様を説明する。概要と操作の案内は [README](../README.md) を参照する。
+この文書は、Ryoshu v1.4.0候補に関する設計と固定された実装パラメータを説明する。候補版は公開前で、実装・セキュリティ・実インストーラーの検証は継続中である。公開済みv1.3.4の概要と操作の案内は [README](../README.md) を参照する。
 
 領収書の読み取りと科目候補の生成はローカルPC上で行われ、外部AIのアカウントやAPIキーは必要ない。ただし、暗号化だけで端末上のあらゆる危険を排除できるわけではない。同じWindows利用者として動作するマルウェア、ロック解除済みのWindowsセッションや開いた画面へのアクセス、ローカル管理者およびSYSTEMからのアクセスは保護範囲外である。セキュリティの完全性や法令適合を保証するものでもない。
 
-過去の脆弱性テストは [v1.1.0 candidate・2026-10-22 の監査記録](testing/security/README.md) に残る。これは現在の v1.3.4 に対する監査ではない。以下の現在仕様と、過去のテスト対象範囲は区別して読む必要がある。
+過去の脆弱性テストは [v1.1.0 candidate・2026-10-22 の監査記録](testing/security/README.md) に残る。これはv1.3.4やv1.4.0候補に対する監査ではない。以下の候補仕様と、過去のテスト対象範囲は区別して読む必要がある。
 
 ## 2. 保護対象と方式の全体像
 
@@ -47,7 +47,7 @@ Windowsでは `.ryoshu-key.dpapi` にマスターキーを保存し、`CryptProt
 
 暗号データベースのファイル名は `ledger.enc.sqlite3` である。HKDFの `database` 用途で導出した32バイトの鍵をraw hexのPRAGMA keyとして使い、SQLCipherのバージョンを必須条件として確認する。SQLiteの最低確認バージョンは3.53.4である。設定は `cipher_memory_security=ON`、`temp_store=MEMORY`、`trusted_schema=OFF`、`foreign_keys=ON`、`secure_delete=ON` である。`cipher_memory_security` を設定しても、OSのページング、スワップ、休止状態に残る復号データまで検証したわけではない。
 
-保存ファイルはHKDFの `files` 用途で導出した32バイトの鍵によるAES-GCMで暗号化する。nonceは12バイト、認証タグは16バイトで、レイアウトは `FILE_MAGIC || nonce || ciphertext+tag`、マジック値は `RYOSHU-FILE\x01` である。AADは正確に `FILE_MAGIC || ledger_id || 0x00 || ledgerルート以下のPOSIX形式相対パス` とする。シンボリックリンクやルート外のパスは拒否する。
+保存ファイルはHKDFの `files` 用途で導出した32バイトの鍵によるAES-GCMで暗号化する。nonceは12バイト、認証タグは16バイト、レイアウトは `FILE_MAGIC || nonce || ciphertext+tag`、マジック値は `RYOSHU-FILE\x01` である。AADは正確に `FILE_MAGIC || ledger_id || 0x00 || ledgerルート以下のPOSIX形式相対パス` とする。シンボリックリンクやルート外のパスは拒否する。
 
 対象は `receipts/<id>/original.*`、`imports/<sha>/source.pdf`、`preview-*.jpg` で、保存対象の平文上限は67,108,864バイト（64 MiB）である。これはアップロード入力の上限とは別である。
 
@@ -64,22 +64,22 @@ OCR中には `<data>/.ryoshu-work/ocr-*` の非公開ディレクトリへ、復
 - CSV出力と、利用者が書き出した原本
 - 帳簿IDと `format_version` だけを持ち、`user_version` が99のガード用 `ledger.sqlite3`
 - `<DEFAULT_ROOT>/runtime` 以下のセットアップ・実行時ファイルと、`<DEFAULT_ROOT>` 直下の `venv`、`python`、`tools`、`cache`
-- IndraキャッシュとOllamaモデル
+- Indraキャッシュ、`<DEFAULT_ROOT>/llama` の実行環境、`<DEFAULT_ROOT>/models` のモデル
 - 実行時のstdout／stderrログ
 
 stdout／stderrログにどのような内容が記録されるかは監査していない。CSVと書き出した原本は通常の平文ファイルなので、保存先、共有先、バックアップ先は利用者が管理する。
 
 ## 7. 通信先とローカル制限
 
-アプリは既定で `127.0.0.1` のTCPポート8766を使う。ポートは環境変数 `RECEIPT_LEDGER_PORT` で変更でき、通常の起動に使う `start.ps1` は8766を設定する。Ollamaの接続先は `http://127.0.0.1:11434` で、利用するエンドポイントは `/api/tags`、`/api/show`、`/api/chat`、`/api/version` である。
+アプリは既定で `127.0.0.1` のTCPポート8766を使う。ポートは環境変数 `RECEIPT_LEDGER_PORT` で変更でき、通常の起動に使う `start.ps1` は8766を設定する。科目候補の作成では、Ryoshuが専用のllama.cpp `llama-server` を起動し、`127.0.0.1`だけで待ち受けさせる。接続には起動ごとに変わる認証キーを使い、Ryoshuの終了時には専用プロセスも終了する。OllamaやLM Studioへの接続は使わない。
 
 アプリのサーバーをimportする前に `sys.addaudithook` を設定し、Pythonの `socket.connect`、`socket.sendto`、`socket.sendmsg`、`socket.getaddrinfo`、`socket.gethostbyname`、`socket.gethostbyaddr` の監査イベントを検査する。許可するホストは `127.0.0.1`、`::1`、`localhost` である。この仕組みはアプリプロセス内のPythonソケット監査イベントに対する制限であり、ネイティブ拡張や子プロセスの全通信を遮断するとは確認していない。セットアップのダウンロードはフックのない別プロセスで実行する。
 
 Hugging Face向けには `HF_HOME=<DEFAULT_ROOT>/cache/huggingface`、`HF_HUB_DISABLE_TELEMETRY=1`、`HF_HUB_DISABLE_IMPLICIT_TOKEN=1` を設定し、領収書処理中は `HF_HUB_OFFLINE=1` を設定する。アプリがフラグを設定することは確認できるが、Indra OCRが全資産にこのフラグをどう適用するかまでは検証していない。
 
-`setup.ps1` と `start.ps1` は `OLLAMA_NO_CLOUD=1` を設定する。モデル情報に `remote_host` または `remote_model` があれば拒否し、形式は `gguf`、アーキテクチャは `qwen3`、モデルサイズは1,073,741,824バイト（1 GiB）以上を要求する。HTTPXでは `trust_env=false` とする。Ollama自身が更新確認などの通信をしないことまでは保証しない。
+専用のllama-serverにはオフラインオプションを指定し、ループバックだけを使う。これはRyoshuが固定する起動設定であり、OSのファイアウォール規則による通信遮断ではない。Python側の監査フックをネイティブAIプロセスの強制遮断として扱わない。
 
-初回セットアップではuv、Python、依存ライブラリ、OCR重み、`qwen3:4b` を取得するためネット接続が必要で、再セットアップでも取得処理が発生し得る。したがって、セットアップを含む運用全体が常にオフラインというわけではない。
+初回セットアップではuv、Python、依存ライブラリ、OCR重み、llama.cpp実行環境、Qwenモデルを取得するためネット接続が必要で、再セットアップや更新でも取得処理が発生し得る。したがって、セットアップを含む運用全体が常にオフラインというわけではない。
 
 ## 8. ローカル画面の認証
 
@@ -119,12 +119,14 @@ tarメンバーは `REGTYPE` と `AREGTYPE` だけを許可する。PAX／GNUの
 
 ## 13. セットアップ時の供給元と整合性
 
-セットアップは、uv 0.13.5、Python 3.12.15、依存ライブラリ、Indra OCRの重み、`qwen3:4b` の順に準備する。uvは `https://github.com/astral-sh/uv/releases/download/0.13.5/uv-x86_64-pc-windows-msvc.zip` から取得し、ZIPのSHA-256 `a38b8d1902b7cfbc76b423ba1bb456f623f42064cdc72628b6075b89afd1019a`、EXEのSHA-256 `f45d1cb9d9140ca6d3f4005fdfc0ebeccf849fd04d1dc85804155cb923f1597b`、EXE長31,899,952バイトを確認する。Pythonは `uv python install --no-bin --no-registry`、依存関係は `uv pip install --require-hashes -r requirements.lock.txt` で導入する。
+セットアップは、uv 0.13.5、Python 3.12.15、依存ライブラリ、Indra OCRの重み、llama.cpp実行環境、Qwenモデルを準備する。uvは `https://github.com/astral-sh/uv/releases/download/0.13.5/uv-x86_64-pc-windows-msvc.zip` から取得し、ZIPのSHA-256 `a38b8d1902b7cfbc76b423ba1bb456f623f42064cdc72628b6075b89afd1019a`、EXEのSHA-256 `f45d1cb9d9140ca6d3f4005fdfc0ebeccf849fd04d1dc85804155cb923f1597b`、EXE長31,899,952バイトを確認する。Pythonは `uv python install --no-bin --no-registry`、依存関係は `uv pip install --require-hashes -r requirements.lock.txt` で導入する。
 
-OCR重みは `scripts/prepare_ocr.py` で `<DEFAULT_ROOT>/cache/huggingface` に準備し、Qwenは `ollama pull` で取得する。Indra重みと `qwen3:4b` について、コードにはダウンロード内容を固定ハッシュで検証する仕組みはない。
+OCR重みは `scripts/prepare_ocr.py` で `<DEFAULT_ROOT>/cache/huggingface` に準備する。llama.cppは公式ggml-org releaseのb11700 Windows CPU x64 ZIP（19,593,035バイト、commit `23f7aabc16c72f6f707dba227251c35d7bd1ed96`）を使い、Qwenは `Qwen/Qwen3-4B-GGUF` のrevision `bc640142c66e1fdd12af0bd68f40445458f3869b` にある `Qwen3-4B-Q4_K_M.gguf`（2,497,280,256バイト）を使う。モデルの固定SHA-256は `7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5` である。
 
-ダウンロード前には `-AcceptModelLicense` または既存記録がない限り `y/N` のライセンス確認を行う。記録値は `Indra modified OpenRAIL-M`、ライセンスURLは `https://huggingface.co/datalab-to/indra-ocr/blob/bd02167fdf2005a19962cc15188f8496a2c87d3b/LICENSE` である。
+llama.cppのZIP・展開対象・モデルは、固定したサイズとSHA-256が一致するまで実行・導入に使わない。アーカイブの危険な項目と保存先のリンクを拒否し、中断したダウンロードは次のセットアップで再開する。起動時にも、専用AIプロセスを実行する前に実行環境とモデルの全SHA-256を1回確認する。不一致時は再セットアップで検証済みのファイルを準備し、以前の実行環境・帳簿・原本を保持する設計である。
+
+ダウンロード前には `-AcceptModelLicense` または既存記録がない限り `y/N` のライセンス確認を行う。記録値は `Indra modified OpenRAIL-M`、ライセンスURLは `https://huggingface.co/datalab-to/indra-ocr/blob/bd02167fdf2005a19962cc15188f8496a2c87d3b/LICENSE` である。llama.cppのMITライセンスは実行環境の隣に、モデルのApache-2.0ライセンスはモデルの隣に配置する。
 
 ## 14. 関連する検証記録
 
-現在の実装パラメータの確認と、過去の攻撃ケースに対する網羅性は同じ意味ではない。[v1.1.0 candidate・2026-10-22 のセキュリティテスト記録](testing/security/README.md) は過去の対象版と時点の記録として参照する。v1.3.4 の監査結果や、新たな100ケースの推論テストを示すものではない。
+現在の実装パラメータの確認と、過去の攻撃ケースに対する網羅性は同じ意味ではない。[v1.1.0 candidate・2026-10-22 のセキュリティテスト記録](testing/security/README.md) は過去の対象版と時点の記録として参照する。v1.3.4やv1.4.0候補の監査結果、新たな100ケースの推論テストを示すものではない。v1.4.0候補については、ネイティブ実行環境の全ハッシュ・起動元と認証・ループバック・実推論・セキュリティ回帰の検証が完了するまで、設計上の拒否条件を検証済みの防御結果として扱わない。

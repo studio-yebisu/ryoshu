@@ -25,9 +25,16 @@ REQUIRED = {
     'packaging/windows/ryoshu.iss', 'packaging/windows/can-modify.ps1',
     'packaging/windows/launch.ps1', 'packaging/windows/before-install.txt',
     'packaging/windows/welcome.html',
+    # local inference: source pin, its stdlib reader, the first-setup preparer and exact license texts
+    'receipt_ledger/runtime_pin.json', 'receipt_ledger/runtime_pin.py', 'scripts/prepare_llama.py',
+    'scripts/ms_vcredist.py',
+    'third_party/llama.cpp/LICENSE', 'third_party/Qwen3-4B-GGUF/LICENSE',
 }
 FORBIDDEN_PARTS = {'.git', '.local', '.venv', 'venv', 'node_modules', '__pycache__',
-                   'runtime', 'cache', 'models', '.pytest_cache'}
+                   'runtime', 'cache', 'models', '.pytest_cache', 'llama', 'downloads'}
+# Runtime binaries and model weights are downloaded by first setup from pinned official sources;
+# they must never be redistributed inside the public source ZIP or the setup EXE.
+FORBIDDEN_SUFFIXES = ('.exe', '.dll', '.gguf', '.part', '.safetensors', '.onnx')
 COMPILER_SHA256 = 'd06ebd38f38e3cee60a3c50cc45bd449d77e0bc6a5cabc607ea9886808e4de1a'
 RESERVED_WINDOWS = {'con', 'prn', 'aux', 'nul'} | {
     f'{prefix}{digit}' for prefix in ('com', 'lpt') for digit in range(1, 10)}
@@ -67,6 +74,8 @@ def unpack_source(archive: Path, destination: Path) -> tuple[Path, str, list[str
             if relative == '.' or any(part.casefold() in FORBIDDEN_PARTS for part in pure.parts):
                 raise ValueError(f'Private source file: {name}')
             leaf = pure.name.lower()
+            if leaf.endswith(FORBIDDEN_SUFFIXES):
+                raise ValueError(f'Binary or model weights are not distributable in source: {name}')
             if (leaf.startswith('.env') or leaf.endswith(('.sqlite3', '.sqlite', '.db',
                     '.log', '.pem', '.key', '.ryoshubak')) or
                     relative.casefold().startswith('data/') and not (

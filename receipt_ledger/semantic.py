@@ -2,10 +2,10 @@
 import json
 import re
 import time
-import httpx
 
-from . import config
 from .catalog import apply_account_policies, default_accounts, resolve_account, retrieve_accounts
+from .runtime import GenerateRequest, RuntimeFailure
+from .runtime_copy import message as runtime_message
 from .extraction import TAX_LABEL, TAX_RATE, amount_on_line, compact, document_flags, extract_total, printed_tax, secondary_amounts
 
 
@@ -154,8 +154,8 @@ def semantic_document_text(text):
     return '\n'.join(body),list(dict.fromkeys(ignored))
 
 
-def classify(ocr, business_context='', rules=None, accounts=None, policies=None):
-    from .pipeline import dates_in, ground, local_models
+def classify(ocr, business_context='', rules=None, accounts=None, policies=None, runtime=None):
+    from .pipeline import dates_in, ground
     accounts=default_accounts() if accounts is None else accounts
     # Keep both geometry ordering and a checked native layer; never consult filenames or answers.
     text=ocr['text']
@@ -172,8 +172,7 @@ def classify(ocr, business_context='', rules=None, accounts=None, policies=None)
     flags=document_flags(combined)
     choices=candidates or secondary_amounts(native or text)
     uncertain_total=total is None and not flags['foreign'] and bool(choices)
-    model=next((m for m in local_models() if m.get('name')==config.MODEL),None)
-    if model is None:raise ValueError('Qwen3 4Bが見つかりません。「初回セットアップ.cmd」でqwen3:4bを準備してください')
+    if runtime is None:raise RuntimeFailure('disabled')
     schema={'type':'object','additionalProperties':False,'properties':{
         'merchant':{'type':'string','enum':['',*issuers],'maxLength':100},
         'description':{'type':'string','maxLength':60},
@@ -203,16 +202,13 @@ descriptionは原本で読める購入品・サービスだけ。地名や注意
                        '品目辞書の手掛かり':retrieval,'発行者の候補':issuers,'事業の概要':business_context[:1500],
                        '金額の選択肢':choices if uncertain_total else [],
                        '書類の本文':body_text},ensure_ascii=False)+'\n/no_think'
-    body={'model':config.MODEL,'messages':[{'role':'system','content':system},{'role':'user','content':prompt}],
-          'format':schema,'stream':False,'think':False,'keep_alive':'5m',
-          'options':{'temperature':0,'num_ctx':8192,'num_predict':850,'num_gpu':0,'num_thread':6,'seed':42}}
+    # Sampling/context/CPU controls live in the owned runtime's request and argv.
     started=time.perf_counter()
-    with httpx.Client(trust_env=False,timeout=httpx.Timeout(300,connect=5)) as client:
-        response=client.post(config.OLLAMA_URL+'/api/chat',json=body);response.raise_for_status();output=response.json()
-    if output.get('done_reason')=='length':raise ValueError('モデルの応答が出力上限に達しました。OCR本文を確認して手入力できます')
-    raw=json.loads(output['message']['content'])
+    generated=runtime.generate(GenerateRequest(system=system,user=prompt,schema=schema))
+    if generated.finish_reason=='length':raise ValueError(runtime_message('length_limit'))
+    raw=json.loads(generated.content)
     # Bound strings independently of the model's schema compliance.
-    if not isinstance(raw,dict) or any(not isinstance(raw.get(k),str) for k,p in schema['properties'].items() if p['type']=='string'):raise ValueError('AI候補を期待した形式へ変換できません。OCR本文から手入力できます')
+    if not isinstance(raw,dict) or any(not isinstance(raw.get(k),str) for k,p in schema['properties'].items() if p['type']=='string'):raise ValueError(runtime_message('invalid_structured_output'))
     raw={k:(v[:schema['properties'][k].get('maxLength',100)] if isinstance(v,str) else v) for k,v in raw.items() if k in schema['properties']}
     if not issuers:raw['merchant']=''
     if uncertain_total and type(raw.get('total_choice')) is int:
@@ -249,7 +245,9 @@ descriptionは原本で読める購入品・サービスだけ。地名や注意
     if value['merchant'] and is_recipient_name(value['merchant'],combined):
         value['merchant']='';value['merchant_evidence']='';value['warnings'].append('宛名と発行者を区別できないため、支払先を保留しました')
     result=ground(value,combined,accounts,policies=[],tax_text=text)
-    result.update({'raw_model_candidate':raw,'model':config.MODEL,'model_digest':model.get('digest'),
+    result.update({'raw_model_candidate':raw,'model':generated.model_id,'model_digest':generated.model_sha256,
+                   'runtime':generated.runtime_version,'runtime_pin_sha256':generated.pin_sha256,
+                   'model_load_seconds':generated.load_seconds,'runtime_evidence':generated.evidence,
                    'seconds':round(time.perf_counter()-started,2),'origin':'model','retrieval':retrieval,
                    'field_method':'source_extraction_and_local_semantic_model','amount_candidates':candidates,
                    'ignored_document_annotations':ignored_annotations})

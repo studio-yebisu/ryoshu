@@ -12,6 +12,13 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# Adopted Kimi copy shown by setup.ps1 (replaces the former [RYOSHU <slot>] technical markers).
+CRT_UNAVAILABLE = "Microsoftの配布物または利用条件を準備できませんでした。ネット接続と空き容量を確認し、「初回セットアップ.cmd」で再試行してください。帳簿は変更していません。理由："
+CRT_TERMS_PROMPT = "上記のMicrosoft利用条件に同意し、必要なDLLをRyoshu専用の保存先へ配置しますか？ [y/N]"
+CRT_DECLINED = "Microsoft利用条件に同意しなかったため、OCRとAIによる科目候補の準備を行いませんでした。帳簿への手入力とCSV出力は利用できます。あとで同意するか選び直すには「初回セットアップ.cmd」をもう一度実行してください。"
+CRT_PREVIOUSLY_DECLINED = "前回はMicrosoft利用条件への同意を見送ったため、今回も条件を確認してから同意するかを選択できます。"
+CRT_TERMS_IDENTITY_FIRST = "EULA ID・条件のSHA-256・対象バージョン："
+INFERENCE_NOT_READY = "OCRとAIによる科目候補の準備が完了していません。あとで「初回セットアップ.cmd」を実行してください。帳簿への手入力とCSV出力は利用できます。"
 POWERSHELL = shutil.which("powershell")
 pytestmark = pytest.mark.skipif(
     os.name != "nt" or not POWERSHELL, reason="Windows PowerShell bootstrap"
@@ -69,9 +76,52 @@ arguments = base64.b64decode(os.environ["RYOSHU_TEST_NATIVE_ARGS"]).decode("utf-
 with open(os.environ["RYOSHU_TEST_CALL_LOG"], "a", encoding="utf-8") as log:
     log.write(json.dumps({"mode": mode, "argv": arguments,
                           "exe": os.environ["RYOSHU_TEST_NATIVE_EXE"]}) + "\n")
-if mode == "ollama" and arguments == ["pull", "qwen3:4b"]:
-    raise SystemExit(42 if os.environ.get("RYOSHU_TEST_FAIL_STAGE") == "ollama" else 0)
+if mode == "ollama-forbidden":
+    raise SystemExit(99)  # setup/start must never invoke Ollama; the call log above records any attempt
 if "-c" not in arguments:
+    if arguments and Path(arguments[0]).name == "prepare_llama.py" and "--crt-only" in arguments:
+        root = Path(arguments[arguments.index("--root") + 1])
+        assert arguments[arguments.index("--python-base") + 1], "CRT step needs the managed interpreter directory"
+        crt_mode = os.environ.get("RYOSHU_TEST_CRT", "ok")  # ok | pending-missing | pending-system
+        eula = "e" * 64
+        stock = crt_mode in ("pending-missing", "prior-declined")  # stock PC: no machine-wide VC++ runtime
+        closure = {"msvcp140.dll": "missing" if stock else "system32",
+                   "msvcp140_1.dll": "missing" if stock else "system32",
+                   "vcruntime140.dll": "python_local", "vcruntime140_1.dll": "python_local"}
+        if os.environ.get("RYOSHU_TEST_FAIL_STAGE") == "crt":
+            result, stage = {"ok": False, "reason_code": "crt_unavailable"}, "crt"
+        elif crt_mode == "ok":
+            result, stage = {"ok": True, "reason_code": ""}, "crt"
+        elif "--accept-crt-terms" in arguments:
+            assert arguments[arguments.index("--accept-crt-terms") + 1] == eula, "acceptance must name the shown terms"
+            result, stage = {"ok": True, "reason_code": ""}, "crt-accept"
+        elif "--decline-crt-terms" in arguments:
+            result, stage = {"ok": False, "reason_code": "crt_declined", "closure": closure}, "crt-decline"
+        elif crt_mode == "prior-declined" and "--reconsider-crt-terms" not in arguments:
+            result, stage = {"ok": False, "reason_code": "crt_declined", "closure": closure}, "crt-kept-decline"
+        else:
+            terms = root / "crt-terms-fixture.txt"
+            terms.parent.mkdir(parents=True, exist_ok=True)
+            terms.write_text("MICROSOFT SOFTWARE LICENSE TERMS (fixture)\n", encoding="utf-8")
+            result = {"ok": False, "reason_code": "crt_terms_pending", "terms_text": str(terms), "eula_id": "Cpp_2015-2022_ENU.1033",
+                      "eula_sha256": eula, "version": "14.44.35211.0", "package_url": "https://download.visualstudio.microsoft.com/x",
+                      "package_sha256": "c" * 64, "closure": closure,
+                      "previous_decision": "declined" if crt_mode == "prior-declined" else "none"}
+            stage = "crt-pending"
+        (root / "runtime").mkdir(parents=True, exist_ok=True)
+        (root / "runtime/crt-setup-result.json").write_text(json.dumps(result), encoding="utf-8")
+        with open(os.environ["RYOSHU_TEST_CALL_LOG"], "a", encoding="utf-8") as log:
+            log.write(json.dumps({"mode": "stage", "argv": [stage], "exe": "stage"}) + "\n")
+        raise SystemExit(0 if result["ok"] else 3)
+    if arguments and Path(arguments[0]).name == "prepare_llama.py":
+        root = Path(arguments[arguments.index("--root") + 1])
+        failing = os.environ.get("RYOSHU_TEST_FAIL_STAGE") == "llama"
+        with open(os.environ["RYOSHU_TEST_CALL_LOG"], "a", encoding="utf-8") as log:
+            log.write(json.dumps({"mode": "stage", "argv": ["llama"], "exe": "stage"}) + "\n")
+        (root / "runtime").mkdir(parents=True, exist_ok=True)
+        (root / "runtime/llama-setup-result.json").write_text(json.dumps(
+            {"ok": not failing, "reason_code": "vc_runtime_missing" if failing else ""}), encoding="utf-8")
+        raise SystemExit(3 if failing else 0)
     if arguments and Path(arguments[0]).name == "open_session.py":
         data_dir = arguments[arguments.index("--data-dir") + 1]
         assert Path(data_dir).resolve() == Path(os.environ["RYOSHU_TEST_DATA_DIR"]).resolve()
@@ -81,6 +131,8 @@ if "-c" not in arguments:
                           "url": "http://127.0.0.1:8766/fixture-session"}))
         raise SystemExit(0)
     if arguments and Path(arguments[0]).name == "prepare_ocr.py":
+        with open(os.environ["RYOSHU_TEST_CALL_LOG"], "a", encoding="utf-8") as log:
+            log.write(json.dumps({"mode": "stage", "argv": ["ocr"], "exe": "stage"}) + "\n")
         raise SystemExit(41 if os.environ.get("RYOSHU_TEST_FAIL_STAGE") == "ocr" else 0)
     raise RuntimeError("Unexpected fixture invocation: " + repr(arguments))
 index = arguments.index("-c")
@@ -98,6 +150,19 @@ sqlcipher.sqlite_version_info = (3, 53, 3) if mode == "old-sqlcipher" else (3, 5
 sqlcipher.sqlite_version = ".".join(map(str, sqlcipher.sqlite_version_info))
 sys.modules["cryptography"] = cryptography
 sys.modules["sqlcipher3"] = sqlcipher
+# The probe activates the app-owned CRT before importing native libraries; record the call and its root.
+ledger_pkg = types.ModuleType("receipt_ledger")
+crt_bootstrap = types.ModuleType("receipt_ledger.crt_bootstrap")
+def fixture_activate(root=None, *args, **kwargs):
+    with open(os.environ["RYOSHU_TEST_CALL_LOG"], "a", encoding="utf-8") as log:
+        log.write(json.dumps({"mode": "activate", "argv": [str(root), str(sys.modules.get("cryptography") is cryptography)],
+                              "exe": "activate"}) + "\n")
+    return {"state": "fixture"}
+crt_bootstrap.activate = fixture_activate
+ledger_pkg.crt_bootstrap = crt_bootstrap
+if "crt_bootstrap" in code:  # other -c helpers (e.g. the version read) import the copied source package
+    sys.modules["receipt_ledger"] = ledger_pkg
+    sys.modules["receipt_ledger.crt_bootstrap"] = crt_bootstrap
 if mode == "missing-library":
     original_import = builtins.__import__
     def controlled_import(name, *args, **kwargs):
@@ -415,22 +480,42 @@ if ($arguments[0] -eq 'python' -and $arguments[1] -eq 'install') {
 $global:LASTEXITCODE = 0
 '''.lstrip(), encoding="utf-8-sig")
     tools = tmp_path / "fake-tools"
-    fake_python(native_python, tools / "ollama.exe", "ollama")
+    # An Ollama on PATH must be ignored entirely (no detection, serve, or pull).
+    fake_python(native_python, tools / "ollama.exe", "ollama-forbidden")
     return source, uv, tools
 
 
-def run_setup_fixture(tmp_path, native_python, profile, listener="none", processes=None, failure_stage=None):
+def ollama_invocations(tmp_path):
+    log = tmp_path / "python-calls.jsonl"
+    if not log.exists():
+        return []
+    return [c for c in map(json.loads, log.read_text("utf-8").splitlines()) if Path(c["exe"]).name.lower() == "ollama.exe"]
+
+
+def run_setup_fixture(tmp_path, native_python, profile, listener="none", processes=None, failure_stage=None, crt="ok", answer=None,
+                      launched_by_start=False, qa_terms_sha=None):
     source, uv, tools = setup_source_fixture(tmp_path, native_python)
     script = r'''
 $ErrorActionPreference = 'Stop'
 ''' + PROCESS_FIXTURES + r'''
+$global:prompts = @()
+function global:Read-Host { param($Prompt) $global:prompts += [string]$Prompt; if ($null -eq $env:RYOSHU_TEST_ANSWER) { throw 'fixture: unexpected prompt' }; if ($env:RYOSHU_TEST_ANSWER -eq '<empty>') { return '' }; return $env:RYOSHU_TEST_ANSWER }
+''' + r'''
 $failure = $null
 $messages = @()
-try { $messages = @(& $env:RYOSHU_TEST_SETUP -AcceptModelLicense 6>&1 3>&1 | ForEach-Object { [string]$_ }) }
+$setupArgs = @{AcceptModelLicense=$true}
+if ($env:RYOSHU_TEST_FROM_START -eq '1') { $setupArgs.StartupLockHeld = $true }   # as start.ps1 invokes setup
+if ($env:RYOSHU_TEST_QA_TERMS) { $setupArgs.QaAcceptCrtTermsSha256 = $env:RYOSHU_TEST_QA_TERMS }
+try { $messages = @(& $env:RYOSHU_TEST_SETUP @setupArgs 6>&1 3>&1 | ForEach-Object { [string]$_ }) }
 catch { $failure = $_.Exception.Message }
-@{error=$failure;stopped=@($global:stopped);messages=$messages} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $env:RYOSHU_TEST_RESULT -Encoding UTF8
+@{error=$failure;stopped=@($global:stopped);messages=$messages;prompts=@($global:prompts)} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $env:RYOSHU_TEST_RESULT -Encoding UTF8
 '''
+    extra = {"RYOSHU_TEST_CRT": crt, "RYOSHU_TEST_FROM_START": "1" if launched_by_start else "0",
+             "RYOSHU_TEST_QA_TERMS": qa_terms_sha or ""}
+    if answer is not None:
+        extra["RYOSHU_TEST_ANSWER"] = answer or "<empty>"  # Windows treats an empty env value as unset
     result = run_ps(tmp_path, script, {
+        **extra,
         **native_env(native_python, tmp_path),
         "USERPROFILE": str(profile),
         "PATH": str(tools) + os.pathsep + os.environ["PATH"],
@@ -537,7 +622,7 @@ def test_setup_preserves_broken_managed_base_before_reinstalling_it(tmp_path, na
 
 @pytest.mark.parametrize("condition", [
     "missing", "pending", "complete", "changed-lock", "missing-lock", "changed-version",
-    "changed-base", "invalid-json", "partial-marker", "wrong-schema",
+    "changed-base", "invalid-json", "partial-marker", "wrong-schema", "ollama-era-schema1",
 ])
 def test_setup_completion_requires_matching_complete_record(tmp_path, condition):
     profile, task_root, preserved = seeded_task_root(tmp_path)
@@ -560,7 +645,12 @@ switch ($env:RYOSHU_TEST_CONDITION) {
     'changed-version' { $status.version = '3.12.16' }
     'changed-base' { $status.base_prefix += '-different' }
     'invalid-json' { [IO.File]::WriteAllText($statePath, '{truncated') }
-    'partial-marker' { @{schema=1;state='complete'} | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8 }
+    'partial-marker' { @{schema=2;state='complete'} | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8 }
+    'ollama-era-schema1' {
+        $record = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+        $record.schema = 1
+        $record | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+    }
     'wrong-schema' {
         $record = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
         $record.schema = 99
@@ -582,7 +672,7 @@ $raw = if (Test-Path -LiteralPath $statePath) { [IO.File]::ReadAllText($statePat
     assert result["complete"] is (condition == "complete")
     if condition in {"pending", "complete"}:
         marker = json.loads(result["raw"])
-        assert marker["schema"] == 1
+        assert marker["schema"] == 2
         assert marker["state"] == condition
         assert marker["requirements_sha256"].lower() == sha256(original_lock).hexdigest()
         assert marker["python_version"] == "3.12.15"
@@ -590,18 +680,157 @@ $raw = if (Test-Path -LiteralPath $statePath) { [IO.File]::ReadAllText($statePat
     assert_data_preserved(task_root, preserved)
 
 
-@pytest.mark.parametrize("failure_stage", ["ocr", "ollama"])
+def stage_order(tmp_path):
+    log = tmp_path / "python-calls.jsonl"
+    return [c["argv"][0] for c in map(json.loads, log.read_text("utf-8").splitlines()) if c["mode"] == "stage"]
+
+
+def test_crt_closure_runs_before_ocr_and_its_failure_stops_base_setup(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    ok, _ = run_setup_fixture(tmp_path, native_python, profile)
+    assert ok["error"] is None, ok
+    assert stage_order(tmp_path)[:2] == ["crt", "ocr"]  # onnxruntime is first imported by OCR
+    calls = [json.loads(line) for line in (tmp_path / "python-calls.jsonl").read_text("utf-8").splitlines()]
+    order = [c["mode"] if c["mode"] in ("activate", "stage") else None for c in calls]
+    # the CRT step precedes the library probe, and that probe activates the app-owned CRT for THIS root first
+    activations = [c for c in calls if c["mode"] == "activate"]
+    assert activations and order.index("stage") < order.index("activate")
+    assert all(Path(c["argv"][0]) == task_root for c in activations)
+    (tmp_path / "python-calls.jsonl").unlink()
+    failed, _ = run_setup_fixture(tmp_path, native_python, profile, failure_stage="crt")
+    assert failed["error"] and CRT_UNAVAILABLE + "crt_unavailable" in failed["error"]
+    assert stage_order(tmp_path) == ["crt"]  # OCR never attempted without a CRT closure
+    assert json.loads((task_root / "runtime/setup-state.json").read_text("utf-8-sig"))["state"] == "pending"
+    assert ollama_invocations(tmp_path) == []
+    assert_data_preserved(task_root, preserved)
+
+
+def test_runtime_terms_accept_places_crt_then_prepares_ocr_and_ai(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-missing", answer="y")
+    assert res["error"] is None, res
+    assert len(res["prompts"]) == 1 and CRT_TERMS_PROMPT in res["prompts"][0]
+    assert stage_order(tmp_path) == ["crt-pending", "crt-accept", "ocr", "llama"]
+    shown = "\n".join(res["messages"])
+    assert "Cpp_2015-2022_ENU.1033" in shown and "MICROSOFT SOFTWARE LICENSE TERMS (fixture)" in shown
+    state = json.loads((task_root / "runtime/setup-state.json").read_text("utf-8-sig"))
+    assert state["state"] == "complete" and state["inference_state"] == "complete"
+    assert_data_preserved(task_root, preserved)
+
+
+@pytest.mark.parametrize("answer", ["n", "", "yes please"])
+def test_runtime_terms_decline_on_stock_pc_keeps_manual_ledger_and_skips_only_native_steps(tmp_path, native_python, answer):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-missing", answer=answer)
+    assert res["error"] is None, res  # not a crash: the app can still open for manual work
+    assert stage_order(tmp_path) == ["crt-pending", "crt-decline"]  # anything but exactly 'y' is a decline
+    state = json.loads((task_root / "runtime/setup-state.json").read_text("utf-8-sig"))
+    assert state["state"] == "complete" and state["inference_state"] == "failed" and state["inference_reason"] == "crt_declined"
+    assert any(CRT_DECLINED in m for m in res["messages"])
+    assert ollama_invocations(tmp_path) == []
+    assert_data_preserved(task_root, preserved)
+
+
+@pytest.mark.parametrize("answer,accepted", [("y", True), ("n", False), ("", False)])
+def test_prior_decline_explicit_setup_rerun_prompts_again_with_current_terms(tmp_path, native_python, answer, accepted):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="prior-declined", answer=answer)
+    assert res["error"] is None, res
+    assert len(res["prompts"]) == 1 and CRT_TERMS_PROMPT in res["prompts"][0]
+    shown = "\n".join(res["messages"])
+    assert CRT_PREVIOUSLY_DECLINED in shown and "MICROSOFT SOFTWARE LICENSE TERMS (fixture)" in shown
+    calls = [json.loads(line) for line in (tmp_path / "python-calls.jsonl").read_text("utf-8").splitlines()]
+    first_crt = next(c for c in calls if "--crt-only" in c["argv"])
+    assert "--reconsider-crt-terms" in first_crt["argv"]
+    if accepted:
+        assert stage_order(tmp_path) == ["crt-pending", "crt-accept", "ocr", "llama"]
+    else:
+        assert stage_order(tmp_path) == ["crt-pending", "crt-decline"]
+        state = json.loads((task_root / "runtime/setup-state.json").read_text("utf-8-sig"))
+        assert state["inference_reason"] == "crt_declined"
+    assert_data_preserved(task_root, preserved)
+
+
+def test_qa_terms_flag_accepts_only_the_shown_terms_without_prompting_and_is_marked_synthetic(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-missing", answer=None, qa_terms_sha="e" * 64)
+    assert res["error"] is None, res
+    assert res["prompts"] == [] and stage_order(tmp_path) == ["crt-pending", "crt-accept", "ocr", "llama"]
+    calls = [json.loads(line) for line in (tmp_path / "python-calls.jsonl").read_text("utf-8").splitlines()]
+    accept = next(c for c in calls if "--accept-crt-terms" in c["argv"])
+    assert "--qa-test-acceptance" in accept["argv"]       # recorded as qa_test_flag, never as a person's choice
+    assert any(CRT_TERMS_IDENTITY_FIRST in m for m in res["messages"])   # terms still shown first
+    assert not any("qa_test_acceptance" in m for m in res["messages"])     # no console/product-copy marker
+    event = json.loads((task_root / "runtime/qa-event-crt-terms.json").read_text("utf-8"))
+    assert event == {"schema": 1, "event": "crt_terms_qa_test_acceptance", "method": "qa_test_flag", "eula_sha256": "e" * 64,
+                     "version": "14.44.35211.0"}
+    assert_data_preserved(task_root, preserved)
+
+
+def test_qa_terms_flag_naming_other_terms_stops_without_any_decision(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-missing", answer=None, qa_terms_sha="f" * 64)
+    assert res["error"] and "crt_terms_mismatch" in res["error"]
+    assert res["prompts"] == [] and stage_order(tmp_path) == ["crt-pending"]   # neither accepted nor declined
+    assert not (task_root / "runtime/qa-event-crt-terms.json").exists()
+    assert_data_preserved(task_root, preserved)
+
+
+def test_prior_decline_is_kept_without_prompt_when_setup_is_run_by_start(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="prior-declined", answer=None, launched_by_start=True)
+    assert res["error"] is None, res      # no prompt (Read-Host would throw), no acceptance
+    assert res["prompts"] == [] and stage_order(tmp_path) == ["crt-kept-decline"]
+    assert any(CRT_DECLINED in m for m in res["messages"])
+    assert_data_preserved(task_root, preserved)
+
+
+def test_runtime_terms_decline_where_windows_already_provides_crt_continues(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-system", answer="n")
+    assert res["error"] is None, res
+    assert stage_order(tmp_path) == ["crt-pending", "crt-decline", "ocr", "llama"]
+    assert_data_preserved(task_root, preserved)
+
+
+def test_runtime_terms_prompt_without_an_answer_is_never_acceptance(tmp_path, native_python):
+    profile, task_root, preserved = seeded_task_root(tmp_path)
+    fake_python(native_python, task_root / "venv/Scripts/python.exe")
+    res, _ = run_setup_fixture(tmp_path, native_python, profile, crt="pending-missing", answer=None)
+    assert res["error"] and "unexpected prompt" in res["error"]  # non-interactive: stops, no default
+    assert "crt-accept" not in stage_order(tmp_path)
+    assert_data_preserved(task_root, preserved)
+
+
+@pytest.mark.parametrize("failure_stage", ["ocr", "llama"])
 def test_interrupted_model_preparation_stays_pending_until_successful_retry(tmp_path, native_python, failure_stage):
     profile, task_root, preserved = seeded_task_root(tmp_path)
     python = fake_python(native_python, task_root / "venv/Scripts/python.exe")
     marker = task_root / "runtime/setup-state.json"
     first, first_calls = run_setup_fixture(tmp_path, native_python, profile, failure_stage=failure_stage)
-    assert first["error"]
-    assert ("文字読み取りモデル" if failure_stage == "ocr" else "AIモデル") in first["error"]
     assert first["stopped"] == []
     assert [call[:2] for call in first_calls] == [["pip", "install"]]
-    pending = json.loads(marker.read_text("utf-8-sig"))
-    assert pending["state"] == "pending"
+    recorded = json.loads(marker.read_text("utf-8-sig"))
+    if failure_stage == "ocr":
+        # OCR is required for any reading: base setup stays pending and setup reports the failure.
+        assert first["error"] and "文字読み取りモデル" in first["error"]
+        assert recorded["state"] == "pending"
+    else:
+        # Local inference preparation failure must not block the base setup: manual ledger/CSV
+        # stay usable, the technical reason is recorded and shown, and nothing is thrown.
+        assert first["error"] is None, first
+        assert recorded["schema"] == 2 and recorded["state"] == "complete"
+        assert recorded["inference_state"] == "failed" and recorded["inference_reason"] == "vc_runtime_missing"
+        assert any(INFERENCE_NOT_READY + " [vc_runtime_missing]" in m for m in first["messages"])
+    assert ollama_invocations(tmp_path) == []
     assert_data_preserved(task_root, preserved)
 
     # The runtime already passes its Python/library probe after pip succeeded.
@@ -614,7 +843,9 @@ def test_interrupted_model_preparation_stays_pending_until_successful_retry(tmp_
     retried, calls = run_setup_fixture(tmp_path, native_python, profile)
     assert retried["error"] is None, retried
     complete = json.loads(marker.read_text("utf-8-sig"))
-    assert complete["schema"] == 1 and complete["state"] == "complete"
+    assert complete["schema"] == 2 and complete["state"] == "complete"
+    assert complete["inference_state"] == "complete" and complete["inference_reason"] == ""
+    assert ollama_invocations(tmp_path) == []
     assert complete["python_version"] == "3.12.15"
     assert complete["python_base"] == status["status"]["base_prefix"]
     lock = tmp_path / "source 日本語 '&/requirements.lock.txt"

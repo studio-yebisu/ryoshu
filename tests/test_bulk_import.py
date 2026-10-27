@@ -119,7 +119,7 @@ def test_interrupted_processing_restarts_automatically_without_losing_draft(tmp_
     row, _ = store.add("架空.png", ".png", png())
     store.stage(row["id"], "ocr")
     finished = threading.Event()
-    def process(saved, receipt_id):
+    def process(saved, receipt_id, runtime=None):
         saved.complete(receipt_id, {"text": "再開の検査"}, None)
         finished.set()
     monkeypatch.setattr("receipt_ledger.server.process", process)
