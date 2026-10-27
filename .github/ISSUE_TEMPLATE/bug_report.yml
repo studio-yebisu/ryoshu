@@ -1,20 +1,20 @@
 name: 不具合報告
-description: 架空のデータで再現手順を知らせる
+description: 架空データを使った再現情報を共有する
 body:
   - type: markdown
     attributes:
-      value: 実際の領収書・DB・バックアップ・個人情報・APIキーは添付しないでください。
+      value: 実際の領収書・帳簿DB・バックアップ・復元情報・個人情報・APIキーを添付しないでください。
   - type: textarea
     id: environment
     attributes:
-      label: 環境
-      description: OS、Python、Ryoshuの版、Ollamaのモデル名
+      label: 動作環境
+      description: Windowsの版、Python、Ryoshuの版、Ollamaのモデル名を記入してください。
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: 再現手順と期待する動作
-      description: 架空の最小サンプルで再現できる手順を記載してください。
+      label: 再現手順と期待する結果
+      description: 架空の最小サンプルで確認できる操作順と、期待していた動作を記入してください。
     validations:
       required: true

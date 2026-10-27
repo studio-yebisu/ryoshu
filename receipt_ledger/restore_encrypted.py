@@ -22,7 +22,7 @@ class StrictTarInfo(tarfile.TarInfo):
 def restore_encrypted(archive, destination, password, receipt_pattern, source_pattern):
     destination = Path(destination).resolve()
     if destination.exists():
-        raise ValueError("復元先がすでに存在します。元の帳簿を守るため、新しい保存先を選んでください。")
+        raise ValueError("復元先が既に存在するため上書きできません。新しい保存先を選んでください。現在の帳簿は変更していません。")
     marker = destination / "RESTORE_IN_PROGRESS.txt"
     created = False
 
@@ -31,10 +31,10 @@ def restore_encrypted(archive, destination, password, receipt_pattern, source_pa
         try:
             destination.mkdir(parents=True, exist_ok=False)
         except FileExistsError as exc:
-            raise ValueError("復元先がすでに存在します。元の帳簿を守るため、新しい保存先を選んでください。") from exc
+            raise ValueError("復元先が既に存在するため上書きできません。新しい保存先を選んでください。現在の帳簿は変更していません。") from exc
         created = True
         private_directory(destination)
-        marker.write_text("復元処理中です。この保存先では起動しないでください。\n", "utf-8")
+        marker.write_text("復元が完了するまで、この保存先の帳簿は開けません。\n", "utf-8")
         root = destination / "data"
         keys = LedgerKeys(root)
         keys.setup(password)
@@ -48,48 +48,48 @@ def restore_encrypted(archive, destination, password, receipt_pattern, source_pa
             for member in bundle:
                 name = member.name
                 if not member.isreg() or name in seen or len(seen) >= MAX_ENTRIES or member.size < 0:
-                    raise ValueError("バックアップのファイル情報が正しくありません。")
+                    raise ValueError("バックアップのファイル一覧を検証できません。別のファイルを選んでください。")
                 if name not in {"manifest.json","data/ledger.enc.sqlite3"} and not receipt_pattern.fullmatch(name) and not source_pattern.fullmatch(name):
                     raise ValueError("バックアップに安全でないファイル名が含まれています。")
                 if member.pax_headers:
-                    raise ValueError("対応していないバックアップの形式です。")
+                    raise ValueError("拡張ヘッダーを含むバックアップ形式には対応していません。")
                 if not seen and name != "manifest.json" or len(seen) == 1 and name != "data/ledger.enc.sqlite3":
-                    raise ValueError("バックアップ内の帳簿情報の順番が正しくありません。")
+                    raise ValueError("manifestと帳簿の並び順が正しくありません。別のバックアップを選んでください。")
                 seen.add(name)
                 total += member.size
                 if total > MAX_ARCHIVE:
-                    raise ValueError("この復元機能は展開後20GBまでに対応しています。")
+                    raise ValueError("展開後20GBを超えるバックアップは復元できません。")
                 if shutil.disk_usage(destination).free < member.size * 2 + 128 * 1024**2:
-                    raise ValueError("復元先の空き容量が足りません。")
+                    raise ValueError("復元に必要な空き容量がありません。保存先の空きを増やしてください。")
                 source = bundle.extractfile(member)
                 if source is None:
-                    raise ValueError("バックアップのファイルを開けません。")
+                    raise ValueError("バックアップ内のファイルを読み取れません。")
                 with source:
                     if name == "manifest.json":
                         if member.size > 1024**2:
                             raise ValueError("バックアップの情報ファイルが大きすぎます。")
                         manifest = _json(source.read())
                         if not isinstance(manifest,dict) or set(manifest) != {"app","format","version","created_at","receipts","database_key","missing_files"} or manifest["app"] != "Ryoshu" or type(manifest["format"]) is not int or manifest["format"] != 1 or type(manifest["receipts"]) is not int or not 0 <= manifest["receipts"] <= MAX_ENTRIES:
-                            raise ValueError("Ryoshuのバックアップ情報ではありません。")
+                            raise ValueError("manifestがRyoshuのバックアップ形式と一致しません。")
                         missing=manifest["missing_files"]
                         if not isinstance(missing,list) or len(missing)>MAX_ENTRIES or any(not isinstance(n,str) or not (receipt_pattern.fullmatch(n) or source_pattern.fullmatch(n)) for n in missing) or len(set(missing))!=len(missing):
                             raise ValueError("不足している原本の情報が正しくありません。")
                         if not isinstance(manifest["database_key"],str) or len(manifest["database_key"])>64:
-                            raise ValueError("バックアップの鍵の形式が正しくありません。")
+                            raise ValueError("バックアップに記録された鍵の形式を確認できません。")
                         backup_key = base64.b64decode(manifest["database_key"],validate=True)
                         if len(backup_key) != 32:
-                            raise ValueError("バックアップの鍵を確認できません。")
+                            raise ValueError("バックアップの鍵の長さが正しくありません。別のファイルを選んでください。")
                     elif name == "data/ledger.enc.sqlite3":
                         if member.size < 4096:
-                            raise ValueError("帳簿データが正しくありません。")
+                            raise ValueError("バックアップ内の帳簿データが小さすぎます。別のファイルを選んでください。")
                         with pending.open("xb") as target:
                             shutil.copyfileobj(source,target,1024**2)
                         with closing(database.open(pending,key=backup_key,readonly=True)) as db:
                             if db.execute("PRAGMA quick_check").fetchone()[0] != "ok" or db.execute("PRAGMA foreign_key_check").fetchone() or db.execute("PRAGMA user_version").fetchone()[0] > 3:
-                                raise ValueError("帳簿の整合性または対応する版を確認できません。")
+                                raise ValueError("帳簿が破損しているか、この版より新しい形式です。別のバックアップを選ぶか、Ryoshuを更新してください。")
                             receipts = db.execute("SELECT id,extension,sha256 FROM receipts").fetchall()
                             if len(receipts) != manifest["receipts"]:
-                                raise ValueError("バックアップの件数が一致しません。")
+                                raise ValueError("manifestの件数と帳簿の明細数が一致しません。")
                             expected = {"manifest.json":None,"data/ledger.enc.sqlite3":None}
                             for receipt_id,extension,digest in receipts:
                                 entry = f"data/receipts/{receipt_id}/original{extension}"
@@ -103,20 +103,20 @@ def restore_encrypted(archive, destination, password, receipt_pattern, source_pa
                                         raise ValueError("元PDFの情報が正しくありません。")
                                     expected[entry] = digest
                             for entry in manifest["missing_files"]:
-                                if entry not in expected:raise ValueError("帳簿に対応しない不足原本が指定されています。")
+                                if entry not in expected:raise ValueError("不足原本として記録されたファイルが帳簿と一致しません。")
                                 del expected[entry]
                     else:
                         if expected is None or name not in expected or member.size > 20 * 1024**2:
-                            raise ValueError("帳簿に対応しない原本が含まれています。")
+                            raise ValueError("帳簿に対応しない原本、または20MBを超える原本が含まれています。")
                         raw = source.read(member.size + 1)
                         digest = hashlib.sha256(raw).hexdigest()
                         if len(raw) != member.size or digest != expected[name]:
-                            raise ValueError("原本の検証に失敗しました。別のバックアップを選んでください。")
+                            raise ValueError("原本のサイズまたはSHA-256が帳簿と一致しません。別のバックアップを選んでください。")
                         keys.write_file(destination / name,raw)
             if any(bundle.fileobj.buf):
-                raise ValueError("バックアップの末尾に不明なデータがあります。")
+                raise ValueError("バックアップの末尾に対応していないデータがあります。")
         if expected is None or seen != set(expected):
-            raise ValueError("バックアップに必要な帳簿・原本がそろっていません。")
+            raise ValueError("帳簿と原本がバックアップ内にそろっていません。別のファイルを選んでください。")
         return keys, database, pending, backup_key, manifest
 
     try:
@@ -140,7 +140,7 @@ def restore_encrypted(archive, destination, password, receipt_pattern, source_pa
     except BaseException:
         if created:
             try:
-                (destination / "RESTORE_FAILED.txt").write_text("復元は完了していません。この保存先では起動しないでください。元の帳簿は変更していません。\n","utf-8")
+                (destination / "RESTORE_FAILED.txt").write_text("復元が完了していないため、この保存先の帳簿は開けません。現在の帳簿は変更していません。\n","utf-8")
             except OSError:
                 pass
         raise

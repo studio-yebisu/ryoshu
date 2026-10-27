@@ -63,7 +63,7 @@ class Sessions:
                 self.tokens[hashlib.sha256(token.encode()).digest()] = now + 12 * 3600
                 return token
         except (ValueError, TypeError):
-            raise ProtectionError("この起動リンクは使えません。「Ryoshu.cmd」から開き直してください。") from None
+            raise ProtectionError("起動リンクが無効か有効期限切れです。「Ryoshu.cmd」から新しいリンクで開き直してください。") from None
 
     def authorized(self, header):
         if not isinstance(header, str) or not header.startswith("Bearer ") or not 40 <= len(header) <= 80:
@@ -80,13 +80,13 @@ class Sessions:
 def open_record(root, port):
     path = Path(root).resolve() / ".ryoshu-session.dpapi"
     if path.is_symlink() or path.stat().st_size > 16384:
-        raise ProtectionError("起動情報を確認できません。Ryoshuを起動し直してください。")
+        raise ProtectionError("起動情報の形式を確認できません。「Ryoshu.cmd」から起動し直してください。")
     raw = path.read_bytes()
     if not raw.startswith(SESSION_MAGIC):
-        raise ProtectionError("起動情報を確認できません。")
+        raise ProtectionError("この保存先の起動情報ではありません。「Ryoshu.cmd」から起動し直してください。")
     record = _json(dpapi(raw[len(SESSION_MAGIC):], decrypt=True))
     if record.get("port") != port or Path(record.get("data_dir", "")).resolve() != Path(root).resolve():
-        raise ProtectionError("起動中の帳簿と保存先が一致しません。")
+        raise ProtectionError("起動情報の帳簿・ポートが現在の指定と一致しません。「停止.cmd」で終了してから開き直してください。")
     return record
 
 

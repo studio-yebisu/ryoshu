@@ -99,17 +99,17 @@ window.RyoshuProcessing = (() => {
       if (mounted) return;
       mounted = true;
       target.setAttribute('aria-live', 'off');
-      target.setAttribute('aria-label', '領収書の読み取り状況');
+      target.setAttribute('aria-label', '領収書の処理進捗');
       target.innerHTML = `<div class="pp-header"><div><p class="pp-kicker" data-processing-scope></p><h2 data-processing-title></h2></div><div class="pp-count"><strong><span data-processing-count="processed">0</span><small> / <span data-processing-count="total">0</span>件</small></strong><span>処理済み</span></div></div>
-        <progress class="pp-progress" aria-label="保存できた領収書の処理進捗"></progress>
-        <div class="pp-stats"><div><strong data-processing-completed data-processing-count="completed">0</strong><span>読み取り完了</span></div><div><strong data-processing-active data-processing-count="active">0</strong><span>処理中</span></div><div><strong data-processing-waiting data-processing-count="waiting">0</strong><span>順番待ち</span></div><div><strong data-processing-attention data-processing-count="attention">0</strong><span>再確認・再試行</span></div></div>
-        <p class="pp-connection hidden" data-processing-connection role="status">進捗を更新できません。最後に確認できた状態を表示しています。接続が戻ると更新します。</p>
-        <div class="pp-current" data-processing-current><div class="pp-scan" aria-hidden="true"><div class="pp-scan-sheet"><i></i><i></i><i></i><span class="pp-scan-line"></span></div><span class="pp-scan-dot"></span></div><div class="pp-current-copy"><span class="pp-current-label" data-processing-current-label>いま、この領収書を処理しています</span><strong data-processing-file></strong><span class="pp-stage" data-processing-stage></span><div class="pp-stage-track" aria-hidden="true"><span data-processing-phase="ocr">文字の読み取り</span><span data-processing-phase="model">科目候補の作成</span></div><span class="pp-elapsed" data-processing-elapsed></span></div></div>
-        <div class="pp-columns"><section><h3>最近の処理結果</h3><ul class="pp-list" data-processing-recent></ul><p class="pp-empty" data-processing-recent-empty>読み取りが終わると、ここに順番に並びます。</p></section><section><h3>このあと読み取る領収書</h3><ul class="pp-list" data-processing-next></ul><p class="pp-empty" data-processing-next-empty></p><p class="pp-more" data-processing-more></p></section></div>
-        <div class="pp-footer"><p data-processing-note></p><div class="pp-actions"><button class="button small" type="button" data-action="retry-errors">失敗した読み取りを再試行</button><a class="button primary" href="#results" data-view="results">読み取り結果を見る</a><button class="text-button" type="button" data-processing-dismiss>表示を閉じる</button></div></div><span class="visually-hidden" data-processing-announcement role="status" aria-live="polite" aria-atomic="true"></span>`;
+        <progress class="pp-progress" aria-label="保存済みの領収書の処理進捗"></progress>
+        <div class="pp-stats"><div><strong data-processing-completed data-processing-count="completed">0</strong><span>読み取り完了</span></div><div><strong data-processing-active data-processing-count="active">0</strong><span>処理中</span></div><div><strong data-processing-waiting data-processing-count="waiting">0</strong><span>順番待ち</span></div><div><strong data-processing-attention data-processing-count="attention">0</strong><span>要確認・要再試行</span></div></div>
+        <p class="pp-connection hidden" data-processing-connection role="status">最新の進捗を取得できません。最後に取得できた状態を表示し、接続の回復後に更新します。</p>
+        <div class="pp-current" data-processing-current><div class="pp-scan" aria-hidden="true"><div class="pp-scan-sheet"><i></i><i></i><i></i><span class="pp-scan-line"></span></div><span class="pp-scan-dot"></span></div><div class="pp-current-copy"><span class="pp-current-label" data-processing-current-label>現在処理中の領収書</span><strong data-processing-file></strong><span class="pp-stage" data-processing-stage></span><div class="pp-stage-track" aria-hidden="true"><span data-processing-phase="ocr">文字の読み取り</span><span data-processing-phase="model">科目候補の作成</span></div><span class="pp-elapsed" data-processing-elapsed></span></div></div>
+        <div class="pp-columns"><section><h3>完了した領収書</h3><ul class="pp-list" data-processing-recent></ul><p class="pp-empty" data-processing-recent-empty>処理が終わった領収書から順に表示します。</p></section><section><h3>待機中の領収書</h3><ul class="pp-list" data-processing-next></ul><p class="pp-empty" data-processing-next-empty></p><p class="pp-more" data-processing-more></p></section></div>
+        <div class="pp-footer"><p data-processing-note></p><div class="pp-actions"><button class="button small" type="button" data-action="retry-errors">失敗した読み取りを再試行</button><a class="button primary" href="#results" data-view="results">読み取り結果を見る</a><button class="text-button" type="button" data-processing-dismiss>結果を閉じる</button></div></div><span class="visually-hidden" data-processing-announcement role="status" aria-live="polite" aria-atomic="true"></span>`;
     }
     function rowLabel(item) {
-      return {complete:'読み取り完了', confirmed:'確認済み', partial:'一部を読み取り（要確認）', failed:'読み取りに失敗', queued:'順番待ち', processing:'読み取り中', syncing:'状態を更新中'}[item.kind];
+      return {complete:'読み取り完了', confirmed:'確認済み', partial:'一部を読み取り（要確認）', failed:'読み取りに失敗', queued:'順番待ち', processing:'読み取り中', syncing:'状態を確認中'}[item.kind];
     }
     function updateList(selector, items, fresh) {
       const list = target.querySelector(selector), old = new Map([...list.children].map(el => [el.dataset.processingId, el]));
@@ -141,10 +141,10 @@ window.RyoshuProcessing = (() => {
       target.classList.toggle('is-stale', stale);
       target.dataset.state = stale ? 'stale' : snapshot.paused && !snapshot.busy ? 'paused' : snapshot.busy || snapshot.importing ? 'processing' : snapshot.attention ? 'attention' : 'finished';
       target.querySelector('[data-processing-connection]').classList.toggle('hidden', !stale);
-      text('[data-processing-current-label]', stale ? '最後に確認できた処理' : 'いま、この領収書を処理しています');
+      text('[data-processing-current-label]', stale ? '最後に取得できた処理' : '現在処理中の領収書');
       const start = timestamp(snapshot.current?.row.updated_at), end = stale ? snapshot.fetchedAt : Date.now();
       const seconds = Math.max(0, Math.floor((end-start)/1000));
-      text('[data-processing-elapsed]', start ? `この工程を始めて ${seconds < 60 ? seconds+'秒' : Math.floor(seconds/60)+'分'+seconds%60+'秒'}` : '処理はこのPC内で進みます');
+      text('[data-processing-elapsed]', start ? `現在の工程の経過時間 ${seconds < 60 ? seconds+'秒' : Math.floor(seconds/60)+'分'+seconds%60+'秒'}` : 'ローカルPC上で順に処理します');
     }
     function render(records, options = {}) {
       snapshot = tracker.observe(records, options);
@@ -155,8 +155,8 @@ window.RyoshuProcessing = (() => {
       const running = !!(snapshot.busy || snapshot.importing);
       target.classList.toggle('is-busy', running); target.classList.toggle('is-finished', !running);
       target.classList.toggle('has-attention', !!snapshot.attention);
-      text('[data-processing-scope]', snapshot.scope === 'current' ? '今回の読み取り' : snapshot.scope === 'attention' ? '確認が必要な読み取り' : 'この画面を開いた時点の残りの処理');
-      text('[data-processing-title]', snapshot.active ? '1件ずつ、読み取っています' : snapshot.waiting ? '順番に読み取ります' : snapshot.paused ? '取り込みを一時停止中です' : snapshot.syncing || snapshot.importing ? '原本を保存しながら読み取っています' : snapshot.attention ? '処理が終わりました。確認または再試行が必要な領収書があります' : '読み取りが完了しました');
+      text('[data-processing-scope]', snapshot.scope === 'current' ? '今回追加した領収書' : snapshot.scope === 'attention' ? '対応が必要な領収書' : '画面を開いた時点で残っている処理');
+      text('[data-processing-title]', snapshot.active ? '領収書を1件ずつ処理しています' : snapshot.waiting ? '待機中の領収書を順に処理します' : snapshot.paused ? 'ファイルの追加を一時停止しています' : snapshot.syncing || snapshot.importing ? '原本の保存と読み取りを進めています' : snapshot.attention ? '確認または再試行が必要な結果があります' : 'すべての読み取りが終わりました');
       for (const key of ['processed','total','completed','active','waiting','attention']) text(`[data-processing-count="${key}"]`, snapshot[key]);
       const progress = target.querySelector('.pp-progress'); progress.max = snapshot.total || 1;
       if (snapshot.total) progress.value = snapshot.processed; else progress.removeAttribute('value');
@@ -178,7 +178,7 @@ window.RyoshuProcessing = (() => {
       const nextEmpty = target.querySelector('[data-processing-next-empty]'); nextEmpty.classList.toggle('hidden', !!snapshot.next.length);
       nextEmpty.textContent = snapshot.paused ? '取り込みを再開すると、保存できた原本から追加します。' : snapshot.importing ? '保存できた原本から順に追加します。' : snapshot.active ? '順番待ちの領収書はありません。この1件で終わります。' : '順番待ちの領収書はありません。';
       text('[data-processing-more]', snapshot.waiting + snapshot.syncing > snapshot.next.length ? `ほか ${snapshot.waiting + snapshot.syncing - snapshot.next.length}件が順番を待っています` : '');
-      const note = snapshot.paused ? '取り込みを一時停止中。保存済みの領収書は読み取りを続けます。再開は原本の保存欄から行えます。' : snapshot.importing ? '原本を保存中です。保存できた領収書から対象件数へ加わります。' : snapshot.syncing ? '保存済みの領収書の状態を更新しています。' : running ? '保存後の読み取りは画面を閉じても続きます。PCのスリープ中は進みません。' : '読み取り完了は、内容の正しさや経費の確定を表すものではありません。原本と候補を確認してください。';
+      const note = snapshot.paused ? '新しいファイルの送信を止めています。すでに保存された領収書の読み取りは継続します。送信を再開するには原本の保存欄を使います。' : snapshot.importing ? '原本を1件ずつ保存し、保存が済んだものから処理対象に加えています。' : snapshot.syncing ? '保存済みの明細について、最新の処理状態を確認しています。' : running ? 'ブラウザーを閉じた後も保存済みの読み取りは継続します。ただしPCのスリープ中は処理できません。' : '読み取りの完了は、内容や経費の取扱いが確定したことではありません。原本を開き、表示された候補を自分で確認してください。';
       text('[data-processing-note]', note + (snapshot.otherAttention ? ` 以前の読み取りにも、再確認・再試行が必要な領収書が${snapshot.otherAttention}件あります。` : ''));
       target.querySelector('[data-action="retry-errors"]').classList.toggle('hidden', !snapshot.attention && !snapshot.otherAttention);
       target.querySelector('[data-processing-dismiss]').classList.toggle('hidden', running);

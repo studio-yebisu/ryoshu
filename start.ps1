@@ -14,7 +14,7 @@ $selectedData = if ($DataDir) { [System.IO.Path]::GetFullPath($DataDir) } elseif
     (Get-Content -LiteralPath $locationRecord -Raw | ConvertFrom-Json).data_dir
 } else { Join-Path $taskRoot 'data' }
 if (($DataDir -or (Test-Path -LiteralPath $locationRecord)) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.sqlite3')) -and -not (Test-Path -LiteralPath (Join-Path $selectedData 'ledger.enc.sqlite3'))) {
-    throw '選択した帳簿が見つかりません。保存先を移動していないか確認してください。新しい空の帳簿へ自動で切り替えることはありません。'
+    throw '選択した帳簿が見つかりません。保存先の場所を確認するか、バックアップから復元してください。新しい空の帳簿へ自動で切り替えず、既存の帳簿も変更していません。'
 }
 $pythonStatus = Get-RyoshuPythonStatus -PythonExe $pythonExe -RequireLibraries
 if (-not $pythonStatus.ready) {
@@ -31,12 +31,12 @@ if ($runningApp -and $runningApp.app -eq 'receipt-ledger') {
     $serverRecord = Join-Path $runtimeDir 'server.json'
     if (Test-Path -LiteralPath $serverRecord) { try { $previousRecord = Get-Content -LiteralPath $serverRecord -Raw | ConvertFrom-Json } catch {} }
     $existingServers = @(Get-RyoshuListener -PythonExe $pythonExe -Record $previousRecord)
-    if ($existingServers.Count -ne 1) { throw '起動済みアプリの接続元を確認できません。しばらく待ってから、もう一度操作してください。' }
-    if (-not $runningApp.instance) { throw '旧版のRyoshuが起動しています。「停止.cmd」で終了してから起動してください。' }
+    if ($existingServers.Count -ne 1) { throw '起動済みアプリの接続元を特定できません。少し待ってから起動し直してください。' }
+    if (-not $runningApp.instance) { throw '旧版のRyoshuが起動中です。起動元の「停止.cmd」で終了してから開いてください。' }
     $sessionJson = & $pythonExe (Join-Path $PSScriptRoot 'scripts\open_session.py') --data-dir $selectedData
-    if ($LASTEXITCODE -ne 0) { throw '起動中の帳簿の保護情報を確認できません。保存先と起動元を確認してください。' }
+    if ($LASTEXITCODE -ne 0) { throw '起動中の帳簿の保護情報を読み取れません。保存先と起動元を確認してください。' }
     $session = $sessionJson | ConvertFrom-Json
-    if ($session.instance -ne $runningApp.instance -or [int]$session.pid -ne [int]$existingServers[0].ProcessId) { throw '起動情報と接続先が一致しません。Ryoshuを起動し直してください。' }
+    if ($session.instance -ne $runningApp.instance -or [int]$session.pid -ne [int]$existingServers[0].ProcessId) { throw '起動情報と接続中のプロセスが一致しません。「停止.cmd」で終了してから起動し直してください。' }
     $runningApp = $session
     Save-RyoshuServerRecord -RuntimeDir $runtimeDir -Server $existingServers[0] -DataDir $session.data_dir -SourceDir ([string]$session.source_dir)
     if ($runningApp.app_version -ne $sourceVersion) { throw '別の版のRyoshuが起動しています。「停止.cmd」で終了してから、もう一度起動してください。' }

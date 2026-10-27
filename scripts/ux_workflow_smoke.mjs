@@ -74,7 +74,7 @@ try{
   const sample=id=>path.join(root,'samples/receipts-100-v2/individual',id+'.pdf');
   await page.locator('#file-input').setInputFiles(['V001','V021','V023','V044','V045'].map(sample));
   assert.equal((await api('receipts')).receipts.length,0);
-  assert.match(await page.locator('#import-selection').innerText(),/5ファイル選択中/);
+  assert.match(await page.locator('#import-selection').innerText(),/5ファイルを選択中（PDF 5ファイル）。「読み取りを開始」を押すまで処理しません。/);
   await page.locator('#start-import').click();
   await page.waitForFunction(()=>Math.abs(scrollY)<=1&&document.activeElement?.id==='page-title');
   checks.push('starting an import brings progress into view once without scrolling on polling updates');

@@ -32,7 +32,7 @@ class Store:
     def __init__(self, root: Path):
         self.root = root
         if any((base / marker).is_file() for base in [root, root.parent] for marker in ['RESTORE_FAILED.txt', 'RESTORE_IN_PROGRESS.txt']):
-            raise ValueError('復元が完了していない保存先です。元の帳簿か、正常に復元した帳簿を選んでください。')
+            raise ValueError('復元が完了していない保存先は開けません。現在の帳簿を使うか、正常に復元した帳簿を選んでください。')
         root.mkdir(parents=True, exist_ok=True)
         self.root = root.resolve()
         self.keys = LedgerKeys(self.root)
@@ -65,7 +65,7 @@ class Store:
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
             if version > 3:
-                raise RuntimeError("このアプリより新しいデータベースです。更新版で開いてください")
+                raise RuntimeError("この帳簿は新しい形式です。Ryoshuを更新してから開いてください")
             if version == 1:
                 backup_dir = root / "backups"
                 backup_dir.mkdir(exist_ok=True)
@@ -184,7 +184,7 @@ class Store:
         version=row['value'] if row else ''
         if version==seed['version']:return
         if version and (not isinstance(version,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}',version)):
-            raise ValueError('科目データの識別情報が正しくありません。バックアップと保存先を確認してください。')
+            raise ValueError('科目データの識別情報を確認できません。保存先とバックアップを確かめてください。')
         old_path=Path(__file__).resolve().parents[1]/'data/catalog-history'/(version+'.json')
         if not old_path.is_file():
             # An unknown seed may contain local edits. Add new defaults, never replace it.
@@ -304,12 +304,12 @@ class Store:
     def set_account_favorite(self, code, favorite):
         """Change one favorite atomically without overwriting another window's list."""
         if not isinstance(code, str) or type(favorite) is not bool:
-            raise ValueError('科目コードと、お気に入りの指定を確認してください。')
+            raise ValueError('科目コードと☆の指定を確認してください。')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
             account = db.execute("SELECT code FROM account_master WHERE code=? AND active=1 AND selectable=1 AND kind IN ('expense','asset')", (code,)).fetchone()
             if account is None:
-                raise ValueError('選択できる勘定科目を指定してください。')
+                raise ValueError('明細に設定できる勘定科目を選択してください。')
             favorites = set(self.favorite_accounts(db))
             if favorite:
                 favorites.add(code)
@@ -329,7 +329,7 @@ class Store:
     def add_account(self, name, kind, description, aliases, questions, keywords=None, category_id=None):
         name=name.strip()
         if kind not in {"expense","asset"} or not name:
-            raise ValueError("経費または資産の科目名を入力してください")
+            raise ValueError("経費または資産として登録する科目名を入力してください")
         category_id = category_for(kind, category_id)
         aliases=list(dict.fromkeys(a.strip() for a in aliases if a.strip()))
         with self.connect() as db:
@@ -337,7 +337,7 @@ class Store:
             existing=self.accounts(False,db)
             for value in [name,*aliases]:
                 if resolve_account(value,existing):
-                    raise ValueError("同じ名前・別名の科目が既にあります："+value)
+                    raise ValueError("同じ科目名または別名が既に登録されています："+value)
             code="U"+uuid.uuid4().hex[:10].upper()
             db.execute("INSERT INTO account_master(code,name,name_key,kind,description,aliases_json,questions_json,sources_json,selectable,active,seeded,updated_at,hints_json,category_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                        (code,name,account_key(name),kind,description.strip(),dumps(aliases),dumps(questions),dumps([]),1,1,0,now(),dumps({"any":keywords or [],"unless_any":[]}),category_id))
@@ -355,13 +355,13 @@ class Store:
             for side,key in [("debit","debit"),("credit","credit")]:
                 account=db.execute("SELECT code FROM account_master WHERE name=?",(pair[key],)).fetchone()
                 if account is None:
-                    raise ValueError("仕訳の科目がマスターにありません："+pair[key])
+                    raise ValueError("仕訳に指定された科目が科目マスターにありません："+pair[key])
                 marker=(side,account["code"])
                 lines[marker]=lines.get(marker,0)+pair["amount"]
         debit=sum(v for (s,_),v in lines.items() if s=="debit")
         credit=sum(v for (s,_),v in lines.items() if s=="credit")
         if not lines or debit!=credit:
-            raise ValueError("貸借が一致しないため登録できません")
+            raise ValueError("借方と貸方が一致しないため、この仕訳は登録できません")
         self._void_posting(db,row["id"])
         cursor=db.execute("INSERT INTO journal_entries(receipt_id,receipt_version,status,created_at) VALUES(?,?,'posted',?)",(row["id"],row["version"],now()))
         for number,((side,code),amount) in enumerate(lines.items(),1):
@@ -411,7 +411,7 @@ class Store:
 
     def add(self, name: str, extension: str, content: bytes):
         if extension not in {".pdf", ".jpg", ".png", ".webp"}:
-            raise ValueError("対応していない原本の形式です。")
+            raise ValueError("この原本のファイル形式には対応していません。")
         digest = hashlib.sha256(content).hexdigest()
         with self.connect() as db:
             existing = db.execute("SELECT id FROM receipts WHERE sha256=?", (digest,)).fetchone()
@@ -460,10 +460,10 @@ class Store:
             current = self.get(receipt_id, db)
             self.check(current, version)
             if current["status"] in ["queued", "processing"]:
-                raise Conflict("読み取り中です。完了を待ってください")
+                raise Conflict("読み取りが完了するまで変更できません。しばらく待ってから再試行してください")
             account=resolve_account(draft.account,self.accounts(True,db)) if draft.account else None
             if draft.account and account is None:
-                raise ValueError("勘定科目マスターにある科目を選んでください")
+                raise ValueError("勘定科目は科目マスターの一覧から選択してください")
             if account:
                 draft=draft.model_copy(update={"account":account["name"]})
             if confirm:
@@ -488,7 +488,7 @@ class Store:
     @staticmethod
     def check(current, version):
         if current["version"] != version:
-            raise Conflict("別の操作で更新されました。画面を再読込してから入力し直してください")
+            raise Conflict("別の操作が先に保存されました。最新の明細を読み込み、入力内容を確認してから保存し直してください")
 
     def set_status(self, receipt_id, version, action):
         with self.connect() as db:
@@ -496,12 +496,12 @@ class Store:
             current = self.get(receipt_id, db)
             self.check(current, version)
             if current["status"] in ["queued", "processing"]:
-                raise Conflict("読み取り中です。完了を待ってください")
+                raise Conflict("読み取りが完了するまで状態を変更できません。完了後に再試行してください")
             if action == "restore" and current["status"] != "excluded":
-                raise Conflict("対象外の明細だけ確認待ちへ戻せます。確認済みを修正する場合は、変更を保存してください")
+                raise Conflict("未確認へ戻せるのは対象外の明細だけです。確認済みの明細は「詳細を修正」で変更を保存してください")
             if action == "retry":
                 if current["status"] == "confirmed":
-                    raise Conflict("登録済みです。先に確認待ちへ戻してください")
+                    raise Conflict("確認済みの明細は再読み取りできません。先に変更を保存して未確認へ戻してください")
                 status = "queued"
             elif action == "exclude":
                 status = "excluded"
@@ -543,7 +543,7 @@ class Store:
             if value is not None:
                 known={a['name'] for a in self.accounts(False,db)}
                 if any(k not in known or not v.strip() or len(v)>100 or any(c in v for c in '\r\n\t') for k,v in value.items()):
-                    raise ValueError('登録済み科目と、100文字以内の出力名を指定してください')
+                    raise ValueError('登録済みの科目を選び、出力名は100文字以内で入力してください')
                 db.execute('INSERT INTO settings VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',('export_map_'+profile,dumps(value)))
             row=db.execute('SELECT value FROM settings WHERE key=?',('export_map_'+profile,)).fetchone()
             return json.loads(row[0]) if row else {}

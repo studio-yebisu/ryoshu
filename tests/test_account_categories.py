@@ -243,7 +243,7 @@ def test_restore_and_store_reject_future_schema_four(tmp_path,kind):
     ready(store)
     with store.connect() as db:
         db.execute('PRAGMA user_version=4')
-    with pytest.raises(RuntimeError,match='新しいデータベース'):
+    with pytest.raises(RuntimeError,match='この帳簿は新しい形式です。Ryoshuを更新してから開いてください'):
         ready_store(store.root)
     if kind=='encrypted':
         temporary,archive=create_backup(store,Importer(store),PASSWORD)
@@ -251,7 +251,7 @@ def test_restore_and_store_reject_future_schema_four(tmp_path,kind):
         temporary=None
         archive=legacy_archive(store,tmp_path,4)
     try:
-        with pytest.raises(ValueError,match='版|整合性'):
+        with pytest.raises(ValueError,match='(帳簿が破損しているか、この版より新しい形式です。別のバックアップを選ぶか、Ryoshuを更新してください。|この帳簿は新しい形式です。Ryoshuを更新してから復元してください)'):
             restore_backup(archive,tmp_path/'rejected',PASSWORD)
     finally:
         if temporary:temporary.cleanup()

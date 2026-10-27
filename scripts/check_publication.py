@@ -103,6 +103,7 @@ critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt
             'receipt_ledger/extraction.py','receipt_ledger/exports.py','receipt_ledger/ocr_focus.py',
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
 changes_path = ROOT / 'docs/testing/v1.3.1/source-changes.json'
+if (ROOT / 'docs/testing/copy-renewal-20261026/source-changes.json').is_file(): changes_path = ROOT / 'docs/testing/copy-renewal-20261026/source-changes.json'
 if not changes_path.is_file():
     changes_path = ROOT / 'docs/testing/v1.3/source-changes.json'
 if not changes_path.is_file():

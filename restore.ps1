@@ -1,14 +1,14 @@
 ﻿$ErrorActionPreference = 'Stop'
 $taskRoot = Join-Path $env:USERPROFILE 'StudioYebisu\ReceiptLedger'
 $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
-if (-not (Test-Path -LiteralPath $pythonExe)) { throw '先に「初回セットアップ.cmd」を実行してください。復元にはこのアプリの実行環境が必要です。' }
+if (-not (Test-Path -LiteralPath $pythonExe)) { throw '復元にはRyoshu専用の実行環境が必要です。先に「初回セットアップ.cmd」で準備してください。' }
 Add-Type -AssemblyName System.Windows.Forms
 $picker = New-Object System.Windows.Forms.OpenFileDialog
-$picker.Title = 'Ryoshuのバックアップを選んでください'
+$picker.Title = '復元するRyoshuバックアップを選択'
 $picker.Filter = 'Ryoshuバックアップ (*.ryoshubak;*.zip)|*.ryoshubak;*.zip'
-if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { Write-Host '復元を取り消しました。'; exit 0 }
+if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { Write-Host '復元せずに終了しました。'; exit 0 }
 $restoreRoot = Join-Path $taskRoot ('restored\' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8))
-Write-Host 'バックアップを確認して、新しい保存先に復元します。元の帳簿は上書きしません。'
+Write-Host '内容を検査して新しい保存先へ復元します。現在の帳簿は上書きしません。'
 $env:PYTHONUTF8 = '1'
 $headerStream = [System.IO.File]::OpenRead($picker.FileName)
 try { $isLegacy = ($headerStream.ReadByte() -eq 0x50 -and $headerStream.ReadByte() -eq 0x4b) } finally { $headerStream.Dispose() }
@@ -17,7 +17,7 @@ $passwordDialog.Text = '復元用パスワード'
 $passwordDialog.Width = 470; $passwordDialog.Height = 210
 $passwordDialog.StartPosition = 'CenterScreen'
 $label = New-Object System.Windows.Forms.Label
-$label.Text = 'バックアップ作成時の復元用パスワードを入力してください。旧ZIPの場合は、新しく設定する12文字以上のパスワードです。'
+$label.Text = '暗号化バックアップでは作成時の復元用パスワードを入力してください。旧ZIPでは、これから設定する12〜256文字のパスワードを入力します。'
 $label.SetBounds(20,15,420,45)
 $box = New-Object System.Windows.Forms.TextBox
 $box.UseSystemPasswordChar = $true; $box.MaxLength = 256; $box.SetBounds(20,65,410,25)
@@ -63,9 +63,9 @@ Write-Host ('復元しました：' + $restored.receipts + '件 / ' + $restored.
 . (Join-Path $PSScriptRoot 'scripts\launcher-process.ps1')
 $restoredLauncher = New-RyoshuLedgerLauncher -SourceDir $PSScriptRoot -DataDir $restored.restored_data -OutputDir $restoreRoot
 Write-Host ('後から開く場合：' + $restoredLauncher)
-Write-Host '別の帳簿が起動中なら、元のアプリフォルダーにある「停止.cmd」で終了し、上の「この帳簿を開く.cmd」をダブルクリックしてください。'
-$answer = Read-Host '復元した帳簿に切り替えて起動しますか？ 元の帳簿は保存されています [y/N]'
+Write-Host '後で開くときは、先に起動中の帳簿を「停止.cmd」で終了してから「この帳簿を開く.cmd」をダブルクリックしてください。'
+$answer = Read-Host '今すぐ復元した帳簿へ切り替えますか？ 現在の帳簿も残ります [y/N]'
 if ($answer -match '^[yY]$') {
     & (Join-Path $PSScriptRoot 'stop.ps1')
     & (Join-Path $PSScriptRoot 'start.ps1') -DataDir $restored.restored_data
-} else { Write-Host '復元したデータを保存しました。現在使っている帳簿は変更していません。' }
+} else { Write-Host '復元した帳簿を新しい保存先に保存しました。現在の帳簿は変更していません。' }

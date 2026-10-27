@@ -10,14 +10,14 @@ window.RyoshuImport = (() => {
   const failed = () => jobs.filter(j => j.status === 'failed');
   const busy = () => running || waiting().length > 0;
   const isPaused = () => paused && waiting().length > 0;
-  const labels = {waiting:'取り込み待ち',importing:'保存中',saved:'保存済み',duplicate:'重複のためスキップ',failed:'取り込み失敗',skipped:'対応していない形式'};
+  const labels = {waiting:'保存の待機中',importing:'原本を保存中',saved:'原本を保存済み',duplicate:'登録済みのため省略',failed:'取り込めませんでした',skipped:'未対応のファイル形式'};
 
   function setup(settings, callbacks) {
     config = settings; handlers = callbacks;
     const dialog = element('import-dialog');
-    dialog.innerHTML = `<form method="dialog" class="dialog-heading"><h2>領収書を読み込む</h2><button class="button small" aria-label="取り込み画面を閉じる">閉じる</button></form>`;
+    dialog.innerHTML = `<form method="dialog" class="dialog-heading"><h2>領収書を追加</h2><button class="button small" aria-label="取り込み画面を閉じる">閉じる</button></form>`;
     controls=document.createElement('div');controls.className='import-controls';
-    controls.innerHTML=`<div class="import-picker dropzone"><div class="import-illustration" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M10 3h16l8 8v33l-5-2-5 2-5-2-5 2-4-2Z"/><path d="M26 3v8h8M16 18h12M16 23h12M16 30l4 4 8-8"/></svg></div><h2>PDF・画像をここにドロップ</h2><div class="import-file-buttons"><button class="button" id="choose-files">ファイルを選ぶ</button><button class="button" id="choose-folder">フォルダーを選ぶ</button></div><p class="field-hint">PDF・JPG・PNG・WebP · 1ファイル20MBまで</p></div><div class="import-options-row"><p id="import-selection" role="status">ファイルを選んでから開始してください。</p><details class="pdf-options"><summary id="pdf-mode-summary">PDFは1ファイルを1つの取引として読み取ります（変更）</summary><fieldset><legend>PDFの取り込み方</legend><label class="checkbox-line"><input type="radio" name="pdf-mode" value="document" checked>1ファイルを1つの取引にする</label><p class="field-hint">続きのある請求書など。${config.limits.max_pages}ページまで。</p><label class="checkbox-line"><input type="radio" name="pdf-mode" value="pages">1ページずつ、別の領収書にする</label><p class="field-hint">スキャンしたレシートの束など。${config.limits.max_split_pages}ページまで。元PDFも保存します。</p><p class="field-hint">選んだPDFすべてに同じ方法を使います。取引の続きとレシートの束は、分けて選んでください。1ページの中に並んだ領収書は分割できません。</p></fieldset></details></div><div class="import-start-row"><button class="button primary" id="start-import" disabled>読み取りを開始</button><button class="text-button hidden" id="clear-import">選択を解除</button></div>`;
+    controls.innerHTML=`<div class="import-picker dropzone"><div class="import-illustration" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M10 3h16l8 8v33l-5-2-5 2-5-2-5 2-4-2Z"/><path d="M26 3v8h8M16 18h12M16 23h12M16 30l4 4 8-8"/></svg></div><h2>領収書のPDF・画像をドロップ</h2><div class="import-file-buttons"><button class="button" id="choose-files">ファイルを選ぶ</button><button class="button" id="choose-folder">フォルダーを選ぶ</button></div><p class="field-hint">PDF・JPG・PNG・WebP · 各20MBまで</p></div><div class="import-options-row"><p id="import-selection" role="status">ファイルを選ぶと、開始前に内容を確認できます。</p><details class="pdf-options"><summary id="pdf-mode-summary">PDFは1ファイルを1つの取引として読み取ります（変更）</summary><fieldset><legend>PDFの取り込み方</legend><label class="checkbox-line"><input type="radio" name="pdf-mode" value="document" checked>1ファイルを1つの取引にする</label><p class="field-hint">同じ取引のページが続く書類向け。${config.limits.max_pages}ページまで。</p><label class="checkbox-line"><input type="radio" name="pdf-mode" value="pages">1ページずつ、別の領収書にする</label><p class="field-hint">1ページに1枚のレシートをまとめた書類向け。${config.limits.max_split_pages}ページまで。分割前の元PDFも保存します。</p><p class="field-hint">選択したすべてのPDFへ同じ方法を適用します。取引の続きとレシートの束は分けて選択してください。1ページ内に複数ある領収書は切り分けられません。</p></fieldset></details></div><div class="import-start-row"><button class="button primary" id="start-import" disabled>読み取りを開始</button><button class="text-button hidden" id="clear-import">選択を解除</button></div>`;
     dialog.append(controls);
     controls.addEventListener('change',event=>{if(event.target.name==='pdf-mode')updateSelection();});
     element('start-import').addEventListener('click',()=>{const mode=dialogMode();if(!mode||!staged.length)return;const files=staged;staged=[];updateSelection();queueFiles(files,mode);});
@@ -94,7 +94,7 @@ window.RyoshuImport = (() => {
   function dialogMode(){return controls.querySelector('[name="pdf-mode"]:checked')?.value;}
   function updateSelection(){
     const pdfs=staged.filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf').length;
-    element('import-selection').textContent=staged.length?`${staged.length}ファイル選択中${pdfs?'（PDF '+pdfs+'ファイル）':''}。開始するまで読み取りは行いません。`:'ファイルを選んでから開始してください。';
+    element('import-selection').textContent=staged.length?`${staged.length}ファイルを選択中${pdfs?'（PDF '+pdfs+'ファイル）':''}。「読み取りを開始」を押すまで処理しません。`:'ファイルを選ぶと、開始前に内容を確認できます。';
     element('start-import').disabled=!staged.length||!dialogMode();
     element('clear-import').classList.toggle('hidden',!staged.length);
     element('pdf-mode-summary').textContent=dialogMode()==='pages'?'PDFは1ページずつ別の領収書として読み取ります（変更）':'PDFは1ファイルを1つの取引として読み取ります（変更）';
@@ -110,7 +110,7 @@ window.RyoshuImport = (() => {
     handlers.begin?.();
     for (const file of files) {
       const supported = /\.(pdf|jpe?g|png|webp)$/i.test(file.name) || /^(application\/pdf|image\/(jpeg|png|webp))$/.test(file.type);
-      let message = !supported ? '対応していない形式です。JPG・PNG・WebP・PDFを選んでください。' : file.size === 0 ? '空のファイルです。原本を確認してください。' : file.size > config.limits.max_bytes ? '20MBを超えています。ファイルを分けるか、画像を縮小してください。' : '';
+      let message = !supported ? 'この形式には対応していません。JPG・PNG・WebP・PDFを選択してください。' : file.size === 0 ? '内容が空のファイルです。別の原本を選択してください。' : file.size > config.limits.max_bytes ? '20MBを超えるファイルです。分割するか画像を縮小してください。' : '';
       jobs.push({key:nextId++, file, mode, status:!supported?'skipped':message?'failed':'waiting', message, rows:[], duplicate:0});
     }
     element('import-dialog').close();
@@ -122,7 +122,7 @@ window.RyoshuImport = (() => {
     running = true;
     while (!paused) {
       const job = waiting()[0]; if (!job) break;
-      if (job.file.size === 0 || job.file.size > config.limits.max_bytes) {job.status = 'failed';job.message=job.file.size===0?'空のファイルです。原本を確認してください。':'20MBを超えています。ファイルを分けるか、画像を縮小してください。';renderProgress();continue;}
+      if (job.file.size === 0 || job.file.size > config.limits.max_bytes) {job.status = 'failed';job.message=job.file.size===0?'内容が空のファイルです。別の原本を選択してください。':'20MBを超えるファイルです。分割するか画像を縮小してください。';renderProgress();continue;}
       job.status = 'importing';renderProgress();
       const form = new FormData();form.append('files', job.file);form.append('pdf_mode', job.mode);
       try {
@@ -160,7 +160,7 @@ window.RyoshuImport = (() => {
     const el=element('import-progress');
     if(!jobs.length){el.classList.add('hidden');el.replaceChildren();resultsPage=0;resultsFilter='all';handlers.progress?.();return;}
     el.classList.remove('hidden');
-    if(!el.querySelector('.progress-heading'))el.innerHTML=`<div class="progress-heading"><strong></strong><span></span></div><progress aria-label="ファイルの取り込み進捗"></progress><div class="import-actions"><button class="button small" data-import-action="pause">取り込みを一時停止</button><button class="button small" data-import-action="resume">取り込みを再開</button><button class="button small" data-import-action="retry">失敗分を再試行</button><button class="text-button" data-import-action="dismiss">結果を閉じる</button><span class="field-hint" data-import-hint></span></div><div class="warning-list hidden" data-split-warning><p></p><button class="button small" data-import-action="split-failed">ページごとに別の領収書として取り込み直す</button></div><details><summary>ファイルごとの結果・失敗理由</summary><div class="import-result-controls"></div><ul class="import-results"></ul></details>`;
+    if(!el.querySelector('.progress-heading'))el.innerHTML=`<div class="progress-heading"><strong></strong><span></span></div><progress aria-label="原本ファイルの保存進捗"></progress><div class="import-actions"><button class="button small" data-import-action="pause">取り込みを一時停止</button><button class="button small" data-import-action="resume">取り込みを再開</button><button class="button small" data-import-action="retry">失敗したファイルを再試行</button><button class="text-button" data-import-action="dismiss">結果を閉じる</button><span class="field-hint" data-import-hint></span></div><div class="warning-list hidden" data-split-warning><p></p><button class="button small" data-import-action="split-failed">1ページずつ別の領収書として取り込む</button></div><details><summary>ファイル別の結果と対処方法</summary><div class="import-result-controls"></div><ul class="import-results"></ul></details>`;
     const pending=waiting().length,active=jobs.filter(j=>j.status==='importing').length,completed=jobs.length-pending-active;
     el.classList.toggle('is-saving',!!(pending||active));
     const saved=jobs.reduce((n,j)=>n+j.rows.filter(r=>!r.duplicate).length,0),duplicates=jobs.reduce((n,j)=>n+j.duplicate,0),skipped=jobs.filter(j=>j.status==='skipped').length;
@@ -172,9 +172,9 @@ window.RyoshuImport = (() => {
     el.querySelector('.progress-heading span').textContent=`${saved}件を新規保存 · 重複${duplicates}件 · 失敗${failed().length}ファイル${skipped?' · 未対応形式'+skipped+'ファイル':''}`;
     const progress=el.querySelector('progress');progress.max=jobs.length;progress.value=completed;
     for(const [action,show] of Object.entries({pause:pending&&!paused,resume:pending&&paused,retry:retryCount>0,dismiss:!pending&&!active}))el.querySelector(`[data-import-action="${action}"]`).classList.toggle('hidden',!show);
-    el.querySelector('[data-import-hint]').textContent=paused&&active?'保存中の1ファイルが完了してから止まります。':pending?'このタブを開いたままお待ちください。保存は1ファイルずつ進みます。タブを閉じた場合も、同じファイルを同じ取り込み方で選び直すと、保存済みの原本はスキップします。':'同じ原本を同じ取り込み方で選び直しても、二重登録や上書きをしません。';
+    el.querySelector('[data-import-hint]').textContent=paused&&active?'送信中の1ファイルが終わってから停止します。':pending?'保存中はタブを開いたままにしてください。1ファイルずつ送信します。タブを閉じた後でも、同じファイルと取り込み方を選び直せば、保存済みの原本は省略されます。':'同じ原本と取り込み方を選び直しても、既存の明細を複製・上書きしません。';
     const warning=el.querySelector('[data-split-warning]');warning.classList.toggle('hidden',!splitCount);
-    if(splitCount)warning.querySelector('p').textContent=`11ページ以上のPDFが${splitCount}件あります。ページごとに別の領収書が入っている場合は、下のボタンで取り込み直せます。1つの取引の続きの場合は、10ページ以下に分けてください。`;
+    if(splitCount)warning.querySelector('p').textContent=`11ページ以上のPDFが${splitCount}件あります。1ページに1枚の領収書なら、下のボタンでページごとに取り込めます。1つの取引が続く書類は10ページ以下に分けてください。`;
     if(el.querySelector('details').open)syncResults();
     handlers.progress?.();
   }

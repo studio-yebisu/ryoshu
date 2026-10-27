@@ -60,7 +60,7 @@ def test_missing_state_with_both_plain_and_ciphertext_never_overwrites_either(tm
     keys=LedgerKeys(tmp_path);keys.setup(PASSWORD)
     cipher=tmp_path/'ledger.enc.sqlite3';cipher.write_bytes(b'existing encrypted book sentinel')
     before={p:hashlib.sha256(p.read_bytes()).digest() for p in [legacy.path,cipher]}
-    with pytest.raises(ProtectionError,match='同時'):
+    with pytest.raises(ProtectionError,match='旧帳簿と暗号化帳簿の両方があります。どちらも上書きせず停止しました。保存先とバックアップを確認してください。'):
         CipherDatabase(tmp_path,keys)
     assert all(hashlib.sha256(p.read_bytes()).digest()==digest for p,digest in before.items())
     assert not (tmp_path/'.ryoshu-vault.json').exists()

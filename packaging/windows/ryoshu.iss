@@ -56,7 +56,7 @@ Name: "{group}\Ryoshuの導入ガイド"; Filename: "{app}\packaging\windows\wel
 Name: "{autodesktop}\Ryoshu"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\packaging\windows\launch.ps1"""; WorkingDir: "{app}"; IconFilename: "{sys}\shell32.dll"; IconIndex: 1; Tasks: desktopicon
 
 [Run]
-Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\packaging\windows\launch.ps1"""; WorkingDir: "{app}"; Description: "Ryoshuを開く（初回は準備が必要です）"; Flags: postinstall nowait skipifsilent
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\packaging\windows\launch.ps1"""; WorkingDir: "{app}"; Description: "Ryoshuを開く（初回はモデルと実行環境を準備）"; Flags: postinstall nowait skipifsilent
 
 [Code]
 function LedgerRoot: String;
@@ -96,11 +96,11 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := '';
   if UnsafeDestination then
-    Result := '帳簿の保存先とは別のインストール先を選んでください。'
+    Result := 'アプリと帳簿を同じ保存先にはできません。別のインストール先を選んでください。'
   else if FileExists(ExpandConstant('{app}\start.ps1')) then begin
     ExtractTemporaryFile('can-modify.ps1');
     if not CanModify(ExpandConstant('{tmp}\can-modify.ps1')) then
-      Result := 'このフォルダーのRyoshuが起動中、または起動元を確認できません。読み取りの終了を待ち、元のアプリの「Ryoshuを終了」または「停止.cmd」で終了してから、もう一度実行してください。帳簿は変更していません。';
+      Result := '選択したフォルダーのRyoshuが起動中か、起動元を特定できません。読み取りの終了を待ち、起動元の「Ryoshuを終了」または「停止.cmd」で終了してから再実行してください。帳簿は変更していません。';
   end;
 end;
 
@@ -108,11 +108,11 @@ function InitializeUninstall: Boolean;
 begin
   Result := CanModify(ExpandConstant('{app}\packaging\windows\can-modify.ps1'));
   if not Result then
-    MsgBox('Ryoshuを終了してからアンインストールしてください。帳簿と原本は削除しません。', mbInformation, MB_OK);
+    MsgBox('先にRyoshuを終了してください。アンインストールしても帳簿と原本は削除しません。', mbInformation, MB_OK);
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if (CurUninstallStep = usPostUninstall) and not UninstallSilent then
-    MsgBox('アプリを削除しました。帳簿・原本・復元用の情報とAIモデルは残しています。', mbInformation, MB_OK);
+    MsgBox('アプリとショートカットを削除しました。帳簿・原本・復元用の情報・モデル・実行環境とOllamaは残っています。', mbInformation, MB_OK);
 end;

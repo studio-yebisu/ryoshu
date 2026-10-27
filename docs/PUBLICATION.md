@@ -1,8 +1,8 @@
 # 公開物と検証範囲
 
-公開先は[studio-yebisu/ryoshu](https://github.com/studio-yebisu/ryoshu)。2026-10-21のソース公開に含めるファイルと検証範囲をまとめています。[動作要件](REQUIREMENTS.md)も確認してください。
+これは[studio-yebisu/ryoshu](https://github.com/studio-yebisu/ryoshu)を2026-10-21に初めてソース公開した時点の記録です。当時の公開対象と検査範囲を残しており、現在の検証結果として読み替えないでください。動作環境の現行案内は[動作要件](REQUIREMENTS.md)を参照してください。
 
-このページの検査数は初回公開時点の記録です。v1.0.0で追加した機能・修正と、その検証範囲は[v1の検証記録](testing/v1/README.md)に分けて掲載します。
+以下の検査数も初回公開時点のものです。v1.0.0で追加した機能・修正と検証範囲は、別の[v1の検証記録](testing/v1/README.md)に記録しています。
 
 ## 構成
 

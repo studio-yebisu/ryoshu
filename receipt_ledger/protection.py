@@ -36,10 +36,10 @@ def private_directory(path, protect_children=False):
     """Protect our directory with an inheritable, current-user Windows DACL."""
     path = Path(path)
     if path.resolve()==Path(path.resolve().anchor):
-        raise ProtectionError("ドライブの直下ではなく、帳簿専用のフォルダーを選んでください。")
+        raise ProtectionError("ドライブの直下は帳簿の保存先にできません。専用フォルダーを選んでください。")
     path.mkdir(parents=True, exist_ok=True)
     if os.name != "nt" or path.is_symlink() or path.is_junction():
-        raise ProtectionError("帳簿の保存先を保護できません。Windowsの通常のフォルダーを選んでください。")
+        raise ProtectionError("帳簿の保存先を保護できません。リンクではないWindowsの通常フォルダーを選んでください。")
     from ctypes import wintypes
     advapi = ctypes.WinDLL("advapi32", use_last_error=True)
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -47,7 +47,7 @@ def private_directory(path, protect_children=False):
     kernel.GetCurrentProcess.restype = wintypes.HANDLE
     advapi.OpenProcessToken.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE)]
     if not advapi.OpenProcessToken(kernel.GetCurrentProcess(), 8, ctypes.byref(token)):
-        raise ProtectionError("Windowsの利用者情報を確認できません。")
+        raise ProtectionError("Windowsの利用者情報を取得できないため、帳簿の保存先を保護できません。")
     size = wintypes.DWORD()
     advapi.GetTokenInformation.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
     kernel.CloseHandle.argtypes = [wintypes.HANDLE]
@@ -56,12 +56,12 @@ def private_directory(path, protect_children=False):
         advapi.GetTokenInformation(token, 1, None, 0, ctypes.byref(size))
         buffer = ctypes.create_string_buffer(size.value)
         if not advapi.GetTokenInformation(token, 1, buffer, size, ctypes.byref(size)):
-            raise ProtectionError("Windowsの利用者情報を確認できません。")
+            raise ProtectionError("Windowsの利用者情報を取得できないため、帳簿の保存先を保護できません。")
         sid = ctypes.cast(buffer, ctypes.POINTER(ctypes.c_void_p))[0]
         text = wintypes.LPWSTR()
         advapi.ConvertSidToStringSidW.argtypes = [ctypes.c_void_p, ctypes.POINTER(wintypes.LPWSTR)]
         if not advapi.ConvertSidToStringSidW(sid, ctypes.byref(text)):
-            raise ProtectionError("Windowsの利用者情報を確認できません。")
+            raise ProtectionError("Windowsの利用者情報を取得できないため、帳簿の保存先を保護できません。")
         try:
             sddl = "D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;" + text.value + ")"
         finally:
@@ -107,12 +107,12 @@ def private_work(root):
         for attempt in range(5):
             try:
                 if folder.is_symlink() or folder.is_junction() or not folder.resolve().is_relative_to(parent.resolve()):
-                    raise ProtectionError("作業用の保存先が変更されました。")
+                    raise ProtectionError("読み取り用の一時フォルダーが変更されています。保存先を確認してください。")
                 shutil.rmtree(folder)
                 break
             except PermissionError:
                 if attempt==4:
-                    raise ProtectionError("作業用ファイルの片付けに失敗しました。Ryoshuを終了し、起動し直してください。") from None
+                    raise ProtectionError("読み取り用の一時ファイルを削除できませんでした。Ryoshuを終了してから起動し直してください。") from None
                 time.sleep(.1*(attempt+1))
 
 
@@ -188,7 +188,7 @@ def atomic_write(path, raw):
 
 def dpapi(raw, decrypt=False):
     if os.name != "nt":
-        raise ProtectionError("この版の帳簿保護はWindows専用です。未対応の環境で平文保存へ切り替えることはありません。")
+        raise ProtectionError("帳簿の鍵保護はWindowsでのみ利用できます。ほかのOSへ平文で保存する切り替えは行いません。")
     from ctypes import wintypes
 
     class Blob(ctypes.Structure):
@@ -210,7 +210,7 @@ def dpapi(raw, decrypt=False):
                          ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(Blob)]
         okay = call(ctypes.byref(source), "Ryoshu local ledger", None, None, None, 1, ctypes.byref(target))
     if not okay:
-        raise ProtectionError("このWindowsアカウントでは帳簿の鍵を開けません。復元用パスワード、またはバックアップから復元してください。")
+        raise ProtectionError("Windowsで帳簿の鍵を開けません。Windowsアカウントを確認し、復元用パスワードで開くかバックアップから復元してください。")
     kernel.LocalFree.argtypes = [ctypes.c_void_p]
     try:
         return ctypes.string_at(target.data, target.size)
@@ -243,7 +243,7 @@ def unwrap_secret(envelope, password, label):
         key = Scrypt(salt=salt, length=32, n=2**17, r=8, p=1).derive(password.encode("utf-8"))
         return AESGCM(key).decrypt(nonce, ciphertext, label)
     except (ValueError, TypeError, KeyError, InvalidTag) as exc:
-        raise ProtectionError("復元用パスワードが違うか、保護情報が破損しています。帳簿は変更していません。") from exc
+        raise ProtectionError("復元用パスワードを確認できません。入力が違うか保護情報が破損しています。帳簿は変更していません。") from exc
 
 
 class LedgerKeys:
@@ -307,12 +307,12 @@ class LedgerKeys:
         check_password(password)
         with self.lock():
             if self.mode != "new" or self.key_path.exists() or self.recovery_path.exists() or (self.root / "ledger.enc.sqlite3").exists() or (self.root / ".ryoshu-vault.json").exists() or self._has_protected_guard():
-                raise ProtectionError("既存の帳簿に新しい鍵を上書きできません。復元用パスワードで開いてください。")
+                raise ProtectionError("既存の帳簿へ新しい鍵を設定できません。復元用パスワードで開くか、別の保存先へ復元してください。")
             self.master, self.ledger_id = secrets.token_bytes(32), uuid.uuid4().hex
             label = b"Ryoshu recovery v1\0" + self.ledger_id.encode()
             envelope = wrap_secret(self.master, password, label)
             if unwrap_secret(envelope, password, label) != self.master:
-                raise ProtectionError("保護情報の確認に失敗しました。帳簿は変更していません。")
+                raise ProtectionError("作成した復元情報を検証できません。帳簿は変更していません。")
             recovery = {"ledger_id": self.ledger_id, "envelope": envelope}
             atomic_write(self.recovery_path, json.dumps(recovery, separators=(",", ":")).encode())
             self._persist_windows_key()
@@ -329,7 +329,7 @@ class LedgerKeys:
                 if len(master) != 32:
                     raise ValueError("invalid recovered key")
             except (OSError, ValueError, TypeError, KeyError) as exc:
-                raise ProtectionError("復元用パスワードか保護情報を確認できません。帳簿は変更していません。") from exc
+                raise ProtectionError("復元用パスワードまたは復元情報を確認できません。入力と保存先を確かめてください。帳簿は変更していません。") from exc
             validate(master, identity)
             self.master, self.ledger_id = master, identity
             self._persist_windows_key()
@@ -338,11 +338,11 @@ class LedgerKeys:
     def verify_password(self, password):
         data = _json(self._read_small(self.recovery_path))
         if data.get("ledger_id") != self.ledger_id:
-            raise ProtectionError("復元情報と帳簿が一致しません。")
+            raise ProtectionError("帳簿に保存された復元情報が、現在の帳簿と一致しません。保存先を確認し、バックアップから別の場所へ復元してください。")
         candidate = unwrap_secret(data.get("envelope"), password,
                                   b"Ryoshu recovery v1\0" + self.ledger_id.encode())
         if not secrets.compare_digest(candidate, self.master):
-            raise ProtectionError("復元情報と帳簿が一致しません。")
+            raise ProtectionError("復元情報から得た鍵が現在の帳簿と一致しません。保存先の保護情報を確認し、バックアップから別の場所へ復元してください。")
 
     def reset_password(self,password):
         check_password(password)
@@ -356,13 +356,13 @@ class LedgerKeys:
 
     def derive(self, purpose):
         if self.mode != "unlocked" or self.master is None:
-            raise ProtectionError("帳簿の保護を設定するか、復元用パスワードで開いてください。")
+            raise ProtectionError("帳簿がロックされています。保護を設定するか、復元用パスワードで開いてください。")
         return HKDF(algorithm=hashes.SHA256(), length=32, salt=None,
                     info=("Ryoshu " + purpose + " v1").encode()).derive(self.master)
 
     def _aad(self, path):
         if self.mode != "unlocked" or not self.ledger_id:
-            raise ProtectionError("帳簿の保護を設定するか、復元用パスワードで開いてください。")
+            raise ProtectionError("帳簿がロックされています。保護を設定するか、復元用パスワードで開いてください。")
         path = Path(path)
         if path.is_symlink():
             raise ProtectionError("帳簿の外にあるファイルは開けません。")
@@ -383,15 +383,15 @@ class LedgerKeys:
         path = Path(path)
         aad = self._aad(path)
         if not path.is_file():
-            raise ProtectionError("領収書の原本が見つかりません。保存先と以前のバックアップを確認してください。")
+            raise ProtectionError("領収書の原本が見つかりません。保存先を確認してください。通常の領収書なら同じ原本を取り込み直すと修復できますが、ページ分割したPDFの原本と元PDFはバックアップを確認してください。")
         if path.stat().st_size > MAX_STORED_FILE + len(FILE_MAGIC) + 28:
-            raise ProtectionError("保存されたファイルが大きすぎます。")
+            raise ProtectionError("保存済みの原本が大きすぎます。バックアップから復元してください。")
         with path.open("rb") as source:
             raw = source.read(MAX_STORED_FILE + len(FILE_MAGIC) + 29)
         if not raw.startswith(FILE_MAGIC) or len(raw) < len(FILE_MAGIC) + 28:
-            raise ProtectionError("暗号化された原本を確認できません。バックアップを確認してください。")
+            raise ProtectionError("暗号化された原本の形式を確認できません。バックアップを確認してください。")
         start = len(FILE_MAGIC)
         try:
             return AESGCM(self.derive("files")).decrypt(raw[start:start + 12], raw[start + 12:], aad)
         except InvalidTag as exc:
-            raise ProtectionError("原本が変更されたか、帳簿の鍵が違います。帳簿は変更していません。") from exc
+            raise ProtectionError("原本の認証に失敗しました。変更・破損・鍵の不一致の可能性があります。帳簿は変更していません。") from exc

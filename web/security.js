@@ -6,7 +6,7 @@ window.RyoshuSecurity = (() => {
 
   async function request(path, options={}) {
     const url = new URL(path, location.href);
-    if (url.origin !== location.origin || !url.pathname.startsWith('/api/')) throw new Error('このアプリの接続先だけを開けます。');
+    if (url.origin !== location.origin || !url.pathname.startsWith('/api/')) throw new Error('Ryoshuの画面と同じ接続先以外には送信できません。');
     const headers = new Headers(options.headers);
     headers.set('Authorization','Bearer '+token);
     headers.set('X-Ledger-Request','1');
@@ -15,7 +15,7 @@ window.RyoshuSecurity = (() => {
   async function json(path,body) {
     const response = await request(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const result = await response.json();
-    if (!response.ok) throw new Error(typeof result.detail==='string'?result.detail:'入力した内容を確認してください。');
+    if (!response.ok) throw new Error(typeof result.detail==='string'?result.detail:'入力内容を確かめてから再試行してください。');
     return result;
   }
 
@@ -37,7 +37,7 @@ window.RyoshuSecurity = (() => {
     if(status.can_retry){
       document.querySelector('#upload-top').disabled=true;
       document.querySelectorAll('button.nav-item').forEach(el=>el.disabled=true);
-      document.querySelector('#main-content').innerHTML=`<section class="panel settings-card protection-setup"><h2>帳簿を確認できませんでした</h2><p id="retry-protection-error" role="alert">${escape(status.error||'中断した保護の処理を再開できます。')}</p><p>保存先と原本を確認してから、もう一度お試しください。復元する場合は「バックアップから復元.cmd」を使います。空の帳簿へ自動で切り替えることはありません。</p><button class="button primary" id="retry-protection">帳簿をもう一度確認</button><p><button class="text-button" id="recover-protection">復元用パスワードで帳簿を開き直す</button></p><p><a href="/help.html#security" target="_blank" rel="noreferrer">保存と復元の説明</a></p></section>`;
+      document.querySelector('#main-content').innerHTML=`<section class="panel settings-card protection-setup"><h2>帳簿を開けませんでした</h2><p id="retry-protection-error" role="alert">${escape(status.error||'中断した保護処理を再試行できます。')}</p><p>保存先と原本を確かめて再試行してください。バックアップから戻す場合は「バックアップから復元.cmd」を使います。空の帳簿へ自動で切り替わることはなく、既存の帳簿を削除しません。</p><button class="button primary" id="retry-protection">帳簿を再確認</button><p><button class="text-button" id="recover-protection">復元用パスワードで開き直す</button></p><p><a href="/help.html#security" target="_blank" rel="noreferrer">保護と復元の手順</a></p></section>`;
       const recovered=await new Promise(resolve=>{
         document.querySelector('#recover-protection').onclick=()=>resolve(false);
         document.querySelector('#retry-protection').onclick=async event=>{
@@ -51,10 +51,10 @@ window.RyoshuSecurity = (() => {
     const fresh = status.mode==='new';
     document.querySelector('#upload-top').disabled=true;
     document.querySelectorAll('button.nav-item').forEach(el=>el.disabled=true);
-    document.querySelector('#page-title').textContent=fresh?'はじめに、帳簿を保護します':'復元用パスワードで開く';
-    document.querySelector('#page-description').textContent='領収書の読み取りからCSV出力まで、このPC内で処理します。';
+    document.querySelector('#page-title').textContent=fresh?'帳簿の保護を設定':'復元用パスワードで開く';
+    document.querySelector('#page-description').textContent='領収書の処理はローカルPC上で行い、帳簿の鍵はWindows利用者ごとに保護します。';
     document.querySelector('#usage-guidance').classList.add('hidden');
-    document.querySelector('#main-content').innerHTML=`<section class="panel settings-card protection-setup"><h2>${fresh?'復元用パスワードを決める':'復元用パスワードで帳簿を開く'}</h2><p>${fresh?'通常はWindowsが自動で帳簿を開くため、毎回の入力は不要です。PCの移行やバックアップの復元に使うパスワードを設定してください。':'別のWindowsアカウントやPCでは、自動解除できません。設定した復元用パスワードを入力してください。'}</p>${status.migrate_legacy?'<p>既存の帳簿と原本を暗号化します。元の内容を照合してから移行します。旧版のRyoshuは終了してください。</p>':''}<form id="protection-form"><label class="field"><span class="field-label">復元用パスワード（12〜256文字）</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="${fresh?'new-password':'current-password'}" required></label>${fresh?'<label class="field"><span class="field-label">もう一度入力</span><input name="confirmation" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="checkbox-line"><input type="checkbox" required>復元用パスワードを安全な場所に保管します</label><p class="field-hint">パスワードを忘れ、Windowsの鍵も使えなくなると復元できません。パスワード管理アプリなどに保管してください。</p>':''}<p id="protection-error" role="alert"></p><button class="button primary" type="submit">${fresh?'保護してはじめる':'帳簿を開く'}</button></form><details><summary>保護するデータと範囲</summary><p>帳簿DB・保存済みの原本・プレビュー・バックアップを暗号化します。読み取り中は利用者専用の作業フォルダーに一時ファイルを作り、終了後に片付けます。同じWindowsアカウントで動く不正なソフトや、開いた画面を他人に操作されることまでは防げません。</p><p>自分で書き出すCSV・原本、旧版のZIPや移行前に残ったディスク上の領域は別途管理してください。</p><a href="/help.html#security" target="_blank" rel="noreferrer">詳しい説明</a></details></section>`;
+    document.querySelector('#main-content').innerHTML=`<section class="panel settings-card protection-setup"><h2>${fresh?'復元用パスワードを設定':'帳簿を開く'}</h2><p>${fresh?'帳簿DB・保存済みの原本・プレビュー・暗号化バックアップを守るために設定します。通常はWindowsが自動で開くため毎回の入力は不要ですが、PCの移行・Windowsアカウントの変更・バックアップ復元には12〜256文字の復元用パスワードが必要です。':'Windowsアカウントが変わった環境や別のPCでは自動で開けません。この帳簿に設定した復元用パスワードを入力してください。'}</p>${status.migrate_legacy?'<p>既存の帳簿と原本を暗号化形式へ移行します。全内容を照合してから切り替えるため、先に旧版のRyoshuを終了してください。</p>':''}<form id="protection-form"><label class="field"><span class="field-label">復元用パスワード（12〜256文字）</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="${fresh?'new-password':'current-password'}" required></label>${fresh?'<label class="field"><span class="field-label">確認のためもう一度入力</span><input name="confirmation" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="checkbox-line"><input type="checkbox" required>復元用パスワードを安全な場所に保管します</label><p class="field-hint">Windowsの鍵と復元用パスワードを両方失うと帳簿を復元できません。パスワード管理アプリなどへ保管してください。</p>':''}<p id="protection-error" role="alert"></p><button class="button primary" type="submit">${fresh?'保護を設定して始める':'帳簿を開く'}</button></form><details><summary>暗号化の対象と保護できないもの</summary><p>帳簿DB・保存済みの原本・プレビュー・暗号化バックアップを暗号化します。読み取り中は利用者専用の作業フォルダーに一時ファイルを作り、終了後に片付けます。同じWindowsアカウントで動く不正ソフト、開いた画面の操作、OSの一時領域、移行前にディスクへ書かれた領域は保護できません。</p><p>書き出したCSV・原本と旧版のZIPは暗号化されない通常のファイルです。保存先と共有先を管理してください。</p><a href="/help.html#security" target="_blank" rel="noreferrer">保護と復元の詳細</a></details></section>`;
     await new Promise(resolve=>{
       document.querySelector('#protection-form').addEventListener('submit',async event=>{
         event.preventDefault();
@@ -96,7 +96,7 @@ window.RyoshuSecurity = (() => {
 
   function backup() {
     const dialog=document.createElement('dialog');dialog.className='backup-dialog';dialog.setAttribute('aria-label','暗号化バックアップを保存');
-    dialog.innerHTML='<form><h2>バックアップを保存</h2><p>帳簿・原本・修正履歴をパスワードで暗号化します。別のPCへの復元にも使えます。</p><label class="field"><span class="field-label">復元用パスワード</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="current-password" required></label><details><summary>原本が壊れた場合の救出用</summary><label class="checkbox-line"><input name="allow_missing" type="checkbox">不足・破損した原本を省いて、残ったデータを保存する</label><p class="field-hint">通常はオフで使います。省いた原本は復元できません。不足件数は復元後にも表示します。</p></details><p role="alert"></p><div class="sample-actions"><button class="button primary" type="submit">暗号化して保存</button><button class="button" type="button" data-cancel>戻る</button></div><p class="field-hint">件数によって数分かかります。保存したファイルとパスワードを別々の安全な場所に保管してください。</p></form>';
+    dialog.innerHTML='<form><h2>暗号化バックアップを作成</h2><p>帳簿・原本・修正履歴をまとめ、復元用パスワードで保護して保存します。別のPCへの復元にも使えます。</p><label class="field"><span class="field-label">復元用パスワード</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="current-password" required></label><details><summary>原本の不足・破損がある場合</summary><label class="checkbox-line"><input name="allow_missing" type="checkbox">不足・破損した原本を省いて、残ったデータを保存する</label><p class="field-hint">通常は選択しません。省いた原本はこのバックアップから復元できず、不足件数は復元後にも表示されます。</p></details><p role="alert"></p><div class="sample-actions"><button class="button primary" type="submit">暗号化して保存</button><button class="button" type="button" data-cancel>戻る</button></div><p class="field-hint">件数によって数分かかります。保存したファイルと復元用パスワードは別々の安全な場所へ保管してください。</p></form>';
     document.body.append(dialog);dialog.showModal();
     dialog.addEventListener('close',()=>{dialog.querySelector('form').reset();dialog.remove();},{once:true});
     dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
@@ -112,7 +112,7 @@ window.RyoshuSecurity = (() => {
   }
   function changePassword(){
     const dialog=document.createElement('dialog');dialog.className='backup-dialog';dialog.setAttribute('aria-label','復元用パスワードを再設定');
-    dialog.innerHTML='<form><h2>復元用パスワードを再設定</h2><p>このWindowsアカウントで開ける帳簿の、復元用パスワードを変更します。</p><label class="field"><span class="field-label">新しいパスワード（12〜256文字）</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="field"><span class="field-label">もう一度入力</span><input name="confirmation" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="checkbox-line"><input type="checkbox" required>変更後に新しいバックアップを保存します</label><p class="field-hint">以前のバックアップには、以前のパスワードが必要です。パスワードを忘れた場合も、Windowsで帳簿を開けるうちに再設定できます。</p><p role="alert"></p><div class="sample-actions"><button class="button primary" type="submit">再設定する</button><button class="button" type="button" data-cancel>戻る</button></div></form>';
+    dialog.innerHTML='<form><h2>復元用パスワードを再設定</h2><p>現在Windowsで開ける帳簿に、新しい復元用パスワードを設定します。</p><label class="field"><span class="field-label">新しい復元用パスワード（12〜256文字）</span><input name="password" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="field"><span class="field-label">確認のためもう一度入力</span><input name="confirmation" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></label><label class="checkbox-line"><input type="checkbox" required>変更後に新しい暗号化バックアップを保存します</label><p class="field-hint">以前のバックアップには作成当時のパスワードが必要です。再設定後に新しいファイルを保存してください。</p><p role="alert"></p><div class="sample-actions"><button class="button primary" type="submit">新しいパスワードを設定</button><button class="button" type="button" data-cancel>戻る</button></div></form>';
     document.body.append(dialog);dialog.showModal();dialog.addEventListener('close',()=>{dialog.querySelector('form').reset();dialog.remove();},{once:true});
     dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
     dialog.querySelector('form').onsubmit=async event=>{

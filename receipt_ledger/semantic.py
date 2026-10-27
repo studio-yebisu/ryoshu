@@ -173,7 +173,7 @@ def classify(ocr, business_context='', rules=None, accounts=None, policies=None)
     choices=candidates or secondary_amounts(native or text)
     uncertain_total=total is None and not flags['foreign'] and bool(choices)
     model=next((m for m in local_models() if m.get('name')==config.MODEL),None)
-    if model is None:raise ValueError('Qwen3 4Bが未導入です。setup.ps1を実行してください')
+    if model is None:raise ValueError('Qwen3 4Bが見つかりません。「初回セットアップ.cmd」でqwen3:4bを準備してください')
     schema={'type':'object','additionalProperties':False,'properties':{
         'merchant':{'type':'string','enum':['',*issuers],'maxLength':100},
         'description':{'type':'string','maxLength':60},
@@ -209,10 +209,10 @@ descriptionは原本で読める購入品・サービスだけ。地名や注意
     started=time.perf_counter()
     with httpx.Client(trust_env=False,timeout=httpx.Timeout(300,connect=5)) as client:
         response=client.post(config.OLLAMA_URL+'/api/chat',json=body);response.raise_for_status();output=response.json()
-    if output.get('done_reason')=='length':raise ValueError('モデルの出力が上限に達しました。OCR本文から手入力できます')
+    if output.get('done_reason')=='length':raise ValueError('モデルの応答が出力上限に達しました。OCR本文を確認して手入力できます')
     raw=json.loads(output['message']['content'])
     # Bound strings independently of the model's schema compliance.
-    if not isinstance(raw,dict) or any(not isinstance(raw.get(k),str) for k,p in schema['properties'].items() if p['type']=='string'):raise ValueError('AI候補の形式が正しくありません')
+    if not isinstance(raw,dict) or any(not isinstance(raw.get(k),str) for k,p in schema['properties'].items() if p['type']=='string'):raise ValueError('AI候補を期待した形式へ変換できません。OCR本文から手入力できます')
     raw={k:(v[:schema['properties'][k].get('maxLength',100)] if isinstance(v,str) else v) for k,v in raw.items() if k in schema['properties']}
     if not issuers:raw['merchant']=''
     if uncertain_total and type(raw.get('total_choice')) is int:
