@@ -8,6 +8,14 @@
 
 ![Ryoshu 1.3.4の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/copy-renewal-20261026/results.jpg)
 
+## 102秒で見るRyoshu
+
+[![紹介動画のポスター。「OCRで読み取り」「別のAIで科目候補」「原本と照合・修正」「CSV出力」の4工程と、「領収書はローカルPC上で処理」「実画面録画 ・ 架空の領収書データ」の表示。](docs/images/promo-102s-20261027.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+
+102秒の紹介動画では、OCRによる文字と数字の読み取り、別のローカルAIによる科目候補の作成、原本との照合・修正、CSV出力までの流れを概観できます。実際の操作を録画した架空領収書5件のデモで、科目変更・星付け・CSV保存も収録しています。
+
+[102秒の紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+
 ## 導入から最初の確認まで
 
 1. [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe)を実行します。管理者権限は不要です。
