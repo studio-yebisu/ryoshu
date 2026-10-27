@@ -419,6 +419,93 @@ def test_main_binds_fixture_before_install_and_reports_child_failure_before_the_
     assert "child.stderr" not in text.split('report["child_failure"]', 1)[1].split("check(", 1)[0]
 
 
+# --- format-aware OCR gate ------------------------------------------------------------------------------------------
+MODEL_SHA = "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+PIN_SHA = "02f6dafb061af1de041d2632063c4a2df8d48aae5c2740632f2b9eb2640d2008"
+# LOCAL root integration rows (fictional, not the 100 benchmark, NOT remote CI); only non-sensitive fields kept.
+LOCAL_V001_PDF = {"case_id": "V001", "input": "V001.pdf", "status": "review", "error_present": False, "ocr_engine": "Indra OCR",
+                  "ocr_page_sources": ["text"], "ocr_lines": 25, "ocr_text_chars": 232, "native_pdf_text_chars": 256,
+                  "origin": "model", "raw_model_candidate_is_object": True, "model_digest": MODEL_SHA, "runtime_pin_sha256": PIN_SHA}
+LOCAL_V003_JPEG = {"case_id": "V003", "input": "V003-rendered.jpg", "status": "review", "error_present": False, "ocr_engine": "Indra OCR",
+                   "ocr_page_sources": ["ocr"], "ocr_lines": 38, "ocr_text_chars": 278, "native_pdf_text_chars": 0,
+                   "origin": "model", "raw_model_candidate_is_object": True, "model_digest": MODEL_SHA, "runtime_pin_sha256": PIN_SHA}
+
+
+def _route(row):
+    return ha.ocr_route(ha.project_receipt(row, MODEL_SHA, PIN_SHA))
+
+
+@pytest.mark.parametrize("row,route", [
+    (LOCAL_V001_PDF, "pdf_text"),                                                   # native text-layer PDF (local actual)
+    (LOCAL_V003_JPEG, "image_ocr"),                                                 # real image OCR (local actual)
+    ({**LOCAL_V001_PDF, "ocr_page_sources": ["ocr"], "native_pdf_text_chars": 0}, "pdf_ocr"),     # scanned PDF
+    ({**LOCAL_V001_PDF, "ocr_page_sources": ["hybrid"]}, "pdf_hybrid"),             # text layer + OCR on one page
+    ({**LOCAL_V001_PDF, "ocr_page_sources": ["text", "ocr"]}, "pdf_hybrid"),        # mixed pages
+])
+def test_valid_indra_routes_pass_per_format(row, route):
+    assert _route(row) == (True, route, "ok")
+
+
+@pytest.mark.parametrize("row,reason", [
+    ({**LOCAL_V003_JPEG, "ocr_page_sources": ["text"]}, "image_input_without_image_ocr"),
+    ({**LOCAL_V003_JPEG, "ocr_page_sources": ["hybrid"]}, "image_input_without_image_ocr"),
+    ({**LOCAL_V003_JPEG, "native_pdf_text_chars": 5}, "image_input_has_native_pdf_text"),
+    ({**LOCAL_V001_PDF, "ocr_lines": 0}, "empty_or_malformed_counts"),
+    ({**LOCAL_V003_JPEG, "ocr_text_chars": 0}, "empty_or_malformed_counts"),
+    ({**LOCAL_V001_PDF, "ocr_lines": "25"}, "empty_or_malformed_counts"),
+    ({**LOCAL_V001_PDF, "ocr_text_chars": -1}, "empty_or_malformed_counts"),
+    ({**LOCAL_V001_PDF, "ocr_lines": True}, "empty_or_malformed_counts"),
+    ({**LOCAL_V001_PDF, "native_pdf_text_chars": None}, "empty_or_malformed_counts"),
+    ({**LOCAL_V001_PDF, "ocr_page_sources": []}, "missing_page_sources"),
+    ({**LOCAL_V001_PDF, "ocr_page_sources": "text"}, "missing_page_sources"),
+    ({**LOCAL_V001_PDF, "ocr_page_sources": ["error"]}, "unknown_or_error_page_source"),
+    ({**LOCAL_V001_PDF, "ocr_page_sources": ["text", "vision"]}, "unknown_or_error_page_source"),
+    ({**LOCAL_V001_PDF, "native_pdf_text_chars": 0}, "text_route_without_native_pdf_text"),
+    ({**LOCAL_V001_PDF, "ocr_engine": "tesseract"}, "wrong_ocr_engine"),
+    ({**LOCAL_V001_PDF, "input": "V001.jpg"}, "unexpected_case_or_input"),
+    ({**LOCAL_V003_JPEG, "input": "V001.pdf"}, "unexpected_case_or_input"),
+    ({**LOCAL_V001_PDF, "case_id": "V999"}, "unexpected_case_or_input"),
+    ("not a dict", "unexpected_case_or_input"),
+])
+def test_invalid_ocr_evidence_fails_closed(row, reason):
+    ok, _, why = _route(row)
+    assert not ok and why == reason
+
+
+def test_projection_is_a_fixed_allowlist_that_never_echoes_free_values():
+    hostile = "C:" + "\\" + "Users" + "\\someone\\AppData " + "gh" + "p_" + "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    row = {**LOCAL_V001_PDF, "status": hostile, "ocr_page_sources": ["text", hostile], "ocr_engine": hostile, "input": hostile,
+           "case_id": hostile, "model_digest": hostile, "account": "消耗品費", "raw_model_candidate_keys": [hostile],
+           "ocr_text": hostile, "path": hostile, "error_present": "yes", "ocr_lines": 2 ** 40}
+    p = ha.project_receipt(row, MODEL_SHA, PIN_SHA)
+    assert set(p) == {"case_id", "input_kind", "ocr_engine_is_indra", "ocr_page_sources", "ocr_lines", "ocr_text_chars",
+                      "native_pdf_text_chars", "status", "error_present", "origin_is_model", "raw_model_candidate_is_object",
+                      "model_digest_matches_pin", "runtime_pin_matches"}
+    assert p["case_id"] == "unknown_case" and p["input_kind"] == "unexpected_input" and p["status"] == "unknown_status"
+    assert p["ocr_page_sources"] == ["text", "unknown_source"] and p["error_present"] is None and not p["model_digest_matches_pin"]
+    text = json.dumps(p, ensure_ascii=False)
+    for leak in ("Users", "gh" + "p_", "消耗品費", "AppData"):
+        assert leak not in text
+    local = [ha.project_receipt(r, MODEL_SHA, PIN_SHA) for r in (LOCAL_V001_PDF, LOCAL_V003_JPEG)]
+    assert all(q["model_digest_matches_pin"] and q["runtime_pin_matches"] and q["origin_is_model"] and q["status"] == "review"
+               for q in local)
+
+
+def test_main_persists_projection_before_any_receipt_assertion_and_keeps_model_checks():
+    text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
+    body = text.split('report["stage"] = "receipts"', 1)[1]
+    persist = body.index('report["receipts"] = [project_receipt(')
+    assert persist < body.index('check("receipts_present_for_every_case"') < body.index('check("strict_crt_activation_active"')
+    assert persist < body.index('check(f"indra_ocr_route_') < body.index('check(f"local_model_structured_output_')
+    assert 'report["receipts"] = res["receipts"]' not in text            # the full private rows are never published
+    assert 'any(s not in ("text",) for s in r["ocr_page_sources"])' not in text   # the false image-only rule is gone
+    # unchanged strict model/pin/status, JPEG native-text and CSV checks
+    assert ('r["status"] == "review" and not r["error_present"]\n                  and r["origin"] == "model" and r["raw_model_candidate_is_object"]\n'
+            '                  and r["model_digest"] == pin["model"]["sha256"] and r["runtime_pin_sha256"] == pin_sha)') in text
+    assert 'check("image_input_has_no_native_pdf_text", jpg["native_pdf_text_chars"] == 0)' in text
+    assert 'check("csv_exported", res["csv"]["data_rows"] == len(res["receipts"]), **res["csv"])' in text
+
+
 def test_acceptance_keeps_hkcu_refusal_and_never_targets_the_real_profile():
     text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
     assert "if registry_exists():\n        ap.error(" in text

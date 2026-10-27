@@ -131,6 +131,68 @@ def public_exception_type(value) -> str | None:
     return value if isinstance(value, str) and value in APPROVED_EXCEPTION_TYPES else UNAPPROVED_EXCEPTION_TYPE
 
 
+# ----------------------------------------------------------------------------------------------- receipt format gate
+# The child processes exactly these fictional inputs (hosted_acceptance_child.CASES / inputs).
+CASE_INPUTS = {"V001": ("V001.pdf", "pdf"), "V003": ("V003-rendered.jpg", "jpeg")}
+OCR_ENGINE = "Indra OCR"
+# indra_ocr.pipeline.Page.source contract (1.1.2): "ocr" | "text" (PDF text layer) | "hybrid" (text layer + OCR) | "error".
+PAGE_SOURCES = ("text", "ocr", "hybrid", "error")
+RECEIPT_STATUSES = ("review", "error", "queued", "processing", "confirmed", "excluded")
+
+
+def _count(value):
+    return value if type(value) is int and value >= 0 else None
+
+
+def project_receipt(row, model_sha256: str, pin_sha256: str) -> dict:
+    """Fixed-allowlist public metadata for one child receipt row. Unknown values become static categories/null;
+    no OCR text, account names, paths or other free strings are copied."""
+    row = row if isinstance(row, dict) else {}
+    case_id = row.get("case_id") if row.get("case_id") in CASE_INPUTS else "unknown_case"
+    expected = CASE_INPUTS.get(case_id)
+    sources = row.get("ocr_page_sources")
+    return {
+        "case_id": case_id,
+        "input_kind": expected[1] if expected and row.get("input") == expected[0] else "unexpected_input",
+        "ocr_engine_is_indra": row.get("ocr_engine") == OCR_ENGINE,
+        "ocr_page_sources": [s if s in PAGE_SOURCES else "unknown_source" for s in sources] if isinstance(sources, list) else None,
+        "ocr_lines": _count(row.get("ocr_lines")), "ocr_text_chars": _count(row.get("ocr_text_chars")),
+        "native_pdf_text_chars": _count(row.get("native_pdf_text_chars")),
+        "status": row.get("status") if row.get("status") in RECEIPT_STATUSES else "unknown_status",
+        "error_present": row.get("error_present") if type(row.get("error_present")) is bool else None,
+        "origin_is_model": row.get("origin") == "model",
+        "raw_model_candidate_is_object": row.get("raw_model_candidate_is_object") is True,
+        "model_digest_matches_pin": row.get("model_digest") == model_sha256,
+        "runtime_pin_matches": row.get("runtime_pin_sha256") == pin_sha256,
+    }
+
+
+def ocr_route(p: dict) -> tuple[bool, str, str]:
+    """(ok, route, reason) for a projected receipt. PDFs may use Indra's text-layer, OCR or hybrid route; a JPEG must be
+    real image OCR (only 'ocr' pages, no PDF text layer)."""
+    if p["case_id"] == "unknown_case" or p["input_kind"] == "unexpected_input":
+        return False, "none", "unexpected_case_or_input"
+    if not p["ocr_engine_is_indra"]:
+        return False, "none", "wrong_ocr_engine"
+    if not p["ocr_lines"] or not p["ocr_text_chars"] or p["native_pdf_text_chars"] is None:
+        return False, "none", "empty_or_malformed_counts"
+    sources = p["ocr_page_sources"]
+    if not sources:
+        return False, "none", "missing_page_sources"
+    if any(s not in ("text", "ocr", "hybrid") for s in sources):
+        return False, "none", "unknown_or_error_page_source"
+    if p["input_kind"] == "jpeg":
+        if any(s != "ocr" for s in sources):
+            return False, "image_not_ocr", "image_input_without_image_ocr"
+        if p["native_pdf_text_chars"] != 0:
+            return False, "image_ocr", "image_input_has_native_pdf_text"
+        return True, "image_ocr", "ok"
+    route = "pdf_text" if set(sources) == {"text"} else "pdf_ocr" if set(sources) == {"ocr"} else "pdf_hybrid"
+    if route != "pdf_ocr" and p["native_pdf_text_chars"] == 0:
+        return False, route, "text_route_without_native_pdf_text"
+    return True, route, "ok"
+
+
 def bind_fixture(path: Path) -> dict:
     """Resolve the caller's fixture path NOW (relative to the caller's cwd), require a regular file, bind its bytes."""
     resolved = Path(path).resolve(strict=True)
@@ -354,10 +416,17 @@ def main(argv=None) -> int:
             report["child_failure"] = summary   # allowlisted stage/type/static reason only
         check("receipt_child_succeeded", child.returncode == 0 and summary is None, exit_code=child.returncode)
         res = json.loads(private.read_text(encoding="utf-8"))
+        # Persist the fixed-allowlist projection BEFORE any receipt assertion so a failing gate still reports why.
+        rows = res.get("receipts") if isinstance(res.get("receipts"), list) else []
+        report["receipts"] = [project_receipt(r, pin["model"]["sha256"], pin_sha) for r in rows]
+        for p in report["receipts"]:
+            p["ocr_route"], p["ocr_route_reason"] = ocr_route(p)[1:]
+        check("receipts_present_for_every_case", sorted(p["case_id"] for p in report["receipts"]) == sorted(CASE_INPUTS),
+              receipts=len(report["receipts"]))
         check("strict_crt_activation_active", res["activation"]["state"] == "active")
-        for r in res["receipts"]:
-            check(f"real_ocr_{r['case_id']}", r["ocr_engine"] == "Indra OCR" and r["ocr_lines"] > 0 and r["ocr_text_chars"] > 0
-                  and any(s not in ("text",) for s in r["ocr_page_sources"]))
+        for r, p in zip(res["receipts"], report["receipts"]):
+            ok, route, reason = ocr_route(p)
+            check(f"indra_ocr_route_{p['case_id']}_{p['input_kind']}", ok, route=route, reason=reason)
             check(f"local_model_structured_output_{r['case_id']}", r["status"] == "review" and not r["error_present"]
                   and r["origin"] == "model" and r["raw_model_candidate_is_object"]
                   and r["model_digest"] == pin["model"]["sha256"] and r["runtime_pin_sha256"] == pin_sha)
@@ -370,7 +439,6 @@ def main(argv=None) -> int:
         llama_dir = root / "llama" / pin["runtime"]["dir_name"]
         ll = crt_provenance((res["llama_server"] or {}).get("modules", []), files, str(llama_dir), LLAMA_CRT, os.environ["SystemRoot"])
         check("llama_crt_maps_from_managed_runtime", res["llama_server"] is not None and ll["ok"], **ll)
-        report["receipts"] = res["receipts"]
         report["cpu_args"] = res["cpu_args"]
         report["runtime_status"] = res["runtime_status"]
         report["module_counts"] = {"python": len(res["python_modules"]),
