@@ -1,0 +1,44 @@
+/* v1.4 evidence page only. Loaded after ../report.css; every rule is scoped under .v14 so the
+   historical report pages are unaffected. No text content lives here. */
+.v14 main { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; box-sizing: border-box; }
+.v14 .v14-top { padding: 24px 0 20px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.v14 .v14-nav { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; margin: 0 0 18px; }
+.v14 .v14-top h1 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.5px; margin: 0 0 12px; }
+.v14 .v14-lead { max-width: 820px; margin: 0; }
+.v14 .v14-section { margin: 0 0 40px; }
+.v14 .v14-section > p, .v14 .v14-method p { max-width: 820px; }
+.v14 .v14-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.v14 .v14-summary { border-collapse: collapse; width: 100%; max-width: 820px; font-size: 14px; }
+.v14 .v14-summary th, .v14 .v14-summary td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.v14 .v14-summary thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.v14 .v14-summary td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; width: 6em; }
+
+.v14 .v14-values { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 8px 0 0; }
+.v14 .v14-values dt { color: var(--muted); }
+.v14 .v14-values dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.v14 .v14-legend { font-size: 13px; color: var(--muted); max-width: 820px; }
+.v14 .v14-cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 0; margin: 0; list-style: none; }
+.v14 .v14-case { border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 14px 16px; min-width: 0; }
+.v14 .v14-case.has-mismatch { border-color: #c9893a; box-shadow: inset 4px 0 0 #c9893a; }
+.v14 .v14-case-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.v14 .v14-case-head h3 { margin: 0; font-size: 16px; }
+.v14 .v14-original img { display: block; width: 72px; height: 72px; object-fit: contain; border: 1px solid var(--line); background: var(--paper); }
+.v14 .v14-fields { display: grid; grid-template-columns: minmax(6em, max-content) 1fr; gap: 6px 12px; margin: 0 0 12px; font-size: 13px; }
+.v14 .v14-fields dt { color: var(--muted); }
+.v14 .v14-fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.v14 .v14-initial, .v14 .v14-expected { display: block; }
+.v14 .v14-expected { color: var(--muted); }
+.v14 .v14-checks { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; font-size: 12px; }
+.v14 .v14-checks li { display: inline-flex; gap: 4px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.v14 .v14-checks .is-pass { border-color: #9cc3ad; }
+.v14 .v14-checks .is-fail { border-color: #c9893a; background: #fbefdc; font-weight: 650; }
+.v14 .v14-checks .is-na { color: var(--muted); border-style: dashed; }
+
+@media (max-width: 640px) {
+  .v14 main { padding: 0 14px 40px; }
+  .v14 .v14-cases { grid-template-columns: 1fr; }
+  .v14 .v14-values { grid-template-columns: 1fr; }
+  .v14 .v14-summary { font-size: 13px; }
+}

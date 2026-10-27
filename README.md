@@ -4,25 +4,23 @@
 
 個人事業主・フリーランスが、支出の記録と確認を一度に進めるための道具です。Indra OCR 1.1.2が日付や金額を読み取り、llama.cpp上のQwen3 4B（Q4_K_M）が勘定科目の候補を作ります。帳簿には下書きとして残り、原本と見比べてから修正・確認できます。外部AIのアカウントとAPIキーは不要です。
 
-**v1.4.0候補（未公開）** · 現在の公開版は**v1.3.4**です：[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe) · [v1.3.4の配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [v1.3.4の検証範囲](docs/testing/v1.3.4/README.md)
+Indra OCRで文字を読み、Ryoshuが必要時に起動するllama.cppサーバーと固定した公式Qwen3-4B GGUFが科目候補を作ります。AIはCPUで動作し、接続はループバックと起動ごとの認証キーに限定されます。Ollamaは不要で、領収書の処理とCSV作成はローカルPC上で行います。
 
-v1.4.0候補の配布物・新しい検証記録・紹介動画は未公開です。以下の画面・動画・数値は公開済み版の記録であり、llama.cppへ移行した候補版の検証結果ではありません。
+**v1.4.0** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
 
-![Ryoshu 1.3.4の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/copy-renewal-20261026/results.jpg)
+![Ryoshu 1.4.0の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/ryoshu-v1.4.0-results.jpg)
 
-## 102秒で見るRyoshu
+## 実際の操作と検証結果を動画で見る
 
-[![紹介動画のポスター。「OCRで読み取り」「別のAIで科目候補」「原本と照合・修正」「CSV出力」の4工程と、「領収書はローカルPC上で処理」「実画面録画 ・ 架空の領収書データ」の表示。](docs/images/promo-102s-20261027.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-llamacpp-20261027/ryoshu-promo-v1.4.0.mp4)
 
-102秒の紹介動画では、OCRによる文字と数字の読み取り、別のローカルAIによる科目候補の作成、原本との照合・修正、CSV出力までの流れを概観できます。実際の操作を録画した架空領収書5件のデモで、科目変更・星付け・CSV保存も収録しています。この動画は公開済み版の記録で、v1.4.0候補の実画面ではありません。
+Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り込み、OCRと別のローカルモデルで処理した後、原本の拡大・照合、科目の手動変更、お気に入りの追加と解除、1件の確認と4件の未確認、汎用CSV1行の保存を収録しています。新しい100件の検証結果も紹介します。映像はOpus 5.5、表示する製品文案はKimiが制作しました。
 
-[102秒の紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-llamacpp-20261027/ryoshu-promo-v1.4.0.mp4)
 
 ## 導入から最初の確認まで
 
-次の手順はv1.4.0候補向けです。候補版の配布はまだありません。現在公開中のv1.3.4を使う場合は、その版の案内を参照してください。
-
-1. 配布が確定したv1.4.0のWindowsインストーラーを実行します。管理者権限は不要です。入手先は[公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases)で確認します。
+1. v1.4.0の[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe)をダウンロードして実行します。現在のWindows利用者ごとにインストールされるため、管理者権限は不要です。
 2. スタートメニューの「Ryoshu」を開き、モデルとMicrosoftの利用条件を確認して初回準備を進めます。OllamaやLM Studioは不要です。Python 3.12.15、固定版の依存、OCRモデル、llama.cpp実行環境、Microsoft Visual C++ v14の公式パッケージと利用条件、約2.5GBのQwenモデルを取得するため、ネット接続と数GB以上の空き容量が必要です。Microsoftパッケージは実行せず、明示された同意がある場合だけDLLをRyoshu専用の保存先へ配置します。Visual StudioやWindows全体へのVC++導入は不要です。インストーラーにこれらの実行環境・Microsoft DLL・モデルは含まれません。
 3. ブラウザーで12〜256文字の復元用パスワードを設定します。普段はWindowsが帳簿を開くため、起動のたびに入力する必要はありません。
 
@@ -50,11 +48,17 @@ PCの移行・Windowsアカウントの変更・バックアップ復元には�
 
 ## 動作要件
 
-v1.4.0候補の対象はWindows 11 x64だけです。Windows 10は未検証で、動作対象として案内していません。JavaScriptが使えるブラウザーが必要です。Windows on ARM（arm64）は対象外です。AIはCPUだけで動作し、OllamaやLM Studioは不要です。最低RAMは未測定で、候補版の検証に使うPCの搭載メモリは128GBです。これは最低要件ではありません。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
+Ryoshu v1.4.0の対象はWindows 11 x64です。OCRと科目候補の作成はローカルPC上のCPUで行い、OllamaやLM Studioの導入は不要です。最低RAMは未測定です。インストーラーの受入環境と検証範囲は別の記録で確認してください。Windows 10は未検証で、動作対象として案内していません。JavaScriptが使えるブラウザーが必要です。Windows on ARM（arm64）は対象外です。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
 
 ## 検証記録を読む
 
-次の数値は**2026-10-23に実施したv1.3.0の記録**です。v1.3.4で100件を新規推論した結果ではなく、llama.cppと新しいQwenモデルを使うv1.4.0候補の結果でもありません。固定した100種類の架空PDFを同じ条件で処理した回帰検証であり、未知の実物領収書での正答率を示しません。v1.3.4の検証記録では、v1.3.0以降も科目マスター・OCR・科目候補の生成方法・仕訳計算・CSV形式を変更していないことを確認しています。
+v1.4で既存の架空100件を検証し、編集前の初期出力は、円額95/95、外貨の円額未確定2/2（返金3件は金額比較から除外）、日付99/100、支払先85/100、通常の科目提案44/48、特別な処理52件中42件、全100件の科目または処理判定86/100、印字税額51/52、正しい空欄11/11でした。税額の残り37件は評価対象外です。処理時間は22分36.711秒で、新しいアプリプロセスの最初のアップロード直前から全件終了を一覧で確認するまでを測り、50件ずつ2回のアップロード・OCR・ローカルモデルを含み、初回準備・ダウンロード・利用者の確認・CSV・採点を除外しています。
+
+llama.cppへの変更とモデルの種類の変更を同時に行ったため、差異を実行環境だけの効果とする検証ではありません。アプリは新規起動ですが、以前の実行でOS・ディスクキャッシュは温まっていました。同じ架空100件の開発・回帰検証で、未知の実物領収書の正確さや、OCR・モデル単体の精度ではありません。結果は利用者が編集する前の候補で、税務処理の正しさや脆弱性の不存在を保証するものではありません。
+
+インストールと動作確認の範囲、残る制約はv1.4の検証記録で確認してください。[Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
+
+次の数値は**2026-10-23に実施したv1.3.0の記録**です。固定した100種類の架空PDFを同じ条件で処理した回帰検証であり、未知の実物領収書での正答率を示しません。v1.3.4の検証記録では、v1.3.0以降も科目マスター・OCR・科目候補の生成方法・仕訳計算・CSV形式を変更していないことを確認しています。
 
 | 項目 | 一致 / 評価対象 |
 | --- | ---: |
@@ -64,8 +68,6 @@ v1.4.0候補の対象はWindows 11 x64だけです。Windows 10は未検証で�
 | 科目または保留条件 | 86/100 |
 
 金額の内訳は非負の円額95件と外貨で円額未確定の2件で、返金3件は対象外です。暫定科目の48件は元の期待値で科目提案を求めたケースです。税額は評価対象63件のうち、数値を期待した52件中51件が一致、1件は空欄でした。空欄を期待した11件はすべて一致し、誤った数値は0件でした。返金3件と外貨2件は税額の評価からも除いています。
-
-v1.4.0候補ではモデルと実行環境の両方が変わるため、新しい100件の実推論が完了するまで、上記の速度・精度の記録を候補版へ適用しません。
 
 [全指標・差異・原本・実行範囲（v1.3.0）](docs/testing/v1.3/README.md) · [100件の画像一覧](docs/testing/gallery.md) · [読み取り画面の検証（v1.3.2）](docs/testing/v1.3.2/README.md) · [公開版の検証範囲（v1.3.4）](docs/testing/v1.3.4/README.md) · [版ごとの変更履歴](CHANGELOG.md)
 

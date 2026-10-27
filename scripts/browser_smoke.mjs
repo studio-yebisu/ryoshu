@@ -51,7 +51,11 @@ async function go(view){if(['settings','accounts','catalog'].includes(view)&&!aw
 async function pdfMode(mode){if(!await page.locator('.pdf-options').evaluate(node=>node.open))await page.locator('.pdf-options > summary').click();await page.locator(`[name="pdf-mode"][value="${mode}"]`).check();}
 async function waitImported(n){await page.waitForFunction(n=>document.querySelector('#import-progress').innerText.includes(`${n} / ${n}ファイル`),n,{timeout:120000});}
 async function openResults(){if(!await page.locator('#import-progress details').evaluate(node=>node.open))await page.locator('#import-progress summary').click();await page.locator('.import-result-controls').waitFor();}
-async function waitComplete(n){await page.waitForFunction(async n=>{const d=await(await RyoshuSecurity.fetch('/api/receipts')).json();return d.receipts.length===n&&d.receipts.every(r=>!['queued','processing'].includes(r.status));},n,{timeout:120000});await page.waitForFunction(n=>state.records.length===n&&state.records.every(r=>!['queued','processing'].includes(r.status)),n,{timeout:15000});}
+// Strict server-side completion: exactly n receipts, none queued/processing. The current screen is left untouched.
+async function waitComplete(n){await page.waitForFunction(async n=>{const d=await(await RyoshuSecurity.fetch('/api/receipts')).json();return d.receipts.length===n&&d.receipts.every(r=>!['queued','processing'].includes(r.status));},n,{timeout:120000});}
+// Visible user route: a page load runs the app's own receipt fetch; only then must its rendered state hold all n, terminal.
+// (The home/processing flow polls only while it sees busy rows, so its in-memory list is not asserted before this fetch.)
+async function reloadAndWaitRecords(n){await page.reload({waitUntil:'networkidle'});await page.waitForFunction(n=>state.uiReady&&state.records.length===n&&state.records.every(r=>!['queued','processing'].includes(r.status)),n,{timeout:15000});}
 try{
   const launched=await startServer();base=launched.url;stopToken=launched.token;
   browser=await chromium.launch({headless:true,...(process.env.RYOSHU_BROWSER_CHANNEL?{channel:process.env.RYOSHU_BROWSER_CHANNEL}:{})});
@@ -75,7 +79,8 @@ try{
   await page.locator('[data-import-action="pause"]').click();await page.waitForTimeout(400);
   const paused=(await api('receipts')).receipts.length;await page.waitForTimeout(400);assert.equal((await api('receipts')).receipts.length,paused);
   await snapshot('03-import-paused');await page.locator('[data-import-action="resume"]').click();
-  await waitImported(100);await waitComplete(100);await page.reload({waitUntil:'networkidle'});await go('ledger');
+  await waitImported(100);await waitComplete(100);await reloadAndWaitRecords(100);await go('ledger');
+  await page.waitForFunction(()=>document.querySelectorAll('#ledger-table tbody tr').length>0);
   checks.push('100 PDFs selected once, explicit start with default document mode, pause/resume, saved and read to ledger');
   await page.locator('#export-profile').selectOption('freee');await page.waitForFunction(()=>document.querySelector('#export-result').innerText.includes('確認済み'));
   assert.equal(await page.locator('#download-csv').isDisabled(),true);checks.push('accounting CSV explains why unreviewed rows cannot be exported');
@@ -125,7 +130,7 @@ try{
   await openResults();await page.waitForFunction(()=>document.querySelector('#import-progress').innerText.includes('PDFを開けません'));assert.match(await page.locator('#import-progress').innerText(),/重複1件/);assert.match(await page.locator('#import-progress').innerText(),/PDFを開けません/);
   checks.push('persistent individual import errors and exact duplicate skip');
   await page.locator('[data-import-action="dismiss"]').click();
-  await page.locator('#upload-top').click();await page.locator('#file-input').setInputFiles(root+'/samples/receipts-100-v2/receipts-100-review.pdf');await pdfMode('document');await page.locator('#start-import').click();await waitImported(1);await page.locator('[data-import-action="split-failed"]').waitFor();assert.equal(await page.locator('#import-progress details').evaluate(node=>node.open),false);await snapshot('04b-pdf-mode-remedy');await page.locator('[data-import-action="split-failed"]').click();await waitImported(1);await waitComplete(200);await page.reload({waitUntil:'networkidle'});
+  await page.locator('#upload-top').click();await page.locator('#file-input').setInputFiles(root+'/samples/receipts-100-v2/receipts-100-review.pdf');await pdfMode('document');await page.locator('#start-import').click();await waitImported(1);await page.locator('[data-import-action="split-failed"]').waitFor();assert.equal(await page.locator('#import-progress details').evaluate(node=>node.open),false);await snapshot('04b-pdf-mode-remedy');await page.locator('[data-import-action="split-failed"]').click();await waitImported(1);await waitComplete(200);await reloadAndWaitRecords(200);
   assert.equal(await page.locator('#ledger-table tbody tr').count(),100);assert.match(await page.locator('.pagination').innerText(),/1 \/ 2ページ/);
   await page.locator('[data-action="ledger-next"]').click();assert.match(await page.locator('.pagination').innerText(),/2 \/ 2ページ/);
   rows=(await api('receipts')).receipts;const split=rows.find(r=>r.source_document?.page===100);assert.ok(split);assert.equal(split.source_document.page_count,100);

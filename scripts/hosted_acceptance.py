@@ -29,6 +29,8 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify_windows_package import registry_exists, sha, tree_sha  # noqa: E402  (same HKCU refusal + hashing)
+from verify_windows_package import (SHORTCUT_NAMES, icon_entries_from_log, known_programs_dir,  # noqa: E402,F401
+                                    resolve_shortcut_group, group_candidates)   # one shared Inno-log shortcut binding
 
 CRT_NAMES = ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll", "msvcp140_1.dll")
 LLAMA_CRT = ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")
@@ -76,51 +78,7 @@ def crt_provenance(modules: list[dict], pin_files: dict, allowed_dir: str, requi
     return {"ok": not failures, "owned": owned, "vendored_wheel_copies": vendored, "failures": failures}
 
 
-SHORTCUT_NAMES = ("Ryoshu.lnk", "Ryoshuを終了.lnk", "Ryoshuの導入ガイド.lnk")
 GROUP_NAME = "Ryoshu"   # packaging/windows/ryoshu.iss DefaultGroupName (no /GROUP is passed: the product default is under test)
-
-
-def icon_entries_from_log(log_text: str) -> list[str]:
-    """Shortcut paths Inno Setup actually wrote, from its /LOG ('-- Icon entry --' followed by 'Dest filename: <path>')."""
-    out, in_icon = [], False
-    for line in log_text.splitlines():
-        body = re.sub(r"^\S+\s+\S+\s+", "", line, count=1) if re.match(r"^\d{4}-\d{2}-\d{2}\s", line) else line
-        body = body.strip()
-        if body.startswith("-- ") and body.endswith(" --"):
-            in_icon = body == "-- Icon entry --"
-            continue
-        if in_icon and body.startswith("Dest filename:"):
-            out.append(body.split(":", 1)[1].strip())
-            in_icon = False
-    return out
-
-
-def group_candidates(profile: Path, known_programs: Path, common_programs: Path | None) -> dict[str, Path]:
-    """Per-user group locations Ryoshu's per-user install may legitimately use, plus all-users (diagnostic only)."""
-    c = {"known_user_programs": known_programs / GROUP_NAME,
-         "isolated_profile_programs": profile / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs" / GROUP_NAME}
-    if common_programs is not None:
-        c["common_programs_NOT_ALLOWED"] = common_programs / GROUP_NAME
-    return c
-
-
-def resolve_shortcut_group(logged: list[str], candidates: dict[str, Path], listdir=lambda p: sorted(x.name for x in p.glob("*.lnk"))) -> dict:
-    """Exactly the 3 named shortcuts, all in ONE per-user Ryoshu group dir that the installer log names, all present."""
-    norm = lambda p: os.path.normcase(os.path.normpath(str(p)))
-    alias = {norm(p): a for a, p in candidates.items()}
-    named = [p for p in logged if Path(p).name in SHORTCUT_NAMES]
-    parents = sorted({norm(Path(p).parent) for p in named})
-    diag = {"expected_names": list(SHORTCUT_NAMES), "group_arg": None, "group_default": GROUP_NAME,
-            "logged_basenames": sorted(Path(p).name for p in logged),
-            "logged_group_dirs": [alias.get(d, "<other>") for d in parents],
-            "observed_by_candidate": {a: (listdir(p) if p.is_dir() else None) for a, p in candidates.items()}}
-    ok, chosen = False, None
-    if len(named) == 3 and sorted(Path(p).name for p in named) == sorted(SHORTCUT_NAMES) and len(parents) == 1:
-        chosen = alias.get(parents[0])
-        if chosen in ("known_user_programs", "isolated_profile_programs"):
-            ok = diag["observed_by_candidate"][chosen] == sorted(SHORTCUT_NAMES)
-    diag.update(selected_group_alias=chosen, ok=ok)
-    return diag
 
 
 def sanitize(value, replacements: dict[str, str]):
@@ -137,29 +95,75 @@ def sanitize(value, replacements: dict[str, str]):
     return value
 
 
-def known_programs_dir(folder_id: str = "{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}") -> Path:
-    """Start Menu Programs folder via SHGetKnownFolderPath (default FOLDERID_Programs = current user; pass
-    FOLDERID_CommonPrograms {0139D44E-6AFE-49F2-8690-3DAFCAE6FFB8} for all users) - the Shell's own answer for THIS process."""
-    import ctypes
-    from ctypes import wintypes
-    import uuid as _uuid
+# ----------------------------------------------------------------------------------------------- receipt child contract
+# The child writes a PRIVATE marker {"schema": 1, "stage": <enum>, "exception_type": <identifier>} when it fails. Only these
+# allowlisted values (never exception text, tracebacks or paths) may reach the public acceptance.json.
+CHILD_STAGES = ("start", "activation", "native_imports", "fixtures", "ledger_setup", "receipts", "csv_export",
+                "runtime_close", "write_result")
+CHILD_REASONS = {
+    "start": "child failed before CRT activation",
+    "activation": "strict CRT activation failed",
+    "native_imports": "native library import failed after activation",
+    "fixtures": "fixture archive could not be verified or read",
+    "ledger_setup": "QA ledger or runtime setup failed",
+    "receipts": "receipt upload, OCR, inference or reviewed save failed",
+    "csv_export": "CSV export failed",
+    "runtime_close": "local runtime shutdown failed",
+    "write_result": "private result could not be written",
+}
+# Explicit vocabulary of exception class names this child can realistically raise (builtins + its own dependencies).
+# Only these are published verbatim; any other value (however identifier-shaped) becomes the fixed category below,
+# so nothing from the private marker is ever echoed.
+APPROVED_EXCEPTION_TYPES = frozenset({
+    "AssertionError", "AttributeError", "BadZipFile", "ConnectionError", "CrtActivationError", "FileNotFoundError",
+    "HTTPStatusError", "ImportError", "IsADirectoryError", "JSONDecodeError", "KeyError", "KeyboardInterrupt",
+    "MemoryError", "ModuleNotFoundError", "NotADirectoryError", "OSError", "PdfiumError", "PermissionError",
+    "ProtectionError", "RuntimeError", "RuntimeFailure", "SystemExit", "TimeoutError", "TypeError",
+    "UnicodeDecodeError", "ValidationError", "ValueError",
+})
+UNAPPROVED_EXCEPTION_TYPE = "unapproved_exception_type"
 
-    class GUID(ctypes.Structure):
-        _fields_ = [("Data1", wintypes.DWORD), ("Data2", wintypes.WORD), ("Data3", wintypes.WORD), ("Data4", ctypes.c_ubyte * 8)]
 
-    g = _uuid.UUID(folder_id)
-    fid = GUID(g.fields[0], g.fields[1], g.fields[2], (ctypes.c_ubyte * 8)(*g.bytes[8:]))
-    shell32, ole32 = ctypes.WinDLL("shell32"), ctypes.WinDLL("ole32")
-    shell32.SHGetKnownFolderPath.argtypes = [ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)]
-    shell32.SHGetKnownFolderPath.restype = ctypes.HRESULT
-    ole32.CoTaskMemFree.argtypes = [ctypes.c_void_p]
-    out = ctypes.c_wchar_p()
-    KF_FLAG_DONT_VERIFY = 0x00004000
-    shell32.SHGetKnownFolderPath(ctypes.byref(fid), KF_FLAG_DONT_VERIFY, None, ctypes.byref(out))  # raises OSError on failure
+def public_exception_type(value) -> str | None:
+    """Approved class name, the fixed non-echoing category for anything else present, or None when absent."""
+    if value is None:
+        return None
+    return value if isinstance(value, str) and value in APPROVED_EXCEPTION_TYPES else UNAPPROVED_EXCEPTION_TYPE
+
+
+def bind_fixture(path: Path) -> dict:
+    """Resolve the caller's fixture path NOW (relative to the caller's cwd), require a regular file, bind its bytes."""
+    resolved = Path(path).resolve(strict=True)
+    if not resolved.is_file():
+        raise FileNotFoundError("fixtures_not_a_regular_file")
+    return {"path": resolved, "sha256": sha(resolved), "bytes": resolved.stat().st_size}
+
+
+def child_failure_summary(marker: Path, returncode: int, result_exists: bool) -> dict | None:
+    """Allowlisted, static description of a failed receipt child; None when it succeeded with a result."""
+    if returncode == 0 and result_exists:
+        return None
+    data = None
     try:
-        return Path(out.value)
-    finally:
-        ole32.CoTaskMemFree(ctypes.cast(out, ctypes.c_void_p))
+        if marker.is_file() and marker.stat().st_size <= 4096:
+            data = json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = None
+    stage = data.get("stage") if isinstance(data, dict) and data.get("schema") == 1 and data.get("stage") in CHILD_STAGES else None
+    etype = public_exception_type(data.get("exception_type")) if stage else None
+    if stage is None:
+        reason = "child exited without a result" if returncode == 0 else "child exited before writing an allowlisted diagnostic marker"
+        return {"stage": "unknown_before_marker", "exception_type": None, "reason": reason, "exit_code": returncode}
+    return {"stage": stage, "exception_type": etype, "reason": CHILD_REASONS[stage], "exit_code": returncode}
+
+
+def child_command(python: Path, child_script: Path, install: Path, fixture: dict, private: Path, failure: Path, csv_out: Path) -> list[str]:
+    """Every path handed to the child is absolute: the child runs with cwd=<work>, never the caller's directory."""
+    for p in (python, child_script, install, fixture["path"], private, failure, csv_out):
+        if not Path(p).is_absolute():
+            raise ValueError("child_path_not_absolute")
+    return [str(python), "-I", "-B", str(child_script), "--app", str(install), "--fixtures", str(fixture["path"]),
+            "--fixtures-sha256", fixture["sha256"], "--out", str(private), "--failure", str(failure), "--csv", str(csv_out)]
 
 
 def start_menu_group(query=known_programs_dir) -> Path:
@@ -238,6 +242,7 @@ def main(argv=None) -> int:
             ap.error(f"Choose a new empty folder: {d.name}")
         d.mkdir(parents=True, exist_ok=True)
     work = a.work_dir.resolve()
+    report_dir = a.report_dir.resolve()   # absolute before any child runs with a different cwd
     profile = work / "QA 領収書 profile"
     install = profile / "AppData/Local/Programs/StudioYebisu/Ryoshu"
     root = profile / "StudioYebisu/ReceiptLedger"
@@ -273,6 +278,10 @@ def main(argv=None) -> int:
         report["stage"] = "preflight"
         before = probe_ollama()
         check("ollama_absent_before", not ollama_findings(before), findings=ollama_findings(before))
+        # The workflow passes a repository-relative fixture path; bind it here (caller's cwd) before any cwd change.
+        fixture = bind_fixture(a.fixtures)
+        report["fixtures"] = {"sha256": fixture["sha256"], "bytes": fixture["bytes"]}
+        check("fixtures_bound_before_child", fixture["path"].is_absolute() and fixture["bytes"] > 0)
         build = json.loads(a.build_report.read_text(encoding="utf-8"))
         payload = payload_from_zip(a.source_zip)
         check("build_report_binds_installer_and_source", build["installer_sha256"] == sha(a.installer)
@@ -329,17 +338,21 @@ def main(argv=None) -> int:
 
         report["stage"] = "receipts"
         private = work / "child.json"
-        csv_out = a.report_dir / "synthetic-expenses.csv"
+        failure = work / "child-failure.json"
+        csv_out = report_dir / "synthetic-expenses.csv"
         cenv = {k: v for k, v in env.items() if k.upper() in ("SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "NUMBER_OF_PROCESSORS",
                                                              "PROCESSOR_ARCHITECTURE", "COMPUTERNAME", "USERPROFILE",
                                                              "LOCALAPPDATA", "APPDATA", "TEMP", "TMP", "PYTHONUTF8", "PYTHONIOENCODING")}
         cenv.update(PATH=os.path.join(os.environ["SystemRoot"], "System32") + ";" + os.environ["SystemRoot"],
                     RECEIPT_LEDGER_DATA=str(root / "qa-ledger/data"), HF_HUB_OFFLINE="1")
-        child = subprocess.run([str(root / "venv/Scripts/python.exe"), "-I", "-B", str(Path(__file__).with_name("hosted_acceptance_child.py")),
-                                "--app", str(install), "--fixtures", str(a.fixtures), "--out", str(private), "--csv", str(csv_out)],
-                               env=cenv, cwd=work, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=3600)
-        (work / "child.log").write_text(child.stdout + "\n" + child.stderr, encoding="utf-8")
-        check("receipt_child_succeeded", child.returncode == 0, exit_code=child.returncode)
+        command = child_command(root / "venv/Scripts/python.exe", Path(__file__).resolve().with_name("hosted_acceptance_child.py"),
+                                install, fixture, private, failure, csv_out)
+        child = subprocess.run(command, env=cenv, cwd=work, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=3600)
+        (work / "child.log").write_text(child.stdout + "\n" + child.stderr, encoding="utf-8")   # private, never uploaded
+        summary = child_failure_summary(failure, child.returncode, private.is_file())
+        if summary is not None:
+            report["child_failure"] = summary   # allowlisted stage/type/static reason only
+        check("receipt_child_succeeded", child.returncode == 0 and summary is None, exit_code=child.returncode)
         res = json.loads(private.read_text(encoding="utf-8"))
         check("strict_crt_activation_active", res["activation"]["state"] == "active")
         for r in res["receipts"]:
@@ -412,10 +425,10 @@ def main(argv=None) -> int:
             subprocess.run([str(install / "unins000.exe"), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"], env=env,
                            capture_output=True, timeout=600)
         clean = sanitize(report, replacements)
-        (a.report_dir / "acceptance.json").write_text(json.dumps(clean, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        extra = sorted(p.name for p in a.report_dir.iterdir() if p.name not in UPLOAD_ALLOWLIST)
+        (report_dir / "acceptance.json").write_text(json.dumps(clean, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        extra = sorted(p.name for p in report_dir.iterdir() if p.name not in UPLOAD_ALLOWLIST)
         for name in extra:   # nothing but the allowlist may sit in the upload folder
-            (a.report_dir / name).unlink()
+            (report_dir / name).unlink()
         print(json.dumps({"status": clean["status"], "stage": clean["stage"]}))
 
 

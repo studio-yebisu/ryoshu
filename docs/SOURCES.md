@@ -1,6 +1,6 @@
 # 参照資料
 
-この一覧では、コード・モデルの重み・税務資料・CSV形式を分けて出所を記録します。確認日は2026-10-21です。freeeの科目一覧と国税庁No.2210・No.2100は2026-10-23に追加で確認しました。v1.4.0候補のllama.cppとモデルの固定情報は2026-10-27に採用しましたが、実ファイルと実推論の検証は継続中です。配布元や仕様が変わった場合は再確認してください。
+この一覧では、コード・モデルの重み・税務資料・CSV形式を分けて出所を記録します。確認日は2026-10-21です。freeeの科目一覧と国税庁No.2210・No.2100は2026-10-23に追加で確認しました。配布元や仕様が変わった場合は再確認してください。
 
 Ryoshuのカテゴリー・説明・確認事項は独自に作成しています。freeeの分類体系や、税務上の統一された判断基準を転記したものではありません。
 
@@ -15,6 +15,8 @@ Ryoshuのカテゴリー・説明・確認事項は独自に作成していま�
 | 資産 | [国税庁 No.2100](https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm) | 資産候補を通常の経費合計から分ける。償却計算・特例判定は未実装 |
 | freee・MF・弥生 | [CSV仕様と各社の公式資料](CSV-EXPORT.md) | 列・符号・文字コード・長さ・税区分を照合。実アカウントでの取込確認とは区別 |
 
-固定したPython依存は[requirements.lock.txt](../requirements.lock.txt)を、確認環境の配布メタデータは[dependencies.json](dependencies.json)を参照してください。モデルと推移的な依存の利用条件は、この一覧で代替できません。v1.4.0候補の速度・精度は新しい100件の実推論が完了するまで評価せず、旧Ollamaの結果を転用しません。
+固定したPython依存は[requirements.lock.txt](../requirements.lock.txt)を、確認環境の配布メタデータは[dependencies.json](dependencies.json)を参照してください。モデルと推移的な依存の利用条件は、この一覧で代替できません。
+
+v1.4の新しい100件の検証結果です。Ryoshuが管理するllama.cppと新しい公式Qwen3-4B GGUFを使用し、旧Ollamaの結果は履歴として区別しています。[Ryoshu v1.4 架空100件の検証記録](testing/v1.4/README.md)
 
 架空データの作成経緯は[manifest.json](../samples/receipts-100-v2/manifest.json)と[sources](../samples/receipts-100-v2/sources/BRIEF.md)に記録しています。実在の領収書を外部から集めたデータセットではありません。

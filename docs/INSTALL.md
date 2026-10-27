@@ -2,11 +2,11 @@
 
 [README](../README.md) / [動作要件](REQUIREMENTS.md) / [使い方](GUIDE.md)
 
-この文書のllama.cppを使う手順は**v1.4.0候補**向けです。候補版は未公開で、初回セットアップ・実インストーラー・更新の検証は完了していません。現在の公開版はv1.3.4です。
+この文書では、Windows 11 x64向けのRyoshu v1.4.0を、インストーラーまたはソースZIPから導入し、更新・起動・終了・アンインストール・バックアップからの復元を行う手順を説明します。
 
 ## インストーラーから始める
 
-1. 現在公開中の[v1.3.4のWindowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe)は従来の実行環境を使います。v1.4.0候補のインストーラーは未公開です。配布後は[公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases)からv1.4.0を入手して実行します。現在のWindows利用者へ配置するため、管理者権限は不要です。
+1. v1.4.0の[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe)をダウンロードして実行します。現在のWindows利用者ごとにインストールされるため、管理者権限は不要です。
 2. 配布EXEにはコード署名がありません。Windowsに発行元不明と表示されたら、入手先がこのリポジトリのReleaseかを確かめ、同じReleaseの`SHA256SUMS.txt`でファイルを照合してください。
 3. スタートメニューの「Ryoshu」を開きます。OllamaやLM Studioを導入する必要はありません。
 4. モデルの利用条件を確認して初回準備を始めます。実行環境・Python 3.12.15・依存・OCRモデル・llama.cpp実行環境・約2.5GBのQwenモデルを外部の配布元から取得するため、ネット接続と数GB以上の空き容量が必要です。
@@ -16,11 +16,11 @@
 
 llama.cpp実行環境とQwenモデルも、固定したサイズとSHA-256の照合が完了してから使います。依存・OCRモデル・llama.cpp実行環境・Qwenモデルの準備がそろってから完了を記録します。中断した場合は同じアプリから再試行してください。ダウンロードは次のセットアップで再開できます。復元用パスワードを設定する前に閉じた場合も、次の起動で続きから設定できます。
 
-モデルの条件は[THIRD_PARTY.md](../THIRD_PARTY.md)で確認できます。公開版の記録は[v1.3.4の検証範囲](testing/v1.3.4/README.md)にあり、v1.4.0候補の検証結果ではありません。
+モデルの条件は[THIRD_PARTY.md](../THIRD_PARTY.md)で確認できます。インストールと動作確認の範囲、残る制約はv1.4の検証記録で確認してください。[Ryoshu v1.4 架空100件の検証記録](testing/v1.4/README.md) · [v1.3.4の検証範囲](testing/v1.3.4/README.md)
 
 ## ソースZIPから始める
 
-1. 現在公開中の[v1.3.4の配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4)にある`Ryoshu-1.3.4-source.zip`は従来版です。v1.4.0候補のソースZIPは未公開のため、配布後に該当するZIPを新しいフォルダーへ展開します。
+1. v1.4.0の[ソースZIP](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-source.zip)を新しいフォルダーへ展開し、Ryoshu.cmdをダブルクリックします。
 2. `Ryoshu.cmd`をダブルクリックします。OllamaやLM Studioの導入は不要です。
 3. モデルの利用条件を確認して初回準備を進め、ブラウザーで復元用パスワードを設定します。
 

@@ -271,6 +271,154 @@ def test_main_uses_log_resolution_and_keeps_guards():
     assert "if registry_exists():\n        ap.error(" in text
 
 
+# --- receipt child: fixture binding across a cwd change + allowlisted failure diagnostics ----------------------------
+def _fixture_zip(path: Path) -> bytes:
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("manifest.json", json.dumps({"cases": [{"case_id": "V001"}, {"case_id": "V003"}]}))
+        z.writestr("individual/V001.pdf", b"%PDF-fake-1")
+        z.writestr("individual/V003.pdf", b"%PDF-fake-3")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(buf.getvalue())
+    return buf.getvalue()
+
+
+def _child_module():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("hosted_child_under_test", ROOT / "scripts/hosted_acceptance_child.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)   # module level is stdlib only (no app import until run())
+    return module
+
+
+def test_relative_fixture_is_bound_in_the_callers_cwd_and_survives_a_child_cwd_change(tmp_path, monkeypatch):
+    checkout, work = tmp_path / "checkout", tmp_path / "private work"
+    data = _fixture_zip(checkout / "samples/receipts-100-v2/receipts-100.zip")
+    work.mkdir()
+    monkeypatch.chdir(checkout)
+    fixture = ha.bind_fixture(Path("samples/receipts-100-v2/receipts-100.zip"))   # the workflow's relative argument
+    assert fixture["path"].is_absolute() and fixture["path"] == (checkout / "samples/receipts-100-v2/receipts-100.zip").resolve()
+    assert fixture["sha256"] == hashlib.sha256(data).hexdigest() and fixture["bytes"] == len(data)
+    monkeypatch.chdir(work)   # the child's cwd: the relative path no longer points at the fixture
+    assert not Path("samples/receipts-100-v2/receipts-100.zip").exists()
+    cmd = ha.child_command(tmp_path / "py.exe", tmp_path / "child.py", tmp_path / "app", fixture, work / "child.json",
+                           work / "child-failure.json", tmp_path / "report/synthetic-expenses.csv")
+    assert cmd[cmd.index("--fixtures") + 1] == str(fixture["path"]) and cmd[cmd.index("--fixtures-sha256") + 1] == fixture["sha256"]
+    child = _child_module()
+    cases, pdfs = child.read_fixtures(Path(cmd[cmd.index("--fixtures") + 1]), fixture["sha256"])
+    assert set(cases) == {"V001", "V003"} and pdfs["V003"] == b"%PDF-fake-3"
+
+
+def test_fixture_and_child_paths_fail_closed(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(FileNotFoundError):
+        ha.bind_fixture(Path("samples/missing.zip"))
+    (tmp_path / "folder.zip").mkdir()
+    with pytest.raises(FileNotFoundError):
+        ha.bind_fixture(Path("folder.zip"))
+    good = _fixture_zip(tmp_path / "f.zip")
+    fixture = ha.bind_fixture(tmp_path / "f.zip")
+    with pytest.raises(ValueError, match="child_path_not_absolute"):
+        ha.child_command(tmp_path / "py.exe", tmp_path / "c.py", tmp_path / "app", {**fixture, "path": Path("f.zip")},
+                         tmp_path / "o.json", tmp_path / "x.json", tmp_path / "c.csv")
+    child = _child_module()
+    with pytest.raises(ValueError, match="fixtures_sha256_mismatch"):
+        child.read_fixtures(tmp_path / "f.zip", "0" * 64)
+    with pytest.raises(ValueError, match="fixtures_path_not_absolute"):
+        child.read_fixtures(Path("f.zip"), hashlib.sha256(good).hexdigest())
+
+
+# Synthetic hostile values are assembled from fragments so the public source scanner (private paths / token shapes)
+# never sees a contiguous match; the runtime strings are byte-identical to the original literals (see guard test below).
+FAKE_TOKEN_PREFIX = "gh" + "p_"
+HOSTILE = "C:" + "\\" + "Users" + "\\someone\\AppData token=" + FAKE_TOKEN_PREFIX + "abcdefghijklmnopqrstuvwxyz0123456789" + " session=s3cr3t"
+
+
+UNAPPROVED = "unapproved_exception_type"
+SECRET_SHAPED = (FAKE_TOKEN_PREFIX + "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "session_SECRET012345", "TotallyArbitraryValidIdentifier")
+
+
+def test_assembled_sentinels_equal_the_original_literals_byte_for_byte():
+    # sha256/length of the ORIGINAL literal values (recorded before the fragment rewrite)
+    expected = {"HOSTILE": (86, "0b02c88f48d859099dc81c0b3d5340a50882ed3d22df50718228f1900bd0d701"),
+                "SECRET_SHAPED[0]": (40, "cfba07816b54a55152bc4bae1d943bb7f0bea83426665a4ef26a0f664d7064a3"),
+                "SECRET_SHAPED[1]": (20, "ea0248db7c3ea55bdebdeb262494381e9958724023c2005d67eec2c4815da091"),
+                "SECRET_SHAPED[2]": (31, "3782aa5d0e7f187a89af9c007e4c31bcb53db20158c2a05509aa0081bf2e9bcf")}
+    actual = {"HOSTILE": HOSTILE, **{f"SECRET_SHAPED[{i}]": v for i, v in enumerate(SECRET_SHAPED)}}
+    assert {k: (len(v), hashlib.sha256(v.encode()).hexdigest()) for k, v in actual.items()} == expected
+
+
+@pytest.mark.parametrize("marker,returncode,result,expected_stage,expected_type", [
+    ({"schema": 1, "stage": "fixtures", "exception_type": "FileNotFoundError", "message": HOSTILE}, 1, False, "fixtures", "FileNotFoundError"),
+    ({"schema": 1, "stage": "fixtures", "exception_type": "ValueError"}, 1, False, "fixtures", "ValueError"),
+    ({"schema": 1, "stage": "receipts", "exception_type": HOSTILE}, 1, False, "receipts", UNAPPROVED),
+    ({"schema": 1, "stage": "fixtures", "exception_type": SECRET_SHAPED[0]}, 1, False, "fixtures", UNAPPROVED),
+    ({"schema": 1, "stage": "receipts", "exception_type": SECRET_SHAPED[1]}, 1, False, "receipts", UNAPPROVED),
+    ({"schema": 1, "stage": "csv_export", "exception_type": SECRET_SHAPED[2]}, 1, False, "csv_export", UNAPPROVED),
+    ({"schema": 1, "stage": "receipts", "exception_type": 12345}, 1, False, "receipts", UNAPPROVED),
+    ({"schema": 1, "stage": "receipts"}, 1, False, "receipts", None),
+    ({"schema": 1, "stage": HOSTILE, "exception_type": "ValueError"}, 1, False, "unknown_before_marker", None),
+    ({"schema": 2, "stage": "fixtures", "exception_type": "ValueError"}, 1, False, "unknown_before_marker", None),
+    (None, 1, False, "unknown_before_marker", None),
+    ("not json " + HOSTILE, 1, False, "unknown_before_marker", None),
+    (None, 0, False, "unknown_before_marker", None),
+])
+def test_child_failure_summary_is_allowlisted_and_static(tmp_path, marker, returncode, result, expected_stage, expected_type):
+    path = tmp_path / "child-failure.json"
+    if marker is not None:
+        path.write_text(marker if isinstance(marker, str) else json.dumps(marker), "utf-8")
+    raw_before = path.read_bytes() if path.exists() else None
+    summary = ha.child_failure_summary(path, returncode, result)
+    assert summary["stage"] == expected_stage and summary["exit_code"] == returncode
+    assert summary["exception_type"] == expected_type
+    assert summary["exception_type"] in ha.APPROVED_EXCEPTION_TYPES | {UNAPPROVED, None}
+    assert summary["reason"] in set(ha.CHILD_REASONS.values()) | {"child exited without a result",
+                                                                  "child exited before writing an allowlisted diagnostic marker"}
+    text = json.dumps(summary)
+    for leak in ("Users", "ghp_", "s3cr3t", "token", "session", "SECRET", "TotallyArbitrary", "message", "12345"):
+        assert leak not in text
+    assert (path.read_bytes() if path.exists() else None) == raw_before   # the private marker is never rewritten
+    assert ha.child_failure_summary(path, 0, True) is None
+
+
+def test_exception_type_vocabulary_never_echoes_unapproved_values():
+    for name in ("FileNotFoundError", "ValueError", "ModuleNotFoundError", "CrtActivationError", "RuntimeFailure"):
+        assert ha.public_exception_type(name) == name
+    for value in (*SECRET_SHAPED, "", "fileNotFoundError", "ValueError ", "Value\nError", ["ValueError"], {"a": 1}, 0):
+        assert ha.public_exception_type(value) == UNAPPROVED
+    assert ha.public_exception_type(None) is None
+    assert all(not any(s in name for s in ("ghp_", "session", "token", "secret", "key")) for name in ha.APPROVED_EXCEPTION_TYPES)
+    assert "EXCEPTION_TYPE = re.compile" not in (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")   # no regex echo path left
+
+
+def test_real_child_failing_before_any_result_writes_only_the_allowlisted_marker(tmp_path):
+    import subprocess
+    work, app = tmp_path / "private work", tmp_path / "empty app"
+    work.mkdir()
+    app.mkdir()
+    fixture = ha.bind_fixture(tmp_path / "f.zip") if _fixture_zip(tmp_path / "f.zip") else None
+    out, failure, csv_out = work / "child.json", work / "child-failure.json", tmp_path / "report/synthetic-expenses.csv"
+    cmd = ha.child_command(Path(sys.executable).resolve(), (ROOT / "scripts/hosted_acceptance_child.py").resolve(), app, fixture,
+                           out, failure, csv_out)
+    r = subprocess.run(cmd, cwd=work, capture_output=True, text=True, timeout=60)   # no receipt_ledger in the app dir
+    assert r.returncode != 0 and not out.exists() and not csv_out.exists()
+    marker = json.loads(failure.read_text("utf-8"))
+    assert marker == {"schema": 1, "stage": "start", "exception_type": "ModuleNotFoundError"}
+    summary = ha.child_failure_summary(failure, r.returncode, out.is_file())
+    assert summary == {"stage": "start", "exception_type": "ModuleNotFoundError", "reason": ha.CHILD_REASONS["start"],
+                       "exit_code": r.returncode}
+    assert str(tmp_path) not in json.dumps(summary)
+
+
+def test_main_binds_fixture_before_install_and_reports_child_failure_before_the_gate():
+    text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
+    assert "str(a.fixtures)" not in text and "a.report_dir /" not in text
+    assert text.index("fixture = bind_fixture(a.fixtures)") < text.index('report["stage"] = "install"')
+    assert text.index('report["child_failure"] = summary') < text.index('check("receipt_child_succeeded"')
+    assert 'check("receipt_child_succeeded", child.returncode == 0 and summary is None' in text
+    assert "child.stderr" not in text.split('report["child_failure"]', 1)[1].split("check(", 1)[0]
+
+
 def test_acceptance_keeps_hkcu_refusal_and_never_targets_the_real_profile():
     text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
     assert "if registry_exists():\n        ap.error(" in text
