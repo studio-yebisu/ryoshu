@@ -77,4 +77,4 @@ CSV4形式についても、架空6明細から7行を生成し、再読込と�
 
 売上・口座照合、減価償却、決算・申告書、返金・外貨の仕訳は対象外です。電子帳簿保存法への適合を認証・保証する製品ではありません。
 
-コードと文書は[MIT License](LICENSE)、Indra OCRの重み・Qwen・llama.cpp・Microsoft Visual C++・依存ライブラリは各利用条件に従います。[参照資料](docs/SOURCES.md) · [開発と検証](CONTRIBUTING.md) · [脆弱性の報告](SECURITY.md)
+コードと文書は[MIT License](LICENSE)、Indra OCRの重み・Qwen・llama.cpp・Microsoft Visual C++・依存ライブラリは各利用条件に従います。[参照資料](docs/SOURCES.md) · [開発と検証](CONTRIBUTING.md) · [コーディングエージェント向けガイド](AI_README.md) · [脆弱性の報告](SECURITY.md)
