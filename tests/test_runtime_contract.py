@@ -32,7 +32,7 @@ def test_child_environment_is_an_allow_list_and_carries_the_key_only_in_env():
                "LLAMA_ARG_HOST": "0.0.0.0", "LLAMA_ARG_HF_REPO": "x/y", "LLAMA_ARG_MODEL_URL": "https://x", "LLAMA_API_KEY": "old",
                "LLAMA_ARG_RPC": "10.0.0.1:50052", "GGML_RPC": "x", "HF_TOKEN": "t", "HF_HOME": "h", "HUGGING_FACE_HUB_TOKEN": "t",
                "HTTPS_PROXY": "http://p", "http_proxy": "http://p", "ALL_PROXY": "x", "NO_PROXY": "*", "OLLAMA_HOST": "x",
-               "RECEIPT_LEDGER_DATA": "d", "USERPROFILE": r"C:\Users\u", "APPDATA": "a", "LOCALAPPDATA": "l"}
+               "RECEIPT_LEDGER_DATA": "d", "USERPROFILE": r"C:\Profiles\fictional", "APPDATA": "a", "LOCALAPPDATA": "l"}
     env = child_environment(hostile, "per-launch-secret", r"C:\r\llama\x", r"C:\r\runtime\tmp\i")
     assert env == {"SYSTEMROOT": r"C:\Windows", "NUMBER_OF_PROCESSORS": "8",
                    "PATH": r"C:\r\llama\x" + ";" + r"C:\Windows\System32",

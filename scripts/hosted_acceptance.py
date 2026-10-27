@@ -76,6 +76,53 @@ def crt_provenance(modules: list[dict], pin_files: dict, allowed_dir: str, requi
     return {"ok": not failures, "owned": owned, "vendored_wheel_copies": vendored, "failures": failures}
 
 
+SHORTCUT_NAMES = ("Ryoshu.lnk", "Ryoshuを終了.lnk", "Ryoshuの導入ガイド.lnk")
+GROUP_NAME = "Ryoshu"   # packaging/windows/ryoshu.iss DefaultGroupName (no /GROUP is passed: the product default is under test)
+
+
+def icon_entries_from_log(log_text: str) -> list[str]:
+    """Shortcut paths Inno Setup actually wrote, from its /LOG ('-- Icon entry --' followed by 'Dest filename: <path>')."""
+    out, in_icon = [], False
+    for line in log_text.splitlines():
+        body = re.sub(r"^\S+\s+\S+\s+", "", line, count=1) if re.match(r"^\d{4}-\d{2}-\d{2}\s", line) else line
+        body = body.strip()
+        if body.startswith("-- ") and body.endswith(" --"):
+            in_icon = body == "-- Icon entry --"
+            continue
+        if in_icon and body.startswith("Dest filename:"):
+            out.append(body.split(":", 1)[1].strip())
+            in_icon = False
+    return out
+
+
+def group_candidates(profile: Path, known_programs: Path, common_programs: Path | None) -> dict[str, Path]:
+    """Per-user group locations Ryoshu's per-user install may legitimately use, plus all-users (diagnostic only)."""
+    c = {"known_user_programs": known_programs / GROUP_NAME,
+         "isolated_profile_programs": profile / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs" / GROUP_NAME}
+    if common_programs is not None:
+        c["common_programs_NOT_ALLOWED"] = common_programs / GROUP_NAME
+    return c
+
+
+def resolve_shortcut_group(logged: list[str], candidates: dict[str, Path], listdir=lambda p: sorted(x.name for x in p.glob("*.lnk"))) -> dict:
+    """Exactly the 3 named shortcuts, all in ONE per-user Ryoshu group dir that the installer log names, all present."""
+    norm = lambda p: os.path.normcase(os.path.normpath(str(p)))
+    alias = {norm(p): a for a, p in candidates.items()}
+    named = [p for p in logged if Path(p).name in SHORTCUT_NAMES]
+    parents = sorted({norm(Path(p).parent) for p in named})
+    diag = {"expected_names": list(SHORTCUT_NAMES), "group_arg": None, "group_default": GROUP_NAME,
+            "logged_basenames": sorted(Path(p).name for p in logged),
+            "logged_group_dirs": [alias.get(d, "<other>") for d in parents],
+            "observed_by_candidate": {a: (listdir(p) if p.is_dir() else None) for a, p in candidates.items()}}
+    ok, chosen = False, None
+    if len(named) == 3 and sorted(Path(p).name for p in named) == sorted(SHORTCUT_NAMES) and len(parents) == 1:
+        chosen = alias.get(parents[0])
+        if chosen in ("known_user_programs", "isolated_profile_programs"):
+            ok = diag["observed_by_candidate"][chosen] == sorted(SHORTCUT_NAMES)
+    diag.update(selected_group_alias=chosen, ok=ok)
+    return diag
+
+
 def sanitize(value, replacements: dict[str, str]):
     """Replace private absolute prefixes with labels and drop secret-like keys, recursively."""
     if isinstance(value, dict):
@@ -90,9 +137,9 @@ def sanitize(value, replacements: dict[str, str]):
     return value
 
 
-def known_programs_dir() -> Path:
-    """Current user's Start Menu Programs folder via SHGetKnownFolderPath(FOLDERID_Programs) - the Shell's own
-    answer, independent of the USERPROFILE/APPDATA environment variables of this process."""
+def known_programs_dir(folder_id: str = "{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}") -> Path:
+    """Start Menu Programs folder via SHGetKnownFolderPath (default FOLDERID_Programs = current user; pass
+    FOLDERID_CommonPrograms {0139D44E-6AFE-49F2-8690-3DAFCAE6FFB8} for all users) - the Shell's own answer for THIS process."""
     import ctypes
     from ctypes import wintypes
     import uuid as _uuid
@@ -100,7 +147,7 @@ def known_programs_dir() -> Path:
     class GUID(ctypes.Structure):
         _fields_ = [("Data1", wintypes.DWORD), ("Data2", wintypes.WORD), ("Data3", wintypes.WORD), ("Data4", ctypes.c_ubyte * 8)]
 
-    g = _uuid.UUID("{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}")  # FOLDERID_Programs
+    g = _uuid.UUID(folder_id)
     fid = GUID(g.fields[0], g.fields[1], g.fields[2], (ctypes.c_ubyte * 8)(*g.bytes[8:]))
     shell32, ole32 = ctypes.WinDLL("shell32"), ctypes.WinDLL("ole32")
     shell32.SHGetKnownFolderPath.argtypes = [ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)]
@@ -194,11 +241,18 @@ def main(argv=None) -> int:
     profile = work / "QA 領収書 profile"
     install = profile / "AppData/Local/Programs/StudioYebisu/Ryoshu"
     root = profile / "StudioYebisu/ReceiptLedger"
-    # Inno's {group} resolves through the Shell Known Folder (FOLDERID_Programs) of the CURRENT user, which a changed
-    # USERPROFILE does not redirect. Query it; never derive it from the fake profile and never change the mapping.
-    group_dir = start_menu_group()
-    if group_dir.exists():
-        ap.error("A Start Menu 'Ryoshu' group already exists for this user; refusing to overwrite it")
+    # Where Inno's {group} lands for this per-user install is taken from the installer's OWN log (Dest filename of each
+    # icon entry) and must be one of the two per-user candidates; the all-users folder is reported but never accepted.
+    # No Known Folder / APPDATA / profile setting is changed. Neither per-user candidate may pre-exist (no takeover).
+    try:
+        common = known_programs_dir("{0139D44E-6AFE-49F2-8690-3DAFCAE6FFB8}")
+    except OSError:
+        common = None
+    candidates = group_candidates(profile, known_programs_dir(), common)
+    for alias_name in ("known_user_programs", "isolated_profile_programs"):
+        if candidates[alias_name].exists():
+            ap.error(f"A Start Menu 'Ryoshu' group already exists ({alias_name}); refusing to overwrite it")
+    group_dir = None
     env = {**os.environ, "USERPROFILE": str(profile), "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
     for k in [k for k in env if k.upper() in ("RECEIPT_LEDGER_RUNTIME_ROOT", "RECEIPT_LEDGER_DATA", "HF_HOME")]:
         env.pop(k)
@@ -206,7 +260,8 @@ def main(argv=None) -> int:
               "not_benchmark": "CI acceptance only; never merged into the 100-receipt benchmark statistics",
               "runner": runner_facts(), "checks": []}
     replacements = {str(install): "<install>", str(root): "<root>", str(profile): "<profile>", str(work): "<work>",
-                    os.environ.get("SystemRoot", r"C:\Windows"): "<SystemRoot>", str(Path(__file__).resolve().parents[1]): "<checkout>"}
+                    os.environ.get("SystemRoot", r"C:\Windows"): "<SystemRoot>", str(Path(__file__).resolve().parents[1]): "<checkout>",
+                    **{str(p.parent): f"<{a}>" for a, p in candidates.items()}, str(Path.home()): "<home>"}
 
     def check(name, ok, **detail):
         report["checks"].append({"check": name, "ok": bool(ok), **detail})
@@ -231,8 +286,12 @@ def main(argv=None) -> int:
         check("installer_registered_per_user", registry_exists())
         check("installed_payload_equals_source_zip_and_build_report",
               {n: sha(install / n) for n in payload} == payload == build["payload_files"], files=len(payload))
-        check("start_menu_shortcuts", {p.name for p in group_dir.glob("*.lnk")} ==
-              {"Ryoshu.lnk", "Ryoshuを終了.lnk", "Ryoshuの導入ガイド.lnk"})
+        log_text = (work / "install.log").read_text(encoding="utf-8-sig", errors="replace")   # private; only aliases leave
+        shortcut = resolve_shortcut_group(icon_entries_from_log(log_text), candidates)
+        report["shortcut_diagnostics"] = shortcut
+        if shortcut["selected_group_alias"] in candidates:
+            group_dir = candidates[shortcut["selected_group_alias"]]
+        check("start_menu_shortcuts", shortcut["ok"], selected_group_alias=shortcut["selected_group_alias"])
         pin = json.loads((install / "receipt_ledger/runtime_pin.json").read_text(encoding="utf-8"))
         pin_sha = sha(install / "receipt_ledger/runtime_pin.json")
         crt = pin["crt"]
@@ -329,6 +388,7 @@ def main(argv=None) -> int:
             time.sleep(0.2)
         installed = registry_exists()
         check("uninstall_removed_code_shortcuts_registration", not (install / "start.ps1").exists() and not group_dir.exists()
+              and not any(candidates[n].exists() for n in ("known_user_programs", "isolated_profile_programs"))
               and not registry_exists())
         check("uninstall_preserved_ledger_and_sentinel", tree_sha(root / "qa-ledger") == data_before, files=len(data_before))
         check("uninstall_kept_runtime_folders", all((root / d).is_dir() for d, was in kept_dirs.items() if was))

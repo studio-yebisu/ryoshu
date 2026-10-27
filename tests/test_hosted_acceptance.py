@@ -200,12 +200,75 @@ def test_start_menu_group_comes_from_the_shell_known_folder_not_the_fake_profile
     assert ha.start_menu_group() == real / "Ryoshu"
 
 
-def test_main_binds_shortcut_checks_to_the_queried_group():
-    assert ha.start_menu_group(lambda: Path(r"X:\KnownPrograms")) == Path(r"X:\KnownPrograms\Ryoshu")
+INNO_LOG = """2026-10-27 12:00:01.100   -- File entry --
+2026-10-27 12:00:01.101   Dest filename: {app}\\start.ps1
+2026-10-27 12:00:02.000   -- Icon entry --
+2026-10-27 12:00:02.001   Dest filename: {g}\\Ryoshu.lnk
+2026-10-27 12:00:02.002   Creating the icon.
+2026-10-27 12:00:02.003   Successfully created the icon.
+2026-10-27 12:00:02.010   -- Icon entry --
+2026-10-27 12:00:02.011   Dest filename: {g2}\\Ryoshuを終了.lnk
+2026-10-27 12:00:02.020   -- Icon entry --
+2026-10-27 12:00:02.021   Dest filename: {g}\\Ryoshuの導入ガイド.lnk
+"""
+
+
+def _cands(tmp_path):
+    profile, known, common = tmp_path / "QA 領収書 profile", tmp_path / "real user" / "Programs", tmp_path / "all users" / "Programs"
+    return profile, ha.group_candidates(profile, known, common)
+
+
+def _make(group: Path, names=ha.SHORTCUT_NAMES):
+    group.mkdir(parents=True, exist_ok=True)
+    for n in names:
+        (group / n).write_bytes(b"L")
+
+
+@pytest.mark.parametrize("where", ["known_user_programs", "isolated_profile_programs"])
+def test_shortcuts_resolved_from_the_installer_log_in_a_per_user_group(tmp_path, where):
+    profile, c = _cands(tmp_path)
+    g = c[where]
+    _make(g)
+    log = INNO_LOG.replace("{g2}", "{g}").replace("{g}", str(g)).replace("{app}", str(tmp_path / "app"))
+    d = ha.resolve_shortcut_group(ha.icon_entries_from_log(log), c)
+    assert d["ok"] and d["selected_group_alias"] == where and d["group_arg"] is None and d["group_default"] == "Ryoshu"
+    assert d["logged_group_dirs"] == [where] and sorted(d["logged_basenames"]) == sorted(ha.SHORTCUT_NAMES)
+    other = "isolated_profile_programs" if where == "known_user_programs" else "known_user_programs"
+    assert d["observed_by_candidate"][where] == sorted(ha.SHORTCUT_NAMES) and d["observed_by_candidate"][other] is None
+    assert str(tmp_path) not in json.dumps(d, ensure_ascii=False)   # aliases and basenames only
+
+
+def test_shortcuts_in_the_all_users_folder_or_elsewhere_are_never_accepted(tmp_path):
+    profile, c = _cands(tmp_path)
+    for g, alias in ((c["common_programs_NOT_ALLOWED"], "common_programs_NOT_ALLOWED"), (tmp_path / "elsewhere" / "Ryoshu", "<other>")):
+        _make(g)
+        log = INNO_LOG.replace("{g2}", "{g}").replace("{g}", str(g))
+        d = ha.resolve_shortcut_group(ha.icon_entries_from_log(log), c)
+        assert not d["ok"] and d["logged_group_dirs"] == [alias]
+
+
+def test_split_groups_missing_or_unlogged_shortcuts_fail(tmp_path):
+    profile, c = _cands(tmp_path)
+    k, p = c["known_user_programs"], c["isolated_profile_programs"]
+    _make(k)
+    split = INNO_LOG.replace("{g2}", str(p)).replace("{g}", str(k))
+    assert not ha.resolve_shortcut_group(ha.icon_entries_from_log(split), c)["ok"]          # two different groups
+    only_two = "\n".join(l for l in INNO_LOG.replace("{g2}", "{g}").replace("{g}", str(k)).splitlines() if "導入ガイド" not in l)
+    assert not ha.resolve_shortcut_group(ha.icon_entries_from_log(only_two), c)["ok"]       # log names only 2
+    (k / "Ryoshuの導入ガイド.lnk").unlink()
+    full = INNO_LOG.replace("{g2}", "{g}").replace("{g}", str(k))
+    d = ha.resolve_shortcut_group(ha.icon_entries_from_log(full), c)
+    assert not d["ok"] and d["selected_group_alias"] == "known_user_programs"                # logged but missing on disk
+    assert ha.resolve_shortcut_group([], c)["logged_group_dirs"] == []
+
+
+def test_main_uses_log_resolution_and_keeps_guards():
     text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
-    assert "group_dir = start_menu_group()" in text
-    assert "Start Menu/Programs/Ryoshu" not in text and 'profile / "AppData/Roaming' not in text
-    assert "if group_dir.exists():\n        ap.error(" in text   # never overwrites an existing user group
+    assert 'resolve_shortcut_group(icon_entries_from_log(log_text), candidates)' in text
+    assert 'report["shortcut_diagnostics"] = shortcut' in text and text.index('report["shortcut_diagnostics"]') < text.index('check("start_menu_shortcuts"')
+    assert 'for alias_name in ("known_user_programs", "isolated_profile_programs"):' in text and "refusing to overwrite it" in text
+    assert '"/GROUP=' not in text   # the product's own DefaultGroupName is what is under test
+    assert "if registry_exists():\n        ap.error(" in text
 
 
 def test_acceptance_keeps_hkcu_refusal_and_never_targets_the_real_profile():
