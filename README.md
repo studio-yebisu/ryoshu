@@ -12,11 +12,11 @@ Indra OCRで文字を読み、Ryoshuが必要時に起動するllama.cppサー�
 
 ## 実際の操作と検証結果を動画で見る
 
-[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-llamacpp-20261027/ryoshu-promo-v1.4.0.mp4)
+[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
 
 Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り込み、OCRと別のローカルモデルで処理した後、原本の拡大・照合、科目の手動変更、お気に入りの追加と解除、1件の確認と4件の未確認、汎用CSV1行の保存を収録しています。新しい100件の検証結果も紹介します。映像はOpus 5.5、表示する製品文案はKimiが制作しました。
 
-[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-llamacpp-20261027/ryoshu-promo-v1.4.0.mp4)
+[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
 
 ## 導入から最初の確認まで
 

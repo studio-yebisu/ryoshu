@@ -3,6 +3,7 @@ import io
 import json
 import re
 import sys
+import types
 import zipfile
 from pathlib import Path
 
@@ -504,6 +505,188 @@ def test_main_persists_projection_before_any_receipt_assertion_and_keeps_model_c
             '                  and r["model_digest"] == pin["model"]["sha256"] and r["runtime_pin_sha256"] == pin_sha)') in text
     assert 'check("image_input_has_no_native_pdf_text", jpg["native_pdf_text_chars"] == 0)' in text
     assert 'check("csv_exported", res["csv"]["data_rows"] == len(res["receipts"]), **res["csv"])' in text
+
+
+# --- check collector contract + full mocked orchestration (SYNTHETIC; not Windows acceptance) --------------------------
+def test_old_collector_shape_reproduces_the_ci4_collision_and_the_new_one_namespaces_it():
+    py = ha.crt_provenance([], {}, "X:/managed", ha.CRT_NAMES, "X:/Windows")   # the real protocol dict: has 'ok'
+    assert "ok" in py and py["ok"] is False
+
+    def old_check(name, ok, **detail):    # the pre-fix collector signature
+        return {"check": name, "ok": bool(ok), **detail}
+    with pytest.raises(TypeError, match="multiple values for argument 'ok'"):
+        old_check("python_crt_maps_from_managed_python", py["ok"], **py)
+    assert old_check("csv_exported", False, check="forged")["check"] == "forged"   # old shape let metadata forge identity
+    record = ha.check_record("python_crt_maps_from_managed_python", py["ok"], **py)
+    assert record["check"] == "python_crt_maps_from_managed_python" and record["ok"] is False and record["detail"]["ok"] is False
+    forged = ha.check_record("csv_exported", False, ok=True, check="forged", name="forged", data_rows=2)
+    assert forged["check"] == "csv_exported" and forged["ok"] is False and forged["detail"]["check"] == "forged"
+    with pytest.raises(ValueError):
+        ha.check_record("", True)
+
+
+def _sha_bytes(b):
+    return hashlib.sha256(b).hexdigest()
+
+
+class FakeWindows:
+    """Synthetic side effects for a full main() run inside tmp_path: no installer, servers, registry or native process."""
+    DLL = {n: b"MZ synthetic " + n.encode() for n in ha.CRT_NAMES}
+
+    def __init__(self, tmp, monkeypatch, child_mutator=None):
+        self.tmp, self.registered, self.calls, self.child_mutator = tmp, False, [], child_mutator
+        self.pin = {"model": {"sha256": MODEL_SHA}, "runtime": {"tag": "b11700", "dir_name": "b11700-cpu-x64"},
+                    "crt": {"version": "14.51.36247.0", "license": {"sha256": "1" * 64}, "package": {"sha256": "2" * 64},
+                            "files": [{"name": n, "sha256": _sha_bytes(b)} for n, b in self.DLL.items()]}}
+        self.payload = {"start.ps1": b"start", "stop.ps1": b"stop", "setup.ps1": b"setup",
+                        "receipt_ledger/runtime_pin.json": json.dumps(self.pin).encode()}
+        self.source_zip, self.installer, self.fixtures = tmp / "source.zip", tmp / "Ryoshu-setup.exe", tmp / "receipts-100.zip"
+        with zipfile.ZipFile(self.source_zip, "w") as z:
+            for name, data in self.payload.items():
+                z.writestr("ryoshu/" + name, data)
+        self.installer.write_bytes(b"MZ synthetic installer")
+        _fixture_zip(self.fixtures)
+        self.build = tmp / "build.json"
+        self.build.write_text(json.dumps({"installer_sha256": _sha_bytes(self.installer.read_bytes()),
+                                          "source_sha256": _sha_bytes(self.source_zip.read_bytes()), "app_version": "1.4.0",
+                                          "payload_files": {n: _sha_bytes(b) for n, b in self.payload.items()}}), "utf-8")
+        self.known = tmp / "known user" / "Programs"
+        monkeypatch.setattr(sys, "platform", "win32")
+        monkeypatch.setenv("RYOSHU_ALLOW_LOCAL_ACCEPTANCE", "1")
+        monkeypatch.setenv("SystemRoot", str(tmp / "SysRoot"))
+        monkeypatch.setattr(ha, "registry_exists", lambda: self.registered)
+        monkeypatch.setattr(ha, "known_programs_dir", lambda folder_id=None: (tmp / "all users" / "Programs") if folder_id else self.known)
+        monkeypatch.setattr(ha, "probe_ollama", lambda: {"command": False, "install_dirs": [], "services": [], "processes": [], "listener_11434": False})
+        monkeypatch.setattr(ha, "runner_facts", lambda: {"kind": "synthetic_mock_orchestration"})
+        monkeypatch.setattr(ha, "vc_redist_registrations", lambda: [])
+        monkeypatch.setattr(ha.subprocess, "run", self.run)
+        monkeypatch.setattr(ha, "urlopen", lambda url, timeout=0: io.BytesIO(json.dumps({"app": "receipt-ledger", "app_version": "1.4.0"}).encode()))
+
+    def paths(self, work):
+        profile = work / "QA 領収書 profile"
+        return profile, profile / "AppData/Local/Programs/StudioYebisu/Ryoshu", profile / "StudioYebisu/ReceiptLedger"
+
+    def run(self, argv, **kw):
+        argv = [str(a) for a in argv]
+        self.calls.append(Path(argv[0]).name if not argv[0].lower().endswith("powershell.exe") else Path(argv[-1] if argv[-1].endswith(".ps1") else argv[-3]).name)
+        done = types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        if argv[0] == str(self.installer):
+            install = Path(next(a for a in argv if a.startswith("/DIR="))[5:])
+            log = Path(next(a for a in argv if a.startswith("/LOG="))[5:])
+            profile = install.parents[4]
+            for name, data in self.payload.items():
+                (install / name).parent.mkdir(parents=True, exist_ok=True)
+                (install / name).write_bytes(data)
+            (install / "unins000.exe").write_bytes(b"MZ")
+            group = profile / "AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Ryoshu"
+            group.mkdir(parents=True)
+            lines = []
+            for n in ha.SHORTCUT_NAMES:
+                (group / n).write_bytes(b"L")
+                lines += ["2026-10-27 12:00:00.000   -- Icon entry --", f"2026-10-27 12:00:00.001   Dest filename: {group / n}"]
+            log.write_text("\n".join(lines), "utf-8")
+            self.registered = True
+        elif "setup.ps1" in " ".join(argv):
+            root = Path(kw["env"]["USERPROFILE"]) / "StudioYebisu/ReceiptLedger"
+            crt = self.pin["crt"]
+            (root / "runtime").mkdir(parents=True)
+            (root / "runtime/setup-state.json").write_text(json.dumps({"state": "complete", "inference_state": "complete",
+                "runtime_pin_sha256": _sha_bytes(self.payload["receipt_ledger/runtime_pin.json"])}), "utf-8")
+            (root / "crt").mkdir()
+            (root / f"crt/consent-{crt['version']}.json").write_text(json.dumps({"decision": "accepted", "method": "qa_test_flag",
+                "eula_sha256": crt["license"]["sha256"], "package_sha256": crt["package"]["sha256"], "version": crt["version"]}), "utf-8")
+            (root / "runtime/qa-event-crt-terms.json").write_text(json.dumps({"schema": 1, "event": "crt_terms_qa_test_acceptance",
+                "method": "qa_test_flag", "eula_sha256": crt["license"]["sha256"], "version": crt["version"]}), "utf-8")
+            for folder in (root / "python/cpython-3.12.15-windows-x86_64-none", root / "llama/b11700-cpu-x64"):
+                folder.mkdir(parents=True)
+                for n, b in self.DLL.items():
+                    (folder / n).write_bytes(b)
+            for d in ("venv", "models"):
+                (root / d).mkdir()
+        elif argv[0].endswith("python.exe") and "--out" in argv:
+            out, csv_out = Path(argv[argv.index("--out") + 1]), Path(argv[argv.index("--csv") + 1])
+            root = Path(kw["env"]["USERPROFILE"]) / "StudioYebisu/ReceiptLedger"
+            (root / "qa-ledger/data").mkdir(parents=True)
+            mods = lambda folder, names: [{"name": n, "path": str(folder / n), "class": "redistributable_crt",
+                                           "sha256": _sha_bytes(self.DLL[n])} for n in names]
+            pin_sha = _sha_bytes(self.payload["receipt_ledger/runtime_pin.json"])
+            res = {"activation": {"state": "active"},
+                   "receipts": [{**LOCAL_V001_PDF, "runtime_pin_sha256": pin_sha}, {**LOCAL_V003_JPEG, "runtime_pin_sha256": pin_sha}],
+                   "csv": {"sha256": "3" * 64, "bytes": 10, "data_rows": 2},
+                   "python_modules": mods(root / "python/cpython-3.12.15-windows-x86_64-none", ha.CRT_NAMES),
+                   "llama_server": {"modules": mods(root / "llama/b11700-cpu-x64", ha.LLAMA_CRT)},
+                   "runtime_status": {"state": "ready"}, "cpu_args": ["-t", "6"]}
+            if self.child_mutator:
+                self.child_mutator(res)
+            out.write_text(json.dumps(res), "utf-8")
+            csv_out.write_text("header\nrow1\nrow2\n", "utf-8")
+        elif argv[0].endswith("unins000.exe"):
+            install = Path(argv[0]).parent
+            for p in sorted(install.rglob("*"), reverse=True):
+                p.unlink() if p.is_file() else p.rmdir()
+            profile = install.parents[4]
+            group = profile / "AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Ryoshu"
+            for p in group.glob("*"):
+                p.unlink()
+            group.rmdir()
+            self.registered = False
+        return done
+
+    def main(self, work, report):
+        return ha.main(["--installer", str(self.installer), "--build-report", str(self.build), "--source-zip", str(self.source_zip),
+                        "--fixtures", str(self.fixtures), "--work-dir", str(work), "--report-dir", str(report)])
+
+
+def _acceptance(report_dir):
+    return json.loads((report_dir / "acceptance.json").read_text("utf-8"))
+
+
+def test_full_mocked_orchestration_reaches_passed_through_crt_provenance_launch_and_uninstall(tmp_path, monkeypatch):
+    fake = FakeWindows(tmp_path, monkeypatch)
+    rc = fake.main(tmp_path / "work", tmp_path / "report")
+    out = _acceptance(tmp_path / "report")
+    assert rc == 0 and out["status"] == "passed" and out["stage"] == "done", out.get("error")
+    names = [c["check"] for c in out["checks"]]
+    for expected in ("fixtures_bound_before_child", "start_menu_shortcuts", "receipt_child_succeeded", "indra_ocr_route_V001_pdf",
+                     "indra_ocr_route_V003_jpeg", "local_model_structured_output_V001", "csv_exported",
+                     "python_crt_maps_from_managed_python", "llama_crt_maps_from_managed_runtime", "start_no_browser",
+                     "health_is_installed_version", "stop_succeeded", "uninstall_removed_code_shortcuts_registration",
+                     "uninstall_preserved_ledger_and_sentinel", "ollama_absent_after"):
+        assert expected in names
+    assert all(c["ok"] is True and set(c) == {"check", "ok", "detail"} for c in out["checks"])
+    py = next(c for c in out["checks"] if c["check"] == "python_crt_maps_from_managed_python")
+    assert py["detail"]["ok"] is True and set(py["detail"]["owned"]) == set(ha.CRT_NAMES)      # protocol dict kept as evidence
+    assert [p["ocr_route"] for p in out["receipts"]] == ["pdf_text", "image_ocr"]
+    assert fake.calls[0] == "Ryoshu-setup.exe" and fake.calls[-1] == "unins000.exe" and not fake.registered
+    assert sorted(p.name for p in (tmp_path / "report").iterdir()) == ["acceptance.json", "synthetic-expenses.csv"]
+    assert str(tmp_path) not in json.dumps(out, ensure_ascii=False)
+
+
+def test_false_llama_provenance_fails_closed_as_a_recorded_check_not_a_typeerror(tmp_path, monkeypatch):
+    def drop_llama_msvcp(res):
+        res["llama_server"]["modules"] = [m for m in res["llama_server"]["modules"] if m["name"] != "msvcp140.dll"]
+    fake = FakeWindows(tmp_path, monkeypatch, child_mutator=drop_llama_msvcp)
+    rc = fake.main(tmp_path / "work", tmp_path / "report")
+    out = _acceptance(tmp_path / "report")
+    assert rc == 1 and out["status"] == "failed" and out["stage"] == "receipts"
+    assert out["error_type"] == "AssertionError" and out["error"] == "llama_crt_maps_from_managed_runtime"
+    last = out["checks"][-1]
+    assert last["check"] == "llama_crt_maps_from_managed_runtime" and last["ok"] is False and last["detail"]["ok"] is False
+    assert "msvcp140.dll:not_loaded_from_managed_dir" in last["detail"]["failures"]
+    assert any(c["check"] == "python_crt_maps_from_managed_python" and c["ok"] for c in out["checks"])
+    assert not fake.registered   # the cleanup path still uninstalled
+
+
+def test_child_metadata_cannot_forge_a_check_identity_or_outcome(tmp_path, monkeypatch):
+    def forge(res):
+        res["csv"] = {"ok": True, "check": "forged_pass", "name": "forged", "data_rows": 999}
+    fake = FakeWindows(tmp_path, monkeypatch, child_mutator=forge)
+    rc = fake.main(tmp_path / "work", tmp_path / "report")
+    out = _acceptance(tmp_path / "report")
+    assert rc == 1 and out["error_type"] == "AssertionError" and out["error"] == "csv_exported"
+    last = out["checks"][-1]
+    assert last["check"] == "csv_exported" and last["ok"] is False and last["detail"]["ok"] is True
+    assert "forged_pass" not in [c["check"] for c in out["checks"]]
 
 
 def test_acceptance_keeps_hkcu_refusal_and_never_targets_the_real_profile():

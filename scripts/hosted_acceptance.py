@@ -193,6 +193,14 @@ def ocr_route(p: dict) -> tuple[bool, str, str]:
     return True, route, "ok"
 
 
+def check_record(name, ok, /, **detail) -> dict:
+    """One acceptance check. Identity and outcome come ONLY from the positional arguments; every keyword is diagnostic
+    metadata kept under 'detail', so an unpacked dict carrying 'ok'/'check'/'name' can neither raise nor override them."""
+    if not isinstance(name, str) or not name:
+        raise ValueError("check_name_required")
+    return {"check": name, "ok": bool(ok), "detail": dict(detail)}
+
+
 def bind_fixture(path: Path) -> dict:
     """Resolve the caller's fixture path NOW (relative to the caller's cwd), require a regular file, bind its bytes."""
     resolved = Path(path).resolve(strict=True)
@@ -330,8 +338,10 @@ def main(argv=None) -> int:
                     os.environ.get("SystemRoot", r"C:\Windows"): "<SystemRoot>", str(Path(__file__).resolve().parents[1]): "<checkout>",
                     **{str(p.parent): f"<{a}>" for a, p in candidates.items()}, str(Path.home()): "<home>"}
 
-    def check(name, ok, **detail):
-        report["checks"].append({"check": name, "ok": bool(ok), **detail})
+    def check(name, ok, /, **detail):
+        record = check_record(name, ok, **detail)
+        report["checks"].append(record)
+        ok = record["ok"]
         if not ok:
             raise AssertionError(name)
 
