@@ -2,24 +2,26 @@
 
 **領収書を帳簿に整え、会計ソフトへ渡すCSVを作るWindowsアプリです。読み取りと科目候補の作成はローカルPC上で行い、領収書の画像や内容を外部AIへ送りません。**
 
-個人事業主・フリーランスが、支出の記録と確認を一度に進めるための道具です。Indra OCR 1.1.2が日付や金額を読み取り、Ollama上のQwen3 4B（`qwen3:4b`）が勘定科目の候補を作ります。帳簿には下書きとして残り、原本と見比べてから修正・確認できます。外部AIのアカウントとAPIキーは不要です。
+個人事業主・フリーランスが、支出の記録と確認を一度に進めるための道具です。Indra OCR 1.1.2が日付や金額を読み取り、llama.cpp上のQwen3 4B（Q4_K_M）が勘定科目の候補を作ります。帳簿には下書きとして残り、原本と見比べてから修正・確認できます。外部AIのアカウントとAPIキーは不要です。
 
-**v1.3.4** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe) · [配布一覧](https://github.com/studio-yebisu/ryoshu/releases/tag/v1.3.4) · [変更履歴](CHANGELOG.md) · [v1.3.4の検証範囲](docs/testing/v1.3.4/README.md)
+Indra OCRで文字を読み、Ryoshuが必要時に起動するllama.cppサーバーと固定した公式Qwen3-4B GGUFが科目候補を作ります。AIはCPUで動作し、接続はループバックと起動ごとの認証キーに限定されます。Ollamaは不要で、領収書の処理とCSV作成はローカルPC上で行います。
 
-![Ryoshu 1.3.4の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/copy-renewal-20261026/results.jpg)
+**v1.4.0** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
 
-## 102秒で見るRyoshu
+![Ryoshu 1.4.0の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/ryoshu-v1.4.0-results.jpg)
 
-[![紹介動画のポスター。「OCRで読み取り」「別のAIで科目候補」「原本と照合・修正」「CSV出力」の4工程と、「領収書はローカルPC上で処理」「実画面録画 ・ 架空の領収書データ」の表示。](docs/images/promo-102s-20261027.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+## 実際の操作と検証結果を動画で見る
 
-102秒の紹介動画では、OCRによる文字と数字の読み取り、別のローカルAIによる科目候補の作成、原本との照合・修正、CSV出力までの流れを概観できます。実際の操作を録画した架空領収書5件のデモで、科目変更・星付け・CSV保存も収録しています。
+[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
 
-[102秒の紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-102s.mp4)
+Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り込み、OCRと別のローカルモデルで処理した後、原本の拡大・照合、科目の手動変更、お気に入りの追加と解除、1件の確認と4件の未確認、汎用CSV1行の保存を収録しています。新しい100件の検証結果も紹介します。映像はOpus 5.5、表示する製品文案はKimiが制作しました。
+
+[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
 
 ## 導入から最初の確認まで
 
-1. [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe)を実行します。管理者権限は不要です。
-2. Ollamaを公式サイトから導入し、スタートメニューの「Ryoshu」を開きます。モデルの利用条件を確認して初回準備を進めてください。Python 3.12.15、固定版の依存、OCRモデル、約2.5GBのQwenモデルを取得するため、ネット接続と数GB以上の空き容量が必要です。インストーラーにモデルは含まれません。
+1. v1.4.0の[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe)をダウンロードして実行します。現在のWindows利用者ごとにインストールされるため、管理者権限は不要です。
+2. スタートメニューの「Ryoshu」を開き、モデルとMicrosoftの利用条件を確認して初回準備を進めます。OllamaやLM Studioは不要です。Python 3.12.15、固定版の依存、OCRモデル、llama.cpp実行環境、Microsoft Visual C++ v14の公式パッケージと利用条件、約2.5GBのQwenモデルを取得するため、ネット接続と数GB以上の空き容量が必要です。Microsoftパッケージは実行せず、明示された同意がある場合だけDLLをRyoshu専用の保存先へ配置します。Visual StudioやWindows全体へのVC++導入は不要です。インストーラーにこれらの実行環境・Microsoft DLL・モデルは含まれません。
 3. ブラウザーで12〜256文字の復元用パスワードを設定します。普段はWindowsが帳簿を開くため、起動のたびに入力する必要はありません。
 
 アプリのコードはMITですが、モデルと依存にはそれぞれの条件があります。特にIndra OCRの重みには事業規模・資金調達額・競合用途などの制限があるため、準備前に[利用条件](THIRD_PARTY.md)を確認してください。ソースZIPから始める場合は`Ryoshu.cmd`を開きます。[導入・更新・終了の手順](docs/INSTALL.md)
@@ -46,11 +48,17 @@ PCの移行・Windowsアカウントの変更・バックアップ復元には�
 
 ## 動作要件
 
-Windows 11 64bit、JavaScriptが使えるブラウザー、Ollamaが必要です。専用GPUは不要です。最低RAMは未測定で、検証機の搭載メモリは64GBです。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
+Ryoshu v1.4.0の対象はWindows 11 x64です。OCRと科目候補の作成はローカルPC上のCPUで行い、OllamaやLM Studioの導入は不要です。最低RAMは未測定です。インストーラーの受入環境と検証範囲は別の記録で確認してください。Windows 10は未検証で、動作対象として案内していません。JavaScriptが使えるブラウザーが必要です。Windows on ARM（arm64）は対象外です。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
 
 ## 検証記録を読む
 
-次の数値は**2026-10-23に実施したv1.3.0の記録**です。v1.3.4で100件を新規推論した結果ではありません。固定した100種類の架空PDFを同じ条件で処理した回帰検証であり、未知の実物領収書での正答率を示しません。v1.3.4の検証記録では、v1.3.0以降も科目マスター・OCR・科目候補の生成方法・仕訳計算・CSV形式を変更していないことを確認しています。
+v1.4で既存の架空100件を検証し、編集前の初期出力は、円額95/95、外貨の円額未確定2/2（返金3件は金額比較から除外）、日付99/100、支払先85/100、通常の科目提案44/48、特別な処理52件中42件、全100件の科目または処理判定86/100、印字税額51/52、正しい空欄11/11でした。税額の残り37件は評価対象外です。処理時間は22分36.711秒で、新しいアプリプロセスの最初のアップロード直前から全件終了を一覧で確認するまでを測り、50件ずつ2回のアップロード・OCR・ローカルモデルを含み、初回準備・ダウンロード・利用者の確認・CSV・採点を除外しています。
+
+llama.cppへの変更とモデルの種類の変更を同時に行ったため、差異を実行環境だけの効果とする検証ではありません。アプリは新規起動ですが、以前の実行でOS・ディスクキャッシュは温まっていました。同じ架空100件の開発・回帰検証で、未知の実物領収書の正確さや、OCR・モデル単体の精度ではありません。結果は利用者が編集する前の候補で、税務処理の正しさや脆弱性の不存在を保証するものではありません。
+
+インストールと動作確認の範囲、残る制約はv1.4の検証記録で確認してください。[Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
+
+次の数値は**2026-10-23に実施したv1.3.0の記録**です。固定した100種類の架空PDFを同じ条件で処理した回帰検証であり、未知の実物領収書での正答率を示しません。v1.3.4の検証記録では、v1.3.0以降も科目マスター・OCR・科目候補の生成方法・仕訳計算・CSV形式を変更していないことを確認しています。
 
 | 項目 | 一致 / 評価対象 |
 | --- | ---: |
@@ -61,7 +69,7 @@ Windows 11 64bit、JavaScriptが使えるブラウザー、Ollamaが必要です
 
 金額の内訳は非負の円額95件と外貨で円額未確定の2件で、返金3件は対象外です。暫定科目の48件は元の期待値で科目提案を求めたケースです。税額は評価対象63件のうち、数値を期待した52件中51件が一致、1件は空欄でした。空欄を期待した11件はすべて一致し、誤った数値は0件でした。返金3件と外貨2件は税額の評価からも除いています。
 
-[全指標・差異・原本・実行範囲（v1.3.0）](docs/testing/v1.3/README.md) · [100件の画像一覧](docs/testing/gallery.md) · [読み取り画面の検証（v1.3.2）](docs/testing/v1.3.2/README.md) · [現在の検証範囲（v1.3.4）](docs/testing/v1.3.4/README.md) · [版ごとの変更履歴](CHANGELOG.md)
+[全指標・差異・原本・実行範囲（v1.3.0）](docs/testing/v1.3/README.md) · [100件の画像一覧](docs/testing/gallery.md) · [読み取り画面の検証（v1.3.2）](docs/testing/v1.3.2/README.md) · [公開版の検証範囲（v1.3.4）](docs/testing/v1.3.4/README.md) · [版ごとの変更履歴](CHANGELOG.md)
 
 CSV4形式についても、架空6明細から7行を生成し、再読込と借方・貸方とも299,095円の一致を確認しました。これは100件の推論精度とは別の検査です。AIが作る摘要には原本にない表現が残ることがあるため、科目だけでなく購入内容も原本と照合してください。過去の記録として[v1.2.0](docs/testing/v1.2/README.md)と[v1.1.0候補の安全性点検（2026-10-22）](docs/testing/security/README.md)も公開しています。
 
@@ -69,4 +77,4 @@ CSV4形式についても、架空6明細から7行を生成し、再読込と�
 
 売上・口座照合、減価償却、決算・申告書、返金・外貨の仕訳は対象外です。電子帳簿保存法への適合を認証・保証する製品ではありません。
 
-コードと文書は[MIT License](LICENSE)、Indra OCRの重み・Qwen・依存ライブラリは各利用条件に従います。[参照資料](docs/SOURCES.md) · [開発と検証](CONTRIBUTING.md) · [脆弱性の報告](SECURITY.md)
+コードと文書は[MIT License](LICENSE)、Indra OCRの重み・Qwen・llama.cpp・Microsoft Visual C++・依存ライブラリは各利用条件に従います。[参照資料](docs/SOURCES.md) · [開発と検証](CONTRIBUTING.md) · [脆弱性の報告](SECURITY.md)

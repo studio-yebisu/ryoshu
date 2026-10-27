@@ -3,12 +3,6 @@ $ErrorActionPreference = 'Stop'
 $appRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $taskRoot = Join-Path $env:USERPROFILE 'StudioYebisu\ReceiptLedger'
 $pythonExe = Join-Path $taskRoot 'venv\Scripts\python.exe'
-# A fresh Ollama installation may not yet be present in this process's PATH.
-$knownOllama = Join-Path $env:LOCALAPPDATA 'Programs\Ollama\ollama.exe'
-if ((-not (Get-Command ollama -ErrorAction SilentlyContinue)) -and (Test-Path -LiteralPath $knownOllama)) {
-    $env:PATH = (Split-Path -Parent $knownOllama) + [System.IO.Path]::PathSeparator + $env:PATH
-}
-$ollama = Get-Command ollama -ErrorAction SilentlyContinue
 if ($CheckOnly) {
     $versionFile = Join-Path $appRoot 'receipt_ledger\__init__.py'
     $appVersion = $null
@@ -28,20 +22,30 @@ if ($CheckOnly) {
         $pythonStatus = [PSCustomObject]@{exists=(Test-Path -LiteralPath $pythonExe -PathType Leaf); runnable=$false;
             compatible=$false; ready=$false; version=''; reason='runtime_helper_missing'}
     }
-    @{app_version=$appVersion; source_complete=($missingSource.Count -eq 0); ollama_available=($null -ne $ollama);
+    # Local inference readiness from the source pin (stdlib-only receipt_ledger.runtime_pin; never
+    # starts a process, never downloads, never hashes the model). python -I drops cwd from sys.path,
+    # so the app root is inserted explicitly; works for paths with spaces/Japanese/quotes.
+    $inference = [PSCustomObject]@{runtime_ok=$false; model_ok=$false; reason_code='python_not_prepared'; runtime_version=''; model_sha256=''}
+    if ($pythonStatus.ready -and -not (Test-Path -LiteralPath (Join-Path $appRoot 'receipt_ledger\runtime_pin.py') -PathType Leaf)) {
+        $inference.reason_code = 'readiness_module_missing'
+    } elseif ($pythonStatus.ready) {
+        try {
+            $probe = & $pythonExe -I -B -c 'import sys;sys.path.insert(0,sys.argv[1]);from receipt_ledger.runtime_pin import main;raise SystemExit(main(sys.argv[2:]))' $appRoot --root $taskRoot 2>$null
+            $parsed = ($probe | Select-Object -Last 1) | ConvertFrom-Json
+            if ($parsed) { $inference = $parsed }
+        } catch { $inference = [PSCustomObject]@{runtime_ok=$false; model_ok=$false; reason_code='readiness_check_failed'; runtime_version=''; model_sha256=''} }
+    }
+    @{app_version=$appVersion; source_complete=($missingSource.Count -eq 0);
+        inference_runtime_ready=[bool]$inference.runtime_ok; inference_model_ready=[bool]$inference.model_ok;
+        inference_reason=[string]$inference.reason_code; runtime_version=[string]$inference.runtime_version;
         python_prepared=[bool]$pythonStatus.ready; python_exists=[bool]$pythonStatus.exists;
         python_runnable=[bool]$pythonStatus.runnable; python_compatible=[bool]$pythonStatus.compatible;
         python_version=$pythonStatus.version; python_reason=$pythonStatus.reason} | ConvertTo-Json -Compress
     exit 0
 }
 Add-Type -AssemblyName System.Windows.Forms
-if (-not $ollama) {
-    $answer = [System.Windows.Forms.MessageBox]::Show(
-        "領収書をローカルPC上で処理するには、Ollama Windows版が必要です。`n`n公式ダウンロードページを開きますか？`n導入後はスタートメニューの「Ryoshu」を開き直してください。初回準備ではネット接続も必要です。`n`nPythonを手動で導入する必要はありません。",
-        'Ryoshuの初回準備', [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Information)
-    if ($answer -eq [System.Windows.Forms.DialogResult]::Yes) { Start-Process 'https://ollama.com/download/windows' }
-    exit 0
-}
+# No external model service is required: start.ps1 runs/resumes first setup (which prepares the
+# pinned llama.cpp runtime and model) and the app opens even when inference is not yet ready.
 try {
     & (Join-Path $appRoot 'start.ps1')
 } catch {

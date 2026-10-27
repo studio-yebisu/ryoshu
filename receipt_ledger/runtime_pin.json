@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "runtime": {
+    "tag": "b11700",
+    "commit": "23f7aabc16c72f6f707dba227251c35d7bd1ed96",
+    "dir_name": "b11700-cpu-x64",
+    "server_exe": "llama-server.exe",
+    "members": [
+      {
+        "name": "llama-server.exe",
+        "bytes": 9216,
+        "sha256": "74957478e9e7577189ab65d0fd2d2708ebf040c2141384cecb5c252ae3bd76d3"
+      },
+      {
+        "name": "llama-server-impl.dll",
+        "bytes": 9259520,
+        "sha256": "cd7499e6bff96dd293930d104ddacd8c18cec8a508f08a9d8291ddff6a701bab"
+      },
+      {
+        "name": "llama-common.dll",
+        "bytes": 8094208,
+        "sha256": "a9aadb00a90f5033c4f86adaa4e79a188e35bbd9e18a8dcb8166524c490c5b30"
+      },
+      {
+        "name": "llama.dll",
+        "bytes": 3566592,
+        "sha256": "1f25590ebf53ee63224cf8045a83062a4d7df4a2cfee2d1db42369b80a0953b4"
+      },
+      {
+        "name": "mtmd.dll",
+        "bytes": 1905664,
+        "sha256": "060ee7fd325b3ab8ad5983bc728ef19db4d0a6314449d81c727a861155a676fd"
+      },
+      {
+        "name": "ggml.dll",
+        "bytes": 78848,
+        "sha256": "35c607578b3fab4ab9079d8bdc580ef60f95a2e95dd353f080a06a0638f679d8"
+      },
+      {
+        "name": "ggml-base.dll",
+        "bytes": 803840,
+        "sha256": "cf2def0fbf5d7c6f6701f6d73ce581ca3b2528a6e723b0d58ec5343c46fec15f"
+      },
+      {
+        "name": "libomp.dll",
+        "bytes": 768000,
+        "sha256": "a12116ba72d1d6820407cf30be23da04ce79d6bb8a71a5ee71759c5a1faa6f1c"
+      },
+      {
+        "name": "LICENSE-LLVM-OpenMP",
+        "bytes": 19741,
+        "sha256": "fdad1758a9e1f9d5a81e18879b3406772115edc92c24bfa36b70c654f325e8e4"
+      },
+      {
+        "name": "ggml-cpu-alderlake.dll",
+        "bytes": 1415168,
+        "sha256": "d8ee98b84ccf10540007e5296b878efd9a7907c6f47febf1691e214cb107cabf"
+      },
+      {
+        "name": "ggml-cpu-cannonlake.dll",
+        "bytes": 1610752,
+        "sha256": "9941e3f9b6192e187ab26ffdc570a23593f5a1e576b4881153baf681f9e8f308"
+      },
+      {
+        "name": "ggml-cpu-cascadelake.dll",
+        "bytes": 1583616,
+        "sha256": "accaea560810a7bdc485890745ac182280ef89ca7ce7f55e772caee73a03fb9e"
+      },
+      {
+        "name": "ggml-cpu-cooperlake.dll",
+        "bytes": 1593344,
+        "sha256": "1ea870ca0a64ba8e117327c4b2d9f238937fe84c1c3550fba864868964efef3e"
+      },
+      {
+        "name": "ggml-cpu-haswell.dll",
+        "bytes": 1420288,
+        "sha256": "a8a0a35edd3a87cc9b4dbbdb865a9190292fbac1ee5ddda730ffc489d8b05b2b"
+      },
+      {
+        "name": "ggml-cpu-icelake.dll",
+        "bytes": 1590272,
+        "sha256": "f9f41f2438f6aece5bb83eb64372ecf19ec5e9cac16051ee6eb8538802c2ef60"
+      },
+      {
+        "name": "ggml-cpu-ivybridge.dll",
+        "bytes": 1301504,
+        "sha256": "5518817a78873e009c22ef2d566404f873f162eec5efabfff55c764303b0c9eb"
+      },
+      {
+        "name": "ggml-cpu-piledriver.dll",
+        "bytes": 1294336,
+        "sha256": "c90ed5e5a4c14debb8e42262bcf64dc2dc4ae5ce04f26ca8258cce509e0026de"
+      },
+      {
+        "name": "ggml-cpu-sandybridge.dll",
+        "bytes": 1291264,
+        "sha256": "9c601f4b830a89b06fa2fcbe5eb66f2c2b6fca348c7ee22fc777d2972e7fb868"
+      },
+      {
+        "name": "ggml-cpu-sapphirerapids.dll",
+        "bytes": 1869824,
+        "sha256": "5114593651f923ba8842823b5e3af96d90fbf4affedd52126418fa6b1b9cd068"
+      },
+      {
+        "name": "ggml-cpu-skylakex.dll",
+        "bytes": 1603584,
+        "sha256": "9dde7383ed380c04c45800a07a33b67405b7b6d22a5b2816fb9f8678407f8b45"
+      },
+      {
+        "name": "ggml-cpu-sse42.dll",
+        "bytes": 916992,
+        "sha256": "84c707abc18e9b251c4d9bafdc4d9580ef8fac8107b87f9e772ebb1cac5e6e65"
+      },
+      {
+        "name": "ggml-cpu-x64.dll",
+        "bytes": 909824,
+        "sha256": "6b9bd15ad5d679880d8cb1c6265c56d7038792a9a748eeac404248fb4ebd808c"
+      },
+      {
+        "name": "ggml-cpu-zen4.dll",
+        "bytes": 1600000,
+        "sha256": "13b9a706f01d3dade4eb9607e0f32b41b79b1040ceda0c095bef185989b8e191"
+      },
+      {
+        "name": "LICENSE-llama.cpp.txt",
+        "bytes": 1078,
+        "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d"
+      },
+      {
+        "name": "msvcp140.dll",
+        "bytes": 643512,
+        "sha256": "7c26614e1d733892c2deac7e245ce115504b1d80592dd0a01b08e3e5a55f89ca"
+      },
+      {
+        "name": "vcruntime140.dll",
+        "bytes": 178616,
+        "sha256": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7"
+      },
+      {
+        "name": "vcruntime140_1.dll",
+        "bytes": 50112,
+        "sha256": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e"
+      }
+    ],
+    "asset_url": "https://github.com/ggml-org/llama.cpp/releases/download/b11700/llama-b11700-bin-win-cpu-x64.zip",
+    "asset_bytes": 19593035,
+    "asset_sha256": "4e2af6b2b39691cd84267a02839596ed6653ea2dde5ee9cdbfeb4dd9677eecbb",
+    "download_hosts": [
+      "github.com",
+      "release-assets.githubusercontent.com"
+    ],
+    "license_files": [
+      {
+        "name": "LICENSE-llama.cpp.txt",
+        "source": "third_party/llama.cpp/LICENSE"
+      }
+    ]
+  },
+  "model": {
+    "repo": "Qwen/Qwen3-4B-GGUF",
+    "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+    "file": "Qwen3-4B-Q4_K_M.gguf",
+    "bytes": 2497280256,
+    "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "license": "Apache-2.0",
+    "chat_template_sha256": "57f1fd00f0013a2be96aa79b857391f27e23df5b5f847072b524c897e24d0361",
+    "url": "https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/bc640142c66e1fdd12af0bd68f40445458f3869b/Qwen3-4B-Q4_K_M.gguf",
+    "download_hosts": [
+      "huggingface.co",
+      "us.aws.cdn.hf.co"
+    ],
+    "license_file": {
+      "source": "third_party/Qwen3-4B-GGUF/LICENSE",
+      "sha256": "5de36594c10839788a8c589443a8ef9d8b8d17c65a1b5807206ae037fc36c6bd"
+    }
+  },
+  "crt": {
+    "source": "microsoft_vc_redist_direct",
+    "version": "14.51.36247.0",
+    "package": {
+      "url": "https://download.visualstudio.microsoft.com/download/pr/ebdab8e5-1d7b-4d9f-a11b-cbb1720c3b12/843068991DAAA1F73AD9F6239BCE4D0F6A07A51F18C37EA2A867E9BECA71295C/VC_redist.x64.exe",
+      "bytes": 18731856,
+      "sha256": "843068991daaa1f73ad9f6239bce4d0f6a07a51f18c37ea2a867e9beca71295c",
+      "download_hosts": [
+        "download.visualstudio.microsoft.com"
+      ],
+      "winget_manifest": {
+        "repository": "microsoft/winget-pkgs",
+        "path": "manifests/m/Microsoft/VCRedist/2015+/x64/14.51.36247.0/Microsoft.VCRedist.2015+.x64.installer.yaml",
+        "git_blob": "876bdbf08de920e4a041a10b8e6467c224eda447",
+        "entry": "x64"
+      }
+    },
+    "burn": {
+      "ux": {
+        "offset": 479744,
+        "bytes": 140070,
+        "sha256": "25eec5c5812800d93950b5fa6768072d978127b42254a13f702be081f975805e"
+      },
+      "attached": {
+        "offset": 630000,
+        "bytes": 18091661,
+        "sha256": "8b1595b5d0001e0747371ecfc2dccb604dc836fba0a778566e97a6bdb0816bb8"
+      }
+    },
+    "license": {
+      "document_url": "https://visualstudio.microsoft.com/wp-content/uploads/2025/10/Visual-C-V14-License-Redistributable_and_Runtime_ENU.docx",
+      "download_hosts": [
+        "visualstudio.microsoft.com"
+      ],
+      "bytes": 39553,
+      "sha256": "08651651a7602fc7c0e2763de0fde1ff9f868df2780597cd1775ee9d6441c783",
+      "format": "docx",
+      "eula_id": "Cpp_v14_ENU.1033",
+      "text_sha256": "0c717a5c30c4f9f17419d83429fee346af7da94282768f79d1d9e6701112e9b3",
+      "title": "MICROSOFT SOFTWARE LICENSE TERMS - MICROSOFT VISUAL C++ V14 REDISTRIBUTABLE and RUNTIME (Last Updated: October 1, 2025)",
+      "linked_from": [
+        "package theme InstallLicenseLinkText -> https://aka.ms/VCRedistLicense",
+        "https://visualstudio.microsoft.com/license-terms/vs2026-ga-visualcpp-v14-redist-runtime/"
+      ]
+    },
+    "cab": {
+      "attached_entry": "a4",
+      "bytes": 1065893,
+      "sha256": "6e8ee73933678c55973e83366e48e948b394c7a36743a36b7224c95de979b13f",
+      "path_in_bundle": "packages\\vcRuntimeMinimum_amd64\\cab1.cab"
+    },
+    "files": [
+      {
+        "name": "msvcp140.dll",
+        "cab_entry": "msvcp140.dll_amd64",
+        "bytes": 643512,
+        "sha256": "7c26614e1d733892c2deac7e245ce115504b1d80592dd0a01b08e3e5a55f89ca",
+        "file_version": "14.51.36247.0"
+      },
+      {
+        "name": "msvcp140_1.dll",
+        "cab_entry": "msvcp140_1.dll_amd64",
+        "bytes": 35768,
+        "sha256": "206c931bf90fdad8816de3b5e2ef80b2bcaa9406c89ecc05fe6fddffe251e982",
+        "file_version": "14.51.36247.0"
+      },
+      {
+        "name": "vcruntime140.dll",
+        "cab_entry": "vcruntime140.dll_amd64",
+        "bytes": 178616,
+        "sha256": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+        "file_version": "14.51.36247.0"
+      },
+      {
+        "name": "vcruntime140_1.dll",
+        "cab_entry": "vcruntime140_1.dll_amd64",
+        "bytes": 50112,
+        "sha256": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+        "file_version": "14.51.36247.0"
+      }
+    ],
+    "python_files": [
+      "msvcp140.dll",
+      "msvcp140_1.dll",
+      "vcruntime140.dll",
+      "vcruntime140_1.dll"
+    ],
+    "runtime_files": [
+      "msvcp140.dll",
+      "vcruntime140.dll",
+      "vcruntime140_1.dll"
+    ]
+  }
+}

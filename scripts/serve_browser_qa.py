@@ -51,7 +51,9 @@ def main():
     replay_gate.set()
     failed_once=set()
 
-    def replay(store, receipt_id):
+    def replay(store, receipt_id, runtime=None):
+        # Same call contract as receipt_ledger.pipeline.process(store, receipt_id, runtime); the runtime is never used:
+        # saved observations are replayed, no OCR or model call happens here.
         row = store.get(receipt_id)
         store.stage(receipt_id, "ocr")
         if not replay_gate.wait(30):
@@ -84,7 +86,12 @@ def main():
     keys=LedgerKeys(config.DATA_DIR)
     if not args.first_run:
         keys.setup("fictional browser test recovery password")
-    app = server.create_app(config.DATA_DIR)
+    # Explicit inference-disabled runtime: the replay server can never start or consult llama.cpp/Ollama or read the
+    # user's runtime/model roots. This is UI replay of saved observations, not inference evidence.
+    from receipt_ledger.runtime import DisabledRuntime
+    app = server.create_app(config.DATA_DIR, runtime=DisabledRuntime())
+    if not isinstance(app.state.runtime, DisabledRuntime):
+        raise RuntimeError("QA replay must not use a real inference runtime")
     if app.state.store.root != data_dir:
         raise RuntimeError("検証用の保存先と実際の帳簿の保存先が一致しません")
     if args.legacy_account_collision:

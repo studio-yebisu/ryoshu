@@ -1,25 +1,38 @@
+import json
+
 import httpx
 import pytest
 
 from receipt_ledger import pipeline
+from receipt_ledger.runtime import GenerateRequest, LlamaRuntime
+from runtime_fakes import make_pin
 
 
-@pytest.mark.parametrize('kind',['local','cloud-alias','small-cloud-manifest','unknown-format'])
-def test_cloud_or_unknown_model_is_rejected_using_metadata_before_sending_any_receipt(kind,monkeypatch):
-    requests=[]
-    real_client=httpx.Client
-    def handler(request):
-        requests.append(request)
-        if request.url.path=='/api/tags':
-            return httpx.Response(200,json={'models':[{'name':'qwen3:4b','size':200 if kind=='small-cloud-manifest' else 2497293931}]})
-        assert request.url.path=='/api/show'
-        return httpx.Response(200,json={'remote_host':'https://cloud.invalid' if kind=='cloud-alias' else '',
-            'details':{'format':'cloud' if kind=='unknown-format' else 'gguf'},'model_info':{'general.architecture':'qwen3'}})
-    monkeypatch.setattr(pipeline.httpx,'Client',lambda **kwargs:real_client(transport=httpx.MockTransport(handler),**kwargs))
-    if kind=='local':assert pipeline.local_models()[0]['name']=='qwen3:4b'
-    else:
-        with pytest.raises(pipeline.ModelSafetyError):pipeline.local_models()
-    assert len(requests)==2
-    assert all(request.url.host=='127.0.0.1' for request in requests)
-    assert requests[1].content==b'{"model":"qwen3:4b"}'
-    assert not any(request.url.path=='/api/chat' for request in requests)
+@pytest.mark.parametrize("problem", ["placeholder-pin", "missing-pin", "corrupt-member", "unlisted-binary", "missing-model"])
+def test_unverified_runtime_or_model_is_refused_before_any_process_or_receipt_request(tmp_path, monkeypatch, problem):
+    pin_path, root = make_pin(tmp_path, extra=(lambda p: p["model"].update(sha256="<OUTSTANDING>")) if problem == "placeholder-pin" else None)
+    if problem == "missing-pin":
+        pin_path.unlink()
+    elif problem == "corrupt-member":
+        (root / "llama" / "synthetic-cpu" / "ggml-base.dll").write_bytes(b"synthetic dlL")
+    elif problem == "unlisted-binary":
+        (root / "llama" / "synthetic-cpu" / "extra.exe").write_bytes(b"MZ")
+    elif problem == "missing-model":
+        next((root / "models").glob("*.gguf")).unlink()
+    runtime = LlamaRuntime(pin_path, root)
+    monkeypatch.setattr(runtime, "_spawn", lambda *a: pytest.fail("no process may start"))
+    monkeypatch.setattr(httpx.Client, "send", lambda *a, **k: pytest.fail("no request may be sent"))
+    with pytest.raises(pipeline.ModelSafetyError) as caught:
+        runtime.generate(GenerateRequest("system", "receipt text", {"type": "object"}))
+    expected = {"placeholder-pin": "pin_invalid", "missing-pin": "pin_missing", "corrupt-member": "runtime_integrity",
+                "unlisted-binary": "runtime_integrity", "missing-model": "model_missing"}[problem]
+    assert caught.value.code == expected and "receipt text" not in str(caught.value)
+    assert not runtime.status()["model_ready"] or problem == "corrupt-member"
+    runtime.close()
+
+
+def test_pipeline_no_longer_contacts_any_ollama_endpoint():
+    assert not hasattr(pipeline, "local_models")
+    source = (pipeline.__file__)
+    text = open(source, encoding="utf-8").read()
+    assert "11434" not in text and "/api/tags" not in text and "/api/chat" not in text

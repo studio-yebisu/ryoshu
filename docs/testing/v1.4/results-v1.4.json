@@ -1,0 +1,3921 @@
+{
+  "schema": "ryoshu.public-evidence/1.4",
+  "approved": {
+    "by": "root",
+    "mapping_sha256": "b56eea87acffaaebfa2916be58d19e76c0ad313474de47d94a6c233ffa49f043",
+    "private_sources_sha256": {
+      "report": "a7a585f39913ad1f52b1f9ac776317e3283bbd94f08c6fc8e494d78edd0667c4",
+      "observations": "78ef41fcbf5649aecd8788d82f26fc887c2a986def114b8dd18ffd406956d98e",
+      "tax_results": "8fc672e6dfcb3587dc9e8283b9ae1d3d5b729abc51e1fa953d5080341e58850b",
+      "denominators": "d7f11cf164dc27b91103fad10472f7af72122561fc862ff11a04713d61dc8581",
+      "run": "f33ecc8436187ca16d050bfe2f9239f963dbe0faf240b79976dcd2cdb0882cb6",
+      "baseline_report": "9c3f44f45c512410b551c16a222c2776b66ec2a7d9a5bb1d4b28e587bd69bd5c",
+      "independent_audit": "150715c13f404f9c1a59984867feb9f227040360494ea3f7a016ccbbcac53753"
+    }
+  },
+  "definitions": {
+    "measured_output": "initial_automated_app_output_after_ocr_native_pdf_grounding_extraction_and_checked_decision_policies_no_human_edits",
+    "not": "raw_model_benchmark",
+    "timing_kind": "cold_app_not_disk_cold",
+    "timer_start": "immediately_before_first_upload_post",
+    "timer_end": "first_poll_list_response_with_all_100_terminal",
+    "timer_includes": "two_50_file_uploads_ocr_and_local_model",
+    "timer_excludes": "setup_download_human_confirmation_csv_and_scoring",
+    "comparison_kind": "runtime_and_model_variant_changed_not_causal_runtime_only",
+    "dataset_kind": "existing_100_fictional_development_regression_dataset_not_unseen_or_general_real_receipt_accuracy",
+    "claims_excluded": "no_completed_tax_correctness_no_vulnerability_zero"
+  },
+  "pins": {
+    "runtime": {
+      "llama_cpp_tag": "b11700",
+      "llama_cpp_commit": "23f7aabc16c72f6f707dba227251c35d7bd1ed96",
+      "runtime_pin_sha256": "02f6dafb061af1de041d2632063c4a2df8d48aae5c2740632f2b9eb2640d2008",
+      "crt_version": "14.51.36247.0"
+    },
+    "model": {
+      "repo": "Qwen/Qwen3-4B-GGUF",
+      "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+      "file": "Qwen3-4B-Q4_K_M.gguf",
+      "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+      "chat_template_sha256": "57f1fd00f0013a2be96aa79b857391f27e23df5b5f847072b524c897e24d0361",
+      "variant": "official_hybrid_qwen3_4b_q4_k_m"
+    },
+    "config": {
+      "ctx_size": 8192,
+      "threads": 6,
+      "n_gpu_layers": 0,
+      "temperature": 0,
+      "seed": 42,
+      "max_tokens": 850,
+      "enable_thinking": false,
+      "reasoning_flag": "off"
+    },
+    "source_files": {
+      "receipt_ledger/__init__.py": "f148686045c7b3539a8bb056fc4c419aec169d123ec8c1bfbb57d0017322cc74",
+      "receipt_ledger/__main__.py": "9b1e52910d6c09232483377c30bfe41b18dec80bc1d5da032b94f9a21c2842db",
+      "receipt_ledger/accounting.py": "6562b2b6c62a058a0c36bd411f60225cf58545cd399c4e3ab1e6e740c617852e",
+      "receipt_ledger/backups.py": "fbfe978062f8345b8fccbdbe50f48d05bbbd8ca2953e041deae579eb13b4e504",
+      "receipt_ledger/catalog.py": "e426681367a425c10b08b4200237a5a8e7f9d1c43efa3971fb0baaa15b5380b0",
+      "receipt_ledger/config.py": "9a850474062cc9e065390b56422991998dc23c891bca935fef1503e72a7aa495",
+      "receipt_ledger/crt_bootstrap.py": "3c2e92bf02024c516b58a753ece4cdca425eefe17fdb821ea04757dc90e1eb19",
+      "receipt_ledger/database.py": "9c27ff370ba6945b4262415d514b58c3c521114255c7d5a1f345ed291f06557d",
+      "receipt_ledger/evidence.py": "f48f4eda2dac9a0cafa58db21f52eca733982344b0f874530c1ef62bb1f9312d",
+      "receipt_ledger/export_history.py": "a4b3637f066efe9e7744bdbb6a56e4e68d58a8d575ab189933acb5114a64c0a8",
+      "receipt_ledger/exports.py": "6b100c62af69ad10410d0a9ca0765bf5f91c2d4a0944b42e0a72dd414915a90d",
+      "receipt_ledger/extraction.py": "deb04279ea4213e97e2451c652f7e864b5052ac38cd31d97ebe788c89d2d7794",
+      "receipt_ledger/importing.py": "8368bf06ac66de76ff851c30932d009f822160c3726bf2623886a6cebd2acfae",
+      "receipt_ledger/listing.py": "3afe765a5345731bd4b627408c01e19976e25adcab4af18ed86e420e607c2c1f",
+      "receipt_ledger/ocr_focus.py": "d3dc62547263c15020ad06ba73ab681d0208f95bc0757fe681771a3a862d107c",
+      "receipt_ledger/ocr_io.py": "9da962c514bb5390cbb9550c82455a09cfbfd33428c46da88c31feb03be0569b",
+      "receipt_ledger/pdf_runtime.py": "077aa84350ae27bd994c7cf13bed4ae31fc7fe37333a54c6e2c1b6e85c75c400",
+      "receipt_ledger/pipeline.py": "45c4c32e19e57a6fa91c5884dad790f2fd93bb307e432fe3bb2518405f32b33f",
+      "receipt_ledger/previews.py": "81fbd54eab2e94f0b5884795ef9ef02952d26098bbb9462db44d3451769157f5",
+      "receipt_ledger/privacy.py": "e8045b7e4a29b94c26b7f08a3c2b8a2edb020882018e8a3e35d600a27f6ff120",
+      "receipt_ledger/protection.py": "0b5617611395aacb89918f8ee77871595bd9ba0b41ed0351bb8f9d904f8c582a",
+      "receipt_ledger/restore.py": "e4a6247fb9c1118450f7d745a88bc87ddb25813b67b78ca72cbcfd587b6cef14",
+      "receipt_ledger/restore_encrypted.py": "4beb31e07e86e39a1742a161fafec09b26661015f68d9459969c57d190310394",
+      "receipt_ledger/runtime.py": "3dd19a8ad9ba1c16bd1ea4d944c7c439fdc8bdd3af32c74169d0c03fe86473e4",
+      "receipt_ledger/runtime_copy.py": "d3abcdf74d17aad9a0b0db4117214701c44fb07abcc33a8dc22d8df8eb03ef87",
+      "receipt_ledger/runtime_pin.json": "02f6dafb061af1de041d2632063c4a2df8d48aae5c2740632f2b9eb2640d2008",
+      "receipt_ledger/runtime_pin.py": "67bfa5869eef6d4028fee3e0daf7fa5349b6af06bb95a42f1a91a262226480a9",
+      "receipt_ledger/runtime_win.py": "dc318eec8cd6882a9a68d7ad8b773e4f2d622827a15d0bb1f81193bc325d9185",
+      "receipt_ledger/schemas.py": "f6a03a5e3c3508e087b2d37e5ff98a4156b3880cd239b4a2ac564ce51dda89c5",
+      "receipt_ledger/semantic.py": "66d78cc168993793acbe5593b2deb9c47cbc27e0a75b6f29aa82d4ed854e4d8c",
+      "receipt_ledger/server.py": "0f10f41f2bacade4a3d27721cfef3b8fc5fb3e40ca8f74fff539297ae2ab6a03",
+      "receipt_ledger/session.py": "a6a2239b69e45119519d8347a6c9c04f90f932cfe4a80ed621a82ee2e8acbfde",
+      "receipt_ledger/store.py": "89558e706e7a2c5f7ef2c711139d7b2febf044986f4cb0f4a055a3127838e7eb",
+      "receipt_ledger/upload_limit.py": "efd3829f5a4f8e064f89dcc633deff00b7d26ea6f10b6fc762425b37c2dabd16",
+      "receipt_ledger/workflow.py": "838d473a2c9872f8bd2cef8b738e5d51958fe9708e0cb5bd34cb1a6508bac8ca",
+      "data/account-catalog.json": "d9a3d96f572112644d97aac916afb61a4aa2d9b2192717b5a6b6f8142d5ec42a",
+      "data/catalog-history/2026-10-21.2.json": "4eec92d39162195a4d9fc70b5a704b73d8cd03eb172f32db5c9ae04460e3459a",
+      "data/catalog-history/2026-10-21.3.json": "20af6471862621f0cd773b93eefa2ef468a579fa6ff2a3c7e601c8557326dcdc",
+      "data/catalog-history/2026-10-21.4.json": "5bf6455399f28ae23cdb1d428cd0fd788b45973cee1bd1556f36a07879a09489",
+      "data/catalog-history/2026-10-21.5.json": "7f627ec49c829662e248392cfcaead02e097c7ccb1236ffd8314fa8edb1fd5b3",
+      "data/catalog-history/2026-10-21.6.json": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+      "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
+      "data/catalog-history/2026-10-22.2.json": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+      "web/app.js": "5d8caaa275d6501f6183a2cb7cca19ae0d89b7ac62fef59aedb384c723408355",
+      "web/help.html": "16b6c356920986f12fb1e9594f52d07b205aa9c5acd8385ef4f9eacf585c3ebe",
+      "web/icon.svg": "47584d2a9510ced53a60eb2f10fda02c350c091a42d9d14fdc128876be0c29ce",
+      "web/import.js": "5481d6bba5445931dfa839348058ea7aa788993a71f54996ffbd77a89d907597",
+      "web/index.html": "10d9ce68f439871259d4d21322c151bb49da06af382fabc19f54e5f9b4da40b6",
+      "web/processing.js": "4b7f2154752836048fbcd013186a5ddef71bc53bdc9f5d642c291fa928d1f259",
+      "web/security.js": "282679ea94bd75769c2767ba24ecb5f63f5136699a38f82cc13b701e80bbee7f",
+      "web/style.css": "792013e2afa5a6282804872a2d8070488a7a1af64eccb60978a3a6a20d1173d6"
+    },
+    "baseline": {
+      "model_variant": "qwen3_4b_thinking_2507_q4_k_m_ollama_tag",
+      "model_sha256": "3e4cb14174460404e7a233e531675303b2fbf7749c02f91864fe311ab6344e4f",
+      "working_copy_files": {
+        "receipt_ledger/__init__.py": "53a13e1d1b2b8adee48121a021e4c8d9e3147b25029f2e431fc2c3578235a348",
+        "receipt_ledger/__main__.py": "36aed7978f55109d24ec4c436e59697d58d2f3b1a3e8e35af647636639ec72f1",
+        "receipt_ledger/accounting.py": "6562b2b6c62a058a0c36bd411f60225cf58545cd399c4e3ab1e6e740c617852e",
+        "receipt_ledger/backups.py": "fbfe978062f8345b8fccbdbe50f48d05bbbd8ca2953e041deae579eb13b4e504",
+        "receipt_ledger/catalog.py": "e426681367a425c10b08b4200237a5a8e7f9d1c43efa3971fb0baaa15b5380b0",
+        "receipt_ledger/config.py": "7795a5fc6be43b43bf2c3ccdf57da3b8d630fba5eefb782d0cf489fcefed9804",
+        "receipt_ledger/database.py": "9c27ff370ba6945b4262415d514b58c3c521114255c7d5a1f345ed291f06557d",
+        "receipt_ledger/evidence.py": "f48f4eda2dac9a0cafa58db21f52eca733982344b0f874530c1ef62bb1f9312d",
+        "receipt_ledger/export_history.py": "a4b3637f066efe9e7744bdbb6a56e4e68d58a8d575ab189933acb5114a64c0a8",
+        "receipt_ledger/exports.py": "6b100c62af69ad10410d0a9ca0765bf5f91c2d4a0944b42e0a72dd414915a90d",
+        "receipt_ledger/extraction.py": "deb04279ea4213e97e2451c652f7e864b5052ac38cd31d97ebe788c89d2d7794",
+        "receipt_ledger/importing.py": "8368bf06ac66de76ff851c30932d009f822160c3726bf2623886a6cebd2acfae",
+        "receipt_ledger/listing.py": "3afe765a5345731bd4b627408c01e19976e25adcab4af18ed86e420e607c2c1f",
+        "receipt_ledger/ocr_focus.py": "fad178563bc0bc21bf05cb6c77067ddd1eaaac9faa112e2c398f2a33fdeed94e",
+        "receipt_ledger/pdf_runtime.py": "077aa84350ae27bd994c7cf13bed4ae31fc7fe37333a54c6e2c1b6e85c75c400",
+        "receipt_ledger/pipeline.py": "0e26960fd6e2b251852936ebbe0ee40bff143b76e5e7602d49a8b7829a113736",
+        "receipt_ledger/previews.py": "81fbd54eab2e94f0b5884795ef9ef02952d26098bbb9462db44d3451769157f5",
+        "receipt_ledger/privacy.py": "e8045b7e4a29b94c26b7f08a3c2b8a2edb020882018e8a3e35d600a27f6ff120",
+        "receipt_ledger/protection.py": "0b5617611395aacb89918f8ee77871595bd9ba0b41ed0351bb8f9d904f8c582a",
+        "receipt_ledger/restore.py": "e4a6247fb9c1118450f7d745a88bc87ddb25813b67b78ca72cbcfd587b6cef14",
+        "receipt_ledger/restore_encrypted.py": "4beb31e07e86e39a1742a161fafec09b26661015f68d9459969c57d190310394",
+        "receipt_ledger/schemas.py": "f6a03a5e3c3508e087b2d37e5ff98a4156b3880cd239b4a2ac564ce51dda89c5",
+        "receipt_ledger/semantic.py": "f4d0e0f4e275b140d4876ae3e7bb3abc9d9b78df0af0102fc6967bbad1b65f66",
+        "receipt_ledger/server.py": "0ece671ba599b0a74d59e8be7bb1cbf2b11a17efe891fd72db4191cc788c735a",
+        "receipt_ledger/session.py": "a6a2239b69e45119519d8347a6c9c04f90f932cfe4a80ed621a82ee2e8acbfde",
+        "receipt_ledger/store.py": "89558e706e7a2c5f7ef2c711139d7b2febf044986f4cb0f4a055a3127838e7eb",
+        "receipt_ledger/upload_limit.py": "efd3829f5a4f8e064f89dcc633deff00b7d26ea6f10b6fc762425b37c2dabd16",
+        "receipt_ledger/workflow.py": "838d473a2c9872f8bd2cef8b738e5d51958fe9708e0cb5bd34cb1a6508bac8ca",
+        "data/account-catalog.json": "d9a3d96f572112644d97aac916afb61a4aa2d9b2192717b5a6b6f8142d5ec42a",
+        "data/catalog-history/2026-10-21.2.json": "5266354295157ade777241fe103e0d59ac8e546b461ebbc6bf72d019b2bc43a9",
+        "data/catalog-history/2026-10-21.3.json": "df5c1d3b65d6b6e459399eea073adabf6c3833e32ecc7dfe32768409043de63c",
+        "data/catalog-history/2026-10-21.4.json": "547688464ffd395bd29a7bd78f9df4bb336564cdf43fdce07356bcea64240be1",
+        "data/catalog-history/2026-10-21.5.json": "d5bdb076124354705a332f550d59494b78770e71c8d222d6fd691161b29785c6",
+        "data/catalog-history/2026-10-21.6.json": "1ccdb57d243deb904b76f21c6021c23cbbcaff01346e2216f96a09e7e8265679",
+        "data/catalog-history/2026-10-22.1.json": "b4c4f74b8c009599774d954bdf8c06eed13d8b1d4dce3159c07ea16c5b940923",
+        "data/catalog-history/2026-10-22.2.json": "c01169a611ba29a505a1deead3149aab976836c7fe81dcdeaecf7bb5f7f7ebbf",
+        "web/app.js": "e921c06328838ed8bb4cd77db96e198f4741fcc88cb24a8681fcb6d621f0f808",
+        "web/help.html": "365473ea2f19e572d7d5a05e5a12d8dc8f67e1631b5abcf1c68f55059907b674",
+        "web/icon.svg": "47584d2a9510ced53a60eb2f10fda02c350c091a42d9d14fdc128876be0c29ce",
+        "web/import.js": "5481d6bba5445931dfa839348058ea7aa788993a71f54996ffbd77a89d907597",
+        "web/index.html": "10d9ce68f439871259d4d21322c151bb49da06af382fabc19f54e5f9b4da40b6",
+        "web/processing.js": "4b7f2154752836048fbcd013186a5ddef71bc53bdc9f5d642c291fa928d1f259",
+        "web/security.js": "282679ea94bd75769c2767ba24ecb5f63f5136699a38f82cc13b701e80bbee7f",
+        "web/style.css": "792013e2afa5a6282804872a2d8070488a7a1af64eccb60978a3a6a20d1173d6"
+      }
+    },
+    "dataset": {
+      "fixture_manifest_sha256": "1b9e40688cc730724328923c7f3b5ce1cd7941fb102fdf369dd58968d3b151c7",
+      "cases": 100
+    }
+  },
+  "timing": {
+    "elapsed_seconds": 1356.711236999996,
+    "poll_interval_seconds": 1,
+    "upload_batches": 2,
+    "batch_size": 50,
+    "first_post_utc": "2026-10-27T11:05:47.709158Z",
+    "all_terminal_observed_utc": "2026-10-27T11:28:24.421498Z"
+  },
+  "populations": {
+    "amount": {
+      "numeric_jpy": 95,
+      "fx_unresolved": 2,
+      "refund_excluded": 3
+    },
+    "account": {
+      "ordinary": 48,
+      "special": 52
+    },
+    "tax": {
+      "numeric": 52,
+      "blank": 11,
+      "not_rated": 37
+    }
+  },
+  "metrics": {
+    "ocr_completed": {
+      "matched": 100,
+      "evaluated": 100
+    },
+    "initial_output_completed": {
+      "matched": 100,
+      "evaluated": 100
+    },
+    "amount_numeric_jpy_exact": {
+      "matched": 95,
+      "evaluated": 95
+    },
+    "amount_fx_unresolved_state_kept": {
+      "matched": 2,
+      "evaluated": 2
+    },
+    "date_exact": {
+      "matched": 99,
+      "evaluated": 100
+    },
+    "merchant_exact": {
+      "matched": 85,
+      "evaluated": 100
+    },
+    "account_ordinary_exact": {
+      "matched": 44,
+      "evaluated": 48
+    },
+    "special_handling_exact": {
+      "matched": 42,
+      "evaluated": 52
+    },
+    "account_or_handling_exact": {
+      "matched": 86,
+      "evaluated": 100
+    },
+    "tax_numeric_exact": {
+      "matched": 51,
+      "evaluated": 52
+    },
+    "tax_blank_kept": {
+      "matched": 11,
+      "evaluated": 11
+    }
+  },
+  "cases": [
+    {
+      "case_id": "V001",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-11-02",
+        "merchant": "コンビニ みちのく",
+        "total": 1760,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 160
+      },
+      "expected": {
+        "date": "2023-11-02",
+        "merchant": "コンビニ みちのく",
+        "total": 1760,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 160
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V002",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2024-03-16",
+        "merchant": "スーパー いちばん星 テスト市店",
+        "total": 6964,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-03-16",
+        "merchant": "スーパー いちばん星",
+        "total": 6964,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V003",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2021-06-30",
+        "merchant": "本と文具 ことば舎",
+        "total": 4290,
+        "account": "新聞図書費",
+        "decision": "propose",
+        "tax_amount": 390
+      },
+      "expected": {
+        "date": "2021-06-30",
+        "merchant": "本と文具 ことば舎",
+        "total": 4290,
+        "acceptable_accounts": [
+          "図書費",
+          "研修費"
+        ],
+        "decision": "hold",
+        "tax_amount": 390
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V004",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2022-12-14",
+        "merchant": "電器専門店 デンキノハコ",
+        "total": 91280,
+        "account": "機械装置",
+        "decision": "asset_review",
+        "tax_amount": 8298
+      },
+      "expected": {
+        "date": "2022-12-14",
+        "merchant": "電器専門店 デンキノハコ",
+        "total": 91280,
+        "acceptable_accounts": [],
+        "decision": "asset_review",
+        "tax_amount": 8298
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V005",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2020-08-24",
+        "merchant": "資材センター たてものや",
+        "total": 11008,
+        "account": "修繕費",
+        "decision": "propose",
+        "tax_amount": 1000
+      },
+      "expected": {
+        "date": "2020-08-24",
+        "merchant": "資材センター たてものや",
+        "total": 11008,
+        "acceptable_accounts": [
+          "修繕費",
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 1000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V006",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "画材ときわ堂",
+        "total": 9000,
+        "account": "消耗品費",
+        "decision": "hold",
+        "tax_amount": 818
+      },
+      "expected": {
+        "date": "",
+        "merchant": "画材 ときわ堂",
+        "total": 9000,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 818
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V007",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2019-05-07",
+        "merchant": "文具 ほしぞら堂",
+        "total": 4422,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2019-05-07",
+        "merchant": "文具 ほしぞら堂",
+        "total": 4422,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V008",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-09-09",
+        "merchant": "ベーカリー ひだまり",
+        "total": 2276,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 168
+      },
+      "expected": {
+        "date": "2024-09-09",
+        "merchant": "ベーカリー ひだまり",
+        "total": 2276,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 168
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V009",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2025-01-12",
+        "merchant": "カフェ つきよみ",
+        "total": 3052,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-01-12",
+        "merchant": "カフェ つきよみ",
+        "total": 3052,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V010",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-04-05",
+        "merchant": "ワーク&タウン みらい店",
+        "total": 10500,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 954
+      },
+      "expected": {
+        "date": "2023-04-05",
+        "merchant": "ワーク&タウン みらい店",
+        "total": 10500,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 954
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V011",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-05-20",
+        "merchant": "フラワー&グリーン しきさい",
+        "total": 6600,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 600
+      },
+      "expected": {
+        "date": "2024-05-22",
+        "merchant": "フラワー&グリーン しきさい",
+        "total": 6600,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 600
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": false,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V012",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-10-03",
+        "merchant": "八百屋 あづまや",
+        "total": 3534,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 261
+      },
+      "expected": {
+        "date": "2024-10-03",
+        "merchant": "八百屋 あづまや",
+        "total": 3534,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 261
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V013",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-08-11",
+        "merchant": "スタンド ながれやま給油所",
+        "total": 6091,
+        "account": "車両費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-08-11",
+        "merchant": "スタンド ながれやま給油所",
+        "total": 6091,
+        "acceptable_accounts": [
+          "車両費"
+        ],
+        "decision": "hold",
+        "tax_amount": 553
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": false
+      }
+    },
+    {
+      "case_id": "V014",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2021-11-19",
+        "merchant": "中古機器 りさいくる市場",
+        "total": 60000,
+        "account": "",
+        "decision": "asset_review",
+        "tax_amount": 5454
+      },
+      "expected": {
+        "date": "2021-11-19",
+        "merchant": "中古機器 りさいくる市場",
+        "total": 60000,
+        "acceptable_accounts": [],
+        "decision": "asset_review",
+        "tax_amount": 5454
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V015",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-09-30",
+        "merchant": "卸売 オフィスサプライ山川",
+        "total": 81840,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 7440
+      },
+      "expected": {
+        "date": "2024-09-30",
+        "merchant": "卸売 オフィスサプライ山川",
+        "total": 81840,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 7440
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V016",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-07-18",
+        "merchant": "テストショップ",
+        "total": 7610,
+        "account": "印刷製本費",
+        "decision": "propose",
+        "tax_amount": 691
+      },
+      "expected": {
+        "date": "2024-07-18",
+        "merchant": "テストショップ(架空EC)",
+        "total": 7610,
+        "acceptable_accounts": [
+          "消耗品費",
+          "印刷製本費"
+        ],
+        "decision": "propose",
+        "tax_amount": 691
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V017",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2022-06-30",
+        "merchant": "ドラッグストア くすりのもり",
+        "total": 1690,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 153
+      },
+      "expected": {
+        "date": "2022-06-30",
+        "merchant": "ドラッグストア くすりのもり",
+        "total": 1690,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 153
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V018",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-02-14",
+        "merchant": "ホームセンター きぼう館",
+        "total": 3274,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 297
+      },
+      "expected": {
+        "date": "2025-02-14",
+        "merchant": "ホームセンター きぼう館",
+        "total": 3274,
+        "acceptable_accounts": [
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 297
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V019",
+      "populations": {
+        "amount": "refund_excluded",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-07-25",
+        "merchant": "電器専門店 デンキノハコ",
+        "total": 1480,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 134
+      },
+      "expected": {
+        "date": "2024-07-25",
+        "merchant": "電器専門店 デンキノハコ",
+        "total": -1480,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V020",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "八百 たなか",
+        "total": 970,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "",
+        "merchant": "八百 たなか",
+        "total": 970,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V021",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2023-11-08",
+        "merchant": "みずほ架空交通",
+        "total": 3280,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-11-08",
+        "merchant": "みずほ架空交通",
+        "total": 3280,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V022",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2024-06-14",
+        "merchant": "こはくタクシー",
+        "total": 4600,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-14",
+        "merchant": "こはくタクシー",
+        "total": 4600,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V023",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2022-04-03",
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "total": 1180,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2022-04-03",
+        "merchant": "空想沿岸鉄道 テスト中央駅",
+        "total": 1180,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V024",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-02-20",
+        "merchant": "空想高速鉄道",
+        "total": 18240,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-02-20",
+        "merchant": "空想高速鉄道",
+        "total": 18240,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V025",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-07-10",
+        "merchant": "AOZORA FICTION AIR",
+        "total": 32900,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-07-10",
+        "merchant": "AOZORA FICTION AIR",
+        "total": 32900,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V026",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2021-12-09",
+        "merchant": "空想道路サービス",
+        "total": 860,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2021-12-09",
+        "merchant": "空想道路サービス",
+        "total": 860,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V027",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2026-01-17",
+        "merchant": "そよかぜ架空パーキング",
+        "total": 1400,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2026-01-17",
+        "merchant": "そよかぜ架空パーキング",
+        "total": 1400,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V028",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-09-12",
+        "merchant": "ホテル架空庭",
+        "total": 14500,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-09-12",
+        "merchant": "ホテル架空庭",
+        "total": 14500,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V029",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2023-10-22",
+        "merchant": "旅館 つきの架空庵",
+        "total": 16000,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-10-22",
+        "merchant": "旅館 つきの架空庵",
+        "total": 16000,
+        "acceptable_accounts": [
+          "旅費交通費"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V030",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-05-08",
+        "merchant": "架空ワークラウンジ",
+        "total": 2200,
+        "account": "賃借料",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-05-08",
+        "merchant": "架空ワークラウンジ",
+        "total": 2200,
+        "acceptable_accounts": [
+          "賃借料",
+          "会議費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V031",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-06-19",
+        "merchant": "架空スペース管理合同会社",
+        "total": 8100,
+        "account": "会議費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-06-19",
+        "merchant": "架空スペース管理合同会社",
+        "total": 8100,
+        "acceptable_accounts": [
+          "会議費",
+          "賃借料"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V032",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-12-25",
+        "merchant": "架空デザイン室",
+        "total": 66000,
+        "account": "外注工賃",
+        "decision": "propose",
+        "tax_amount": 6000
+      },
+      "expected": {
+        "date": "2024-12-25",
+        "merchant": "架空デザイン室",
+        "total": 66000,
+        "acceptable_accounts": [
+          "外注費"
+        ],
+        "decision": "propose",
+        "tax_amount": 6000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": false,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V033",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-04-16",
+        "merchant": "架空みどり法律事務所",
+        "total": 29937,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 3000
+      },
+      "expected": {
+        "date": "2025-04-16",
+        "merchant": "架空みどり法律事務所",
+        "total": 29937,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 3000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V034",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2023-08-01",
+        "merchant": "学びの架空社",
+        "total": 5000,
+        "account": "研修費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-08-01",
+        "merchant": "学びの架空社",
+        "total": 5000,
+        "acceptable_accounts": [
+          "研修費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V035",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2022-11-03",
+        "merchant": "テスト市文化交流会（架空団体）",
+        "total": 1800,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2022-11-03",
+        "merchant": "テスト市文化交流会（架空団体）",
+        "total": 1800,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V036",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2026-02-06",
+        "merchant": "STUDIO 空想光",
+        "total": 18150,
+        "account": "賃借料",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2026-02-06",
+        "merchant": "STUDIO 空想光",
+        "total": 18150,
+        "acceptable_accounts": [
+          "賃借料",
+          "外注費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V037",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-03-12",
+        "merchant": "架空便",
+        "total": 1450,
+        "account": "荷造運賃",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-03-12",
+        "merchant": "架空便",
+        "total": 1450,
+        "acceptable_accounts": [
+          "荷造運賃"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V038",
+      "populations": {
+        "amount": "fx_unresolved",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-10-03",
+        "merchant": "FICTION CLOUD STUDIO",
+        "total": null,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-10-03",
+        "merchant": "FICTION CLOUD STUDIO",
+        "total": null,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V039",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2022-05-16",
+        "merchant": "架空ことば研究会",
+        "total": 20000,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2022-05-16",
+        "merchant": "架空ことば研究会",
+        "total": 20000,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V040",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2026-03-02",
+        "merchant": "架空調査パートナーズ",
+        "total": 88000,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 8000
+      },
+      "expected": {
+        "date": "2026-03-02",
+        "merchant": "架空調査パートナーズ",
+        "total": 88000,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 8000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V041",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-06-03",
+        "merchant": "テスト電力株式会社",
+        "total": 25968,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 2360
+      },
+      "expected": {
+        "date": "2024-06-03",
+        "merchant": "テスト電力株式会社",
+        "total": 25968,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 2360
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V042",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-05-14",
+        "merchant": "テスト都市ガス株式会社",
+        "total": 4437,
+        "account": "水道光熱費",
+        "decision": "propose",
+        "tax_amount": 403
+      },
+      "expected": {
+        "date": "2024-05-14",
+        "merchant": "テスト都市ガス株式会社",
+        "total": 4437,
+        "acceptable_accounts": [
+          "水道光熱費"
+        ],
+        "decision": "propose",
+        "tax_amount": 403
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V043",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-06-18",
+        "merchant": "テスト市水道局",
+        "total": 3410,
+        "account": "水道光熱費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-18",
+        "merchant": "テスト市水道局（架空）",
+        "total": 3410,
+        "acceptable_accounts": [
+          "水道光熱費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V044",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2024-06-27",
+        "merchant": "架空モバイル通信株式会社",
+        "total": 13479,
+        "account": "通信費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-27",
+        "merchant": "架空モバイル通信株式会社",
+        "total": 13479,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V045",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2024-04-08",
+        "merchant": "テスト光ネットワーク株式会社",
+        "total": 8980,
+        "account": "通信費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-04-08",
+        "merchant": "テスト光ネットワーク株式会社",
+        "total": 8980,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V046",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-06-01",
+        "merchant": "TEST CLOUD",
+        "total": 30162,
+        "account": "通信費",
+        "decision": "propose",
+        "tax_amount": 2742
+      },
+      "expected": {
+        "date": "2024-06-01",
+        "merchant": "TEST CLOUD（架空クラウド事業者）",
+        "total": 30162,
+        "acceptable_accounts": [
+          "通信費",
+          "支払手数料"
+        ],
+        "decision": "propose",
+        "tax_amount": 2742
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V047",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-03-18",
+        "merchant": "テストネームサービス株式会社",
+        "total": 1122,
+        "account": "通信費",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-03-18",
+        "merchant": "テストネームサービス株式会社",
+        "total": 1122,
+        "acceptable_accounts": [
+          "通信費",
+          "租税公課"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V048",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2028-03-05",
+        "merchant": "テストソフトウェア株式会社",
+        "total": 682000,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 62000
+      },
+      "expected": {
+        "date": "2028-03-05",
+        "merchant": "テストソフトウェア株式会社",
+        "total": 682000,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 62000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V049",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-02-28",
+        "merchant": "テスト計測システム株式会社",
+        "total": 550000,
+        "account": "ソフトウェア",
+        "decision": "asset_review",
+        "tax_amount": 50000
+      },
+      "expected": {
+        "date": "2024-02-28",
+        "merchant": "テスト計測システム株式会社",
+        "total": 550000,
+        "acceptable_accounts": [
+          "消耗品費",
+          "工具器具備品",
+          "長期前払費用"
+        ],
+        "decision": "asset_review",
+        "tax_amount": 50000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V050",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-03-05",
+        "merchant": "テストリース株式会社",
+        "total": 28000,
+        "account": "リース料",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-03-05",
+        "merchant": "テストリース株式会社",
+        "total": 28000,
+        "acceptable_accounts": [
+          "リース料",
+          "地代家賃",
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V051",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-06-20",
+        "merchant": "テスト不動産株式会社",
+        "total": 165000,
+        "account": "地代家賃",
+        "decision": "propose",
+        "tax_amount": 15000
+      },
+      "expected": {
+        "date": "2024-06-20",
+        "merchant": "テスト不動産株式会社",
+        "total": 165000,
+        "acceptable_accounts": [
+          "地代家賃"
+        ],
+        "decision": "propose",
+        "tax_amount": 15000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V052",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-06-27",
+        "merchant": "架空住宅管理サービス（架空）",
+        "total": 16800,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-27",
+        "merchant": "架空住宅管理サービス（架空）",
+        "total": 16800,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V053",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-03-25",
+        "merchant": "テスト損害保険株式会社",
+        "total": 54000,
+        "account": "損害保険料",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-03-25",
+        "merchant": "テスト損害保険株式会社",
+        "total": 54000,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V054",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-05-28",
+        "merchant": "テストモーター保険株式会社",
+        "total": 66200,
+        "account": "損害保険料",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-05-28",
+        "merchant": "テストモーター保険株式会社",
+        "total": 66200,
+        "acceptable_accounts": [
+          "保険料",
+          "損害保険料",
+          "車両費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V055",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-07-01",
+        "merchant": "TEST BANK 架空支店",
+        "total": 660,
+        "account": "支払手数料",
+        "decision": "propose",
+        "tax_amount": 60
+      },
+      "expected": {
+        "date": "2024-07-01",
+        "merchant": "TEST BANK 架空支店（架空銀行）",
+        "total": 660,
+        "acceptable_accounts": [
+          "支払手数料"
+        ],
+        "decision": "propose",
+        "tax_amount": 60
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V056",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-06-27",
+        "merchant": "テストローン",
+        "total": 83900,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-27",
+        "merchant": "テストローン株式会社（架空金融）",
+        "total": 83900,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V057",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-06-10",
+        "merchant": "テスト郵便局",
+        "total": 7000,
+        "account": "租税公課",
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-06-10",
+        "merchant": "テスト郵便局（架空）",
+        "total": 7000,
+        "acceptable_accounts": [
+          "租税公課",
+          "印刷費"
+        ],
+        "decision": "propose",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V058",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-07-03",
+        "merchant": "テスト市役所 架空町支所",
+        "total": 300,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-07-03",
+        "merchant": "テスト市役所架空町支所（架空）",
+        "total": 300,
+        "acceptable_accounts": [
+          "租税公課",
+          "事務用品費"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V059",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-07-25",
+        "merchant": "テスト税務署",
+        "total": 92400,
+        "account": "",
+        "decision": "block",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-07-25",
+        "merchant": "テスト税務署（架空）",
+        "total": 92400,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V060",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2024-05-20",
+        "merchant": "テスト市架空町 会計課",
+        "total": 12000,
+        "account": "",
+        "decision": "block",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-05-20",
+        "merchant": "テスト市架空町 会計課（架空）",
+        "total": 12000,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V061",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2026-02-03",
+        "merchant": "イラスト印刷工房 こもれび",
+        "total": 187330,
+        "account": "広告宣伝費",
+        "decision": "propose",
+        "tax_amount": 17030
+      },
+      "expected": {
+        "date": "2026-02-03",
+        "merchant": "イラスト印刷工房 こもれび",
+        "total": 187330,
+        "acceptable_accounts": [
+          "印刷費",
+          "広告宣伝費",
+          "販売促進費"
+        ],
+        "decision": "propose",
+        "tax_amount": 17030
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V062",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2027-05-28",
+        "merchant": "さくら製版印刷 株式会社",
+        "total": 64900,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 5900
+      },
+      "expected": {
+        "date": "2027-05-28",
+        "merchant": "さくら製版印刷 株式会社",
+        "total": 64900,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 5900
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V063",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-11-11",
+        "merchant": "パソコン修理 みつばち電機",
+        "total": 39380,
+        "account": "修繕費",
+        "decision": "propose",
+        "tax_amount": 3580
+      },
+      "expected": {
+        "date": "2025-11-11",
+        "merchant": "パソコン修理 みつばち電機",
+        "total": 39380,
+        "acceptable_accounts": [
+          "修繕費"
+        ],
+        "decision": "propose",
+        "tax_amount": 3580
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V064",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-03-09",
+        "merchant": "架空パーツ館 テスト店",
+        "total": 284130,
+        "account": "工具器具備品",
+        "decision": "asset_review",
+        "tax_amount": 25830
+      },
+      "expected": {
+        "date": "2024-03-09",
+        "merchant": "架空パーツ館 テスト店",
+        "total": 284130,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "備品費"
+        ],
+        "decision": "asset_review",
+        "tax_amount": 25830
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V065",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-09-21",
+        "merchant": "テスト市家具 リビング館",
+        "total": 273900,
+        "account": "工具器具備品",
+        "decision": "asset_review",
+        "tax_amount": 24900
+      },
+      "expected": {
+        "date": "2023-09-21",
+        "merchant": "テスト市家具 リビング館",
+        "total": 273900,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "備品費"
+        ],
+        "decision": "asset_review",
+        "tax_amount": 24900
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V066",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-04-10",
+        "merchant": "架空撮影機材 テスト市レンタル",
+        "total": 73590,
+        "account": "賃借料",
+        "decision": "propose",
+        "tax_amount": 6690
+      },
+      "expected": {
+        "date": "2024-04-10",
+        "merchant": "架空撮影機材 テスト市レンタル",
+        "total": 73590,
+        "acceptable_accounts": [
+          "賃借料",
+          "レンタル料"
+        ],
+        "decision": "propose",
+        "tax_amount": 6690
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V067",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2022-12-20",
+        "merchant": "架空スタジオ 音色",
+        "total": 291280,
+        "account": "外注工賃",
+        "decision": "propose",
+        "tax_amount": 26480
+      },
+      "expected": {
+        "date": "2022-12-20",
+        "merchant": "架空スタジオ 音色",
+        "total": 291280,
+        "acceptable_accounts": [
+          "賃借料",
+          "外注費"
+        ],
+        "decision": "propose",
+        "tax_amount": 26480
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": false,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V068",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-08-25",
+        "merchant": "架空広告代理店 ネクストテスト",
+        "total": 1342000,
+        "account": "広告宣伝費",
+        "decision": "propose",
+        "tax_amount": 122000
+      },
+      "expected": {
+        "date": "2025-08-25",
+        "merchant": "架空広告代理店 ネクストテスト",
+        "total": 1342000,
+        "acceptable_accounts": [
+          "広告宣伝費",
+          "販売促進費",
+          "雑費"
+        ],
+        "decision": "propose",
+        "tax_amount": 122000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V069",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-02-20",
+        "merchant": "架空物産卸 株式会社",
+        "total": 230340,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 20940
+      },
+      "expected": {
+        "date": "2024-02-20",
+        "merchant": "架空物産卸 株式会社",
+        "total": 230340,
+        "acceptable_accounts": [
+          "仕入高",
+          "消耗品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 20940
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V070",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-06-03",
+        "merchant": "かんぶパッケージ テスト店",
+        "total": 7370,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 670
+      },
+      "expected": {
+        "date": "2025-06-03",
+        "merchant": "かんぷパッケージ テスト店",
+        "total": 7370,
+        "acceptable_accounts": [
+          "消耗品費",
+          "荷造運賃"
+        ],
+        "decision": "propose",
+        "tax_amount": 670
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V071",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-06-14",
+        "merchant": "架空電子 部品センター テスト支店",
+        "total": 587290,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 53390
+      },
+      "expected": {
+        "date": "2024-06-14",
+        "merchant": "架空電子 部品センター テスト支店",
+        "total": 587290,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 53390
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V072",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-12-18",
+        "merchant": "架空製作 株式会社 出版部",
+        "total": 440000,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 40000
+      },
+      "expected": {
+        "date": "2025-12-18",
+        "merchant": "架空製作 株式会社 出版部",
+        "total": 440000,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": 40000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V073",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-04-01",
+        "merchant": "学習ラボ オンライン",
+        "total": 39600,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 3600
+      },
+      "expected": {
+        "date": "2024-04-01",
+        "merchant": "学習ラボ オンライン",
+        "total": 39600,
+        "acceptable_accounts": [
+          "研修費",
+          "教育研修費"
+        ],
+        "decision": "propose",
+        "tax_amount": 3600
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": false,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V074",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "架空専門職 協会",
+        "total": 18000,
+        "account": "諸会費",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "",
+        "merchant": "架空専門職 協会",
+        "total": 18000,
+        "acceptable_accounts": [
+          "諸会費"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V075",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-03-02",
+        "merchant": "架空こども支援基金",
+        "total": 30000,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-03-02",
+        "merchant": "架空こども支援基金",
+        "total": 30000,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V076",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2024-12-24",
+        "merchant": "架空百貨店 テスト店",
+        "total": 16650,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2024-12-24",
+        "merchant": "架空百貨店 テスト店",
+        "total": 16650,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V077",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-06-30",
+        "merchant": "架空デリ クッキングテスト",
+        "total": 310200,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 28200
+      },
+      "expected": {
+        "date": "2023-06-30",
+        "merchant": "架空デリ クッキングテスト",
+        "total": 310200,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 28200
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V078",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "",
+        "total": 13450,
+        "account": "",
+        "decision": "block",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "",
+        "merchant": "",
+        "total": 13450,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": false,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V079",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2023-08-30",
+        "merchant": "架空リゾート テストヴィラ",
+        "total": 0,
+        "account": "",
+        "decision": "block",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-08-30",
+        "merchant": "架空リゾート テストヴィラ",
+        "total": 0,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V080",
+      "populations": {
+        "amount": "refund_excluded",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-02-14",
+        "merchant": "架空ストア テスト店",
+        "total": 14850,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 1350
+      },
+      "expected": {
+        "date": "2025-02-14",
+        "merchant": "架空ストア テスト店",
+        "total": -14850,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V081",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-11-14",
+        "merchant": "酒肴ごちそう みなと亭",
+        "total": 8910,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 810
+      },
+      "expected": {
+        "date": "2025-11-14",
+        "merchant": "酒肴ごちそう みなと亭",
+        "total": 8910,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 810
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V082",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-03-08",
+        "merchant": "架空町モータース",
+        "total": 15950,
+        "account": "車両費",
+        "decision": "propose",
+        "tax_amount": 1450
+      },
+      "expected": {
+        "date": "2024-03-08",
+        "merchant": "架空町モータース",
+        "total": 15950,
+        "acceptable_accounts": [
+          "修繕費",
+          "車両費"
+        ],
+        "decision": "propose",
+        "tax_amount": 1450
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V083",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2026-02-19",
+        "merchant": "架空町セルフSS",
+        "total": 6050,
+        "account": "車両費",
+        "decision": "propose",
+        "tax_amount": 550
+      },
+      "expected": {
+        "date": "2026-02-19",
+        "merchant": "架空町セルフSS",
+        "total": 6050,
+        "acceptable_accounts": [
+          "車両費",
+          "旅費交通費"
+        ],
+        "decision": "propose",
+        "tax_amount": 550
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V084",
+      "populations": {
+        "amount": "fx_unresolved",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-10-03",
+        "merchant": "Harborlight Digital Ltd.",
+        "total": null,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-10-03",
+        "merchant": "Harborlight Digital Ltd.",
+        "total": null,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V085",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-07-22",
+        "merchant": "テストパーキング架空町第3",
+        "total": 1400,
+        "account": "旅費交通費",
+        "decision": "propose",
+        "tax_amount": 127
+      },
+      "expected": {
+        "date": "2025-07-22",
+        "merchant": "テストパーキング架空町第3",
+        "total": 1400,
+        "acceptable_accounts": [
+          "旅費交通費",
+          "車両費"
+        ],
+        "decision": "propose",
+        "tax_amount": 127
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V086",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-12-05",
+        "merchant": "ミナトクラウド株式会社",
+        "total": 3850,
+        "account": "通信費",
+        "decision": "propose",
+        "tax_amount": 350
+      },
+      "expected": {
+        "date": "2025-12-05",
+        "merchant": "ミナトクラウド株式会社",
+        "total": 3850,
+        "acceptable_accounts": [
+          "通信費"
+        ],
+        "decision": "propose",
+        "tax_amount": 350
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V087",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "架空町商店会 青年部",
+        "total": 5000,
+        "account": "接待交際費",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "",
+        "merchant": "架空町商店会 青年部",
+        "total": 5000,
+        "acceptable_accounts": [
+          "諸会費",
+          "交際費"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V088",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-12-20",
+        "merchant": "テスト市みらい食堂",
+        "total": 10000,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2025-12-20",
+        "merchant": "特定非営利活動法人 テスト市みらい食堂",
+        "total": 10000,
+        "acceptable_accounts": [
+          "寄付金"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V089",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2026-03-14",
+        "merchant": "スーパーみなと市場",
+        "total": 3791,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2026-03-14",
+        "merchant": "スーパーみなと市場 架空町店",
+        "total": 3791,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V090",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2026-01-31",
+        "merchant": "言葉舎 水野",
+        "total": 99790,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 10000
+      },
+      "expected": {
+        "date": "2026-01-31",
+        "merchant": "言葉舎 水野",
+        "total": 99790,
+        "acceptable_accounts": [
+          "外注費"
+        ],
+        "decision": "hold",
+        "tax_amount": 10000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V091",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-11-14",
+        "merchant": "ホテル架空ベイテラス",
+        "total": 27900,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 2500
+      },
+      "expected": {
+        "date": "2024-11-14",
+        "merchant": "ホテル架空ベイテラス",
+        "total": 27900,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": 2500
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V092",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2024-03-08",
+        "merchant": "テスト文具店 架空町本店",
+        "total": 1078,
+        "account": "消耗品費",
+        "decision": "propose",
+        "tax_amount": 98
+      },
+      "expected": {
+        "date": "2024-03-08",
+        "merchant": "テスト文具店 架空町本店",
+        "total": 1078,
+        "acceptable_accounts": [
+          "消耗品費",
+          "事務用品費"
+        ],
+        "decision": "propose",
+        "tax_amount": 98
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V093",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2023-09-29",
+        "merchant": "合同会社架空デザイン工房",
+        "total": 132000,
+        "account": "外注工賃",
+        "decision": "propose",
+        "tax_amount": 12000
+      },
+      "expected": {
+        "date": "2023-09-29",
+        "merchant": "合同会社架空デザイン工房",
+        "total": 132000,
+        "acceptable_accounts": [
+          "外注費",
+          "広告宣伝費",
+          "支払手数料"
+        ],
+        "decision": "propose",
+        "tax_amount": 12000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": false,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V094",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-02-14",
+        "merchant": "架空ロボティクス株式会社",
+        "total": 150106,
+        "account": "",
+        "decision": "asset_review",
+        "tax_amount": 13646
+      },
+      "expected": {
+        "date": "2025-02-14",
+        "merchant": "株式会社テスト電子商会",
+        "total": 150106,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "消耗品費"
+        ],
+        "decision": "asset_review",
+        "tax_amount": 13646
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V095",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "",
+        "merchant": "架空町リサイクル工具",
+        "total": 6500,
+        "account": "工具器具備品",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "",
+        "merchant": "架空町リサイクル工具",
+        "total": 6500,
+        "acceptable_accounts": [
+          "工具器具備品",
+          "消耗品費"
+        ],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": false,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V096",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-04-01",
+        "merchant": "クラウド帳票テスト株式会社",
+        "total": 118800,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": 10800
+      },
+      "expected": {
+        "date": "2025-04-01",
+        "merchant": "クラウド帳票テスト株式会社",
+        "total": 118800,
+        "acceptable_accounts": [
+          "通信費",
+          "支払手数料",
+          "前払費用"
+        ],
+        "decision": "hold",
+        "tax_amount": 10800
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V097",
+      "populations": {
+        "amount": "refund_excluded",
+        "account": "special",
+        "tax": "not_rated"
+      },
+      "initial": {
+        "date": "2025-06-20",
+        "merchant": "テスト事務機オンライン",
+        "total": 33000,
+        "account": "",
+        "decision": "block",
+        "tax_amount": 3000
+      },
+      "expected": {
+        "date": "2025-06-20",
+        "merchant": "テスト事務機オンライン",
+        "total": -11000,
+        "acceptable_accounts": [],
+        "decision": "block",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": null,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": null
+      }
+    },
+    {
+      "case_id": "V098",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2022-01-31",
+        "merchant": "架空町空調サービス",
+        "total": 55000,
+        "account": "修繕費",
+        "decision": "propose",
+        "tax_amount": 5000
+      },
+      "expected": {
+        "date": "2022-01-31",
+        "merchant": "架空町空調サービス",
+        "total": 55000,
+        "acceptable_accounts": [
+          "修繕費",
+          "雑費"
+        ],
+        "decision": "propose",
+        "tax_amount": 5000
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V099",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "special",
+        "tax": "blank"
+      },
+      "initial": {
+        "date": "2023-12-09",
+        "merchant": "スーパー テス ストマート",
+        "total": 2094,
+        "account": "",
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "expected": {
+        "date": "2023-12-09",
+        "merchant": "スーパーテストマート 架空町店",
+        "total": 2094,
+        "acceptable_accounts": [],
+        "decision": "hold",
+        "tax_amount": null
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": false,
+        "account_exact": null,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    },
+    {
+      "case_id": "V100",
+      "populations": {
+        "amount": "numeric_jpy",
+        "account": "ordinary",
+        "tax": "numeric"
+      },
+      "initial": {
+        "date": "2025-05-17",
+        "merchant": "一般社団法人テスト経営研究会",
+        "total": 16500,
+        "account": "研修費",
+        "decision": "propose",
+        "tax_amount": 1500
+      },
+      "expected": {
+        "date": "2025-05-17",
+        "merchant": "一般社団法人テスト経営研究会",
+        "total": 16500,
+        "acceptable_accounts": [
+          "研修費",
+          "教育研修費"
+        ],
+        "decision": "propose",
+        "tax_amount": 1500
+      },
+      "checks": {
+        "ocr_completed": true,
+        "total_exact": true,
+        "date_exact": true,
+        "merchant_exact": true,
+        "account_exact": true,
+        "decision_exact": true,
+        "account_or_decision_exact": true,
+        "initial_output_completed": true,
+        "tax_exact": true
+      }
+    }
+  ],
+  "known_limitations": [
+    "native_sqlcipher_openssl_provider",
+    "fictional_regression_only",
+    "human_original_review",
+    "date_choice",
+    "tax_label_ocr",
+    "ordinary_account_mismatches",
+    "merchant_candidates",
+    "plaintext_exports"
+  ],
+  "legacy_audit": {
+    "total_exact_legacy": {
+      "matched": 97,
+      "evaluated": 97,
+      "note_id": "legacy_scorer_total_exact_not_numeric_jpy_population"
+    }
+  },
+  "copy_provenance": {
+    "author_alias": "kimi-code/k3.1-pro",
+    "configured_model_id": "k3.1-pro",
+    "manuscript_sha256": "f7b359ae84ee963169897a1de5b21a6d171af9f86ba18e2cb571bb5c6d2e8c18",
+    "root_adopted": true
+  }
+}

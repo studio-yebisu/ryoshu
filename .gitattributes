@@ -42,3 +42,6 @@ data/catalog-history/2026-10-22.1.json -text
 data/catalog-history/2026-10-22.2.json -text
 # Archived generator bytes correspond to generator_sha256 in the manifest.
 samples/receipts-100-v2/sources/authors/*/generate.py -text -whitespace
+tests/golden_semantic_d3186ec9.py -text
+third_party/llama.cpp/LICENSE -text
+third_party/Qwen3-4B-GGUF/LICENSE -text

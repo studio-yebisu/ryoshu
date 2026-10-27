@@ -29,6 +29,10 @@ compatible=v[:2]==(3,12) and v>=(3,12,15) and sys.maxsize>2**32
 r={'version':'.'.join(map(str,v)),'compatible':compatible,'base_prefix':sys.base_prefix,'libraries':True,'detail':''}
 if compatible and sys.argv[1]=='libraries':
     try:
+        # same pre-native activation as the app: map the verified app-owned CRT before any extension loads
+        sys.path.insert(0,sys.argv[2])
+        from receipt_ledger import crt_bootstrap
+        r['crt']=crt_bootstrap.activate(sys.argv[3])['state']
         import cryptography,sqlcipher3
         r['libraries']=cryptography.__version__=='50.0.2' and sqlcipher3.sqlite_version_info>=(3,53,4)
         if not r['libraries']: r['detail']='Required library versions do not match'
@@ -45,7 +49,9 @@ print(json.dumps(r,ensure_ascii=True))
         # Windows PowerShell converts native stderr to ErrorRecord. A broken
         # interpreter must become a diagnostic result, not a different exception.
         $ErrorActionPreference = 'Continue'
-        $lines = @(& $PythonExe -I -B -c $probeCode $mode 2>&1)
+        # <root>\venv\Scripts\python.exe -> <root>; the app source is this script's parent directory
+        $probeRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PythonExe))
+        $lines = @(& $PythonExe -I -B -c $probeCode $mode (Split-Path -Parent $PSScriptRoot) $probeRoot 2>&1)
         $exitCode = $LASTEXITCODE
     } catch {
         $result.reason = 'launch_failed'
@@ -100,12 +106,13 @@ function Format-RyoshuPythonIssue {
 function Assert-RyoshuRuntimeIdle {
     param([string]$TaskRoot, [int]$Port=8766)
     $root = [System.IO.Path]::GetFullPath($TaskRoot).TrimEnd('\')
-    $prefixes = @(((Join-Path $root 'venv') + '\'), ((Join-Path $root 'python') + '\'))
-    $processes = @(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop)
+    $prefixes = @(((Join-Path $root 'venv') + '\'), ((Join-Path $root 'python') + '\'), ((Join-Path $root 'llama') + '\'))
+    # Path-based only: a llama-server.exe elsewhere (another app, a user's own copy) is never Ryoshu's.
+    $processes = @(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe' OR Name='llama-server.exe'" -ErrorAction Stop)
     foreach ($process in $processes) {
         foreach ($prefix in $prefixes) {
             if ($process.ExecutablePath -and $process.ExecutablePath.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) {
-                throw 'Ryoshu専用Pythonを使用中のため実行環境を変更できません。読み取りの終了を待ち、起動元の「停止.cmd」で終了してから「初回セットアップ.cmd」を実行してください。帳簿は変更していません。'
+                throw 'RyoshuのAI処理が実行中のため、実行環境を変更できません。読み取りの終了を待ち、起動元の「停止.cmd」でRyoshuを終了してから「初回セットアップ.cmd」を実行してください。他のアプリは停止せず、帳簿は変更していません。'
             }
         }
     }
@@ -134,16 +141,165 @@ function Move-RyoshuRuntimeAside {
     return $destination
 }
 
+function Assert-RyoshuUnlinkedPath {
+    # Refuse a path when it or ANY existing ancestor is a junction/symlink/reparse point, BEFORE anything is
+    # created, locked or downloaded under it. GetFullPath is purely lexical (it never resolves reparse points),
+    # so the original link stays visible; GetAttributes reports the link's own attributes without following it.
+    param([string]$Path)
+    # relative paths are made absolute against the PowerShell location, lexically (no link resolution)
+    $current = [System.IO.Path]::GetFullPath($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)).TrimEnd('\')
+    while ($current) {
+        $attributes = $null
+        try { $attributes = [System.IO.File]::GetAttributes($current) }
+        catch [System.IO.FileNotFoundException] {} catch [System.IO.DirectoryNotFoundException] {}
+        if ($null -ne $attributes -and ($attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+            # [copy-slot path.link_refused] temporary technical message until Kimi authors the text
+            throw '保存先またはその上位フォルダーにリンクが使われているため、自動で書き込みません。リンクではない通常のフォルダーを保存先に選び直してください。'
+        }
+        $parent = [System.IO.Path]::GetDirectoryName($current)
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent.TrimEnd('\')
+    }
+}
+
+function Invoke-RyoshuPythonCrtStage {
+    # Apply <root>\crt\python-stage\ (written by prepare_llama.py --crt-only) to the app-managed interpreter AFTER
+    # every Python process has exited: a mapped vcruntime140.dll cannot be overwritten. Only an interpreter strictly
+    # inside <root>\python\ is touched; replaced bytes are kept in <root>\crt\python-backup-<time>\ with their
+    # hashes, and any failure restores them. Returns 'none' (no plan), 'applied', or throws.
+    # AUTHORITY: -SourcePin is the caller's own receipt_ledger\runtime_pin.json (never a path taken from stage data).
+    # Every value (pin SHA-256, version, the exact four names, sizes, SHA-256) is checked against it BEFORE any write;
+    # plan.json is only cross-checked, never trusted.
+    param([string]$TaskRoot, [string]$PythonBase, [string]$SourcePin)
+    $invalid = '準備したDLLまたは配置情報の整合性を確認できないため、Pythonを変更していません。「初回セットアップ.cmd」で再試行してください。'   # [copy-slot setup.crt_python_stage_invalid]
+    $root = [System.IO.Path]::GetFullPath($TaskRoot).TrimEnd('\')
+    $stage = Join-Path $root 'crt\python-stage'
+    if (-not (Test-Path -LiteralPath $stage)) { return 'none' }
+    Assert-RyoshuUnlinkedPath $stage
+    $names = @('vcruntime140.dll','vcruntime140_1.dll','msvcp140.dll','msvcp140_1.dll')
+    # 1. the authoritative source pin
+    if (-not $SourcePin) { throw $invalid }
+    Assert-RyoshuUnlinkedPath $SourcePin
+    $pinItem = Get-Item -LiteralPath $SourcePin -ErrorAction Stop
+    if ($pinItem.PSIsContainer -or $pinItem.Length -gt 1048576) { throw $invalid }
+    $pinSha = Get-RyoshuFileSha256 -LiteralPath $SourcePin
+    try { $pinCrt = ([System.IO.File]::ReadAllText($SourcePin) | ConvertFrom-Json).crt } catch { throw $invalid }
+    if (-not $pinCrt -or [string]$pinCrt.version -notmatch '^\d+(\.\d+){3}$') { throw $invalid }
+    $want = @{}
+    foreach ($f in @($pinCrt.files)) {
+        $n = [string]$f.name
+        if ($names -notcontains $n -or $want.ContainsKey($n) -or [string]$f.sha256 -notmatch '^[0-9a-f]{64}$' -or [long]$f.bytes -le 0) { throw $invalid }
+        $want[$n] = @{sha256=[string]$f.sha256; bytes=[long]$f.bytes}
+    }
+    if ($want.Count -ne 4 -or (@($pinCrt.python_files) | Sort-Object) -join ',' -ne (($names | Sort-Object) -join ',')) { throw $invalid }
+    # 2. stage directory: exactly plan.json + the four DLLs, no links or subfolders
+    $entries = @(Get-ChildItem -LiteralPath $stage -Force)
+    if ($entries.Count -ne 5 -or @($entries | Where-Object { $_.PSIsContainer -or ($_.Attributes -band [System.IO.FileAttributes]::ReparsePoint) }).Count -or
+        ((@($entries.Name) | Sort-Object) -join ',') -ne ((@($names + 'plan.json') | Sort-Object) -join ',')) { throw $invalid }
+    # 3. plan.json: exact shape (raw key counts catch duplicate keys that ConvertFrom-Json would merge)
+    $planPath = Join-Path $stage 'plan.json'
+    if ((Get-Item -LiteralPath $planPath).Length -gt 16384) { throw $invalid }
+    $raw = [System.IO.File]::ReadAllText($planPath)
+    $keys = @([regex]::Matches($raw, '"((?:[^"\\]|\\.)*)"\s*:') | ForEach-Object { $_.Groups[1].Value })
+    $expected = @{schema=1; source_pin_sha256=1; version=1; python_base=1; created_at=1; files=1; bytes=4; sha256=4; current_sha256=4}
+    foreach ($n in $names) { $expected[$n] = 1 }
+    $counts = @{}
+    foreach ($k in $keys) { $counts[$k] = 1 + [int]$counts[$k] }
+    if ($counts.Count -ne $expected.Count) { throw $invalid }
+    foreach ($k in $expected.Keys) { if ($counts[$k] -ne $expected[$k]) { throw $invalid } }
+    try { $plan = $raw | ConvertFrom-Json } catch { throw $invalid }
+    if ($plan.schema -ne 1 -or [string]$plan.source_pin_sha256 -cne $pinSha -or [string]$plan.version -cne [string]$pinCrt.version) { throw $invalid }
+    if (((@($plan.files.PSObject.Properties.Name) | Sort-Object) -join ',') -ne (($names | Sort-Object) -join ',')) { throw $invalid }
+    foreach ($n in $names) {
+        $p = $plan.files.$n
+        $staged = Get-Item -LiteralPath (Join-Path $stage $n)
+        if ([string]$p.sha256 -cne $want[$n].sha256 -or [long]$p.bytes -ne $want[$n].bytes -or $staged.Length -ne $want[$n].bytes -or
+            (Get-RyoshuFileSha256 -LiteralPath $staged.FullName) -cne $want[$n].sha256) { throw $invalid }
+    }
+    # 4. target: only the app-managed interpreter the caller is preparing
+    $base = [System.IO.Path]::GetFullPath([string]$plan.python_base).TrimEnd('\')
+    $pythonHome = (Join-Path $root 'python') + '\'
+    # [copy-slot setup.crt_python_not_owned] temporary technical message until Kimi authors the text
+    if ($base -ine [System.IO.Path]::GetFullPath($PythonBase).TrimEnd('\') -or
+        -not $base.StartsWith($pythonHome,[StringComparison]::OrdinalIgnoreCase)) { throw 'Ryoshu専用のPython保存先を確認できないため、DLLを変更していません。「初回セットアップ.cmd」を実行してPythonを準備し直してください。' }
+    Assert-RyoshuUnlinkedPath $base
+    $backup = Join-Path $root ('crt\python-backup-' + (Get-Date -Format 'yyyyMMddHHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8))
+    New-Item -ItemType Directory -Path $backup | Out-Null
+    $kept = [ordered]@{}
+    foreach ($n in $names) {
+        $dest = Join-Path $base $n
+        if (Test-Path -LiteralPath $dest) {
+            Copy-Item -LiteralPath $dest -Destination (Join-Path $backup $n)
+            $kept[$n] = Get-RyoshuFileSha256 -LiteralPath (Join-Path $backup $n)
+            if ($kept[$n] -ne (Get-RyoshuFileSha256 -LiteralPath $dest)) { throw $invalid }
+        } else { $kept[$n] = $null }
+    }
+    $manifest = [ordered]@{schema=1; python_base=$base; version=[string]$plan.version; replaced=$kept; created_at=(Get-Date).ToString('o')}
+    [System.IO.File]::WriteAllText((Join-Path $backup 'backup.json'), ($manifest | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($false)))
+    $done = @()
+    try {
+        foreach ($n in $names) {
+            $dest = Join-Path $base $n
+            $tmp = Join-Path $base ('.' + $n + '.' + [guid]::NewGuid().ToString('N') + '.tmp')
+            Copy-Item -LiteralPath (Join-Path $stage $n) -Destination $tmp
+            if ((Get-RyoshuFileSha256 -LiteralPath $tmp) -cne $want[$n].sha256) { throw $invalid }   # re-check the copy against the PIN
+            Move-Item -LiteralPath $tmp -Destination $dest -Force   # fails (nothing replaced) if the DLL is in use
+            $done += $n
+            if ((Get-RyoshuFileSha256 -LiteralPath $dest) -cne $want[$n].sha256) { throw $invalid }
+        }
+    } catch {
+        foreach ($n in $done) {
+            if ($kept[$n]) { Copy-Item -LiteralPath (Join-Path $backup $n) -Destination (Join-Path $base $n) -Force }
+            else { Remove-Item -LiteralPath (Join-Path $base $n) -Force }
+        }
+        Get-ChildItem -LiteralPath $base -Filter '.*.tmp' -Force | Where-Object { $_.Name -match '^\.(msvcp|vcruntime)' } | Remove-Item -Force
+        # [copy-slot setup.crt_python_apply_failed] temporary technical message until Kimi authors the text
+        throw ('Ryoshu専用PythonのDLLを更新できませんでした。変更したファイルはバックアップから元に戻しています。「停止.cmd」でRyoshuを終了し、「初回セットアップ.cmd」で再試行してください。準備済みのDLLは再試行用に残しています。詳細：' + $_.Exception.Message)
+    }
+    Move-Item -LiteralPath $stage -Destination ($backup + '\applied-stage')
+    return 'applied'
+}
+
+function Get-RyoshuRuntimePinSha256 {
+    # The source pin (receipt_ledger\runtime_pin.json) is the only authority; '' when absent.
+    param([string]$SourceDir)
+    $pin = Join-Path $SourceDir 'receipt_ledger\runtime_pin.json'
+    if (-not (Test-Path -LiteralPath $pin -PathType Leaf)) { return '' }
+    return (Get-RyoshuFileSha256 -LiteralPath $pin)
+}
+
+function Get-RyoshuSetupRecordPinSha256 {
+    # Pin hash recorded by the last setup; '' for a missing/unreadable/schema-1 record.
+    param([string]$TaskRoot)
+    $recordPath = Join-Path $TaskRoot 'runtime\setup-state.json'
+    try {
+        $item = Get-Item -LiteralPath $recordPath -ErrorAction Stop
+        if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint -or $item.Length -gt 16384) { return '' }
+        $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
+        if ($record.schema -ne 2) { return '' }
+        return [string]$record.runtime_pin_sha256
+    } catch { return '' }
+}
+
 function Set-RyoshuSetupState {
+    # schema 2: base (Python/libraries/OCR) completion plus the separately reported local
+    # inference preparation for the current source pin. Inference may be 'failed' while the
+    # base is complete: manual ledger/CSV must keep working without the model.
     param([string]$TaskRoot, [string]$RequirementsFile, $PythonStatus,
-          [ValidateSet('pending','complete')][string]$State)
+          [ValidateSet('pending','complete')][string]$State,
+          [string]$RuntimePinSha256 = '',
+          [ValidateSet('pending','complete','failed')][string]$InferenceState = 'pending',
+          [string]$InferenceReason = '')
     $runtime = Join-Path $TaskRoot 'runtime'
     New-Item -ItemType Directory -Path $runtime -Force | Out-Null
     $recordPath = Join-Path $runtime 'setup-state.json'
     if ((Get-Item -LiteralPath $runtime).Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw '準備状態の保存先にリンクは使えません。' }
     if ((Test-Path -LiteralPath $recordPath) -and ((Get-Item -LiteralPath $recordPath).Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw '準備状態の記録にリンクは使えません。' }
-    $record = @{schema=1;state=$State;requirements_sha256=(Get-RyoshuFileSha256 -LiteralPath $RequirementsFile);
-                python_version=[string]$PythonStatus.version;python_base=[string]$PythonStatus.base_prefix;updated_at=(Get-Date).ToString('o')}
+    if ($InferenceReason -notmatch '^[a-z_]{0,40}$') { $InferenceReason = 'install_failed' }
+    $record = @{schema=2;state=$State;requirements_sha256=(Get-RyoshuFileSha256 -LiteralPath $RequirementsFile);
+                python_version=[string]$PythonStatus.version;python_base=[string]$PythonStatus.base_prefix;
+                runtime_pin_sha256=$RuntimePinSha256;inference_state=$InferenceState;inference_reason=$InferenceReason;
+                updated_at=(Get-Date).ToString('o')}
     $temporary = Join-Path $runtime ('setup-state-' + [guid]::NewGuid().ToString('N') + '.tmp')
     try {
         [System.IO.File]::WriteAllText($temporary,($record | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($true)))
@@ -160,7 +316,9 @@ function Test-RyoshuSetupComplete {
         $item = Get-Item -LiteralPath $recordPath
         if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint -or $item.Length -gt 16384) { return $false }
         $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
-        return ($record.schema -eq 1 -and $record.state -ceq 'complete' -and
+        # schema 1 (Ollama-era) records are deliberately incomplete: setup resumes and
+        # reuses a healthy Python environment while preparing the pinned local runtime.
+        return ($record.schema -eq 2 -and $record.state -ceq 'complete' -and
                 $record.requirements_sha256 -ceq (Get-RyoshuFileSha256 -LiteralPath $RequirementsFile) -and
                 $record.python_version -ceq [string]$PythonStatus.version -and $record.python_base -ieq [string]$PythonStatus.base_prefix)
     } catch { return $false }

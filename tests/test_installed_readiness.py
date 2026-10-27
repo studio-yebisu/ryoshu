@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -69,7 +70,11 @@ function global:ollama { throw 'CheckOnly attempted to invoke Ollama' }
             for path in profile.rglob('*') if path.is_file()} == before
     observed = json.loads(result.stdout.decode('utf-8-sig'))
     assert observed['app_version'] == '1.3.2'
-    assert observed['ollama_available'] is True
+    # No external model service is detected or required any more.
+    assert 'ollama_available' not in observed
+    for key in ('inference_runtime_ready', 'inference_model_ready', 'inference_reason', 'runtime_version'):
+        assert key in observed
+    assert observed['inference_runtime_ready'] is False and observed['inference_model_ready'] is False
     return observed
 
 
@@ -101,6 +106,31 @@ function Get-RyoshuPythonStatus {
     assert observed['python_prepared'] is state['ready']
     for field in ('exists', 'runnable', 'compatible', 'version', 'reason'):
         assert observed['python_' + field] == state[field]
+    # Readiness is probed only with a prepared interpreter; this fixture ships no runtime_pin module.
+    assert observed['inference_reason'] == ('readiness_module_missing' if state['ready'] else 'python_not_prepared')
+
+
+def test_check_only_reports_pinned_inference_readiness_through_isolated_python(tmp_path):
+    """Real receipt_ledger.runtime_pin probe via `python -I -B -c` from a path with spaces/Japanese/quotes."""
+    app, launcher = installed_source(tmp_path)
+    shutil.copyfile(ROOT / 'receipt_ledger/runtime_pin.py', app / 'receipt_ledger/runtime_pin.py')
+    shutil.copyfile(ROOT / 'receipt_ledger/runtime_pin.json', app / 'receipt_ledger/runtime_pin.json')
+    profile = tmp_path / 'isolated-profile'
+    venv = profile / 'StudioYebisu/ReceiptLedger/venv'
+    base = getattr(sys, '_base_executable', None) or sys.executable
+    subprocess.run([base, '-m', 'venv', '--without-pip', str(venv)], check=True, capture_output=True, timeout=120)
+    assert (venv / 'Scripts/python.exe').is_file()
+    helper = r'''
+function Get-RyoshuPythonStatus {
+    param([string]$PythonExe, [switch]$RequireLibraries)
+    return [PSCustomObject]@{exists=$true;runnable=$true;compatible=$true;ready=$true;version='3.12.15';reason='ready'}
+}
+'''
+    write_ps(app / 'scripts/python-runtime.ps1', helper)
+    observed = check_only(tmp_path, launcher, profile)
+    assert observed['inference_reason'] == 'runtime_missing'
+    assert observed['runtime_version'] == 'b11700'
+    assert not list((app / 'receipt_ledger').glob('__pycache__'))
 
 
 @pytest.mark.parametrize('present', [False, True], ids=['missing', 'invalid-executable'])

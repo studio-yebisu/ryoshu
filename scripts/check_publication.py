@@ -104,6 +104,8 @@ critical = ['data/account-catalog.json', 'receipt_ledger/accounting.py','receipt
             'receipt_ledger/pipeline.py','receipt_ledger/schemas.py','receipt_ledger/semantic.py','receipt_ledger/store.py']
 changes_path = ROOT / 'docs/testing/v1.3.1/source-changes.json'
 if (ROOT / 'docs/testing/copy-renewal-20261026/source-changes.json').is_file(): changes_path = ROOT / 'docs/testing/copy-renewal-20261026/source-changes.json'
+# Newest current record first (v1.4 llama.cpp migration); the strict checks below are unchanged.
+if (ROOT / 'docs/testing/v1.4/source-changes.json').is_file(): changes_path = ROOT / 'docs/testing/v1.4/source-changes.json'
 if not changes_path.is_file():
     changes_path = ROOT / 'docs/testing/v1.3/source-changes.json'
 if not changes_path.is_file():

@@ -8,7 +8,7 @@ body:
     id: environment
     attributes:
       label: 動作環境
-      description: Windowsの版、Python、Ryoshuの版、Ollamaのモデル名を記入してください。
+      description: Windowsの版、Python、Ryoshuの版を記入してください。
     validations:
       required: true
   - type: textarea

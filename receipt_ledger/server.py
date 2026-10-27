@@ -24,7 +24,9 @@ from . import __version__, config
 from .accounting import amounts, csv_export, journal, summary
 from .catalog import account_categories
 from .exports import PROFILES, TAX_CHOICES, build_export
-from .pipeline import local_models, process, validate_file, ModelSafetyError
+from .pipeline import process, validate_file
+from .runtime import DisabledRuntime
+from .runtime_copy import message as runtime_message
 from .schemas import Draft, SaveRequest, VersionRequest, confirmation_errors
 from .store import Conflict, Missing, Store, now
 from .workflow import ledger_records, review_before_ledger, recover_queue, export_tax_mode
@@ -40,9 +42,11 @@ from .session import Sessions
 from .upload_limit import MemoryMultipartParser
 
 
-def create_app(data_dir=None, run_workers=True):
+def create_app(data_dir=None, run_workers=True, runtime=None):
     if config.MAX_REQUEST_BYTES>=MemoryMultipartParser.spool_max_size:
         raise RuntimeError("アップロード上限がメモリ内の処理上限以上です。設定値を見直してください。")
+    # The caller owns runtime creation; without one the app never starts inference.
+    runtime = runtime if runtime is not None else DisabledRuntime()
     store = Store(Path(data_dir or config.DATA_DIR))
     importer = Importer(store) if store.ready else None
     export_history = ExportHistory(store) if store.ready else None
@@ -62,11 +66,16 @@ def create_app(data_dir=None, run_workers=True):
         elif store.ready:
             store.recover()
         yield
-        executor.shutdown(wait=True, cancel_futures=True)
+        # Drop queued work, stop the owned child (aborting an in-flight request so the
+        # worker stores its OCR fallback), then wait for the worker.
+        executor.shutdown(wait=False, cancel_futures=True)
+        runtime.close()
+        executor.shutdown(wait=True)
 
     app = FastAPI(title="Ryoshu", version=__version__, lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.store = store
     app.state.sessions = sessions
+    app.state.runtime = runtime
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
     app.add_middleware(UploadSizeLimit, max_bytes=config.MAX_REQUEST_BYTES)
 
@@ -109,7 +118,7 @@ def create_app(data_dir=None, run_workers=True):
 
     def enqueue(receipt_id):
         if run_workers:
-            executor.submit(process, store, receipt_id)
+            executor.submit(process, store, receipt_id, runtime)
 
     def decorate(row, detail=True, duplicate_map=None):
         row["business_amount"], row["private_amount"] = amounts(row["draft"])
@@ -136,17 +145,15 @@ def create_app(data_dir=None, run_workers=True):
         public = {"app":"receipt-ledger", "app_version":__version__, "instance":sessions.instance}
         if not sessions.authorized(request.headers.get("authorization")):
             return public
-        model_issue=""
-        try:
-            models = local_models()
-            installed = any(m.get("name") == config.MODEL for m in models)
-            ollama = True
-        except Exception as exc:
-            installed = ollama = False
-            if isinstance(exc,ModelSafetyError):model_issue=str(exc)
-        return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": config.MODEL,
+        # File-based readiness only: never starts, warms or contacts the runtime.
+        status = runtime.status()
+        ready = status["model_ready"]
+        issue = "" if ready else status["reason_code"]
+        return {"app": "receipt-ledger", "app_version": __version__, "ocr_version": importlib.metadata.version("indra-ocr"), "model": status["model_id"],
                 "environment_label":os.environ.get('RECEIPT_LEDGER_ENV_LABEL',''), "source_dir": str(Path(__file__).resolve().parents[1]),
-                "model_ready": installed, "ollama_ready": ollama,"model_issue":model_issue, "compute": "CPU", "data_dir": str(store.root),
+                "model_ready": ready, "runtime_ready": status["runtime_ready"], "model_issue": runtime_message(issue) if issue else "",
+                "model_issue_code": issue, "runtime_state": status["state"], "runtime_version": status["runtime_version"],
+                "model_sha256": status["model_sha256"], "compute": "CPU", "data_dir": str(store.root),
                 "schema_version":3,"account_count":len(store.accounts(False)) if store.ready else 0,"policy_count":len(store.policies()) if store.ready else 0,
                 "instance":sessions.instance,"protected":store.ready,"security_mode":store.keys.mode,
                 "privacy": "loopback-only; local OCR and local model; offline OCR cache"}

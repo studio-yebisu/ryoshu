@@ -50,6 +50,17 @@ def evaluate(truth,row,accounts):
             'actual_decision':handling,
             'abstained':not actual,'error':row.get('error','')}
 
+RUNTIME_FIELDS=('model','model_sha256','runtime_version','runtime_ready','model_ready','model_issue_code','runtime_state')
+
+def runtime_fingerprint(health):
+    """Pinned runtime/model identity reported by the owned app before any PDF is imported."""
+    return {k:health.get(k) for k in RUNTIME_FIELDS}
+
+def require_runtime(health,allow_offline):
+    if allow_offline:return
+    if not health.get('model_ready') or not health.get('runtime_ready') or not health.get('model_sha256'):
+        raise RuntimeError('Local runtime/model not ready (reason='+str(health.get('model_issue_code') or 'unknown')+'); no PDFs were imported.')
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--fixtures',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--port',type=int,default=8767);ap.add_argument('--cases',default='');ap.add_argument('--reuse-ocr',type=Path);ap.add_argument('--source',type=Path,default=SOURCE);ap.add_argument('--resume',action='store_true');ap.add_argument('--keep-server',action='store_true');ap.add_argument('--allow-model-offline',action='store_true',help='Diagnostic run only; never label offline fallback as successful AI inference')
     ap.add_argument('--business-context',default=DEFAULT_BUSINESS_CONTEXT,help='One global business description; empty string reproduces the default app without a business description. Never supply per-receipt expected context.')
@@ -121,8 +132,9 @@ def main():
             result=client.post('/api/session',headers={'X-Ledger-Request':'1','Authorization':'Bootstrap '+bootstrap(bytes.fromhex(record['secret']))})
             result.raise_for_status();client.headers['Authorization']='Bearer '+result.json()['token']
             health=get('/api/health').json()
-            if not args.allow_model_offline and not health.get('model_ready'):
-                raise RuntimeError('ローカルAIの準備ができていません。Ollamaとqwen3:4bを確認してください。PDFの取り込みは開始していません。')
+            require_runtime(health,args.allow_model_offline)
+            meta['runtime']=runtime_fingerprint(health)
+            (output/'run.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
             if not get('/api/security').json()['ready']:
                 import secrets
                 password=secrets.token_urlsafe(32)

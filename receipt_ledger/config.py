@@ -6,8 +6,12 @@ SAMPLE_DIR = APP_DIR / "samples" / "receipts-100-v2"
 DEFAULT_ROOT = Path.home() / "StudioYebisu" / "ReceiptLedger"
 DATA_DIR = Path(os.environ.get("RECEIPT_LEDGER_DATA", DEFAULT_ROOT / "data")).resolve()
 CACHE_DIR = DEFAULT_ROOT / "cache"
-MODEL = "qwen3:4b"
-OLLAMA_URL = "http://127.0.0.1:11434"
+# Local inference: one source pin, files under a task root (override for isolated QA before import).
+RUNTIME_PIN = Path(__file__).resolve().parent / "runtime_pin.json"
+# Absolute but not resolved: a linked root must stay visible so the runtime can refuse it.
+RUNTIME_ROOT = Path(os.path.abspath(os.environ.get("RECEIPT_LEDGER_RUNTIME_ROOT", DEFAULT_ROOT)))
+RUNTIME_THREADS = 6
+RUNTIME_CTX = 8192
 HOST = "127.0.0.1"
 PORT = int(os.environ.get("RECEIPT_LEDGER_PORT", "8766"))
 MAX_BYTES = 20 * 1024 * 1024

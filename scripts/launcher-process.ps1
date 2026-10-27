@@ -1,5 +1,11 @@
 ﻿function Open-RyoshuStartupLock {
     param([string]$RuntimeDir)
+    if (-not (Get-Command Assert-RyoshuUnlinkedPath -CommandType Function -ErrorAction SilentlyContinue)) {
+        . (Join-Path $PSScriptRoot 'python-runtime.ps1')
+    }
+    # one lexical absolute path (PowerShell location, no link resolution) for the check, the directory and the lock
+    $RuntimeDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($RuntimeDir)
+    Assert-RyoshuUnlinkedPath $RuntimeDir   # never create runtime\ or start.lock through a linked root/ancestor
     New-Item -ItemType Directory -Path $RuntimeDir -Force | Out-Null
     try { return [System.IO.File]::Open((Join-Path $RuntimeDir 'start.lock'), 'OpenOrCreate', 'ReadWrite', 'None') }
     catch [System.IO.IOException] { throw 'Ryoshuの起動・終了処理が進行中です。前の操作が終わってから、もう一度実行してください。' }
@@ -30,6 +36,41 @@ function Get-RyoshuListener {
         $result += $server
     }
     return $result
+}
+
+function ConvertTo-RyoshuMicroseconds {
+    # Win32_Process.CreationDate has microsecond precision; owner records store FILETIME (100 ns).
+    param($Value)
+    if ($Value -is [datetime]) { return [int64][math]::Floor($Value.ToFileTimeUtc() / 10) }
+    return [int64][math]::Floor([int64]$Value / 10)
+}
+
+function Get-RyoshuOwnedLlamaChildren {
+    # Per-app-instance owner records written by receipt_ledger.runtime under runtime\owners.
+    # Returns only children that verifiably belong to Ryoshu; never matches by process name.
+    param([string]$TaskRoot, [int[]]$StoppingAppIds = @())
+    $root = [System.IO.Path]::GetFullPath($TaskRoot).TrimEnd('\')
+    $llamaPrefix = (Join-Path $root 'llama') + '\'
+    $owners = Join-Path $root 'runtime\owners'
+    $found = @()
+    if (-not (Test-Path -LiteralPath $owners -PathType Container)) { return $found }
+    if ((Get-Item -LiteralPath $owners).Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return $found }
+    foreach ($file in @(Get-ChildItem -LiteralPath $owners -Filter '*.json' -File -ErrorAction SilentlyContinue)) {
+        if ($file.Attributes -band [System.IO.FileAttributes]::ReparsePoint -or $file.Length -gt 16384) { continue }
+        try { $record = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json } catch { continue }
+        if ($record.schema -ne 1 -or -not $record.child_pid -or -not $record.exe_path) { continue }
+        $exe = [System.IO.Path]::GetFullPath([string]$record.exe_path)
+        if (-not $exe.StartsWith($llamaPrefix, [StringComparison]::OrdinalIgnoreCase)) { continue }
+        $child = Get-CimInstance Win32_Process -Filter ('ProcessId=' + [int]$record.child_pid) -ErrorAction SilentlyContinue
+        $childMatches = $child -and $child.ExecutablePath -and
+            ([System.IO.Path]::GetFullPath($child.ExecutablePath) -ieq $exe) -and
+            ((ConvertTo-RyoshuMicroseconds $child.CreationDate) -eq (ConvertTo-RyoshuMicroseconds $record.child_creation_time))
+        $app = Get-CimInstance Win32_Process -Filter ('ProcessId=' + [int]$record.app_pid) -ErrorAction SilentlyContinue
+        $appAlive = $app -and ((ConvertTo-RyoshuMicroseconds $app.CreationDate) -eq (ConvertTo-RyoshuMicroseconds $record.app_creation_time))
+        $found += [PSCustomObject]@{Record=$file.FullName; ChildId=[int]$record.child_pid; ChildMatches=[bool]$childMatches;
+            AppAlive=[bool]$appAlive; AppBeingStopped=([int]$record.app_pid -in $StoppingAppIds)}
+    }
+    return $found
 }
 
 function Save-RyoshuServerRecord {

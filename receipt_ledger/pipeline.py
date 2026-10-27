@@ -18,6 +18,8 @@ from .pdf_runtime import serialized
 from .previews import save_preview
 from .catalog import account_key, apply_account_policies, default_accounts, resolve_account, retrieve_accounts
 from .extraction import TAX_RATE, amount_on_line, compact, document_flags, extract_total, kanji_amount, money_tokens, printed_tax, total_candidates, vertical_text
+from .runtime import DisabledRuntime, RuntimeFailure
+from .runtime_copy import message as runtime_message
 
 Image.MAX_IMAGE_PIXELS = 25_000_000
 _converter = None
@@ -116,7 +118,8 @@ def read_receipt(folder: Path, extension: str):
             _converter = indra_ocr.load(threads=4, mode="auto", furniture=True)
         started = time.perf_counter()
         pages = []
-        for index, page in _converter.convert(str(ocr_input), max_pages=config.MAX_PAGES):
+        from . import ocr_io
+        for index, page in ocr_io.convert(_converter, ocr_input, max_pages=config.MAX_PAGES):
             if page.source == "error":
                 raise ValueError(f"{index + 1}ページ目を読み取れませんでした。ページの状態を確認して再試行してください")
             pages.append({"index": int(index), "text": page.text, "source": page.source,
@@ -214,30 +217,14 @@ def fallback(text):
             "confidence": "low", "model": None, "warnings": ["AI分類未実行"], "evidence": {}}
 
 
-class ModelSafetyError(ValueError):
-    pass
+# The model guard now lives in the owned runtime: pinned SHA-256 verification
+# before any start, loopback child, listener-owner check before sending text.
+ModelSafetyError = RuntimeFailure
 
 
-def local_models():
-    with httpx.Client(trust_env=False, timeout=3) as client:
-        response = client.get(config.OLLAMA_URL + "/api/tags")
-        response.raise_for_status()
-        models=response.json().get("models", [])
-        target=next((m for m in models if m.get("name")==config.MODEL),None)
-        if target is not None:
-            details=client.post(config.OLLAMA_URL+"/api/show",json={"model":config.MODEL})
-            details.raise_for_status()
-            info=details.json()
-            if info.get("remote_host") or info.get("remote_model") or target.get("remote_host") or target.get("remote_model"):
-                raise ModelSafetyError("クラウドモデルへの領収書送信は拒否しました。Ollamaにローカル版のqwen3:4bを用意してください。")
-            if info.get("details",{}).get("format")!="gguf" or info.get("model_info",{}).get("general.architecture")!="qwen3" or type(target.get("size")) is not int or target["size"]<1024**3:
-                raise ModelSafetyError("ローカルGGUFのQwen3 4Bを確認できません。「初回セットアップ.cmd」でqwen3:4bを準備してください。")
-        return models
-
-
-def classify(ocr: dict, business_context="", rules=None, accounts=None, policies=None):
+def classify(ocr: dict, business_context="", rules=None, accounts=None, policies=None, runtime=None):
     from .semantic import classify as local_classify
-    return local_classify(ocr,business_context,rules,accounts,policies)
+    return local_classify(ocr,business_context,rules,accounts,policies,runtime)
 
 
 def ground(candidate, text, accounts=None, policies=None, *, tax_text=None):
@@ -316,7 +303,7 @@ def ground(candidate, text, accounts=None, policies=None, *, tax_text=None):
     return apply_account_policies(candidate,text,accounts,policies)
 
 
-def process(store, receipt_id):
+def process(store, receipt_id, runtime=None):
     ocr = None
     try:
         current = store.get(receipt_id)
@@ -330,11 +317,13 @@ def process(store, receipt_id):
             for preview in work.glob("preview-*.jpg"):
                 store.keys.write_file(folder / preview.name, preview.read_bytes())
         store.stage(receipt_id, "model")
-        suggestion = classify(ocr, store.business_context(), store.rules(),store.accounts(),store.policies())
+        suggestion = classify(ocr, store.business_context(), store.rules(),store.accounts(),store.policies(),runtime or DisabledRuntime())
         store.complete(receipt_id, ocr, suggestion)
     except Exception as exc:
-        if isinstance(exc, httpx.ConnectError):
-            error = "Ollamaに接続できません。起動後に再読取するか、OCR本文から入力できます。"
+        if isinstance(exc, RuntimeFailure):
+            error = runtime_message(exc.code)
+        elif isinstance(exc, httpx.ConnectError):
+            error = runtime_message("exited")
         elif isinstance(exc, httpx.TimeoutException):
             error = "意味判断モデルが時間内に完了しませんでした。再読取するか、OCR本文から入力できます。"
         else:

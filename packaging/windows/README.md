@@ -1,6 +1,6 @@
 # Windowsセットアップのビルド
 
-公開ソースZIPから、管理者権限が不要な利用者単位のセットアップEXEを作成します。Python・ライブラリ・OCR重み・LLM重み・Ollamaは同梱せず、利用者が同意した初回準備で取得します。コード署名はありません。
+公開ソースZIPから、管理者権限が不要な利用者単位のセットアップEXEを作成します。Python・ライブラリ・OCR重み・LLM重み・llama.cppのバイナリは同梱せず、利用者が同意した初回準備で取得します。OllamaやLM Studioも同梱・導入しません。コード署名はありません。v1.4.0候補のビルドと実インストール検証は未完了です。
 
 ## ビルドツール
 
@@ -18,6 +18,8 @@
 python scripts/build_windows_package.py --source-zip Ryoshu-1.3.4-source.zip --output-dir dist/windows-1.3.4 --iscc 'C:\path\to\ISCC.exe'
 ```
 
+このコマンド例は公開済みv1.3.4の記録です。v1.4.0候補の成果物名や配布URLが確定したわけではありません。
+
 ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致する必要があります。起動に使う`python-runtime.ps1`・`bootstrap-uv.ps1`・`launcher-process.ps1`も必須ファイルとして照合します。公開ソース以外の`.local`・DB・鍵・ログ・モデル・仮想環境、危険なパス、シンボリックリンクは拒否します。
 
 出力は`Ryoshu-<version>-windows-x64-setup.exe`と`.build.json`です。後者には入力ZIP・コンパイラ・全同梱ファイル・出力EXEのSHA-256を記録します。同名の成果物は上書きしません。
@@ -26,14 +28,14 @@ ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致
 
 - 対象はWindows 11 x64で、既定は`%LOCALAPPDATA%\Programs\StudioYebisu\Ryoshu`です。
 - スタートメニューに「Ryoshu」「Ryoshuを終了」「Ryoshuの導入ガイド」を作成し、デスクトップは任意で選べます。
-- Ollamaが未導入なら起動時に案内し、利用者が選んだ場合だけ公式ページを開きます。導入済みなら既存の`start.ps1`へ進みます。
+- OllamaやLM Studioの有無は起動条件にせず、既存の`start.ps1`へ進みます。llama.cpp実行環境とモデルは初回準備でRyoshu専用の保存先へ取得します。
 - 暗号化帳簿は`%USERPROFILE%\StudioYebisu\ReceiptLedger`に分離し、帳簿の保存先へアプリを配置する操作を拒否します。
 - 起動中の対象フォルダーは更新・削除しません。公開healthと非秘密の`runtime/server.json`の起動元（`source`）・PIDだけを参照し、帳簿・セッション・鍵・原本は開きません。起動元を確認できない場合も停止します。
 - アンインストールでは配置したアプリとショートカットを削除します。帳簿・原本・復元情報・実行環境・AIモデルと利用者が追加したファイルは一括削除しません。
 
 `packaging/windows/launch.ps1 -CheckOnly`は、通常の起動やセットアップを実行せず、帳簿へ接続せずにJSONを返します。Ryoshuが使う`%USERPROFILE%\StudioYebisu\ReceiptLedger\venv\Scripts\python.exe`を起動し、Python 3.12.15以降の3.12系・64bitと必要な暗号化ライブラリを確認します。検査の正本は[Get-RyoshuPythonStatus](../../scripts/python-runtime.ps1)です。Pythonの検査は`-I -B`で実行し、利用者のPython設定の影響と診断によるバイトコードの書き込みを避けます。
 
-`python_prepared`は起動・互換性・ライブラリの検査結果で、実行ファイルの存在だけでは`true`になりません。`python_exists`・`python_runnable`・`python_compatible`・`python_version`・`python_reason`で状態を区別し、`source_complete`で補助スクリプトの同梱も確認します。OCR・Ollamaモデルの準備完了と推論品質はこの診断の対象外です。初回準備の完了は依存・OCRモデル・Ollamaモデルの成功後に別途記録します。
+`python_prepared`は起動・互換性・ライブラリの検査結果で、実行ファイルの存在だけでは`true`になりません。`python_exists`・`python_runnable`・`python_compatible`・`python_version`・`python_reason`で状態を区別し、`source_complete`で補助スクリプトの同梱も確認します。OCR・llama.cpp実行環境・Qwenモデルの準備完了と推論品質はこの診断の対象外です。初回準備の完了は依存・OCRモデル・llama.cpp実行環境・Qwenモデルの取得成功後に別途記録します。
 
 ## 配布EXEの実インストール検証
 
@@ -43,8 +45,10 @@ ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致
 python scripts/verify_windows_package.py --installer dist/windows-1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe --source-zip Ryoshu-1.3.4-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
 ```
 
+この検査手順の対象例も公開済みv1.3.4です。v1.4.0候補では別の出力先と新しい証拠を使い、実施前に結果があったとは扱いません。
+
 インストール・全payloadのソースZIPとのバイト照合・3つのショートカット・Windows PowerShell起動・更新の起動元保護・別ポートのアプリ起動・アンインストールを検査します。新しい架空の暗号化帳簿と追加した利用者ファイルが削除・変更されないことも照合します。通常の帳簿は開かず、OCR・AIの新規推論も行いません。
 
 結果の`verification.json`には絶対パスと起動トークンを含めません。失敗時にも、自分で作成した検証用アプリの削除と自分の検証サーバーの停止だけを行います。
 
-別ポートの起動には`--qa-python`の準備済み検証用Pythonを使います。この検査はインストールされたコードの実行を確認するもので、スタートメニューからの通常起動や、Ryoshu専用Python・依存・モデルを取得する初回準備の成否は別に確認します。`-CheckOnly`もOCRとモデル取得の完了を示しません。[v1.3.4の実行範囲と検証待ち項目](../../docs/testing/v1.3.4/README.md)
+別ポートの起動には`--qa-python`の準備済み検証用Pythonを使います。この検査はインストールされたコードの実行を確認するもので、スタートメニューからの通常起動や、Ryoshu専用Python・依存・llama.cpp実行環境・モデルを取得する初回準備の成否は別に確認します。`-CheckOnly`もOCRとモデル取得の完了を示しません。公開版の記録は[v1.3.4の実行範囲と検証待ち項目](../../docs/testing/v1.3.4/README.md)にあり、v1.4.0候補の受入結果ではありません。
