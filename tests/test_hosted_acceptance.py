@@ -2,7 +2,9 @@ import hashlib
 import io
 import json
 import re
+import subprocess
 import sys
+import time
 import types
 import zipfile
 from pathlib import Path
@@ -560,7 +562,31 @@ class FakeWindows:
         monkeypatch.setattr(ha, "runner_facts", lambda: {"kind": "synthetic_mock_orchestration"})
         monkeypatch.setattr(ha, "vc_redist_registrations", lambda: [])
         monkeypatch.setattr(ha.subprocess, "run", self.run)
-        monkeypatch.setattr(ha, "urlopen", lambda url, timeout=0: io.BytesIO(json.dumps({"app": "receipt-ledger", "app_version": "1.4.0"}).encode()))
+        self.popen = []   # (script, kwargs) of every file-backed launch; the REAL run_file_backed opens the files
+        fake = self
+
+        class Popen:
+            def __init__(p, argv, **kw):
+                fake.popen.append((fake.script(argv), kw))
+                if fake.script(argv) == "start.ps1":
+                    fake.start_argv = argv
+                assert subprocess.PIPE not in (kw.get("stdout"), kw.get("stderr")) and kw.get("stdin") == subprocess.DEVNULL
+                p.returncode = fake.run(argv, **kw).returncode
+                kw["stdout"].write(b"[RYOSHU synthetic.slot] mock output\n")
+
+            def wait(p, timeout=None):
+                return p.returncode
+
+            def kill(p):
+                pass
+        monkeypatch.setattr(ha.subprocess, "Popen", Popen)
+        self.health = {"app": "receipt-ledger", "app_version": "1.4.0"}
+        monkeypatch.setattr(ha, "urlopen", lambda url, timeout=0: io.BytesIO(json.dumps(self.health).encode()))
+
+    @staticmethod
+    def script(argv):
+        argv = [str(a) for a in argv]
+        return Path(argv[0]).name if not argv[0].lower().endswith("powershell.exe") else next(Path(a).name for a in argv if a.endswith(".ps1"))
 
     def paths(self, work):
         profile = work / "QA 領収書 profile"
@@ -568,7 +594,7 @@ class FakeWindows:
 
     def run(self, argv, **kw):
         argv = [str(a) for a in argv]
-        self.calls.append(Path(argv[0]).name if not argv[0].lower().endswith("powershell.exe") else Path(argv[-1] if argv[-1].endswith(".ps1") else argv[-3]).name)
+        self.calls.append(self.script(argv))
         done = types.SimpleNamespace(returncode=0, stdout="", stderr="")
         if argv[0] == str(self.installer):
             install = Path(next(a for a in argv if a.startswith("/DIR="))[5:])
@@ -620,6 +646,12 @@ class FakeWindows:
                 self.child_mutator(res)
             out.write_text(json.dumps(res), "utf-8")
             csv_out.write_text("header\nrow1\nrow2\n", "utf-8")
+        elif "start.ps1" in " ".join(argv):
+            root = Path(kw["env"]["USERPROFILE"]) / "StudioYebisu/ReceiptLedger"
+            (root / "runtime/server.json").write_text("{}", "utf-8")
+        elif "stop.ps1" in " ".join(argv):
+            root = Path(kw["env"]["USERPROFILE"]) / "StudioYebisu/ReceiptLedger"
+            (root / "runtime/server.json").unlink(missing_ok=True)
         elif argv[0].endswith("unins000.exe"):
             install = Path(argv[0]).parent
             for p in sorted(install.rglob("*"), reverse=True):
@@ -660,6 +692,20 @@ def test_full_mocked_orchestration_reaches_passed_through_crt_provenance_launch_
     assert fake.calls[0] == "Ryoshu-setup.exe" and fake.calls[-1] == "unins000.exe" and not fake.registered
     assert sorted(p.name for p in (tmp_path / "report").iterdir()) == ["acceptance.json", "synthetic-expenses.csv"]
     assert str(tmp_path) not in json.dumps(out, ensure_ascii=False)
+    # file-backed transport: setup/child/start/stop write to private regular files, never pipes
+    assert [s for s, _ in fake.popen] == ["setup.ps1", "python.exe", "start.ps1", "stop.ps1"]
+    logs = tmp_path / "work" / "logs"
+    for _, kw in fake.popen:
+        for stream in ("stdout", "stderr"):
+            assert Path(kw[stream].name).parent == logs and kw[stream].closed
+    start_argv = [str(a) for a in fake.start_argv]
+    assert "-NoBrowser" in start_argv
+    assert start_argv[start_argv.index("-DataDir") + 1] == str(fake.paths((tmp_path / "work").resolve())[2] / "qa-ledger/data")
+    assert any(c["check"] == "start_data_dir_is_receipt_child_book" for c in out["checks"])
+    assert sorted(p.name for p in logs.iterdir()) == sorted(f"{n}-0.{s}.log" for n in ("setup", "child", "start", "stop")
+                                                            for s in ("stdout", "stderr"))
+    assert "mock output" in (logs / "start-0.stdout.log").read_text("utf-8")
+    assert "mock output" not in json.dumps(out) and "logs" not in json.dumps(out)   # raw logs never reach the report
 
 
 def test_false_llama_provenance_fails_closed_as_a_recorded_check_not_a_typeerror(tmp_path, monkeypatch):
@@ -687,6 +733,148 @@ def test_child_metadata_cannot_forge_a_check_identity_or_outcome(tmp_path, monke
     last = out["checks"][-1]
     assert last["check"] == "csv_exported" and last["ok"] is False and last["detail"]["ok"] is True
     assert "forged_pass" not in [c["check"] for c in out["checks"]]
+
+
+def test_failed_health_runs_file_backed_cleanup_stop_and_keeps_logs_private(tmp_path, monkeypatch):
+    fake = FakeWindows(tmp_path, monkeypatch)
+    fake.health = {"app": "receipt-ledger", "app_version": "0.0.0"}
+    rc = fake.main(tmp_path / "work", tmp_path / "report")
+    out = _acceptance(tmp_path / "report")
+    assert rc == 1 and out["stage"] == "launch_no_browser" and out["error"] == "health_is_installed_version"
+    assert [s for s, _ in fake.popen][-1] == "stop.ps1" and fake.calls[-1] == "unins000.exe" and not fake.registered
+    assert (tmp_path / "work/logs/cleanup-stop-0.stdout.log").is_file()      # the finally stop is file-backed too
+    assert "mock output" not in json.dumps(out)
+
+
+def test_start_timeout_and_nonzero_exit_stay_failing_gates(tmp_path, monkeypatch):
+    fake = FakeWindows(tmp_path, monkeypatch)
+    real_run = fake.run
+
+    def start_times_out(argv, **kw):
+        if fake.script(argv) == "start.ps1":
+            raise subprocess.TimeoutExpired("start", 900)
+        return real_run(argv, **kw)
+    monkeypatch.setattr(fake, "run", start_times_out)
+    assert fake.main(tmp_path / "w1", tmp_path / "r1") == 1
+    out = _acceptance(tmp_path / "r1")
+    assert out["stage"] == "launch_no_browser" and out["error_type"] == "TimeoutExpired" and not fake.registered
+
+    (tmp_path / "b").mkdir()
+    fake2 = FakeWindows(tmp_path / "b", monkeypatch)
+    real_run2 = fake2.run
+
+    def stop_fails(argv, **kw):
+        done = real_run2(argv, **kw)
+        return types.SimpleNamespace(returncode=5, stdout="", stderr="") if fake2.script(argv) == "stop.ps1" else done
+    monkeypatch.setattr(fake2, "run", stop_fails)
+    assert fake2.main(tmp_path / "w2", tmp_path / "r2") == 1
+    last = _acceptance(tmp_path / "r2")["checks"][-1]
+    assert last == {"check": "stop_succeeded", "ok": False, "detail": {"exit_code": 5}}
+
+
+def test_background_launch_paths_never_capture_pipes():
+    text = (ROOT / "scripts/hosted_acceptance.py").read_text("utf-8")
+    main_body = text.split("def main(", 1)[1]
+    assert "capture_output" not in main_body and "PIPE" not in main_body and ".communicate(" not in text
+    for label in ('"setup"', '"child"', '"start"', '"stop"', '"cleanup-stop"'):
+        assert f"logs, {label}" in main_body
+    assert '"-NoBrowser", "-DataDir", str(data_dir)]' in main_body and 'data_dir = root / "qa-ledger/data"' in main_body
+    assert 'RECEIPT_LEDGER_DATA=str(root / "qa-ledger/data")' in main_body   # the child and start open the same book
+
+
+# --- file-backed transport vs inherited pipe (TRANSPORT test with short Python processes; NOT Windows app acceptance) --
+TRANSPORT_PARENT = r'''
+import subprocess, sys, time
+from pathlib import Path
+d = Path(sys.argv[1])
+child = subprocess.Popen([sys.executable, "-c", sys.argv[2], str(d)], stdout=sys.stdout, stderr=sys.stderr, close_fds=False)
+(d / "descendant.pid").write_text(str(child.pid))
+deadline = time.monotonic() + 20
+while not (d / "ready").exists() and time.monotonic() < deadline:
+    time.sleep(0.05)
+print("parent done", flush=True)
+'''
+TRANSPORT_DESCENDANT = r'''
+import sys, time
+from pathlib import Path
+d = Path(sys.argv[1])
+(d / "ready").write_text("1")
+deadline = time.monotonic() + 30          # bounded maximum lifetime even if the test never releases it
+while not (d / "release").exists() and time.monotonic() < deadline:
+    time.sleep(0.05)
+(d / "exited").write_text("1")
+'''
+
+
+def _release_descendant(d: Path):
+    (d / "release").write_text("1")
+    deadline = time.monotonic() + 35
+    while not (d / "exited").exists() and time.monotonic() < deadline:
+        time.sleep(0.05)
+    if not (d / "exited").exists() and (d / "descendant.pid").exists():   # strict own cleanup: only the pid we spawned
+        pid = int((d / "descendant.pid").read_text())
+        if sys.platform == "win32":
+            import ctypes
+            h = ctypes.windll.kernel32.OpenProcess(1, False, pid)
+            if h:
+                ctypes.windll.kernel32.TerminateProcess(h, 1)
+                ctypes.windll.kernel32.CloseHandle(h)
+        else:
+            import os
+            import signal
+            os.kill(pid, signal.SIGKILL)
+    return (d / "exited").exists()
+
+
+def _transport_argv(d):
+    return [sys.executable, "-c", TRANSPORT_PARENT, str(d), TRANSPORT_DESCENDANT]
+
+
+def test_captured_pipe_waits_on_a_descendant_that_outlives_its_parent(tmp_path):
+    d = tmp_path / "pipe"
+    d.mkdir()
+    proc = subprocess.Popen(_transport_argv(d), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        assert proc.wait(timeout=30) == 0 and (d / "ready").exists()      # the direct parent has exited...
+        with pytest.raises(subprocess.TimeoutExpired):
+            proc.communicate(timeout=2)                                     # ...but EOF never comes while the descendant lives
+        assert not (d / "exited").exists()
+    finally:
+        assert _release_descendant(d)
+        out, _ = proc.communicate(timeout=30)                               # released: EOF arrives, bounded
+    assert b"parent done" in out
+
+
+def test_file_backed_helper_returns_after_the_parent_while_the_descendant_still_holds_the_handles(tmp_path):
+    d, logs = tmp_path / "file", tmp_path / "logs"
+    d.mkdir()
+    try:
+        t = time.monotonic()
+        done = ha.run_file_backed(_transport_argv(d), logs, "start", timeout=30)   # the ACTUAL helper, real processes
+        elapsed = time.monotonic() - t
+        assert done.returncode == 0 and "parent done" in done.stdout and done.stderr == ""
+        assert (d / "ready").exists() and not (d / "exited").exists()       # descendant still alive and holding the files
+        assert elapsed < 25
+    finally:
+        assert _release_descendant(d)
+    assert sorted(p.name for p in logs.iterdir()) == ["start-0.stderr.log", "start-0.stdout.log"]
+
+
+def test_file_backed_helper_timeout_exit_code_no_overwrite_and_bounded_read(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    (logs / "probe-0.stdout.log").write_text("unrelated", "utf-8")
+    t = time.monotonic()
+    with pytest.raises(subprocess.TimeoutExpired) as e:
+        ha.run_file_backed([sys.executable, "-c", "import time; time.sleep(30)"], logs, "probe", timeout=1)
+    assert e.value.cmd == "probe" and str(tmp_path) not in str(e.value) and time.monotonic() - t < 20
+    assert (logs / "probe-0.stdout.log").read_text("utf-8") == "unrelated"   # never overwritten
+    done = ha.run_file_backed([sys.executable, "-c", "import sys; print('x' * 5000); sys.stderr.write('err'); sys.exit(3)"],
+                              logs, "probe", timeout=30)
+    assert done.returncode == 3 and done.stdout.startswith("x" * 5000) and done.stderr == "err"
+    assert (logs / "probe-2.stdout.log").is_file()
+    monkeypatch.setattr(ha, "OUTPUT_READ_LIMIT", 100)
+    assert len(ha.read_bounded(logs / "probe-2.stdout.log")) == 100
 
 
 def test_acceptance_keeps_hkcu_refusal_and_never_targets_the_real_profile():

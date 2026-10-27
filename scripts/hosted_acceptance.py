@@ -245,6 +245,39 @@ def payload_from_zip(source_zip: Path) -> dict[str, str]:
         return {i.filename.split("/", 1)[1]: hashlib.sha256(z.read(i)).hexdigest() for i in z.infolist() if not i.is_dir()}
 
 
+# ----------------------------------------------------------------------------------------------- file-backed processes
+OUTPUT_READ_LIMIT = 8 * 1024 * 1024
+KILL_WAIT_SECONDS = 60
+
+
+def read_bounded(path: Path, limit: int | None = None) -> str:
+    with open(path, "rb") as f:
+        return f.read(OUTPUT_READ_LIMIT if limit is None else limit).decode("utf-8", errors="replace")
+
+
+def run_file_backed(argv, log_dir: Path, label: str, *, timeout: float, **kw) -> subprocess.CompletedProcess:
+    """Run argv with stdout/stderr in NEW private regular files under log_dir instead of pipes.
+
+    A background-capable script (start.ps1 -> server) can leave a descendant holding inherited std handles; with captured
+    pipes the caller waits for an EOF that never comes, even after subprocess.run's timeout kill. Regular files have no
+    EOF: only the direct process is awaited (bounded), then the files are read (bounded) with the same stdout/stderr
+    semantics. Existing files are never overwritten; the timeout error carries the static label only."""
+    log_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    while (log_dir / f"{label}-{n}.stdout.log").exists() or (log_dir / f"{label}-{n}.stderr.log").exists():
+        n += 1
+    out_path, err_path = log_dir / f"{label}-{n}.stdout.log", log_dir / f"{label}-{n}.stderr.log"
+    with open(out_path, "xb") as out, open(err_path, "xb") as err:
+        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=out, stderr=err, **kw)
+    try:
+        code = proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=KILL_WAIT_SECONDS)
+        raise subprocess.TimeoutExpired(label, timeout) from None
+    return subprocess.CompletedProcess(argv, code, read_bounded(out_path), read_bounded(err_path))
+
+
 # ----------------------------------------------------------------------------------------------- runner probes
 def ps(command: str, env=None, timeout=120) -> str:
     r = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command], capture_output=True,
@@ -313,6 +346,7 @@ def main(argv=None) -> int:
         d.mkdir(parents=True, exist_ok=True)
     work = a.work_dir.resolve()
     report_dir = a.report_dir.resolve()   # absolute before any child runs with a different cwd
+    logs = work / "logs"                  # private process output files; never uploaded
     profile = work / "QA 領収書 profile"
     install = profile / "AppData/Local/Programs/StudioYebisu/Ryoshu"
     root = profile / "StudioYebisu/ReceiptLedger"
@@ -384,11 +418,9 @@ def main(argv=None) -> int:
         vc_before = vc_redist_registrations()
         report["runner"]["vc_redist_registrations_on_image"] = vc_before
         t = time.perf_counter()
-        setup = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
-                                str(install / "setup.ps1"), "-AcceptModelLicense", "-QaAcceptCrtTermsSha256", crt["license"]["sha256"]],
-                               env=env, cwd=install, capture_output=True, text=True, encoding="utf-8", errors="replace",
-                               stdin=subprocess.DEVNULL, timeout=5400)
-        (work / "setup.log").write_text(setup.stdout + "\n" + setup.stderr, encoding="utf-8")   # private, never uploaded
+        setup = run_file_backed(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+                                 str(install / "setup.ps1"), "-AcceptModelLicense", "-QaAcceptCrtTermsSha256", crt["license"]["sha256"]],
+                                logs, "setup", env=env, cwd=install, timeout=5400)   # private logs, never uploaded
         slots = sorted(set(re.findall(r"\[RYOSHU ([a-z_.]+)", setup.stdout + setup.stderr)))
         report["setup"] = {"exit_code": setup.returncode, "seconds": round(time.perf_counter() - t, 1), "slot_ids_seen": slots}
         check("first_setup_succeeded", setup.returncode == 0)
@@ -419,8 +451,7 @@ def main(argv=None) -> int:
                     RECEIPT_LEDGER_DATA=str(root / "qa-ledger/data"), HF_HUB_OFFLINE="1")
         command = child_command(root / "venv/Scripts/python.exe", Path(__file__).resolve().with_name("hosted_acceptance_child.py"),
                                 install, fixture, private, failure, csv_out)
-        child = subprocess.run(command, env=cenv, cwd=work, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=3600)
-        (work / "child.log").write_text(child.stdout + "\n" + child.stderr, encoding="utf-8")   # private, never uploaded
+        child = run_file_backed(command, logs, "child", env=cenv, cwd=work, timeout=3600)   # private logs, never uploaded
         summary = child_failure_summary(failure, child.returncode, private.is_file())
         if summary is not None:
             report["child_failure"] = summary   # allowlisted stage/type/static reason only
@@ -455,16 +486,19 @@ def main(argv=None) -> int:
                                    "llama_server": len((res["llama_server"] or {}).get("modules", []))}
 
         report["stage"] = "launch_no_browser"
-        start = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
-                                str(install / "start.ps1"), "-NoBrowser"], env=env, cwd=install, capture_output=True,
-                               text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, timeout=900)
-        check("start_no_browser", start.returncode == 0, exit_code=start.returncode)
+        data_dir = root / "qa-ledger/data"   # the SAME fictional book the receipt child wrote, not a default empty one
+        check("start_data_dir_is_receipt_child_book", data_dir.is_dir())
+        t = time.perf_counter()
+        start = run_file_backed(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+                                 str(install / "start.ps1"), "-NoBrowser", "-DataDir", str(data_dir)],
+                                logs, "start", env=env, cwd=install, timeout=900)
+        check("start_no_browser", start.returncode == 0, exit_code=start.returncode,
+              seconds=round(time.perf_counter() - t, 1))
         with urlopen("http://127.0.0.1:8766/api/health", timeout=10) as r:
             health = json.load(r)
         check("health_is_installed_version", health.get("app") == "receipt-ledger" and health.get("app_version") == build["app_version"])
-        stop = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
-                               str(install / "stop.ps1")], env=env, cwd=install, capture_output=True, text=True,
-                              encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, timeout=300)
+        stop = run_file_backed(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+                                str(install / "stop.ps1")], logs, "stop", env=env, cwd=install, timeout=300)
         check("stop_succeeded", stop.returncode == 0, exit_code=stop.returncode)
 
         report["stage"] = "uninstall"
@@ -495,13 +529,13 @@ def main(argv=None) -> int:
         try:
             for path in (root / "runtime/server.json",):
                 if path.exists():
-                    subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
-                                    str(install / "stop.ps1")], env=env, capture_output=True, timeout=300)
+                    run_file_backed(["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+                                     str(install / "stop.ps1")], logs, "cleanup-stop", env=env, timeout=300)
         except Exception:
             pass
         if installed and (install / "unins000.exe").exists():
             subprocess.run([str(install / "unins000.exe"), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"], env=env,
-                           capture_output=True, timeout=600)
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=600)
         clean = sanitize(report, replacements)
         (report_dir / "acceptance.json").write_text(json.dumps(clean, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         extra = sorted(p.name for p in report_dir.iterdir() if p.name not in UPLOAD_ALLOWLIST)
