@@ -479,12 +479,15 @@ function refreshLedgerDisplay(){
 function updateLedgerTable(resetScroll=false){
   if(state.view!=='ledger'||!$('#ledger-rows'))return;
   const {all,filtered,pages,rows,selectable}=ledgerSelection(),table=$('#ledger-table'),top=table.scrollTop,left=table.scrollLeft;
+  // A rebuild (e.g. a debounced search firing after returning from a detail) must not drop focus from a listed row.
+  const focusedReceipt=$('#ledger-rows').contains(document.activeElement)?document.activeElement.dataset?.openReceipt:null;
   $('#ledger-rows').innerHTML=ledgerBody(rows,all);
   $('#ledger-count').textContent=ledgerCountLabel(filtered);
   $('#ledger-page-controls').innerHTML=ledgerPaging(pages);
   $('#select-ledger-all').disabled=!selectable.length;
   $('#select-ledger-all').checked=!!selectable.length&&selectable.every(r=>state.selected.has(r.id));
   table.scrollTop=resetScroll?0:top;table.scrollLeft=left;
+  if(focusedReceipt)$('[data-open-receipt="'+CSS.escape(focusedReceipt)+'"]',$('#ledger-rows'))?.focus({preventScroll:true});
 }
 
 function renderLedger(content) {

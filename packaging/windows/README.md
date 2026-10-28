@@ -1,6 +1,6 @@
 # Windowsセットアップのビルド
 
-公開ソースZIPから、管理者権限が不要な利用者単位のセットアップEXEを作成します。Python・ライブラリ・OCR重み・LLM重み・llama.cppのバイナリは同梱せず、利用者が同意した初回準備で取得します。OllamaやLM Studioも同梱・導入しません。コード署名はありません。v1.4.0候補のビルドと実インストール検証は未完了です。
+公開ソースZIPから、管理者権限が不要な利用者単位のセットアップEXEを作成します。Python・ライブラリ・OCR重み・LLM重み・llama.cppのバイナリは同梱せず、利用者が同意した初回準備で取得します。OllamaやLM Studioも同梱・導入しません。コード署名はありません。v1.4.0のビルド記録と受入記録は、Releaseの[`Ryoshu-1.4.0-windows-x64-setup.build.json`](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.build.json)と[`windows-installer-acceptance.json`](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/windows-installer-acceptance.json)で公開しています。
 
 ## ビルドツール
 
@@ -15,10 +15,10 @@
 コンパイラ導入後に実行します。Node.jsは不要です。
 
 ```powershell
-python scripts/build_windows_package.py --source-zip Ryoshu-1.3.4-source.zip --output-dir dist/windows-1.3.4 --iscc 'C:\path\to\ISCC.exe'
+python scripts/build_windows_package.py --source-zip Ryoshu-1.4.1-source.zip --output-dir dist/windows-1.4.1 --iscc 'C:\path\to\ISCC.exe'
 ```
 
-このコマンド例は公開済みv1.3.4の記録です。v1.4.0候補の成果物名や配布URLが確定したわけではありません。
+このコマンド例は公開済みv1.4.0の成果物名を使います。v1.4.0の[`.build.json`](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.build.json)もReleaseの公開ファイルです。
 
 ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致する必要があります。起動に使う`python-runtime.ps1`・`bootstrap-uv.ps1`・`launcher-process.ps1`も必須ファイルとして照合します。公開ソース以外の`.local`・DB・鍵・ログ・モデル・仮想環境、危険なパス、シンボリックリンクは拒否します。
 
@@ -42,13 +42,13 @@ ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致
 既存のインストール登録がないWindows検証機で、空の専用出力先を指定します。既存の登録がある場合は試験を拒否します。
 
 ```powershell
-python scripts/verify_windows_package.py --installer dist/windows-1.3.4/Ryoshu-1.3.4-windows-x64-setup.exe --source-zip Ryoshu-1.3.4-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
+python scripts/verify_windows_package.py --installer dist/windows-1.4.1/Ryoshu-1.4.1-windows-x64-setup.exe --source-zip Ryoshu-1.4.1-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
 ```
 
-この検査手順の対象例も公開済みv1.3.4です。v1.4.0候補では別の出力先と新しい証拠を使い、実施前に結果があったとは扱いません。
+実行ごとに新しい出力先を使い、実行前から結果が存在するものとして扱わないでください。
 
 インストール・全payloadのソースZIPとのバイト照合・3つのショートカット・Windows PowerShell起動・更新の起動元保護・別ポートのアプリ起動・アンインストールを検査します。新しい架空の暗号化帳簿と追加した利用者ファイルが削除・変更されないことも照合します。通常の帳簿は開かず、OCR・AIの新規推論も行いません。
 
 結果の`verification.json`には絶対パスと起動トークンを含めません。失敗時にも、自分で作成した検証用アプリの削除と自分の検証サーバーの停止だけを行います。
 
-別ポートの起動には`--qa-python`の準備済み検証用Pythonを使います。この検査はインストールされたコードの実行を確認するもので、スタートメニューからの通常起動や、Ryoshu専用Python・依存・llama.cpp実行環境・モデルを取得する初回準備の成否は別に確認します。`-CheckOnly`もOCRとモデル取得の完了を示しません。公開版の記録は[v1.3.4の実行範囲と検証待ち項目](../../docs/testing/v1.3.4/README.md)にあり、v1.4.0候補の受入結果ではありません。
+別ポートの起動には`--qa-python`の準備済み検証用Pythonを使います。この検査はインストールされたコードの実行を確認するもので、スタートメニューからの通常起動や、Ryoshu専用Python・依存・llama.cpp実行環境・モデルを取得する初回準備の成否は別に確認します。`-CheckOnly`もOCRとモデル取得の完了を示しません。2件の架空入力を使った実際の初回準備・Indra OCR・ローカルモデル・CSV出力の受入検証は、`.github/workflows/hosted-windows-acceptance.yml`と`scripts/hosted_acceptance.py`で別途行い、v1.4.0の結果はReleaseの[`windows-installer-acceptance.json`](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/windows-installer-acceptance.json)で公開しています。受入環境は開発ツールと既存のシステムVC++実行環境を持つGitHub-hosted Windows Server 2025で、別途、既存のQAモデルがある開発者のWindows 11でローカル更新も確認しています。これは開発ツールやVC++実行環境が未導入の一般消費者向けWindows 11環境での検証や、架空100件の検証ではありません。過去の記録は[v1.3.4の実行範囲と検証待ち項目](../../docs/testing/v1.3.4/README.md)にあります。
