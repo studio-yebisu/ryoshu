@@ -15,7 +15,7 @@
 コンパイラ導入後に実行します。Node.jsは不要です。
 
 ```powershell
-python scripts/build_windows_package.py --source-zip Ryoshu-1.4.0-source.zip --output-dir dist/windows-1.4.0 --iscc 'C:\path\to\ISCC.exe'
+python scripts/build_windows_package.py --source-zip Ryoshu-1.4.1-source.zip --output-dir dist/windows-1.4.1 --iscc 'C:\path\to\ISCC.exe'
 ```
 
 このコマンド例は公開済みv1.4.0の成果物名を使います。v1.4.0の[`.build.json`](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-windows-x64-setup.build.json)もReleaseの公開ファイルです。
@@ -42,7 +42,7 @@ ZIP内のルートは`Ryoshu-<version>/`で、アプリの`__version__`と一致
 既存のインストール登録がないWindows検証機で、空の専用出力先を指定します。既存の登録がある場合は試験を拒否します。
 
 ```powershell
-python scripts/verify_windows_package.py --installer dist/windows-1.4.0/Ryoshu-1.4.0-windows-x64-setup.exe --source-zip Ryoshu-1.4.0-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
+python scripts/verify_windows_package.py --installer dist/windows-1.4.1/Ryoshu-1.4.1-windows-x64-setup.exe --source-zip Ryoshu-1.4.1-source.zip --qa-python C:\path\to\qa\python.exe --output-dir .local/windows-install-check
 ```
 
 実行ごとに新しい出力先を使い、実行前から結果が存在するものとして扱わないでください。

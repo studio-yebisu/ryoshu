@@ -108,3 +108,62 @@ test('failure of an old detail request does not disturb the newer active detail'
   assert.equal(f.renders.length,rendered);
   assert.equal(f.notices.length,1);assert.equal(f.notices[0].error,true);
 });
+
+// Append to tests/detail-navigation.test.cjs (after the existing tests). Uses that file's `between`,
+// `test`, `assert`, `vm`. Fails on the current source if H1 is real; passes with candidate-fix-app.js.patch.
+
+const ledgerFocusFunctions=[
+  between('const $ = (selector', '\n'),
+  between('let toastTimer, pollTimer, searchTimer;', '\n'),
+  between('function focusPage(', 'function render()'),
+  between('function updateLedgerTable(', 'function renderLedger('),
+  between('async function selectReceipt(', 'async function save('),
+  between("document.addEventListener('input',event=>{if(event.target.id==='ledger-search')", '\n'),
+].join('\n');
+
+function ledgerFocusFixture(){
+  const timers=[],listeners={},doc={activeElement:null};
+  let buttons=[];
+  const body={dataset:{},focus(){doc.activeElement=body;}};
+  const plain=()=>({textContent:'',disabled:false,checked:false,scrollTop:0,scrollLeft:0,focus(){doc.activeElement=this;}});
+  const rows={
+    set innerHTML(_){
+      for(const b of buttons)b.isConnected=false;
+      buttons=[{dataset:{openReceipt:'r1'},isConnected:true,focus(){doc.activeElement=this;}}];
+      if(doc.activeElement?.isConnected===false)doc.activeElement=body;
+    },
+    contains:el=>buttons.includes(el),
+    querySelector:sel=>buttons.find(b=>sel===`[data-open-receipt="${b.dataset.openReceipt}"]`)||null,
+  };
+  const elements={'#ledger-rows':rows,'#ledger-table':plain(),'#ledger-count':plain(),'#ledger-page-controls':plain(),'#select-ledger-all':plain(),'#page-title':plain()};
+  Object.assign(doc,{activeElement:body,querySelector:sel=>elements[sel]||rows.querySelector(sel),querySelectorAll:()=>[],
+    addEventListener(type,fn){(listeners[type]=listeners[type]||[]).push(fn);}});
+  const record={id:'r1',version:1,status:'review'};
+  const state={view:'ledger',records:[record],active:null,detail:null,detailOrigin:null,ledgerSearch:'',ledgerPage:0,searchComposing:false,selected:new Map()};
+  const win={scrollY:0,scrollTo({top}){win.scrollY=top;}};
+  const context={state,document:doc,window:win,CSS:{escape:v=>v},history:{replaceState(){}},detailRevision:0,
+    setTimeout(fn,ms){timers.push({fn,ms});return timers.length;},clearTimeout(){},
+    api:async()=>({...record}),
+    ledgerSelection:()=>({all:[record],filtered:[record],pages:1,rows:[record],selectable:[]}),
+    ledgerBody:()=>'',ledgerCountLabel:()=>'1',ledgerPaging:()=>'',
+    render(){if(state.view==='ledger')rows.innerHTML='';}};
+  vm.createContext(context);
+  vm.runInContext(ledgerFocusFunctions,context);
+  return {context,state,win,timers,doc,listeners};
+}
+
+test('a search refresh that fires after returning from a detail keeps the origin row focused',async()=>{
+  const f=ledgerFocusFixture();
+  f.context.render();
+  f.listeners.input.forEach(fn=>fn({target:{id:'ledger-search',value:'fictional',closest:()=>null},isComposing:false}));
+  assert.deepEqual(f.timers.map(t=>t.ms),[180],'search refresh must still be debounced');
+  f.win.scrollY=240;
+  await f.context.selectReceipt('r1');
+  f.context.returnFromDetail();
+  assert.equal(f.state.view,'ledger');assert.equal(f.win.scrollY,240);
+  assert.equal(f.doc.activeElement.dataset.openReceipt,'r1');
+  f.timers.splice(0).forEach(t=>t.fn());   // the pending refresh fires now, after the return
+  assert.equal(f.doc.activeElement.isConnected,true,'focus fell off the rebuilt ledger row');
+  assert.equal(f.doc.activeElement.dataset.openReceipt,'r1');
+  assert.equal(f.win.scrollY,240,'outer scroll must stay where the return put it');
+});

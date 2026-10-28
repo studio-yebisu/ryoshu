@@ -88,6 +88,17 @@ jobs:
           if ($installer.Count -ne 1) { throw 'Expected exactly one built installer' }
           & $env:CI_PYTHON -I scripts/hosted_acceptance.py --installer $installer[0].FullName --build-report ([System.IO.Path]::ChangeExtension($installer[0].FullName, '.build.json')) --source-zip (Join-Path $env:RUNNER_TEMP 'source\Ryoshu-source.zip') --fixtures samples/receipts-100-v2/receipts-100.zip --work-dir (Join-Path $env:RUNNER_TEMP 'qa-work') --report-dir (Join-Path $env:RUNNER_TEMP 'qa-report')
           if ($LASTEXITCODE -ne 0) { throw 'Hosted acceptance failed (see acceptance.json)' }
+      # Only after every step above passed: keep the exact tested installer and source ZIP bytes so a release can
+      # promote them without rebuilding. Two allowlisted files; no folders, logs, ledgers, runtimes or caches.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: success()
+        with:
+          name: windows-release-candidate
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/dist/Ryoshu-*-windows-x64-setup.exe
+            ${{ runner.temp }}/source/Ryoshu-source.zip
       - name: Collect allowlisted metadata only
         if: always()
         run: |
