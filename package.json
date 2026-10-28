@@ -1,6 +1,6 @@
 {
   "name": "ryoshu-browser-checks",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "description": "Development-only browser checks; Ryoshu itself does not require Node.js.",
   "scripts": {

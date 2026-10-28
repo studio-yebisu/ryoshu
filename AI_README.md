@@ -61,6 +61,8 @@ Node.js 20 以降は開発・検証専用であり、アプリの利用には不
 - `docs/testing/`: 公開済みの検証記録。
 - `.github/workflows/ci.yml`: CI で実行する検査の正本。
 
+`receipt_ledger/export_history.py` の CSV 作成履歴は、既存の `csv_exports` を正本とする追加型スキーマで、`user_version` は変更しません。`csv_export_members` はプロファイル・種類・明細 ID・版の全期間和集合を保持する派生索引、`csv_export_index` の `through_id` は組み込み済みの水位であり、旧版が追加した行は再起動時や次の判定・記録時に差分反映します。`csv_export_snapshots` は同一の出力対象一覧を共有し、各イベントの全一覧も復元できます。不正な旧履歴がある場合の記録は従来の全一覧形式へ退避し、どの形式でもプロファイル・種類ごとの `receipts_json` の和集合を同じに保つため、旧版へ戻しても重複除外が変わりません。履歴行を削除・書き換えず、保持件数の上限も設けないため、派生索引を再構築しても正本の履歴を消さないでください。
+
 ## 3. 正とするファイル
 
 - ランタイムとモデルの固定情報: [receipt_ledger/runtime_pin.json](receipt_ledger/runtime_pin.json)。過去の Ollama 構成とは異なり、Ollama を再導入しない。
