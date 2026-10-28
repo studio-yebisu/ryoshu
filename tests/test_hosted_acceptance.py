@@ -175,11 +175,103 @@ def test_workflow_compiler_pins_match_readme_and_build_script():
     assert "Pyrsys B\\.V\\." in WORKFLOW   # Authenticode signer as documented
 
 
+# Each upload step is parsed as its own bounded block: the "- uses: actions/upload-artifact@..." line plus the
+# following lines indented deeper than the step list (8+ spaces). The next step ("      - ...") ends the block.
+UPLOAD_STEP = re.compile(r"^      - uses: (actions/upload-artifact@\S+)[^\n]*\n((?:        [^\n]*\n?)+)", re.M)
+METADATA_ARTIFACT = "hosted-windows-acceptance"
+CANDIDATE_ARTIFACT = "windows-release-candidate"
+CANDIDATE_PATHS = ["${{ runner.temp }}/dist/Ryoshu-*-windows-x64-setup.exe", "${{ runner.temp }}/source/Ryoshu-source.zip"]
+BINARY_OR_PRIVATE = re.compile(r"(?i)\.(exe|dll|gguf|onnx|sqlite3?|db|log|zip)\b|qa-work|runtime|StudioYebisu|venv|models|logs")
+
+
+def upload_steps(text):
+    steps = {}
+    for match in UPLOAD_STEP.finditer(text):
+        body = match.group(2)
+        name = re.search(r"^          name: (\S+)$", body, re.M)
+        assert name, "upload step without an artifact name"
+        assert name.group(1) not in steps, f"duplicate artifact {name.group(1)}"
+        cond = re.search(r"^        if: (.+)$", body, re.M)
+        steps[name.group(1)] = {"action": match.group(1), "if": cond.group(1) if cond else None, "full": match.group(0),
+                                "body": body, "paths": re.findall(r"^            (\S[^\n]*)$", body, re.M),
+                                "with": dict(re.findall(r"^          ([\w-]+): ([^\n]+)$", body, re.M))}
+    # Every upload-artifact reference in non-comment code must be one of the parsed, bounded steps.
+    code = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+    assert len(re.findall(r"actions/upload-artifact@", code)) == len(steps), "upload step outside the parsed form"
+    return steps
+
+
+def check_upload_contract(text):
+    steps = upload_steps(text)
+    assert set(steps) == {METADATA_ARTIFACT, CANDIDATE_ARTIFACT}, sorted(steps)
+    actions = {step["action"] for step in steps.values()}
+    assert actions == {"actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"}
+    # Metadata: always uploaded, exactly the four allowlisted qa-report files, never binaries or private state.
+    meta = steps[METADATA_ARTIFACT]
+    expected = {"${{ runner.temp }}/qa-report/" + n for n in set(ha.UPLOAD_ALLOWLIST) | {"installer.build.json", "source-zip.json"}}
+    assert meta["if"] == "always()"
+    assert len(meta["paths"]) == len(expected) and set(meta["paths"]) == expected, meta["paths"]
+    assert meta["with"].get("retention-days") == "14" and meta["with"].get("if-no-files-found") == "warn"
+    assert not BINARY_OR_PRIVATE.search("\n".join(meta["paths"])), meta["paths"]
+    # Release candidate: only after every earlier step passed, exactly the two clean Git-source build outputs.
+    cand = steps[CANDIDATE_ARTIFACT]
+    assert cand["if"] == "success()"
+    assert cand["paths"] == CANDIDATE_PATHS, cand["paths"]
+    assert cand["with"].get("retention-days") == "14" and cand["with"].get("if-no-files-found") == "error"
+    assert set(cand["with"]) == {"name", "retention-days", "if-no-files-found", "path"}
+    assert text.index("Hosted acceptance failed") < text.index(cand["full"]), "candidate upload must follow acceptance"
+    return steps
+
+
 def test_workflow_uploads_only_allowlisted_metadata():
-    block = WORKFLOW[WORKFLOW.index("actions/upload-artifact"):]
-    uploaded = re.findall(r"qa-report/([\w.-]+)", block)
+    steps = check_upload_contract(WORKFLOW)
+    uploaded = [p.rsplit("/", 1)[1] for p in steps[METADATA_ARTIFACT]["paths"]]
     assert set(uploaded) == set(ha.UPLOAD_ALLOWLIST) | {"installer.build.json", "source-zip.json"}
-    assert not re.search(r"(?i)\.(exe|dll|gguf|onnx|sqlite3?|db|log|zip)\b", block)
+    assert not re.search(r"(?i)\.(exe|dll|gguf|onnx|sqlite3?|db|log|zip)\b", steps[METADATA_ARTIFACT]["body"])
+
+
+def _edit_step(text, artifact, old, new):
+    full = upload_steps(text)[artifact]["full"]
+    assert old in full, (artifact, old)
+    return text.replace(full, full.replace(old, new, 1), 1)
+
+
+def _add_path(text, artifact, path):
+    full = upload_steps(text)[artifact]["full"]
+    last = upload_steps(text)[artifact]["paths"][-1]
+    return text.replace(full, full.replace("            " + last + "\n", "            " + last + "\n            " + path + "\n", 1), 1)
+
+
+EXTRA_STEP = ("      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2\n"
+              "        if: always()\n        with:\n          name: debug-dump\n          path: |\n"
+              "            ${{ runner.temp }}/qa-report/acceptance.json\n")
+
+
+@pytest.mark.parametrize("mutate", [
+    pytest.param(lambda t: t.replace("ea165f8d65b6e75b540449e92b4886f43607fa02", "0" * 40), id="unapproved-sha-on-both-uploads"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "if: success()", "if: always()"), id="candidate-always"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "        if: success()\n", ""), id="candidate-no-condition"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "if-no-files-found: error", "if-no-files-found: warn"), id="candidate-missing-ok"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "retention-days: 14", "retention-days: 90"), id="candidate-retention"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "ea165f8d65b6e75b540449e92b4886f43607fa02", "v4"), id="candidate-unpinned"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "dist/Ryoshu-*-windows-x64-setup.exe", "dist/"), id="candidate-whole-dist"),
+    pytest.param(lambda t: _edit_step(t, CANDIDATE_ARTIFACT, "Ryoshu-*-windows-x64-setup.exe", "*"), id="candidate-wildcard"),
+    pytest.param(lambda t: _add_path(t, CANDIDATE_ARTIFACT, "${{ runner.temp }}/qa-work/"), id="candidate-private-work"),
+    pytest.param(lambda t: _add_path(t, CANDIDATE_ARTIFACT, "${{ runner.temp }}/qa-work/logs/setup-0.stdout.log"), id="candidate-log"),
+    pytest.param(lambda t: _add_path(t, CANDIDATE_ARTIFACT, "${{ runner.temp }}/dist/Ryoshu-1.4.1-windows-x64-setup.build.json"), id="candidate-extra-file"),
+    pytest.param(lambda t: _add_path(t, METADATA_ARTIFACT, "${{ runner.temp }}/dist/Ryoshu-1.4.1-windows-x64-setup.exe"), id="metadata-exe"),
+    pytest.param(lambda t: _add_path(t, METADATA_ARTIFACT, "${{ runner.temp }}/qa-work/QA/StudioYebisu/ReceiptLedger/runtime/"), id="metadata-runtime"),
+    pytest.param(lambda t: _edit_step(t, METADATA_ARTIFACT, "if: always()", "if: success()"), id="metadata-not-always"),
+    pytest.param(lambda t: _edit_step(t, METADATA_ARTIFACT, "name: hosted-windows-acceptance", "name: windows-release-candidate"), id="duplicate-name"),
+    pytest.param(lambda t: t.replace("      - name: Collect allowlisted metadata only\n", EXTRA_STEP + "      - name: Collect allowlisted metadata only\n", 1), id="third-upload"),
+    pytest.param(lambda t: t + "      - name: other\n        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n", id="unparsed-upload-form"),
+])
+def test_upload_contract_rejects_widened_or_extra_uploads(mutate):
+    check_upload_contract(WORKFLOW)            # the real workflow satisfies the contract...
+    changed = mutate(WORKFLOW)
+    assert changed != WORKFLOW
+    with pytest.raises(AssertionError):         # ...and each widening fails through the same helper
+        check_upload_contract(changed)
 
 
 def test_build_script_still_never_downloads_or_runs_toolchain_installers():
