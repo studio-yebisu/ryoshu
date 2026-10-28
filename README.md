@@ -6,7 +6,7 @@
 
 Indra OCRで文字を読み、Ryoshuが必要時に起動するllama.cppサーバーと固定した公式Qwen3-4B GGUFが科目候補を作ります。AIはCPUで動作し、接続はループバックと起動ごとの認証キーに限定されます。Ollamaは不要で、領収書の処理とCSV作成はローカルPC上で行います。
 
-**v1.4.2** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.2/Ryoshu-1.4.2-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
+**v1.4.2** · [紹介・ダウンロードページ](https://studio-yebisu.github.io/ryoshu/) · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.2/Ryoshu-1.4.2-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
 
 v1.4.2では、CSV作成履歴の重複判定を索引化し、全履歴の読み取りとJSONの展開を繰り返さないよう修正しました。同じ出力対象の一覧は保存を共有しつつ、履歴はすべて保持します。100件の処理時間と精度はv1.4.0の[検証記録](docs/testing/v1.4/README.md)の結果で、v1.4.2で新たに100件を実行したものではありません。
 
