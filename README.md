@@ -14,11 +14,11 @@ v1.4.2では、CSV作成履歴の重複判定を索引化し、全履歴の読�
 
 ## 実際の操作と検証結果を動画で見る
 
-[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
+[![実際の操作と検証結果を動画で見る](docs/images/ryoshu-v1.4.0-poster.png)](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0-notice.mp4)
 
-Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り込み、OCRと別のローカルモデルで処理した後、原本の拡大・照合、科目の手動変更、お気に入りの追加と解除、1件の確認と4件の未確認、汎用CSV1行の保存を収録しています。新しい100件の検証結果も紹介します。映像はOpus 5.5、表示する製品文案はKimiが制作しました。
+Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り込み、OCRと別のローカルモデルで処理した後、原本の拡大・照合、科目の手動変更、お気に入りの追加と解除、1件の確認と4件の未確認、汎用CSV1行の保存を収録しています。新しい100件の検証結果も紹介します。映像はOpus 5.5、表示する製品文案はKimiが制作しました。終盤では、動作要件・補助の範囲・税務相談を説明しています。
 
-[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4)
+[紹介動画を再生](https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0-notice.mp4)
 
 ## 導入から最初の確認まで
 
