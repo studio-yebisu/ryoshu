@@ -20,9 +20,9 @@ llama.cpp実行環境とQwenモデルも、固定したサイズとSHA-256の照
 
 ## ソースZIPから始める
 
-1. v1.4.0の[ソースZIP](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-source.zip)を新しいフォルダーへ展開し、Ryoshu.cmdをダブルクリックします。
+1. v1.4.0の[ソースZIP](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.0/Ryoshu-1.4.0-source.zip)をダウンロードし、新しいフォルダーへ展開します。
 2. `Ryoshu.cmd`をダブルクリックします。OllamaやLM Studioの導入は不要です。
-3. モデルの利用条件を確認して初回準備を進め、ブラウザーで復元用パスワードを設定します。
+3. モデルの利用条件とMicrosoft Visual C++の利用条件を確認して初回準備を進め、その後ブラウザーで復元用パスワードを設定します。
 
 初回準備だけをやり直す場合は`初回セットアップ.cmd`を使います。取得できない場合はネット接続・保存先・空き容量を確かめて再試行してください。準備後の読み取りで外部OCRや外部AIへ自動的に切り替わることはありません。
 
