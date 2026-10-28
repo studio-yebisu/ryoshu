@@ -23,7 +23,7 @@ RELEASE = ROOT / 'site/release.json'
 SOURCE = ROOT / 'receipt_ledger/__init__.py'
 OUTPUT = ROOT / 'index.html'
 REPO = 'https://github.com/studio-yebisu/ryoshu'
-MOVIE_URL = 'https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4'
+MOVIE_URL = 'https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0-notice.mp4'
 PLACEHOLDER = 'TODO_KIMI'
 FIELD = re.compile(r'\{\{([a-z0-9_.]+)\}\}')
 # ASCII digits only: \d also matches non-ASCII digits, which int() accepts but release URLs do not.
