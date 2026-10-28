@@ -6,9 +6,9 @@
 
 Indra OCRで文字を読み、Ryoshuが必要時に起動するllama.cppサーバーと固定した公式Qwen3-4B GGUFが科目候補を作ります。AIはCPUで動作し、接続はループバックと起動ごとの認証キーに限定されます。Ollamaは不要で、領収書の処理とCSV作成はローカルPC上で行います。
 
-**v1.4.1** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.1/Ryoshu-1.4.1-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
+**v1.4.2** · [Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.2/Ryoshu-1.4.2-windows-x64-setup.exe) · [公開済みの配布一覧](https://github.com/studio-yebisu/ryoshu/releases) · [変更履歴](CHANGELOG.md) · [Ryoshu v1.4 架空100件の検証記録](docs/testing/v1.4/README.md)
 
-v1.4.1では、検索後のCSV一覧で領収書の詳細から戻った際のキーボードフォーカスを、元の領収書の行に保持するよう修正しました。100件の処理時間と精度はv1.4.0の[検証記録](docs/testing/v1.4/README.md)の結果で、v1.4.1で新たに100件を実行したものではありません。
+v1.4.2では、CSV作成履歴の重複判定を索引化し、全履歴の読み取りとJSONの展開を繰り返さないよう修正しました。同じ出力対象の一覧は保存を共有しつつ、履歴はすべて保持します。100件の処理時間と精度はv1.4.0の[検証記録](docs/testing/v1.4/README.md)の結果で、v1.4.2で新たに100件を実行したものではありません。
 
 ![Ryoshu 1.4.0の読み取り結果画面。架空領収書5件の原本・読み取った内容・勘定科目の候補を3列で表示し、すべて未確認](docs/images/ryoshu-v1.4.0-results.jpg)
 
@@ -22,7 +22,7 @@ Ryoshu v1.4の実操作を録画した動画です。架空のPDF5件を取り�
 
 ## 導入から最初の確認まで
 
-1. v1.4.1の[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.1/Ryoshu-1.4.1-windows-x64-setup.exe)をダウンロードして実行します。現在のWindows利用者ごとにインストールされるため、管理者権限は不要です。
+1. v1.4.2の[Windowsインストーラー](https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.2/Ryoshu-1.4.2-windows-x64-setup.exe)をダウンロードして実行します。現在のWindows利用者ごとにインストールされるため、管理者権限は不要です。
 2. スタートメニューの「Ryoshu」を開き、モデルとMicrosoftの利用条件を確認して初回準備を進めます。OllamaやLM Studioは不要です。Python 3.12.15、固定版の依存、OCRモデル、llama.cpp実行環境、Microsoft Visual C++ v14の公式パッケージと利用条件、約2.5GBのQwenモデルを取得するため、ネット接続と数GB以上の空き容量が必要です。Microsoftパッケージは実行せず、明示された同意がある場合だけDLLをRyoshu専用の保存先へ配置します。Visual StudioやWindows全体へのVC++導入は不要です。インストーラーにこれらの実行環境・Microsoft DLL・モデルは含まれません。
 3. ブラウザーで12〜256文字の復元用パスワードを設定します。普段はWindowsが帳簿を開くため、起動のたびに入力する必要はありません。
 
@@ -50,7 +50,7 @@ PCの移行・Windowsアカウントの変更・バックアップ復元には�
 
 ## 動作要件
 
-Ryoshu v1.4.1の対象はWindows 11 x64です。OCRと科目候補の作成はローカルPC上のCPUで行い、OllamaやLM Studioの導入は不要です。最低RAMは未測定です。インストーラーの受入環境と検証範囲は別の記録で確認してください。Windows 10は未検証で、動作対象として案内していません。JavaScriptが使えるブラウザーが必要です。Windows on ARM（arm64）は対象外です。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
+Ryoshu v1.4.2の対象はWindows 11 x64です。OCRと科目候補の作成はローカルPC上のCPUで行い、OllamaやLM Studioの導入は不要です。最低RAMは未測定です。インストーラーの受入環境と検証範囲は別の記録で確認してください。Windows 10は未検証で、動作対象として案内していません。JavaScriptが使えるブラウザーが必要です。Windows on ARM（arm64）は対象外です。スマホとLAN共有は対象外です。[要件と確認環境](docs/REQUIREMENTS.md)
 
 ## 検証記録を読む
 
