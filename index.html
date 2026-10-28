@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ryoshu｜Windowsの領収書読み取り・勘定科目候補</title>
+<meta name="description" content="Windows上で領収書のPDFや画像を読み取り、日付・金額・勘定科目候補を会計ソフト向けCSVに出力。読み取りと科目推定はローカルPC上のCPUで動作し、外部AIアカウントやAPIキーは不要です。">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="docs/images/ryoshu.png">
+<style>
+:root{
+  --paper:#fbfaf7;--ink:#16181d;--muted:#555a64;--line:#e3e0d8;
+  --accent:#3a43c0;--accent-ink:#2a318f;--focus:#c2410c;
+  --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 var(--sans);overflow-wrap:anywhere;font-feature-settings:"palt" 0}
+a{color:var(--accent-ink);text-underline-offset:.2em}
+a:hover{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:1rem;top:-4rem;background:var(--ink);color:#fff;padding:.6rem 1rem;border-radius:6px;z-index:10}
+.skip:focus{top:1rem}
+.wrap{width:min(100% - 2.5rem,68rem);margin-inline:auto}
+header.top{padding:1.25rem 0}
+.brand{font-weight:700;font-size:1.0625rem;letter-spacing:.02em;color:var(--ink);text-decoration:none}
+
+.hero{padding:clamp(2rem,7vw,5rem) 0 clamp(2rem,5vw,3.5rem)}
+.hero h1{margin:0;font-size:clamp(2rem,1.2rem + 3.6vw,3.25rem);line-height:1.3;letter-spacing:.01em;font-weight:800;max-width:18em}
+.lead{margin:1.25rem 0 0;font-size:clamp(1.0625rem,1rem + .4vw,1.25rem);color:var(--muted);max-width:34em}
+.get{margin-top:2rem;display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.25rem}
+.btn{display:inline-flex;align-items:center;gap:.6rem;min-height:52px;padding:.75rem 1.5rem;border-radius:10px;
+  background:var(--accent);color:#fff;font-weight:700;font-size:1.0625rem;text-decoration:none;
+  box-shadow:0 1px 0 rgba(0,0,0,.08),0 6px 18px -8px rgba(58,67,192,.55);transition:background-color .15s}
+.btn:hover{background:var(--accent-ink);color:#fff}
+.btn svg{flex:none}
+.meta{margin:0;color:var(--muted);font-size:.9375rem;line-height:1.6}
+.meta strong{color:var(--ink);font-weight:700}
+.sub{margin:1rem 0 0;font-size:.9375rem;color:var(--muted);max-width:40em}
+.sub a{white-space:nowrap}
+
+/* block axis only: horizontal centering comes from .wrap's margin-inline:auto */
+figure.shot{margin-block:0 clamp(3rem,8vw,5.5rem)}
+.frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 24px 48px -28px rgba(22,24,29,.35)}
+.frame img{display:block;width:100%;height:auto;aspect-ratio:16/9}
+figcaption{margin-top:.75rem;font-size:.875rem;color:var(--muted)}
+
+h2{font-size:1.375rem;line-height:1.4;margin:0 0 1.5rem;letter-spacing:.01em}
+section.block{padding:0 0 clamp(3rem,7vw,4.5rem)}
+ol.flow{list-style:none;margin:0;padding:0;display:grid;gap:1.5rem 2rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));counter-reset:s}
+ol.flow li{counter-increment:s;border-top:2px solid var(--ink);padding-top:1rem}
+ol.flow li::before{content:counter(s,decimal-leading-zero);display:block;font:700 .8125rem/1 var(--mono);color:var(--accent);margin-bottom:.6rem}
+ol.flow h3{margin:0 0 .35rem;font-size:1.0625rem;line-height:1.5}
+ol.flow p{margin:0;color:var(--muted)}
+ul.notes{margin:0;padding:0;list-style:none;max-width:44rem}
+ul.notes li{padding:.85rem 0;border-bottom:1px solid var(--line)}
+ul.notes li:first-child{border-top:1px solid var(--line)}
+
+footer.bottom{border-top:1px solid var(--line);padding:2rem 0 3rem;font-size:.9375rem;color:var(--muted)}
+footer.bottom ul{list-style:none;margin:0 0 1rem;padding:0;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem}
+footer.bottom a{display:inline-block;padding:.35rem 0}
+footer.bottom p{margin:0}
+
+@media (max-width:30rem){
+  .btn{width:100%;justify-content:center}
+  .get{flex-direction:column;align-items:stretch}
+  .meta{text-align:center}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media (forced-colors:active){.btn{border:2px solid ButtonText}}
+@media print{.btn{box-shadow:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#download">ダウンロードへ移動</a>
+<header class="top"><div class="wrap"><a class="brand" href="./">Ryoshu</a></div></header>
+<main>
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <h1 id="hero-title">Windowsで領収書を読み取り、CSVへ</h1>
+    <p class="lead">領収書のPDFや画像をまとめて読み取り、勘定科目候補を会計ソフト向けCSVに出力する、ローカルPC上のCPUで動くWindowsアプリです。</p>
+    <div class="get" id="download">
+      <a class="btn" href="https://github.com/studio-yebisu/ryoshu/releases/download/v1.4.2/Ryoshu-1.4.2-windows-x64-setup.exe" download>
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 2v11m0 0-4.5-4.5M10 13l4.5-4.5M3 17h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>インストーラーをダウンロード</span>
+      </a>
+      <p class="meta"><strong>v1.4.2</strong> · Windows 11 64ビット（x64）・専用GPU不要</p>
+    </div>
+    <p class="sub">初回セットアップでは、実行環境とモデルのダウンロードにインターネット接続と、表示されるモデルライセンス・Microsoftの条項への同意が必要です。 <a href="https://github.com/studio-yebisu/ryoshu/blob/main/docs/INSTALL.md">インストール手順</a></p>
+  </section>
+
+  <figure class="shot wrap">
+    <div class="frame"><img src="docs/images/ryoshu-v1.4.0-results.jpg" width="1280" height="720" alt="Ryoshu v1.4.0の結果画面。架空の領収書のサムネイル、読み取った取引先・日付・金額、未確認の勘定科目候補が3列に表示されています。" decoding="async"></div>
+    <figcaption>v1.4.0の結果画面（架空の領収書を使用）</figcaption>
+  </figure>
+
+  <section class="block wrap" aria-labelledby="flow-title">
+    <h2 id="flow-title">使い方</h2>
+    <ol class="flow">
+      <li><h3>領収書を読み込む</h3><p>PDFや画像の領収書を、複数まとめて読み込みます。</p></li>
+      <li><h3>内容を確認・修正</h3><p>拡大した原本と読み取り結果、勘定科目候補を見比べて修正。科目は一覧から選択でき、お気に入りも使えます。</p></li>
+      <li><h3>CSVを出力</h3><p>汎用、freee、マネーフォワード クラウド、弥生のCSV形式に対応しています。</p></li>
+    </ol>
+  </section>
+
+  <section class="block wrap" aria-labelledby="notes-title">
+    <h2 id="notes-title">ご利用前の注意</h2>
+    <ul class="notes">
+      <li>読み取りと勘定科目候補の推定はローカルPC上のCPUで実行。外部AIアカウントやAPIキーは不要です。</li>
+      <li>保存した帳簿と領収書の原本は暗号化されます。エクスポートしたCSVは暗号化されません。</li>
+      <li>読み取り結果と勘定科目候補は確定値ではありません。最終確認はご自身と税理士で行ってください。</li>
+      <li>スマートフォンやLANからの利用には対応していません。最小メモリ要件は未測定です。</li>
+    </ul>
+  </section>
+</main>
+<footer class="bottom">
+  <div class="wrap">
+    <ul>
+      <li><a href="https://studio-yebisu.github.io/yaoyorozu-ai-toolbox/media/ryoshu-copy-renewal-20261026/ryoshu-promo-v1.4.0.mp4">紹介動画（v1.4・約3分）</a></li>
+      <li><a href="docs/testing/v1.4/">v1.4.0の検証記録（架空の領収書100件）</a></li>
+      <li><a href="https://github.com/studio-yebisu/ryoshu/releases/tag/v1.4.2">リリースノート</a></li>
+      <li><a href="https://github.com/studio-yebisu/ryoshu">ソースコード</a></li>
+    </ul>
+    <p>Studio Yebisu が公開 · v1.4.2</p>
+  </div>
+</footer>
+</body>
+</html>
